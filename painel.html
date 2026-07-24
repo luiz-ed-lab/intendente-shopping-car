@@ -420,10 +420,6 @@
         <div class="lg" id="edLogoPrev" style="width:70px;height:46px">🏪</div>
         <input type="file" id="fLogo" accept="image/*" onchange="lerLogo(this)" style="font-size:.82rem;flex:1">
       </div>
-      <div class="hint">
-        <svg class="ic sm" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/><path d="M9 21h6M10 17v4M14 17v4"/></svg>
-        Ao salvar, o robô lê o estoque da loja, baixa fotos e logo, e publica no site automaticamente. A partir daí a atualização é diária.
-      </div>
     </div>
     <div class="mfoot">
       <button class="btn ghost" onclick="closeM('mAdd')">Cancelar</button>
@@ -488,7 +484,7 @@ async function carregarPainel(){
 }
 
 const initials=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
-const lgHtml=(id,file,name)=>{const src=(file&&String(file).startsWith('data:'))?file:(L+(file||id+'_logo.png'));return `<img src="${src}" alt="${name}" onerror="this.parentNode.textContent='${initials(name)}'">`;};
+const lgHtml=(id,file,name)=>{const src=(file&&/^(data:|https?:)/.test(String(file)))?file:(L+(file||id+'_logo.png'));return `<img src="${src}" alt="${name}" onerror="this.parentNode.textContent='${initials(name)}'">`;};
 const waIco='<svg class="ic sm" viewBox="0 0 24 24" style="color:#25a35a"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5z"/></svg>';
 const fmIco='<svg class="ic sm" viewBox="0 0 24 24" style="color:#3ba0d6"><path d="M4 4h16v12H5.2L4 17.5z"/></svg>';
 
