@@ -235,7 +235,7 @@
   .nores{background:#fff;border-radius:16px;padding:40px;text-align:center;color:var(--muted);box-shadow:var(--shadow)}
 
   /* ============ VEÍCULO ============ */
-  .vdet{display:grid;grid-template-columns:minmax(0,760px) 1fr;gap:22px;padding-top:30px;align-items:start}
+  .vdet{display:grid;grid-template-columns:minmax(0,860px) 1fr;gap:22px;padding-top:30px;align-items:start}
   @media(max-width:1000px){.vdet{grid-template-columns:1fr}}
   .gal{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
   /* foto SEMPRE 4:3, mesmo tamanho em todo anúncio; a imagem preenche cortando (cover), sem depender do pixel/formato dela */
@@ -1072,7 +1072,7 @@ function abrirVeiculo(i){
   document.getElementById('dComb').textContent=v.comb;
   document.getElementById('dLojaNome').textContent=v.loja;
   document.getElementById('dLojaAddr').textContent=(lj.addr||'Estrada Intendente Magalhães')+' · Vila Valqueire';
-  const logoUrl=L+(lj.logo||lj.id+'_logo.png');
+  const logoUrl=(lj.logo&&String(lj.logo).startsWith('data:'))?lj.logo:L+(lj.logo||lj.id+'_logo.png');
   const lb=document.getElementById('dLojaLogo');lb.innerHTML='';
   const im=new Image();im.src=logoUrl;im.alt=v.loja;im.onerror=()=>{lb.textContent=initials(v.loja);};lb.appendChild(im);
   setFotos((v.fotos&&v.fotos.length)?v.fotos:[v.img]);
@@ -1169,6 +1169,8 @@ function mapApi(v){
 }
 async function carregarDados(){
   try{
+    const rl = await fetch('/api/lojas?path=lojas').then(r=>r.json()).catch(()=>[]);
+    if(Array.isArray(rl)) rl.forEach(l=>{ const c=lojaMap[l.nome]||(lojaMap[l.nome]={}); c.id=l.id; if(l.logo_url) c.logo=l.logo_url; if(!c.addr&&l.endereco) c.addr=l.endereco; if(!c.wa&&l.whatsapp) c.wa=l.whatsapp; });
     const rv = await fetch('/api/veiculos?path=veiculos').then(r=>r.json());
     if(Array.isArray(rv) && rv.length){
       veiculos = rv.map(mapApi);
