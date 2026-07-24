@@ -54,7 +54,9 @@ async function lerLoja(autocertoId) {
 }
 async function lerDetalhe(slug, anuncioId, lojaId) {
   const $ = cheerio.load(await get(`${BASE}/Veiculo/${slug}/${anuncioId}/detalhes`));
-  const cats = $('a[href*="/carros/"][href*="/estoque"]').map((_, e) => $(e).text().trim()).get().filter(Boolean);
+  // pega marca/modelo do breadcrumb, ignorando links de navegação ("Voltar ao resultado", "veja mais"...)
+  const cats = $('a[href*="/carros/"][href*="/estoque"]').map((_, e) => $(e).text().trim()).get()
+    .filter(t => t && !/voltar ao resultado|veja mais|nova busca|imprimir|buscar/i.test(t));
   const ficha = $('.dados_anuncio').text().replace(/\s+/g, ' ');
   const km = (ficha.match(/Km\s*(\d+)/i) || [])[1];
   const anos = ficha.match(/Ano\s*(\d{4})\/(\d{4})/i);
@@ -157,8 +159,14 @@ async function rotaImportar(req, res) {
 
 // ---------------- ROTEADOR ----------------
 export default async function handler(req, res) {
-  const path = req.query.path || [];
-  const rota = Array.isArray(path) ? path[0] : path;
+  // deriva a rota do catch-all OU direto da URL (mais robusto)
+  let rota;
+  const p = req.query && req.query.path;
+  if (Array.isArray(p)) rota = p[0];
+  else if (typeof p === 'string' && p) rota = p;
+  if (!rota) {
+    try { rota = new URL(req.url, 'http://x').pathname.replace(/^\/api\//, '').split('/').filter(Boolean)[0]; } catch (_) {}
+  }
   try {
     if (rota === 'lojas') return await rotaLojas(req, res);
     if (rota === 'veiculos') return await rotaVeiculos(req, res);
@@ -169,3 +177,4 @@ export default async function handler(req, res) {
     res.status(500).json({ erro: e.message });
   }
 }
+ 
