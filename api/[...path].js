@@ -3,33 +3,51 @@
 //  Uma única função "pega-tudo" que atende:
 //    GET  /api/lojas            -> lista lojas ativas
 //    POST /api/lojas            -> cadastra loja
-//    GET  /api/veiculos?...     -> busca de veículos com filtros
-//    GET/POST /api/leads       -> lista/grava leads
+//    PATCH/DELETE /api/lojas    -> edita / remove loja
+//    GET  /api/veiculos?...     -> busca de veículos (filtros)
+//    POST /api/veiculos         -> mostra/oculta um veículo no site
+//    GET/POST /api/leads        -> lista / grava lead
 //    GET  /api/importar?loja=ID -> roda o robô (cron de hora em hora)
 //
-//  Robô VALIDADO contra o HTML real da Luma Car (52 veículos lidos ok).
+//  O robô lê o SITE PRÓPRIO de cada loja (ex.: autobarra.com.br) e,
+//  por compatibilidade, também o portal por ID numérico (Luma Car #285).
 // ============================================================
 import { Pool } from '@neondatabase/serverless';
 import * as cheerio from 'cheerio';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const query = (t, p) => pool.query(t, p);
-const BASE = 'https://intendenteshoppingcar.com.br';
+const PORTAL = 'https://intendenteshoppingcar.com.br';
 const pausa = ms => new Promise(r => setTimeout(r, ms));
 
-// ---------------- ROBÔ LEITOR ----------------
+// garante coluna "oculto" (para o admin esconder um carro sem que a sync o traga de volta)
+let migrado = false;
+async function migra() {
+  if (migrado) return;
+  try { await query('alter table veiculos add column if not exists oculto boolean default false'); } catch (_) {}
+  migrado = true;
+}
+
+// ---------------- utilidades ----------------
 async function get(url) {
-  const r = await fetch(url, { headers: { 'User-Agent': 'ACEIMA-Importer/1.0 (+contato ACEIMA)' } });
+  const r = await fetch(url, { headers: { 'User-Agent': 'ACEIMA-Importer/1.0 (+contato ACEIMA)' }, redirect: 'follow' });
   if (!r.ok) throw new Error('HTTP ' + r.status + ' em ' + url);
   return await r.text();
 }
+function precoDe(txt) { const m = (txt || '').match(/R\$\s*([\d.]+),/); return m ? parseInt(m[1].replace(/\D/g, '')) : null; }
+function intDe(m) { return m ? parseInt(String(m[1]).replace(/\D/g, '')) : null; }
+function uniqTexts($, sel) { return [...new Set($(sel).map((_, e) => $(e).text().trim()).get().filter(Boolean))]; }
+
 function parseSlug(slug) {
   const partes = slug.split('-');
   let ano = null;
   if (/^\d{4}$/.test(partes[partes.length - 1])) ano = parseInt(partes.pop());
-  const combs = ['flex', 'gasolina', 'diesel', 'alcool', 'eletrico', 'hibrido'];
+  const combs = ['flex', 'gasolina', 'diesel', 'alcool', 'eletrico', 'hibrido', 'gnv'];
   let combustivel = null;
-  if (combs.includes(partes[partes.length - 1])) combustivel = partes.pop();
+  while (partes.length && (combs.includes(partes[partes.length - 1]) || partes[partes.length - 1] === 'e')) {
+    const pp = partes.pop();
+    if (pp !== 'e') combustivel = pp;
+  }
   return {
     modelo: (partes[0] || '').toUpperCase(),
     versao: partes.slice(1).join(' ').toUpperCase(),
@@ -37,39 +55,101 @@ function parseSlug(slug) {
     ano
   };
 }
-async function lerLoja(autocertoId) {
-  const $ = cheerio.load(await get(`${BASE}/Loja/x/${autocertoId}/info`));
+
+// decide a origem do estoque a partir do que o admin cadastrou
+function fonteDaLoja(chave) {
+  const s = String(chave || '').trim();
+  if (/^https?:\/\//i.test(s) || /[a-z]\.[a-z]{2,}/i.test(s)) {
+    let u = /^https?:\/\//i.test(s) ? s : 'https://' + s;
+    let base;
+    try { base = new URL(u).origin; } catch (_) { base = u.replace(/\/(index|veiculos).*/i, ''); }
+    return { tipo: 'site', base };
+  }
+  return { tipo: 'portal', base: PORTAL, portalId: s };
+}
+
+// ---------------- ROBÔ: site próprio da loja ----------------
+async function lerSite(base) {
+  const $ = cheerio.load(await get(base + '/Veiculos'));
+  const marcas = uniqTexts($, 'a[href*="marca="]').map(t => t.toUpperCase());
+  const modelos = uniqTexts($, 'a[href*="modelo="]').map(t => t.toUpperCase()).sort((a, b) => b.length - a.length);
+  const vistos = new Set();
+  const itens = [];
+  $('a[href*="/Veiculo/"][href*="/detalhes"]').each((_, a) => {
+    const $a = $(a);
+    const href = $a.attr('href') || '';
+    const m = href.match(/\/Veiculo\/([^/]+)\/(\d+)\/detalhes/);
+    if (!m) return;
+    const id = m[2];
+    const titulo = $a.text().trim().replace(/\s+/g, ' ');
+    if (!titulo || titulo.length < 3 || /mais detalhes|financiamento/i.test(titulo)) return; // ignora o link da imagem e os botões
+    if (vistos.has(id)) return;
+    vistos.add(id);
+    // sobe até o cartão que contém o preço
+    let card = $a;
+    for (let k = 0; k < 6; k++) { const pr = card.parent(); if (!pr || !pr.length) break; card = pr; if (/R\$/.test(card.text()) && card.find('img').length) break; }
+    const ctxt = card.text().replace(/\s+/g, ' ');
+    let img = card.find('img').first().attr('src') || null; if (img && /embreve/i.test(img)) img = null;
+    const T = titulo.toUpperCase();
+    const marca = marcas.find(x => T.startsWith(x)) || titulo.split(' ')[0].toUpperCase();
+    const resto = titulo.slice(marca.length).trim();
+    const R = resto.toUpperCase();
+    const modelo = modelos.find(x => R.startsWith(x)) || resto.split(' ')[0].toUpperCase();
+    const versao = resto.slice(modelo.length).trim();
+    const sl = parseSlug(m[1]);
+    itens.push({
+      anuncioId: id, slug: m[1], img,
+      marca, modelo, versao,
+      preco: precoDe(ctxt),
+      km: intDe(ctxt.match(/Km\s*([\d.]+)/i)),
+      cambio: (ctxt.match(/C[âa]mbio\s*([A-Za-zÁ-ÿ]+)/i) || [])[1] || null,
+      combustivel: sl.combustivel,
+      ano: sl.ano || intDe(ctxt.match(/Ano\s*(\d{4})/i))
+    });
+  });
+  return itens;
+}
+// detalhe do site próprio: só enriquece fotos + opcionais
+async function detalheSite(base, slug, id) {
+  let html; try { html = await get(`${base}/Veiculo/${slug}/${id}/detalhes`); } catch (_) { return {}; }
+  const $ = cheerio.load(html);
+  const fotos = [...new Set($(`img[src*="/fotos/"][src*="/${id}/"]`).map((_, e) => $(e).attr('src')).get())].filter(u => u && !/embreve/i.test(u));
+  if (!fotos.length) return {}; // provavelmente redirecionou (carro vendido) -> mantém dados da lista
+  const opcionais = $('.add-features-list li').map((_, e) => $(e).text().trim()).get().filter(Boolean);
+  return { fotos, opcionais };
+}
+
+// ---------------- ROBÔ: portal Intendente (por ID) ----------------
+async function lerPortal(base, portalId) {
+  const $ = cheerio.load(await get(`${base}/Loja/x/${portalId}/info`));
   const itens = [];
   $('.result-item').each((_, card) => {
     const $c = $(card);
     const a = $c.find('a[href*="/Veiculo/"][href*="/detalhes"]').first();
     const m = (a.attr('href') || '').match(/\/Veiculo\/([^/]+)\/(\d+)\/detalhes/);
     if (!m) return;
-    const precoTxt = $c.find('.price').first().text();
-    const preco = precoTxt ? Math.round(parseInt(precoTxt.replace(/[^\d]/g, '')) / 100) : null;
+    const preco = precoDe($c.find('.price').first().text() + ',');
     const img = $c.find('img').first().attr('src') || null;
     itens.push({ anuncioId: m[2], slug: m[1], preco, img, ...parseSlug(m[1]) });
   });
   return itens;
 }
-async function lerDetalhe(slug, anuncioId, lojaId) {
-  const $ = cheerio.load(await get(`${BASE}/Veiculo/${slug}/${anuncioId}/detalhes`));
-  // pega marca/modelo do breadcrumb, ignorando links de navegação ("Voltar ao resultado", "veja mais"...)
+async function detalhePortal(base, slug, id) {
+  const $ = cheerio.load(await get(`${base}/Veiculo/${slug}/${id}/detalhes`));
   const cats = $('a[href*="/carros/"][href*="/estoque"]').map((_, e) => $(e).text().trim()).get()
     .filter(t => t && !/voltar ao resultado|veja mais|nova busca|imprimir|buscar/i.test(t));
   const ficha = $('.dados_anuncio').text().replace(/\s+/g, ' ');
-  const km = (ficha.match(/Km\s*(\d+)/i) || [])[1];
   const anos = ficha.match(/Ano\s*(\d{4})\/(\d{4})/i);
-  const cambio = (ficha.match(/C[aâ]mbio\s*([A-Za-zÁ-ÿ]+)/i) || [])[1];
-  const combustivel = (ficha.match(/Combust[ií]vel\s*([A-Za-zÁ-ÿ]+)/i) || [])[1];
-  const opcionais = $('.add-features-list li').map((_, e) => $(e).text().trim()).get().filter(Boolean);
-  const fotos = [...new Set($(`img[src*="/fotos/${lojaId}/${anuncioId}/"]`).map((_, e) => $(e).attr('src')).get())];
+  const fotos = [...new Set($(`img[src*="/fotos/"][src*="/${id}/"]`).map((_, e) => $(e).attr('src')).get())].filter(u => u && !/embreve/i.test(u));
   return {
     marca: cats[0] || null, modelo: cats[1] || null,
-    km: km ? parseInt(km) : null,
+    km: intDe(ficha.match(/Km\s*(\d+)/i)),
     ano_fabricacao: anos ? parseInt(anos[1]) : null,
     ano_modelo: anos ? parseInt(anos[2]) : null,
-    cambio: cambio || null, combustivel: combustivel || null, opcionais, fotos
+    cambio: (ficha.match(/C[aâ]mbio\s*([A-Za-zÁ-ÿ]+)/i) || [])[1] || null,
+    combustivel: (ficha.match(/Combust[ií]vel\s*([A-Za-zÁ-ÿ]+)/i) || [])[1] || null,
+    opcionais: $('.add-features-list li').map((_, e) => $(e).text().trim()).get().filter(Boolean),
+    fotos
   };
 }
 
@@ -88,12 +168,38 @@ async function rotaLojas(req, res) {
       [b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id, b.autocerto_url]);
     return res.status(201).json(loja);
   }
+  if (req.method === 'PATCH') {
+    const b = req.body || {};
+    if (!b.id) return res.status(400).json({ erro: 'id obrigatório' });
+    const { rows: [loja] } = await query(
+      `update lojas set nome=coalesce($2,nome), endereco=coalesce($3,endereco),
+         telefone=coalesce($4,telefone), whatsapp=coalesce($5,whatsapp),
+         email=coalesce($6,email), autocerto_id=coalesce($7,autocerto_id)
+       where id=$1 returning *`,
+      [b.id, b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id]);
+    return res.json(loja || { erro: 'loja não encontrada' });
+  }
+  if (req.method === 'DELETE') {
+    const id = (req.query && req.query.id) || (req.body && req.body.id);
+    if (!id) return res.status(400).json({ erro: 'id obrigatório' });
+    await query('update veiculos set ativo=false where loja_id=$1', [id]);
+    await query('delete from lojas where id=$1', [id]);
+    return res.json({ ok: true });
+  }
   res.status(405).end();
 }
 
 async function rotaVeiculos(req, res) {
+  await migra();
+  if (req.method === 'POST' || req.method === 'PATCH') {
+    const b = req.body || {};
+    if (!b.id) return res.status(400).json({ erro: 'id obrigatório' });
+    const oculto = b.oculto === true || b.ativo === false;
+    const { rows: [v] } = await query('update veiculos set oculto=$2 where id=$1 returning id, oculto', [b.id, oculto]);
+    return res.json({ ok: true, veiculo: v });
+  }
   const q = req.query || {};
-  const cond = ['v.ativo = true']; const p = [];
+  const cond = ['v.ativo = true', 'coalesce(v.oculto,false) = false']; const p = [];
   const add = (frag, val) => { p.push(val); cond.push(frag.replace('?', '$' + p.length)); };
   if (q.tipo) add('v.tipo = ?', q.tipo);
   if (q.marca) add('v.marca = ?', q.marca);
@@ -131,21 +237,28 @@ async function rotaLeads(req, res) {
 }
 
 async function rotaImportar(req, res) {
+  await migra();
   const soLoja = req.query.loja;
-  const semDetalhe = req.query.rapido === '1';
   const { rows: lojas } = soLoja
     ? await query('select * from lojas where ativa = true and id = $1', [soLoja])
     : await query('select * from lojas where ativa = true');
   const resultado = [];
   for (const loja of lojas) {
-    if (!loja.autocerto_id) { resultado.push({ loja: loja.nome, erro: 'sem autocerto_id' }); continue; }
+    const chave = loja.autocerto_url || loja.autocerto_id;
+    if (!chave) { resultado.push({ loja: loja.nome, erro: 'sem site/ID cadastrado' }); continue; }
     try {
-      const itens = await lerLoja(loja.autocerto_id);
+      const fonte = fonteDaLoja(chave);
+      const itens = fonte.tipo === 'site' ? await lerSite(fonte.base) : await lerPortal(fonte.base, fonte.portalId);
       await query('update veiculos set ativo = false where loja_id = $1', [loja.id]);
       for (const it of itens) {
-        let d = {};
-        if (!semDetalhe) { try { d = await lerDetalhe(it.slug, it.anuncioId, loja.autocerto_id); await pausa(250); } catch (_) {} }
-        const fotos = (d.fotos && d.fotos.length) ? d.fotos : (it.img ? [it.img] : []);
+        let extra = {};
+        try {
+          extra = fonte.tipo === 'site'
+            ? await detalheSite(fonte.base, it.slug, it.anuncioId)
+            : await detalhePortal(fonte.base, it.slug, it.anuncioId);
+          await pausa(120);
+        } catch (_) {}
+        const fotos = (extra.fotos && extra.fotos.length) ? extra.fotos : (it.img ? [it.img] : []);
         await query(
           `insert into veiculos (loja_id, autocerto_id, marca, modelo, versao, ano_fabricacao, ano_modelo, km, preco, cambio, combustivel, opcionais, fotos, ativo, sincronizado_em)
            values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,true,now())
@@ -155,12 +268,20 @@ async function rotaImportar(req, res) {
              km=excluded.km, preco=excluded.preco, cambio=excluded.cambio,
              combustivel=excluded.combustivel, opcionais=excluded.opcionais,
              fotos=excluded.fotos, ativo=true, sincronizado_em=now()`,
-          [loja.id, it.anuncioId, d.marca || null, d.modelo || it.modelo, it.versao,
-           d.ano_fabricacao || null, it.ano || d.ano_modelo || null, d.km || null,
-           it.preco, d.cambio || null, it.combustivel || d.combustivel || null, d.opcionais || [], fotos]);
+          [loja.id, it.anuncioId,
+           it.marca || extra.marca || null,
+           it.modelo || extra.modelo || null,
+           it.versao || null,
+           extra.ano_fabricacao || null,
+           it.ano || extra.ano_modelo || null,
+           (it.km != null ? it.km : extra.km) || null,
+           it.preco != null ? it.preco : null,
+           it.cambio || extra.cambio || null,
+           it.combustivel || extra.combustivel || null,
+           extra.opcionais || [], fotos]);
       }
       resultado.push({ loja: loja.nome, veiculos: itens.length });
-      await pausa(800);
+      await pausa(500);
     } catch (e) { resultado.push({ loja: loja.nome, erro: e.message }); }
   }
   res.json({ ok: true, lojas: resultado });
@@ -168,7 +289,6 @@ async function rotaImportar(req, res) {
 
 // ---------------- ROTEADOR ----------------
 export default async function handler(req, res) {
-  // deriva a rota do catch-all OU direto da URL (mais robusto)
   let rota;
   const p = req.query && req.query.path;
   if (Array.isArray(p)) rota = p[0];
@@ -186,4 +306,3 @@ export default async function handler(req, res) {
     res.status(500).json({ erro: e.message });
   }
 }
- 
