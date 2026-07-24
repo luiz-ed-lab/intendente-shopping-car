@@ -415,6 +415,11 @@
       <input id="fWa" placeholder="(21) 9...">
       <label>Endereço</label>
       <input id="fEnd" placeholder="Est. Intendente Magalhães, nº ...">
+      <label>Logo da loja (opcional)</label>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="lg" id="edLogoPrev" style="width:70px;height:46px">🏪</div>
+        <input type="file" id="fLogo" accept="image/*" onchange="lerLogo(this)" style="font-size:.82rem;flex:1">
+      </div>
       <div class="hint">
         <svg class="ic sm" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/><path d="M9 21h6M10 17v4M14 17v4"/></svg>
         Ao salvar, o robô lê o estoque da loja, baixa fotos e logo, e publica no site automaticamente. A partir daí a atualização é diária.
@@ -449,7 +454,7 @@ let lojasApi=[];   // dados crus das lojas (com id do banco)
 let lojas=[];      // exibição: [nome, whatsapp, chave, logoFile, nVeic, ultimaImp, dbId, origem]
 let veicAll=[];    // objetos crus dos veículos (com id do banco)
 let leads=[];      // [data, nome, tel, veiculo, loja, canal, status]
-let leadsVistos=false, editId=null;
+let leadsVistos=false, editId=null, editLogo=null;
 const money=n=>'R$ '+Number(n||0).toLocaleString('pt-BR');
 const icPen='<svg class="ic sm" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
 const icTrash='<svg class="ic sm" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/></svg>';
@@ -466,7 +471,7 @@ async function carregarPainel(){
     veicAll  = Array.isArray(ve)?ve:[];
     const lds  = Array.isArray(le)?le:[];
     const cont={}; veicAll.forEach(v=>{cont[v.loja_id]=(cont[v.loja_id]||0)+1;});
-    lojas = lojasApi.map(l=>[l.nome, l.whatsapp||l.telefone||'—', l.autocerto_id||l.autocerto_url||'', null, cont[l.id]||0, 'sincronizada', l.id, origemLabel(l.autocerto_id||l.autocerto_url)]);
+    lojas = lojasApi.map(l=>[l.nome, l.whatsapp||l.telefone||'—', l.autocerto_id||l.autocerto_url||'', l.logo_url||null, cont[l.id]||0, 'sincronizada', l.id, origemLabel(l.autocerto_id||l.autocerto_url)]);
     const smap={novo:'new',enviado:'sent',atendido:'done'};
     leads = lds.map(l=>{
       const d=new Date(l.criado_em);
@@ -483,7 +488,7 @@ async function carregarPainel(){
 }
 
 const initials=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
-const lgHtml=(id,file,name)=>`<img src="${L+(file||id+'_logo.png')}" alt="${name}" onerror="this.parentNode.textContent='${initials(name)}'">`;
+const lgHtml=(id,file,name)=>{const src=(file&&String(file).startsWith('data:'))?file:(L+(file||id+'_logo.png'));return `<img src="${src}" alt="${name}" onerror="this.parentNode.textContent='${initials(name)}'">`;};
 const waIco='<svg class="ic sm" viewBox="0 0 24 24" style="color:#25a35a"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5z"/></svg>';
 const fmIco='<svg class="ic sm" viewBox="0 0 24 24" style="color:#3ba0d6"><path d="M4 4h16v12H5.2L4 17.5z"/></svg>';
 
@@ -581,8 +586,10 @@ function entrar(){
    document.getElementById('lerr').style.display='block';
  }
 }
-function openAdd(){editId=null;document.getElementById('mAddTitle').textContent='Adicionar loja parceira';['fNome','fUrl','fWa','fEnd'].forEach(id=>document.getElementById(id).value='');document.getElementById('mAdd').classList.add('on');}
-function openEdit(i){const l=lojas[i];editId=l[6];const raw=lojasApi.find(x=>x.id===editId)||{};document.getElementById('mAddTitle').textContent='Editar loja';document.getElementById('fNome').value=l[0];document.getElementById('fUrl').value=raw.autocerto_id||raw.autocerto_url||l[2]||'';document.getElementById('fWa').value=raw.telefone||l[1]||'';document.getElementById('fEnd').value=raw.endereco||'';document.getElementById('mAdd').classList.add('on');}
+function setLogoPrev(src){const p=document.getElementById('edLogoPrev');p.innerHTML=src?`<img src="${src}" style="max-width:100%;max-height:100%;object-fit:contain">`:'🏪';const fl=document.getElementById('fLogo');if(fl)fl.value='';}
+function lerLogo(input){const f=input.files&&input.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const max=240,scale=Math.min(1,max/img.width);const c=document.createElement('canvas');c.width=Math.round(img.width*scale)||max;c.height=Math.round(img.height*scale)||max;c.getContext('2d').drawImage(img,0,0,c.width,c.height);editLogo=c.toDataURL('image/png');document.getElementById('edLogoPrev').innerHTML=`<img src="${editLogo}" style="max-width:100%;max-height:100%;object-fit:contain">`;};img.src=e.target.result;};r.readAsDataURL(f);}
+function openAdd(){editId=null;editLogo=null;document.getElementById('mAddTitle').textContent='Adicionar loja parceira';['fNome','fUrl','fWa','fEnd'].forEach(id=>document.getElementById(id).value='');setLogoPrev(null);document.getElementById('mAdd').classList.add('on');}
+function openEdit(i){const l=lojas[i];editId=l[6];editLogo=null;const raw=lojasApi.find(x=>x.id===editId)||{};document.getElementById('mAddTitle').textContent='Editar loja';document.getElementById('fNome').value=l[0];document.getElementById('fUrl').value=raw.autocerto_id||raw.autocerto_url||l[2]||'';document.getElementById('fWa').value=raw.telefone||l[1]||'';document.getElementById('fEnd').value=raw.endereco||'';setLogoPrev(l[3]||raw.logo_url||null);document.getElementById('mAdd').classList.add('on');}
 async function excluirLoja(i){const l=lojas[i];if(!confirm('Excluir a loja "'+l[0]+'"? Os veículos dela saem do site.'))return;try{await fetch('/api/lojas?path=lojas&id='+l[6],{method:'DELETE'});toast(l[0]+' excluída');await carregarPainel();}catch(e){toast('Erro ao excluir');}}
 function closeM(id){document.getElementById(id).classList.remove('on');}
 
@@ -628,7 +635,7 @@ async function addLoja(){
    toast('Salvando '+nome+'…');
    try{
      await fetch('/api/lojas?path=lojas',{method:'PATCH',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({id, nome, endereco:end, telefone:wa, whatsapp: waDig?('55'+waDig):null, autocerto_id:url})});
+       body:JSON.stringify({id, nome, endereco:end, telefone:wa, whatsapp: waDig?('55'+waDig):null, autocerto_id:url, logo_url:editLogo})});
      await carregarPainel(); toast(nome+' atualizada');
    }catch(e){ toast('Erro ao salvar: '+e.message); }
    return;
@@ -636,7 +643,7 @@ async function addLoja(){
  toast('Cadastrando '+nome+'…');
  try{
    const r=await fetch('/api/lojas?path=lojas',{method:'POST',headers:{'Content-Type':'application/json'},
-     body:JSON.stringify({nome, endereco:end, telefone:wa, whatsapp: waDig?('55'+waDig):null, autocerto_id:url})});
+     body:JSON.stringify({nome, endereco:end, telefone:wa, whatsapp: waDig?('55'+waDig):null, autocerto_id:url, logo_url:editLogo})});
    const loja=await r.json();
    await carregarPainel();
    runImport(-1, loja.id, nome, url);   // já roda o robô na loja nova
