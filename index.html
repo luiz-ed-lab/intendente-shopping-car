@@ -778,7 +778,7 @@
 /* ==================== DADOS (estoque real das lojas) ==================== */
 const F='https://www.autocerto.com/fotos/';
 // {b:marca, mod:modelo, ver:versão, anoN:ano, ano:'aa/aa', km:num, preco:num, cambio, comb, loja, tipo, img, tag}
-const veiculos=[
+let veiculos=[
  {b:'Chevrolet',mod:'Onix',ver:'1.0 LS Manual',anoN:2015,ano:'2014/2015',km:104000,preco:43900,cambio:'Manual',comb:'Flex',loja:'Luma Car',tipo:'carro',img:F+'285/5112607/1_052825.jpg',tag:'Oferta'},
  {b:'Chevrolet',mod:'Prisma',ver:'1.4 LT Manual',anoN:2018,ano:'2017/2018',km:78000,preco:54900,cambio:'Manual',comb:'Flex',loja:'Luma Car',tipo:'carro',img:F+'285/4688364/1_024502.jpg',tag:''},
  {b:'Chevrolet',mod:'Spin',ver:'1.8 Premier Automático',anoN:2025,ano:'2024/2025',km:15000,preco:107900,cambio:'Automático',comb:'Flex',loja:'Luma Car',tipo:'carro',img:F+'285/4988038/1_115536.jpg',tag:'Automático'},
@@ -831,8 +831,8 @@ function vcard(v){return `<div class="vcard" onclick="abrirVeiculo(${v._i})">
 
 /* ==================== ESTADO DOS FILTROS ==================== */
 const filtro={tipo:'',marca:'',modelo:'',anoDe:'',anoAte:'',precoDe:'',precoAte:'',km:'',cambio:'',loja:''};
-const marcas=[...new Set(veiculos.map(v=>v.b))].sort();
-const lojasList=[...new Set(veiculos.map(v=>v.loja))].sort();
+let marcas=[...new Set(veiculos.map(v=>v.b))].sort();
+let lojasList=[...new Set(veiculos.map(v=>v.loja))].sort();
 const anos=[];for(let y=2026;y>=2008;y--)anos.push(String(y));
 function modelosDe(marca){return marca?[...new Set(veiculos.filter(v=>v.b===marca).map(v=>v.mod))].sort():[...new Set(veiculos.map(v=>v.mod))].sort();}
 
@@ -1074,7 +1074,7 @@ function abrirVeiculo(i){
   const logoUrl=L+(lj.logo||lj.id+'_logo.png');
   const lb=document.getElementById('dLojaLogo');lb.innerHTML='';
   const im=new Image();im.src=logoUrl;im.alt=v.loja;im.onerror=()=>{lb.textContent=initials(v.loja);};lb.appendChild(im);
-  setFotos([v.img]);
+  setFotos((v.fotos&&v.fotos.length)?v.fotos:[v.img]);
   // dados do lead p/ este anúncio
   lojaLead.nome=v.loja;lojaLead.whatsapp=lj.wa||'5521991041424';
   veiculoNome=v.b+' '+v.mod+' '+v.anoN;
@@ -1155,8 +1155,40 @@ function go(v){
 function openM(id){document.getElementById(id).classList.add('on');}
 function closeM(id){document.getElementById(id).classList.remove('on');}
 
+/* ==================== CARREGA OS CARROS REAIS DO NOSSO BANCO ==================== */
+function mapApi(v){
+  const ano = (v.ano_fabricacao && v.ano_modelo) ? v.ano_fabricacao+'/'+v.ano_modelo : String(v.ano_modelo||'');
+  return {
+    b:(v.marca||'').trim(), mod:(v.modelo||'').trim(), ver:(v.versao||'').trim(),
+    anoN: v.ano_modelo||null, ano, km: v.km||0, preco: parseInt(v.preco)||0,
+    cambio: v.cambio||'', comb: v.combustivel||'', loja: v.loja_nome||'',
+    lojaWa: v.loja_whatsapp||'', tipo: v.tipo||'carro',
+    fotos: v.fotos||[], img:(v.fotos&&v.fotos[0])||'', opcionais: v.opcionais||[], tag:''
+  };
+}
+async function carregarDados(){
+  try{
+    const rv = await fetch('/api/veiculos?path=veiculos').then(r=>r.json());
+    if(Array.isArray(rv) && rv.length){
+      veiculos = rv.map(mapApi);
+      veiculos.forEach((v,i)=>v._i=i);
+      marcas=[...new Set(veiculos.map(v=>v.b).filter(Boolean))].sort();
+      lojasList=[...new Set(veiculos.map(v=>v.loja).filter(Boolean))].sort();
+      cs.hMarca.setOptions(['Todas as marcas',...marcas]);
+      cs.eMarca.setOptions(['Todas as marcas',...marcas]);
+      cs.hModelo.setOptions(['Todos os modelos',...modelosDe('')]);
+      cs.eModelo.setOptions(['Todos os modelos',...modelosDe('')]);
+      cs.eLoja.setOptions(['Todas as lojas',...lojasList]);
+      document.getElementById('destaques').innerHTML=veiculos.slice(0,12).map(vcard).join('');
+      renderResultados();
+      atualizaHomeTotal();
+    }
+  }catch(e){ /* se a API falhar, mantém os carros de exemplo */ }
+}
+
 /* init */
 atualizaHomeTotal();renderResultados();
+carregarDados();
 </script>
 </body>
 </html>
