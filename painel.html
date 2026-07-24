@@ -426,38 +426,39 @@
 const F='https://www.autocerto.com/fotos/';
 const L='https://static.autocerto.com/LogoClientesPortais/';
 
-let lojas=[
- ['Luma Car','(21) 96417-6474',285,'lumacar.png',48,'hoje 06:00'],
- ['FLX Multimarcas','(21) 3357-0464',207,'flx.jpg',47,'hoje 06:00'],
- ['Shineray Valqueire','(21) 97851-3285',4316,'4316_logo.png',113,'hoje 06:00'],
- ['Jazz Veículos','(21) 3390-1500',2645,null,62,'hoje 06:00'],
- ['Astral Pickups','(21) 3177-1137',381,null,29,'hoje 06:00'],
- ['Jotta Veículos','(21) 95939-3243',183,null,41,'hoje 06:00'],
- ['SRT Motors','(21) 2450-4317',1561,null,33,'hoje 06:00'],
- ['Hipercar Veículos','(21) 2491-0531',152,null,58,'hoje 06:00'],
- ['Lazari Veículos','(21) 97032-6720',86,null,44,'hoje 06:00']
-];
-const veiculos=[
- ['Chevrolet Onix 1.0 LS','R$ 43.900','2015','Luma Car',F+'285/5112607/1_052825.jpg','Oferta'],
- ['Fiat Argo 1.0 Firefly','R$ 60.900','2024','Luma Car',F+'285/5172608/15_115422selo.jpg','Selo'],
- ['Chevrolet Spin Premier','R$ 107.900','2025','Luma Car',F+'285/4988038/1_115536.jpg','Automático'],
- ['Fiat Cronos Drive CVT','R$ 72.900','2023','Luma Car',F+'285/5077451/1_120132.jpg',''],
- ['Chevrolet Tracker LT','R$ 99.900','2025','FLX Multimarcas',F+'207/5041395/3_043536.jpg','SUV'],
- ['VW Polo MPI Track','R$ 76.900','2025','FLX Multimarcas',F+'207/5021540/5_030815.jpg','0 km'],
- ['Jeep Compass Longitude','R$ 105.900','2021','FLX Multimarcas',F+'207/4993224/1_123529.jpg','SUV'],
- ['Hyundai Creta Limited','R$ 87.900','2021','Luma Car',F+'285/5153808/7_105852selo.jpg','Selo'],
- ['Honda City EXL','R$ 74.900','2018','Luma Car',F+'285/5177527/10_104603selo.jpg','Automático'],
- ['Fiat Mobi Trekking','R$ 56.900','2024','Luma Car',F+'285/4466061/1_095612.jpg',''],
- ['Renault Kwid Zen','R$ 53.900','2025','Luma Car',F+'285/5146336/1_053024.jpg','Econômico'],
- ['Shineray Urban 150','R$ 22.900','2026','Shineray Valqueire',F+'4316/2707380/1_022133.jpg','0 km']
-];
-let leads=[
- ['21/07 14:32','Carlos Menezes','(21) 98812-4590','Chevrolet Onix 1.0 LS','Luma Car','WhatsApp','new'],
- ['21/07 13:10','Ana Paula Souza','(21) 99604-2231','Jeep Compass Longitude','FLX Multimarcas','Formulário','sent'],
- ['21/07 11:47','Rodrigo Lima','(21) 97001-8823','VW Polo MPI Track','FLX Multimarcas','WhatsApp','done'],
- ['21/07 10:05','Juliana Reis','(21) 98330-1192','Hyundai Creta Limited','Luma Car','Formulário','sent'],
- ['20/07 18:22','Marcos Vinícius','(21) 99120-7745','Shineray Urban 150','Shineray Valqueire','WhatsApp','done']
-];
+let lojasApi=[];   // dados crus das lojas (com id do banco)
+let lojas=[];      // exibição: [nome, whatsapp, autocertoId, logoFile, nVeic, ultimaImp, dbId]
+let veiculos=[];   // [titulo, preco, ano, loja, foto, tag]
+let leads=[];      // [data, nome, tel, veiculo, loja, canal, status]
+
+async function carregarPainel(){
+  try{
+    const [lj, ve, le] = await Promise.all([
+      fetch('/api/lojas?path=lojas').then(r=>r.json()).catch(()=>[]),
+      fetch('/api/veiculos?path=veiculos').then(r=>r.json()).catch(()=>[]),
+      fetch('/api/leads?path=leads').then(r=>r.json()).catch(()=>[])
+    ]);
+    lojasApi = Array.isArray(lj)?lj:[];
+    const veic = Array.isArray(ve)?ve:[];
+    const lds  = Array.isArray(le)?le:[];
+    const cont={}; veic.forEach(v=>{cont[v.loja_id]=(cont[v.loja_id]||0)+1;});
+    lojas = lojasApi.map(l=>[l.nome, l.whatsapp||l.telefone||'—', l.autocerto_id||'', null, cont[l.id]||0, 'sincronizada', l.id]);
+    veiculos = veic.slice(0,60).map(v=>[((v.marca||'')+' '+(v.modelo||'')).trim(), 'R$ '+Number(v.preco||0).toLocaleString('pt-BR'), v.ano_modelo||'', v.loja_nome||'', (v.fotos&&v.fotos[0])||'', '']);
+    const smap={novo:'new',enviado:'sent',atendido:'done'};
+    leads = lds.map(l=>{
+      const d=new Date(l.criado_em);
+      const dd=isNaN(d.getTime())?'':(String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'));
+      return [dd, l.cliente_nome||'', l.cliente_telefone||'', (l.veiculo_nome||'').trim(), l.loja_nome||'', (l.canal==='whatsapp'?'WhatsApp':'Formulário'), smap[l.status]||'new'];
+    });
+    const nums=document.querySelectorAll('.kpi .num');
+    if(nums[0]) nums[0].textContent=lojasApi.length;
+    if(nums[1]) nums[1].textContent=veic.length.toLocaleString('pt-BR');
+    if(nums[2]) nums[2].textContent=lds.length.toLocaleString('pt-BR');
+    const bL=document.querySelector('aside a[data-v="lojas"] .badge'); if(bL) bL.textContent=lojasApi.length;
+    const bLe=document.querySelector('aside a[data-v="leads"] .badge'); if(bLe) bLe.textContent=lds.length;
+    renderLojas();renderDash();renderVeic();renderLeads();
+  }catch(e){/* mantém o que tiver */}
+}
 
 const initials=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
 const lgHtml=(id,file,name)=>`<img src="${L+(file||id+'_logo.png')}" alt="${name}" onerror="this.parentNode.textContent='${initials(name)}'">`;
@@ -510,6 +511,7 @@ function entrar(){
  if(u==='adm' && p==='Aceima2026'){
    document.getElementById('login').style.display='none';
    document.getElementById('app').classList.add('on');
+   carregarPainel();
  }else{
    document.getElementById('lerr').style.display='block';
  }
@@ -520,38 +522,54 @@ function closeM(id){document.getElementById(id).classList.remove('on');}
 const spin='<svg class="ic sm" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>';
 const check='<svg class="ic sm" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>';
 const steps=['Conectando ao estoque da loja','Lendo anúncios (carros e motos)','Baixando fotos dos veículos','Re-hospedando imagens no nosso servidor','Publicando no site'];
-function runImport(i,nome,url,file,id){
- const l=i>=0?lojas[i]:null;
- nome=nome||l[0]; id=id||(l?l[2]:''); file=file||(l?l[3]:null);
+async function runImport(i, dbIdArg, nomeArg, idArg){
+ const l=(typeof i==='number' && i>=0)?lojas[i]:null;
+ const nome=nomeArg||(l?l[0]:'Loja');
+ const id=idArg||(l?l[2]:'');
+ const dbId=dbIdArg||(l?l[6]:null);
  document.getElementById('impNome').textContent=nome;
  document.getElementById('impUrl').textContent='AutoCerto · ID '+id;
- document.getElementById('impLg').innerHTML=lgHtml(id,file,nome);
+ document.getElementById('impLg').innerHTML=lgHtml(id,null,nome);
  document.getElementById('mImp').classList.add('on');
  const box=document.getElementById('impSteps');
  box.innerHTML=steps.map((s,j)=>`<div class="istep" id="st${j}"><span class="d">${j+1}</span> ${s}</div>`).join('');
  const bar=document.getElementById('impBar');bar.style.width='0';
+ // dispara a importação REAL (robô lê o Auto Certo e grava no banco)
+ const req = dbId ? fetch('/api/importar?path=importar&loja='+dbId).then(r=>r.json()).catch(e=>({erro:e.message})) : Promise.resolve({erro:'sem id'});
+ // animação dos passos
  let k=0;
- (function next(){
+ await new Promise(res=>{(function next(){
    if(k>0){const p=document.getElementById('st'+(k-1));p.className='istep done';p.querySelector('.d').innerHTML=check;}
-   if(k<steps.length){
-     const c=document.getElementById('st'+k);c.className='istep run';c.querySelector('.d').innerHTML=spin;
-     bar.style.width=((k+1)/steps.length*100)+'%';
-     k++;setTimeout(next,760);
-   }else{setTimeout(()=>{closeM('mImp');toast(nome+' sincronizada com sucesso');},480);}
- })();
+   if(k<steps.length){const c=document.getElementById('st'+k);c.className='istep run';c.querySelector('.d').innerHTML=spin;bar.style.width=((k+1)/steps.length*100)+'%';k++;setTimeout(next,760);}
+   else res();
+ })();});
+ const r = await req; // espera o robô terminar de verdade
+ closeM('mImp');
+ if(r && r.ok){ toast(nome+' sincronizada!'); await carregarPainel(); }
+ else { toast('Falha ao importar '+nome+(r&&r.erro?': '+r.erro:'')); }
 }
-function addLoja(){
- const nome=document.getElementById('fNome').value||'Nova Loja';
- const url=document.getElementById('fUrl').value||'—';
- const wa=document.getElementById('fWa').value||'—';
+async function addLoja(){
+ const nome=document.getElementById('fNome').value.trim();
+ const url=document.getElementById('fUrl').value.trim();   // ID ou link do Auto Certo
+ const wa=document.getElementById('fWa').value.trim();
+ const end=document.getElementById('fEnd').value.trim();
+ if(!nome || !url){ toast('Preencha o nome e o ID/link do Auto Certo'); return; }
+ const autocertoId=(url.match(/\d+/)||[url])[0];              // extrai só os números
+ const waDig=wa.replace(/\D/g,'');
  closeM('mAdd');
- lojas.unshift([nome,wa,url,null,0,'agora']);renderLojas();renderDash();
- runImport(-1,nome,url,null,url);
- setTimeout(()=>{lojas[0][4]=Math.floor(20+Math.random()*40);lojas[0][5]='agora';renderLojas();renderDash();},4400);
+ toast('Cadastrando '+nome+'…');
+ try{
+   const r=await fetch('/api/lojas?path=lojas',{method:'POST',headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({nome, endereco:end, telefone:wa, whatsapp: waDig?('55'+waDig):null, autocerto_id:autocertoId})});
+   const loja=await r.json();
+   await carregarPainel();
+   // já roda o robô na loja nova
+   runImport(-1, loja.id, nome, autocertoId);
+ }catch(e){ toast('Erro ao cadastrar: '+e.message); }
 }
 function toast(msg){const t=document.getElementById('toast');t.innerHTML='<span class="ok">'+check+'</span>'+msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3400);}
 
-renderLojas();renderDash();renderVeic();renderLeads();
+/* os dados reais são carregados da API após o login (ver carregarPainel/entrar) */
 </script>
 </body>
 </html>

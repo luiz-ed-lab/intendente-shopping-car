@@ -238,7 +238,8 @@
   .vdet{display:grid;grid-template-columns:1.6fr 1fr;gap:22px;padding-top:30px}
   @media(max-width:900px){.vdet{grid-template-columns:1fr}}
   .gal{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-  .gal .main{aspect-ratio:4/3;background:#e8dedb center/cover no-repeat;position:relative}
+  .gal .main{height:min(56vh,460px);background:#e8dedb center/cover no-repeat;position:relative}
+  @media(max-width:900px){.gal .main{height:min(46vh,320px)}}
   .gal .main button{position:absolute;top:50%;transform:translateY(-50%);background:rgba(43,7,3,.6);color:#fff;width:44px;height:44px;border-radius:50%;font-size:1.2rem}
   .gal .main .prev{left:12px}.gal .main .next{right:12px}
   .thumbs{display:flex;gap:8px;padding:12px;overflow-x:auto}
