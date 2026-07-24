@@ -235,7 +235,7 @@
   .nores{background:#fff;border-radius:16px;padding:40px;text-align:center;color:var(--muted);box-shadow:var(--shadow)}
 
   /* ============ VEÍCULO ============ */
-  .vdet{display:grid;grid-template-columns:minmax(0,620px) 1fr;gap:22px;padding-top:30px}
+  .vdet{display:grid;grid-template-columns:minmax(0,760px) 1fr;gap:22px;padding-top:30px;align-items:start}
   @media(max-width:1000px){.vdet{grid-template-columns:1fr}}
   .gal{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
   /* foto SEMPRE 4:3, mesmo tamanho em todo anúncio; a imagem preenche cortando (cover), sem depender do pixel/formato dela */
@@ -1064,7 +1064,7 @@ function abrirVeiculo(i){
   const v=veiculos[i];const lj=lojaMap[v.loja]||{};
   document.getElementById('dBc').textContent=v.b+' '+v.mod;
   document.getElementById('dTitle').textContent=v.b+' '+v.mod+' '+v.anoN;
-  document.getElementById('dSpecs').textContent=[v.ver,v.comb,'Câmbio '+v.cambio].join(' - ');
+  document.getElementById('dSpecs').textContent=(v.ver&&v.ver.trim())?v.ver:[v.comb,v.cambio?'Câmbio '+v.cambio:''].filter(Boolean).join(' · ');
   document.getElementById('dPrice').textContent=money(v.preco);
   document.getElementById('dAno').textContent=v.ano;
   document.getElementById('dKm').textContent=kmT(v.km);
