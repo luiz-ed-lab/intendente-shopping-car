@@ -102,7 +102,7 @@
   .kpi .delta{font-size:.75rem;color:var(--green);font-weight:700;margin-top:8px;display:flex;align-items:center;gap:4px}
   .kpi .spark{position:absolute;right:16px;bottom:14px;opacity:.5}
 
-  .panel{background:var(--card);border-radius:18px;box-shadow:var(--sh);margin-bottom:20px}
+  .panel{background:var(--card);border-radius:18px;box-shadow:var(--sh);margin-bottom:20px;overflow:hidden}
   .panel .ph{padding:18px 22px;border-bottom:1px solid var(--line2);display:flex;align-items:center;justify-content:space-between;gap:12px}
   .panel .ph h3{font-size:1.02rem}
   .panel .ph .psub{color:var(--muted);font-size:.8rem;margin-top:2px}
@@ -194,6 +194,15 @@
   .toast{position:fixed;bottom:22px;right:22px;background:#241b19;color:#fff;padding:14px 18px;border-radius:12px;font-size:.86rem;box-shadow:var(--sh-lg);z-index:300;opacity:0;transform:translateY(12px);transition:.28s;display:flex;align-items:center;gap:10px;max-width:340px}
   .toast.on{opacity:1;transform:none}
   .toast .ok{width:22px;height:22px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+  /* notificações */
+  .notifpop{position:absolute;top:52px;right:0;width:310px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh-lg);padding:6px;display:none;z-index:60}
+  .notifpop.on{display:block}
+  .notifpop .nfh{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--soft);padding:10px 12px 6px}
+  .notifpop .nfi{display:flex;flex-direction:column;gap:1px;padding:9px 12px;border-radius:9px}
+  .notifpop .nfi:hover{background:#faf7f6}
+  .notifpop .nfi b{font-size:.82rem}
+  .notifpop .nfi span{font-size:.76rem;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -237,13 +246,13 @@
     <div class="nlabel">Operação</div>
     <a data-v="lojas" onclick="nav(this)">
       <svg class="ic" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>
-      Lojas <span class="badge">26</span></a>
+      Lojas</a>
     <a data-v="veiculos" onclick="nav(this)">
       <svg class="ic" viewBox="0 0 24 24"><path d="M5 17h14M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm18 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/><path d="M3 17v-4l2-5h11l3 5v4"/><path d="M5 8h11"/></svg>
       Veículos</a>
     <a data-v="leads" onclick="nav(this)">
       <svg class="ic" viewBox="0 0 24 24"><path d="M4 4h16v12H5.2L4 17.5z"/><path d="M8 9h8M8 12h5"/></svg>
-      Leads <span class="badge">7</span></a>
+      Leads <span class="badge" id="leadBadge" style="display:none">0</span></a>
     <div class="nlabel">Sistema</div>
     <a data-v="config" onclick="nav(this)">
       <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.4 1a7 7 0 0 0-1.7-1L14.5 3h-5l-.3 2.5a7 7 0 0 0-1.7 1l-2.4-1-2 3.5 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.5 2.4-1a7 7 0 0 0 1.7 1l.3 2.5h5l.3-2.5a7 7 0 0 0 1.7-1l2.4 1 2-3.5-2-1.5a7 7 0 0 0 .1-1z"/></svg>
@@ -258,7 +267,10 @@
         <svg class="ic sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
         <input placeholder="Buscar loja, veículo, lead...">
       </div>
-      <button class="tbicon"><svg class="ic" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="dotn"></span></button>
+      <div id="notifWrap" style="position:relative">
+        <button class="tbicon" onclick="toggleNotif()"><svg class="ic" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="dotn" id="notifDot" style="display:none"></span></button>
+        <div class="notifpop" id="notifPop"><div class="nfh">Notificações</div><div class="nfbody"></div></div>
+      </div>
       <div class="uchip">
         <div class="av">A</div>
         <div class="nm">Administrador<small>ACEIMA</small></div>
@@ -271,7 +283,7 @@
         <div class="kpis">
           <div class="kpi">
             <div class="chip"><svg class="ic" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/></svg></div>
-            <div class="lab">Lojas ativas</div><div class="num">26</div>
+            <div class="lab">Lojas cadastradas</div><div class="num">—</div>
             <div class="delta"><svg class="ic sm" viewBox="0 0 24 24"><path d="M7 17 17 7M17 7H8M17 7v9"/></svg> todas sincronizando</div>
           </div>
           <div class="kpi">
@@ -311,7 +323,7 @@
       <!-- ===== LOJAS ===== -->
       <div class="view" id="v-lojas">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px;flex-wrap:wrap">
-          <p style="color:var(--muted)">26 lojas associadas · estoque sincronizado automaticamente</p>
+          <p style="color:var(--muted)"><b id="lojasCount" style="color:var(--txt)">0</b> lojas cadastradas</p>
           <button class="btn" onclick="openAdd()"><svg class="ic sm" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Adicionar loja</button>
         </div>
         <div class="panel flush"><div class="pb"><table>
@@ -323,10 +335,10 @@
       <!-- ===== VEÍCULOS ===== -->
       <div class="view" id="v-veiculos">
         <div class="filters">
-          <div class="fi"><svg class="ic sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg><input placeholder="Buscar modelo..."></div>
-          <select><option>Todas as lojas</option><option>Luma Car</option><option>FLX Multimarcas</option><option>Shineray Valqueire</option></select>
-          <select><option>Todas as marcas</option><option>Chevrolet</option><option>Fiat</option><option>Hyundai</option></select>
-          <select><option>Mais recentes</option><option>Menor preço</option><option>Maior preço</option></select>
+          <div class="fi"><svg class="ic sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg><input id="fVBusca" placeholder="Buscar modelo..." oninput="filtrarVeic()"></div>
+          <select id="fVLoja" onchange="filtrarVeic()"><option value="">Todas as lojas</option></select>
+          <select id="fVMarca" onchange="filtrarVeic()"><option value="">Todas as marcas</option></select>
+          <select id="fVOrd" onchange="filtrarVeic()"><option value="recentes">Mais recentes</option><option value="menor">Menor preço</option><option value="maior">Maior preço</option></select>
         </div>
         <div class="vgrid" id="veicGrid"></div>
       </div>
@@ -349,7 +361,7 @@
             <div class="chanbox">
               <div class="cbox wa"><b><svg class="ic sm" viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5z"/></svg> WhatsApp</b><p>Mensagem automática pro vendedor da loja dona do anúncio</p></div>
               <div class="cbox em"><b><svg class="ic sm" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg> E-mail</b><p>Cópia formatada com os dados do cliente e do carro</p></div>
-              <div class="cbox cr"><b><svg class="ic sm" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg> CRM AutoCerto</b><p>Repasse no mesmo formato que a loja já recebe hoje</p></div>
+              <div class="cbox cr"><b><svg class="ic sm" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg> Painel ACEIMA</b><p>Fica registrado aqui na central, com histórico e status de cada contato</p></div>
             </div>
           </div>
         </div>
@@ -360,22 +372,29 @@
         <div class="grid2">
           <div>
             <div class="panel">
-              <div class="ph"><h3>Importação automática</h3></div>
-              <div class="set-row"><div><b>Sincronização diária</b><div class="d">Horário em que o robô relê todas as lojas</div></div><span class="v">06:00</span></div>
-              <div class="set-row"><div><b>Re-hospedar fotos</b><div class="d">Guarda as imagens no nosso servidor — independência do AutoCerto</div></div><span class="switch on" onclick="this.classList.toggle('on')"></span></div>
-              <div class="set-row"><div><b>Importar automaticamente novas lojas</b><div class="d">Ao cadastrar, já puxa todo o estoque</div></div><span class="switch on" onclick="this.classList.toggle('on')"></span></div>
+              <div class="ph"><h3>Importação de estoque</h3></div>
+              <div class="set-row"><div><b>Sincronização automática</b><div class="d">Cada loja é relida sozinha e o estoque atualiza sem trabalho manual</div></div><span class="switch on" onclick="this.classList.toggle('on')"></span></div>
+              <div class="set-row"><div><b>Frequência</b><div class="d">De quanto em quanto tempo o estoque é atualizado</div></div><span class="v">1 em 1 hora</span></div>
+              <div class="set-row"><div><b>Guardar fotos no nosso servidor</b><div class="d">As imagens ficam hospedadas pela ACEIMA, sem depender do site de origem</div></div><span class="switch on" onclick="this.classList.toggle('on')"></span></div>
+              <div class="set-row"><div><b>Importar ao cadastrar loja</b><div class="d">Ao adicionar uma loja nova, o estoque já entra no site</div></div><span class="switch on" onclick="this.classList.toggle('on')"></span></div>
             </div>
             <div class="panel">
               <div class="ph"><h3>Financiamento</h3></div>
-              <div class="set-row"><div><b>Taxa ACEIMA (a.m.)</b><div class="d">Usada no simulador do site público</div></div><span class="v">1,49%</span></div>
+              <div class="set-row"><div><b>Taxa ACEIMA (a.m.)</b><div class="d">Aparece no selo de melhores taxas do site</div></div><span class="v">1,49%</span></div>
             </div>
           </div>
-          <div class="panel">
-            <div class="ph"><h3>Repasse de leads</h3></div>
-            <div class="set-row"><div><b>WhatsApp</b><div class="d">Envia o lead pro número da loja</div></div><span class="switch on" onclick="this.classList.toggle('on')"></span></div>
-            <div class="set-row"><div><b>E-mail</b><div class="d">Cópia pro e-mail da loja</div></div><span class="switch on" onclick="this.classList.toggle('on')"></span></div>
-            <div class="set-row"><div><b>CRM AutoCerto</b><div class="d">Repasse no formato do CRM que a loja usa</div></div><span class="switch on" onclick="this.classList.toggle('on')"></span></div>
-            <div class="set-row"><div><b>Notificar a associação</b><div class="d">Resumo diário de leads por loja</div></div><span class="switch" onclick="this.classList.toggle('on')"></span></div>
+          <div>
+            <div class="panel">
+              <div class="ph"><h3>Repasse de leads</h3></div>
+              <div class="set-row"><div><b>Enviar por WhatsApp</b><div class="d">Dispara a mensagem direto pro vendedor da loja dona do anúncio</div></div><span class="switch on" onclick="this.classList.toggle('on')"></span></div>
+              <div class="set-row"><div><b>Enviar por e-mail</b><div class="d">Cópia pro e-mail da loja — requer configurar o e-mail de envio</div></div><span class="switch" onclick="this.classList.toggle('on')"></span></div>
+              <div class="set-row"><div><b>Cópia dos leads para a ACEIMA</b><div class="d">A associação recebe uma cópia de todo contato</div></div><input id="cfgEmail" placeholder="email@aceima.com.br" style="width:200px;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;font-size:.82rem"></div>
+              <div class="set-row"><div><b>Resumo diário para a associação</b><div class="d">Total de leads por loja, uma vez ao dia</div></div><span class="switch" onclick="this.classList.toggle('on')"></span></div>
+            </div>
+            <div class="panel">
+              <div class="ph"><h3>Site</h3></div>
+              <div class="set-row"><div><b>Endereço do site</b><div class="d">Domínio onde o site público está no ar</div></div><span class="v" style="font-size:.82rem">intendenteautoshopping.com.br</span></div>
+            </div>
           </div>
         </div>
       </div>
@@ -386,12 +405,12 @@
 <!-- ===== MODAL: ADICIONAR LOJA ===== -->
 <div class="modal" id="mAdd">
   <div class="mbox">
-    <div class="mhead"><h3>Adicionar loja parceira</h3><button class="x" onclick="closeM('mAdd')"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="mhead"><h3 id="mAddTitle">Adicionar loja parceira</h3><button class="x" onclick="closeM('mAdd')"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
     <div class="mbody">
       <label>Nome da loja</label>
       <input id="fNome" placeholder="Ex: Auto Prime Veículos">
-      <label>Link ou ID do estoque no AutoCerto</label>
-      <input id="fUrl" placeholder="Ex: 2645 ou autocerto.com/...">
+      <label>Endereço do site da loja</label>
+      <input id="fUrl" placeholder="Ex: https://autobarra.com.br">
       <label>WhatsApp</label>
       <input id="fWa" placeholder="(21) 9...">
       <label>Endereço</label>
@@ -413,7 +432,7 @@
   <div class="mbox">
     <div class="mhead"><h3>Importando estoque</h3><button class="x" onclick="closeM('mImp')"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
     <div class="imp">
-      <div class="store"><div class="lg" id="impLg">🏪</div><div><b id="impNome">Loja</b><div style="color:var(--muted);font-size:.8rem" id="impUrl">AutoCerto</div></div></div>
+      <div class="store"><div class="lg" id="impLg">🏪</div><div><b id="impNome">Loja</b><div style="color:var(--muted);font-size:.8rem" id="impUrl"></div></div></div>
       <div class="bar"><i id="impBar"></i></div>
       <div id="impSteps"></div>
     </div>
@@ -427,9 +446,14 @@ const F='https://www.autocerto.com/fotos/';
 const L='https://static.autocerto.com/LogoClientesPortais/';
 
 let lojasApi=[];   // dados crus das lojas (com id do banco)
-let lojas=[];      // exibição: [nome, whatsapp, autocertoId, logoFile, nVeic, ultimaImp, dbId]
-let veiculos=[];   // [titulo, preco, ano, loja, foto, tag]
+let lojas=[];      // exibição: [nome, whatsapp, chave, logoFile, nVeic, ultimaImp, dbId, origem]
+let veicAll=[];    // objetos crus dos veículos (com id do banco)
 let leads=[];      // [data, nome, tel, veiculo, loja, canal, status]
+let leadsVistos=false, editId=null;
+const money=n=>'R$ '+Number(n||0).toLocaleString('pt-BR');
+const icPen='<svg class="ic sm" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+const icTrash='<svg class="ic sm" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/></svg>';
+function origemLabel(chave){const s=String(chave||'');if(/^https?:\/\//i.test(s)||/[a-z]\.[a-z]{2,}/i.test(s)){try{return new URL(/^https?:/i.test(s)?s:'https://'+s).hostname.replace(/^www\./,'');}catch(_){return s;}}return s?('Portal · '+s):'—';}
 
 async function carregarPainel(){
   try{
@@ -439,11 +463,10 @@ async function carregarPainel(){
       fetch('/api/leads?path=leads').then(r=>r.json()).catch(()=>[])
     ]);
     lojasApi = Array.isArray(lj)?lj:[];
-    const veic = Array.isArray(ve)?ve:[];
+    veicAll  = Array.isArray(ve)?ve:[];
     const lds  = Array.isArray(le)?le:[];
-    const cont={}; veic.forEach(v=>{cont[v.loja_id]=(cont[v.loja_id]||0)+1;});
-    lojas = lojasApi.map(l=>[l.nome, l.whatsapp||l.telefone||'—', l.autocerto_id||'', null, cont[l.id]||0, 'sincronizada', l.id]);
-    veiculos = veic.slice(0,60).map(v=>[((v.marca||'')+' '+(v.modelo||'')).trim(), 'R$ '+Number(v.preco||0).toLocaleString('pt-BR'), v.ano_modelo||'', v.loja_nome||'', (v.fotos&&v.fotos[0])||'', '']);
+    const cont={}; veicAll.forEach(v=>{cont[v.loja_id]=(cont[v.loja_id]||0)+1;});
+    lojas = lojasApi.map(l=>[l.nome, l.whatsapp||l.telefone||'—', l.autocerto_id||l.autocerto_url||'', null, cont[l.id]||0, 'sincronizada', l.id, origemLabel(l.autocerto_id||l.autocerto_url)]);
     const smap={novo:'new',enviado:'sent',atendido:'done'};
     leads = lds.map(l=>{
       const d=new Date(l.criado_em);
@@ -452,11 +475,10 @@ async function carregarPainel(){
     });
     const nums=document.querySelectorAll('.kpi .num');
     if(nums[0]) nums[0].textContent=lojasApi.length;
-    if(nums[1]) nums[1].textContent=veic.length.toLocaleString('pt-BR');
+    if(nums[1]) nums[1].textContent=veicAll.length.toLocaleString('pt-BR');
     if(nums[2]) nums[2].textContent=lds.length.toLocaleString('pt-BR');
-    const bL=document.querySelector('aside a[data-v="lojas"] .badge'); if(bL) bL.textContent=lojasApi.length;
-    const bLe=document.querySelector('aside a[data-v="leads"] .badge'); if(bLe) bLe.textContent=lds.length;
-    renderLojas();renderDash();renderVeic();renderLeads();
+    montarFiltros(); atualizaLeadBadge();
+    renderLojas();renderDash();renderVeic();renderLeads();renderNotif();
   }catch(e){/* mantém o que tiver */}
 }
 
@@ -466,14 +488,19 @@ const waIco='<svg class="ic sm" viewBox="0 0 24 24" style="color:#25a35a"><path 
 const fmIco='<svg class="ic sm" viewBox="0 0 24 24" style="color:#3ba0d6"><path d="M4 4h16v12H5.2L4 17.5z"/></svg>';
 
 function renderLojas(){
+ const c=document.getElementById('lojasCount'); if(c) c.textContent=lojas.length;
  document.getElementById('lojasTb').innerHTML=lojas.map((l,i)=>`<tr>
   <td><div style="display:flex;align-items:center;gap:11px"><div class="lg">${lgHtml(l[2],l[3],l[0])}</div><b>${l[0]}</b></div></td>
-  <td><span style="color:var(--muted)">AutoCerto · ID ${l[2]}</span></td>
+  <td><span style="color:var(--muted)">${l[7]}</span></td>
   <td>${l[1]}</td>
   <td><b>${l[4]}</b></td>
   <td>${l[5]}</td>
   <td><span class="switch on" onclick="this.classList.toggle('on')"></span></td>
-  <td><button class="btn ghost sm" onclick="runImport(${i})"><svg class="ic sm" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg> Importar</button></td>
+  <td><div style="display:flex;gap:6px;justify-content:flex-end">
+    <button class="btn ghost sm" title="Importar agora" onclick="runImport(${i})"><svg class="ic sm" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></button>
+    <button class="btn ghost sm" title="Editar" onclick="openEdit(${i})">${icPen}</button>
+    <button class="btn ghost sm" title="Excluir" onclick="excluirLoja(${i})">${icTrash}</button>
+  </div></td>
  </tr>`).join('');
 }
 function renderDash(){
@@ -483,11 +510,48 @@ function renderDash(){
  document.getElementById('leadRecent').innerHTML=leads.slice(0,5).map(l=>`<tr>
   <td><b>${l[1]}</b></td><td style="color:var(--muted)">${l[3]}</td><td><span class="tag ${l[6]}">${l[5]}</span></td></tr>`).join('');
 }
-function renderVeic(){
- document.getElementById('veicGrid').innerHTML=veiculos.map(v=>`<div class="vc">
-  <div class="ph" style="background-image:url('${v[4]}')">${v[5]?`<span class="st">${v[5]}</span>`:''}</div>
-  <div class="b"><h4>${v[0]}</h4><div class="pr">${v[1]}</div>
-  <div class="lj"><span>${v[3]} · ${v[2]}</span><span class="switch on" style="transform:scale(.78)" onclick="this.classList.toggle('on')"></span></div></div></div>`).join('');
+function montarFiltros(){
+ const selLoja=document.getElementById('fVLoja'), selMarca=document.getElementById('fVMarca');
+ if(selLoja){ const nomes=[...new Set(veicAll.map(v=>v.loja_nome).filter(Boolean))].sort();
+   selLoja.innerHTML='<option value="">Todas as lojas</option>'+nomes.map(n=>`<option>${n}</option>`).join(''); }
+ if(selMarca){ const marcas=[...new Set(veicAll.map(v=>v.marca).filter(Boolean))].sort();
+   selMarca.innerHTML='<option value="">Todas as marcas</option>'+marcas.map(n=>`<option>${n}</option>`).join(''); }
+}
+function filtrarVeic(){
+ const q=(document.getElementById('fVBusca')?.value||'').toLowerCase().trim();
+ const lj=document.getElementById('fVLoja')?.value||'', mc=document.getElementById('fVMarca')?.value||'', ord=document.getElementById('fVOrd')?.value||'recentes';
+ let list=veicAll.filter(v=>{
+   const nome=((v.marca||'')+' '+(v.modelo||'')+' '+(v.versao||'')).toLowerCase();
+   if(q && !nome.includes(q)) return false;
+   if(lj && v.loja_nome!==lj) return false;
+   if(mc && v.marca!==mc) return false;
+   return true;
+ });
+ if(ord==='menor') list=list.slice().sort((a,b)=>(a.preco||0)-(b.preco||0));
+ else if(ord==='maior') list=list.slice().sort((a,b)=>(b.preco||0)-(a.preco||0));
+ renderVeic(list);
+}
+function renderVeic(list){
+ list=list||veicAll;
+ const g=document.getElementById('veicGrid');
+ if(!list.length){ g.innerHTML='<p style="color:var(--muted);padding:24px">Nenhum veículo encontrado.</p>'; return; }
+ g.innerHTML=list.slice(0,300).map(v=>{
+  const foto=(v.fotos&&v.fotos[0])||''; const oc=v.oculto===true;
+  return `<div class="vc">
+   <div class="ph" style="background-image:url('${foto}')">${oc?'<span class="st" style="background:#b6a9a3;color:#fff">oculto</span>':''}</div>
+   <div class="b"><h4>${((v.marca||'')+' '+(v.modelo||'')).trim()}</h4><div class="pr">${money(v.preco)}</div>
+   <div class="lj"><span>${v.loja_nome||''} · ${v.ano_modelo||''}</span>
+     <span class="switch ${oc?'':'on'}" title="${oc?'Oculto no site':'Aparece no site'}" style="transform:scale(.78)" onclick="toggleVeic(${v.id},this)"></span>
+   </div></div></div>`;
+ }).join('');
+}
+async function toggleVeic(id,el){
+ const ocultarAgora=el.classList.contains('on'); // estava visível -> vai ocultar
+ el.classList.toggle('on'); el.title=ocultarAgora?'Oculto no site':'Aparece no site';
+ const v=veicAll.find(x=>x.id===id); if(v) v.oculto=ocultarAgora;
+ try{ await fetch('/api/veiculos?path=veiculos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,oculto:ocultarAgora})});
+   toast(ocultarAgora?'Veículo ocultado do site':'Veículo publicado no site'); }
+ catch(e){ toast('Não deu pra atualizar'); }
 }
 function renderLeads(){
  const st={new:'Novo',sent:'Enviado à loja',done:'Atendido'};
@@ -497,12 +561,13 @@ function renderLeads(){
   <td><span class="tag ${l[6]}">${st[l[6]]}</span></td></tr>`).join('');
 }
 
-const titulos={dash:'Dashboard',lojas:'Lojas associadas',veiculos:'Veículos importados',leads:'Central de leads',config:'Configurações'};
+const titulos={dash:'Dashboard',lojas:'Lojas cadastradas',veiculos:'Veículos importados',leads:'Central de leads',config:'Configurações'};
 function nav(el){
  document.querySelectorAll('aside a').forEach(a=>a.classList.remove('on'));el.classList.add('on');
  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
  document.getElementById('v-'+el.dataset.v).classList.add('on');
  document.getElementById('ttl').textContent=titulos[el.dataset.v];
+ if(el.dataset.v==='leads'){ leadsVistos=true; atualizaLeadBadge(); renderNotif(); }
  document.querySelector('.content').scrollTo?.(0,0);window.scrollTo(0,0);
 }
 function entrar(){
@@ -516,7 +581,9 @@ function entrar(){
    document.getElementById('lerr').style.display='block';
  }
 }
-function openAdd(){document.getElementById('mAdd').classList.add('on');}
+function openAdd(){editId=null;document.getElementById('mAddTitle').textContent='Adicionar loja parceira';['fNome','fUrl','fWa','fEnd'].forEach(id=>document.getElementById(id).value='');document.getElementById('mAdd').classList.add('on');}
+function openEdit(i){const l=lojas[i];editId=l[6];const raw=lojasApi.find(x=>x.id===editId)||{};document.getElementById('mAddTitle').textContent='Editar loja';document.getElementById('fNome').value=l[0];document.getElementById('fUrl').value=raw.autocerto_id||raw.autocerto_url||l[2]||'';document.getElementById('fWa').value=raw.telefone||l[1]||'';document.getElementById('fEnd').value=raw.endereco||'';document.getElementById('mAdd').classList.add('on');}
+async function excluirLoja(i){const l=lojas[i];if(!confirm('Excluir a loja "'+l[0]+'"? Os veículos dela saem do site.'))return;try{await fetch('/api/lojas?path=lojas&id='+l[6],{method:'DELETE'});toast(l[0]+' excluída');await carregarPainel();}catch(e){toast('Erro ao excluir');}}
 function closeM(id){document.getElementById(id).classList.remove('on');}
 
 const spin='<svg class="ic sm" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>';
@@ -528,13 +595,13 @@ async function runImport(i, dbIdArg, nomeArg, idArg){
  const id=idArg||(l?l[2]:'');
  const dbId=dbIdArg||(l?l[6]:null);
  document.getElementById('impNome').textContent=nome;
- document.getElementById('impUrl').textContent='AutoCerto · ID '+id;
+ document.getElementById('impUrl').textContent=origemLabel(id);
  document.getElementById('impLg').innerHTML=lgHtml(id,null,nome);
  document.getElementById('mImp').classList.add('on');
  const box=document.getElementById('impSteps');
  box.innerHTML=steps.map((s,j)=>`<div class="istep" id="st${j}"><span class="d">${j+1}</span> ${s}</div>`).join('');
  const bar=document.getElementById('impBar');bar.style.width='0';
- // dispara a importação REAL (robô lê o Auto Certo e grava no banco)
+ // dispara a importação REAL (robô lê o site da loja e grava no banco)
  const req = dbId ? fetch('/api/importar?path=importar&loja='+dbId).then(r=>r.json()).catch(e=>({erro:e.message})) : Promise.resolve({erro:'sem id'});
  // animação dos passos
  let k=0;
@@ -550,24 +617,49 @@ async function runImport(i, dbIdArg, nomeArg, idArg){
 }
 async function addLoja(){
  const nome=document.getElementById('fNome').value.trim();
- const url=document.getElementById('fUrl').value.trim();   // ID ou link do Auto Certo
+ const url=document.getElementById('fUrl').value.trim();   // site próprio da loja (ou ID do portal)
  const wa=document.getElementById('fWa').value.trim();
  const end=document.getElementById('fEnd').value.trim();
- if(!nome || !url){ toast('Preencha o nome e o ID/link do Auto Certo'); return; }
- const autocertoId=(url.match(/\d+/)||[url])[0];              // extrai só os números
+ if(!nome || !url){ toast('Preencha o nome e o site da loja'); return; }
  const waDig=wa.replace(/\D/g,'');
  closeM('mAdd');
+ if(editId){
+   const id=editId; editId=null;
+   toast('Salvando '+nome+'…');
+   try{
+     await fetch('/api/lojas?path=lojas',{method:'PATCH',headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({id, nome, endereco:end, telefone:wa, whatsapp: waDig?('55'+waDig):null, autocerto_id:url})});
+     await carregarPainel(); toast(nome+' atualizada');
+   }catch(e){ toast('Erro ao salvar: '+e.message); }
+   return;
+ }
  toast('Cadastrando '+nome+'…');
  try{
    const r=await fetch('/api/lojas?path=lojas',{method:'POST',headers:{'Content-Type':'application/json'},
-     body:JSON.stringify({nome, endereco:end, telefone:wa, whatsapp: waDig?('55'+waDig):null, autocerto_id:autocertoId})});
+     body:JSON.stringify({nome, endereco:end, telefone:wa, whatsapp: waDig?('55'+waDig):null, autocerto_id:url})});
    const loja=await r.json();
    await carregarPainel();
-   // já roda o robô na loja nova
-   runImport(-1, loja.id, nome, autocertoId);
+   runImport(-1, loja.id, nome, url);   // já roda o robô na loja nova
  }catch(e){ toast('Erro ao cadastrar: '+e.message); }
 }
 function toast(msg){const t=document.getElementById('toast');t.innerHTML='<span class="ok">'+check+'</span>'+msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3400);}
+
+/* ---- notificações + badge de leads novos ---- */
+function novosLeads(){return leads.filter(l=>l[6]==='new');}
+function atualizaLeadBadge(){
+ const n=novosLeads().length, b=document.getElementById('leadBadge');
+ if(!b) return;
+ if(n>0 && !leadsVistos){ b.textContent=n; b.style.display=''; } else { b.style.display='none'; }
+}
+function renderNotif(){
+ const nv=novosLeads(), dot=document.getElementById('notifDot'), body=document.querySelector('#notifPop .nfbody');
+ const itens=nv.slice(0,6).map(l=>`<div class="nfi"><b>Novo lead</b><span>${l[1]||'Cliente'} — ${l[3]||'veículo'}</span></div>`);
+ itens.push(`<div class="nfi"><b>Estoque sincronizado</b><span>${lojas.length} loja(s) · atualização automática</span></div>`);
+ if(body) body.innerHTML=itens.join('');
+ if(dot) dot.style.display=(nv.length && !leadsVistos)?'':'none';
+}
+function toggleNotif(){document.getElementById('notifPop').classList.toggle('on');}
+document.addEventListener('click',e=>{const w=document.getElementById('notifWrap'),p=document.getElementById('notifPop');if(w&&p&&!w.contains(e.target))p.classList.remove('on');});
 
 /* os dados reais são carregados da API após o login (ver carregarPainel/entrar) */
 </script>
