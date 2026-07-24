@@ -25,7 +25,47 @@ let migrado = false;
 async function migra() {
   if (migrado) return;
   try { await query('alter table veiculos add column if not exists oculto boolean default false'); } catch (_) {}
+  try { await query("alter table leads add column if not exists tipo text default 'venda'"); } catch (_) {}
+  try { await query('alter table leads add column if not exists detalhes jsonb'); } catch (_) {}
   migrado = true;
+}
+
+// envio de e-mail dos leads — pronto para quando a chave do Resend estiver configurada.
+// Enquanto não houver RESEND_API_KEY (ou e-mail nas lojas), não faz nada.
+async function enviarEmailsLead(lead) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key || !lead) return;
+  let emails = [];
+  if (lead.tipo === 'compra') {
+    const { rows } = await query("select email from lojas where ativa=true and email is not null and email<>''");
+    emails = rows.map(r => r.email);
+  } else if (lead.loja_id) {
+    const { rows } = await query("select email from lojas where id=$1 and email is not null and email<>''", [lead.loja_id]);
+    emails = rows.map(r => r.email);
+  }
+  if (process.env.ACEIMA_EMAIL) emails.push(process.env.ACEIMA_EMAIL);
+  emails = [...new Set(emails.filter(Boolean))];
+  if (!emails.length) return;
+  const det = lead.detalhes ? (typeof lead.detalhes === 'string' ? JSON.parse(lead.detalhes) : lead.detalhes) : null;
+  const assunto = lead.tipo === 'compra'
+    ? 'Cliente quer VENDER um veículo — via site Intendente Shopping Car'
+    : 'Novo lead de venda — via site Intendente Shopping Car';
+  const linhas = [
+    'Este é um cliente vindo do site do Intendente Shopping Car.', '',
+    'Nome: ' + (lead.cliente_nome || '-'),
+    'WhatsApp: ' + (lead.cliente_telefone || '-'),
+    lead.cliente_email ? ('E-mail: ' + lead.cliente_email) : null,
+    det ? ('Veículo do cliente: ' + [det.marca, det.modelo, det.ano].filter(Boolean).join(' ')
+      + (det.km ? (' — ' + det.km + ' km') : '') + (det.valor ? (' — pretende ' + det.valor) : '')
+      + (det.fotos ? (' — ' + det.fotos + ' foto(s) enviadas') : '')) : null,
+    lead.forma_compra ? ('Forma de compra: ' + lead.forma_compra + (lead.entrada || '')) : null,
+    '', 'Mensagem enviada automaticamente pela ACEIMA.'
+  ].filter(x => x !== null);
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: 'ACEIMA <leads@intendenteautoshopping.com.br>', to: emails, subject: assunto, text: linhas.join('\n') })
+  });
 }
 
 // ---------------- utilidades ----------------
@@ -241,21 +281,27 @@ async function rotaVeiculos(req, res) {
 }
 
 async function rotaLeads(req, res) {
+  await migra();
   if (req.method === 'GET') {
     const { rows } = await query(
-      `select le.*, lo.nome as loja_nome, (v.marca || ' ' || v.modelo) as veiculo_nome
+      `select le.*, lo.nome as loja_nome,
+              case when v.id is not null then (v.marca || ' ' || v.modelo)
+                   when le.detalhes is not null then (coalesce(le.detalhes->>'marca','') || ' ' || coalesce(le.detalhes->>'modelo',''))
+                   else null end as veiculo_nome
          from leads le
          left join lojas lo on lo.id = le.loja_id
          left join veiculos v on v.id = le.veiculo_id
-        order by le.criado_em desc limit 200`);
+        order by le.criado_em desc limit 300`);
     return res.json(rows);
   }
   if (req.method !== 'POST') return res.status(405).end();
   const b = req.body || {};
   const { rows: [lead] } = await query(
-    `insert into leads (loja_id, veiculo_id, cliente_nome, cliente_telefone, cliente_email, forma_compra, entrada, canal)
-     values ($1,$2,$3,$4,$5,$6,$7,$8) returning *`,
-    [b.loja_id, b.veiculo_id, b.cliente_nome, b.cliente_telefone, b.cliente_email, b.forma_compra, b.entrada, b.canal || 'formulario']);
+    `insert into leads (loja_id, veiculo_id, cliente_nome, cliente_telefone, cliente_email, forma_compra, entrada, canal, tipo, detalhes)
+     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning *`,
+    [b.loja_id || null, b.veiculo_id || null, b.cliente_nome, b.cliente_telefone, b.cliente_email,
+     b.forma_compra, b.entrada, b.canal || 'formulario', b.tipo || 'venda', b.detalhes ? JSON.stringify(b.detalhes) : null]);
+  enviarEmailsLead(lead).catch(() => {});
   res.status(201).json({ ok: true, lead });
 }
 
