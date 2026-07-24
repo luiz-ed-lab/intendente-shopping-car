@@ -68,6 +68,27 @@ function fonteDaLoja(chave) {
   return { tipo: 'portal', base: PORTAL, portalId: s };
 }
 
+// pega a logo do site da loja e re-hospeda como data URI (independência); se muito grande, guarda a URL
+async function pegarLogo(base, $) {
+  let src = null;
+  $('img').each((_, e) => {
+    if (src) return;
+    const s = $(e).attr('src') || '';
+    if (/logo/i.test(s) && !/autocerto\.com|whats|facebook|instagram|youtube|icon-|selo|bandeira|pixel/i.test(s)) src = s;
+  });
+  if (!src) { const a = $('a[href$="/index"], a[href="/"], a[href$="/Index"]').first(); src = a.find('img').attr('src') || null; }
+  if (!src) return null;
+  try { src = new URL(src, base).href; } catch (_) {}
+  try {
+    const r = await fetch(src, { headers: { 'User-Agent': 'ACEIMA-Importer/1.0' } });
+    if (!r.ok) return src;
+    const buf = Buffer.from(await r.arrayBuffer());
+    const ct = r.headers.get('content-type') || 'image/png';
+    if (buf.length && buf.length <= 160000) return `data:${ct};base64,${buf.toString('base64')}`;
+    return src;
+  } catch (_) { return src; }
+}
+
 // ---------------- ROBÔ: site próprio da loja ----------------
 async function lerSite(base) {
   const $ = cheerio.load(await get(base + '/Veiculos'));
@@ -107,7 +128,8 @@ async function lerSite(base) {
       ano: sl.ano || intDe(ctxt.match(/Ano\s*(\d{4})/i))
     });
   });
-  return itens;
+  const logo = await pegarLogo(base, $);
+  return { itens, logo };
 }
 // detalhe do site próprio: só enriquece fotos + opcionais
 async function detalheSite(base, slug, id) {
@@ -249,7 +271,10 @@ async function rotaImportar(req, res) {
     if (!chave) { resultado.push({ loja: loja.nome, erro: 'sem site/ID cadastrado' }); continue; }
     try {
       const fonte = fonteDaLoja(chave);
-      const itens = fonte.tipo === 'site' ? await lerSite(fonte.base) : await lerPortal(fonte.base, fonte.portalId);
+      let itens, logoSite = null;
+      if (fonte.tipo === 'site') { const r = await lerSite(fonte.base); itens = r.itens; logoSite = r.logo; }
+      else { itens = await lerPortal(fonte.base, fonte.portalId); }
+      if (logoSite && !loja.logo_url) { try { await query('update lojas set logo_url = $1 where id = $2', [logoSite, loja.id]); } catch (_) {} }
       await query('update veiculos set ativo = false where loja_id = $1', [loja.id]);
       for (const it of itens) {
         let extra = {};
