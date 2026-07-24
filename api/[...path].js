@@ -4,7 +4,7 @@
 //    GET  /api/lojas            -> lista lojas ativas
 //    POST /api/lojas            -> cadastra loja
 //    GET  /api/veiculos?...     -> busca de veículos com filtros
-//    POST /api/leads            -> grava um lead
+//    GET/POST /api/leads       -> lista/grava leads
 //    GET  /api/importar?loja=ID -> roda o robô (cron de hora em hora)
 //
 //  Robô VALIDADO contra o HTML real da Luma Car (52 veículos lidos ok).
@@ -112,6 +112,15 @@ async function rotaVeiculos(req, res) {
 }
 
 async function rotaLeads(req, res) {
+  if (req.method === 'GET') {
+    const { rows } = await query(
+      `select le.*, lo.nome as loja_nome, (v.marca || ' ' || v.modelo) as veiculo_nome
+         from leads le
+         left join lojas lo on lo.id = le.loja_id
+         left join veiculos v on v.id = le.veiculo_id
+        order by le.criado_em desc limit 200`);
+    return res.json(rows);
+  }
   if (req.method !== 'POST') return res.status(405).end();
   const b = req.body || {};
   const { rows: [lead] } = await query(
