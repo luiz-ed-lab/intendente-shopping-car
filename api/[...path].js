@@ -75,10 +75,10 @@ async function lerSite(base) {
   const modelos = uniqTexts($, 'a[href*="modelo="]').map(t => t.toUpperCase()).sort((a, b) => b.length - a.length);
   const vistos = new Set();
   const itens = [];
-  $('a[href*="/Veiculo/"][href*="/detalhes"]').each((_, a) => {
+  $('a[href*="Veiculo/"][href*="detalhes"]').each((_, a) => {
     const $a = $(a);
     const href = $a.attr('href') || '';
-    const m = href.match(/\/Veiculo\/([^/]+)\/(\d+)\/detalhes/);
+    const m = href.match(/Veiculo\/([^/]+)\/(\d+)\/detalhes/);
     if (!m) return;
     const id = m[2];
     const titulo = $a.text().trim().replace(/\s+/g, ' ');
@@ -125,8 +125,8 @@ async function lerPortal(base, portalId) {
   const itens = [];
   $('.result-item').each((_, card) => {
     const $c = $(card);
-    const a = $c.find('a[href*="/Veiculo/"][href*="/detalhes"]').first();
-    const m = (a.attr('href') || '').match(/\/Veiculo\/([^/]+)\/(\d+)\/detalhes/);
+    const a = $c.find('a[href*="Veiculo/"][href*="detalhes"]').first();
+    const m = (a.attr('href') || '').match(/Veiculo\/([^/]+)\/(\d+)\/detalhes/);
     if (!m) return;
     const preco = precoDe($c.find('.price').first().text() + ',');
     const img = $c.find('img').first().attr('src') || null;
