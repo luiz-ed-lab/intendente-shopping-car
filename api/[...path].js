@@ -163,9 +163,9 @@ async function rotaLojas(req, res) {
     const b = req.body || {};
     if (!b.nome) return res.status(400).json({ erro: 'nome é obrigatório' });
     const { rows: [loja] } = await query(
-      `insert into lojas (nome, endereco, telefone, whatsapp, email, autocerto_id, autocerto_url)
-       values ($1,$2,$3,$4,$5,$6,$7) returning *`,
-      [b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id, b.autocerto_url]);
+      `insert into lojas (nome, endereco, telefone, whatsapp, email, autocerto_id, autocerto_url, logo_url)
+       values ($1,$2,$3,$4,$5,$6,$7,$8) returning *`,
+      [b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id, b.autocerto_url, b.logo_url || null]);
     return res.status(201).json(loja);
   }
   if (req.method === 'PATCH') {
@@ -174,9 +174,10 @@ async function rotaLojas(req, res) {
     const { rows: [loja] } = await query(
       `update lojas set nome=coalesce($2,nome), endereco=coalesce($3,endereco),
          telefone=coalesce($4,telefone), whatsapp=coalesce($5,whatsapp),
-         email=coalesce($6,email), autocerto_id=coalesce($7,autocerto_id)
+         email=coalesce($6,email), autocerto_id=coalesce($7,autocerto_id),
+         logo_url=coalesce($8,logo_url)
        where id=$1 returning *`,
-      [b.id, b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id]);
+      [b.id, b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id, b.logo_url || null]);
     return res.json(loja || { erro: 'loja não encontrada' });
   }
   if (req.method === 'DELETE') {
@@ -211,7 +212,7 @@ async function rotaVeiculos(req, res) {
   if (q.anoAte) add('v.ano_modelo <= ?', q.anoAte);
   if (q.kmAte) add('v.km <= ?', q.kmAte);
   const { rows } = await query(
-    `select v.*, l.nome as loja_nome, l.whatsapp as loja_whatsapp, l.logo_url as loja_logo
+    `select v.*, l.nome as loja_nome, l.whatsapp as loja_whatsapp
        from veiculos v join lojas l on l.id = v.loja_id
       where ${cond.join(' and ')} order by v.sincronizado_em desc limit 500`, p);
   res.json(rows);
