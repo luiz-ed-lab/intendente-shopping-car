@@ -1251,6 +1251,8 @@ async function carregarDados(){
       atualizaHomeTotal();
     }
   }catch(e){ /* se a API falhar, mantém os carros de exemplo */ }
+  // atualização por visita: pede pro servidor reler a loja mais desatualizada (tem trava, não repete)
+  setTimeout(()=>{ fetch('/api/refresh?path=refresh&horas=2').catch(()=>{}); }, 1500);
 }
 
 /* init */
