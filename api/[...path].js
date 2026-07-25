@@ -30,6 +30,7 @@ async function migra() {
   try { await query("alter table leads add column if not exists status text default 'novo'"); } catch (_) {}
   try { await query('alter table lojas add column if not exists ultima_sync timestamptz'); } catch (_) {}
   try { await query('alter table lojas add column if not exists ultimo_erro text'); } catch (_) {}
+  try { await query('create table if not exists config (chave text primary key, valor text, em timestamptz default now())'); } catch (_) {}
   migrado = true;
 }
 const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
@@ -335,16 +336,11 @@ async function rotaLeads(req, res) {
   res.status(201).json({ ok: true, lead });
 }
 
-async function rotaImportar(req, res) {
-  await migra();
-  const soLoja = req.query.loja;
-  const { rows: lojas } = soLoja
-    ? await query('select * from lojas where ativa = true and id = $1', [soLoja])
-    : await query('select * from lojas where ativa = true');
-  const resultado = [];
-  for (const loja of lojas) {
+// importa UMA loja (usado pelo importar manual, pelo cron e pelo refresh por visita)
+async function importarLoja(loja) {
+  {
     const chave = loja.autocerto_url || loja.autocerto_id;
-    if (!chave) { resultado.push({ loja: loja.nome, erro: 'sem site/ID cadastrado' }); continue; }
+    if (!chave) { return { loja: loja.nome, erro: 'sem site/ID cadastrado' }; }
     try {
       const fonte = fonteDaLoja(chave);
       let itens, logoSite = null, contato = null;
@@ -392,19 +388,60 @@ async function rotaImportar(req, res) {
            extra.opcionais || [], fotos]);
       }
       try { await query('update lojas set ultima_sync = now(), ultimo_erro = null where id = $1', [loja.id]); } catch (_) {}
-      resultado.push({ loja: loja.nome, veiculos: itens.length });
-      await pausa(500);
+      return { loja: loja.nome, veiculos: itens.length };
     } catch (e) {
       try { await query('update lojas set ultima_sync = now(), ultimo_erro = $1 where id = $2', [String(e.message).slice(0, 300), loja.id]); } catch (_) {}
-      resultado.push({ loja: loja.nome, erro: e.message });
+      return { loja: loja.nome, erro: e.message };
     }
   }
+}
+
+// resumo diário (no máximo 1x a cada 20h), disparado junto das sincronizações
+async function resumoSeDevido() {
+  try {
+    const { rows: [c] } = await query("select em from config where chave='ultimo_resumo'");
+    const devido = !c || (Date.now() - new Date(c.em).getTime()) > 20 * 3600 * 1000;
+    if (devido && process.env.RESEND_API_KEY) {
+      await enviarResumo();
+      await query("insert into config (chave, valor, em) values ('ultimo_resumo', 'ok', now()) on conflict (chave) do update set em = now()");
+    }
+  } catch (_) {}
+}
+
+async function rotaImportar(req, res) {
+  await migra();
+  const soLoja = req.query.loja;
+  // sem ?loja=ID, importa UMA loja por chamada (a mais desatualizada) para não estourar o tempo da função
+  const { rows: lojas } = soLoja
+    ? await query('select * from lojas where ativa = true and id = $1', [soLoja])
+    : await query('select * from lojas where ativa = true order by ultima_sync asc nulls first limit 1');
+  const resultado = [];
+  for (const loja of lojas) { resultado.push(await importarLoja(loja)); }
+  await resumoSeDevido();
   res.json({ ok: true, lojas: resultado });
 }
 
-// resumo diário para a ACEIMA (roda no cron)
-async function rotaResumo(req, res) {
+// atualização por visita: relê a loja mais desatualizada, com trava para não repetir
+async function rotaRefresh(req, res) {
   await migra();
+  const horas = Math.max(1, parseInt(req.query.horas || '2') || 2);
+  try {
+    const { rows: [lk] } = await query("select em from config where chave='refresh_lock'");
+    if (lk && (Date.now() - new Date(lk.em).getTime()) < 150000) return res.json({ ok: true, pulado: 'recente' });
+  } catch (_) {}
+  const { rows: [loja] } = await query(
+    `select * from lojas where ativa = true
+       and (ultima_sync is null or ultima_sync < now() - ($1 || ' hours')::interval)
+     order by ultima_sync asc nulls first limit 1`, [String(horas)]);
+  if (!loja) return res.json({ ok: true, atualizado: false });
+  await query("insert into config (chave, valor, em) values ('refresh_lock','1',now()) on conflict (chave) do update set em = now()");
+  const r = await importarLoja(loja);
+  await resumoSeDevido();
+  res.json({ ok: true, atualizado: true, ...r });
+}
+
+// resumo diário para a ACEIMA
+async function enviarResumo() {
   const { rows: porLoja } = await query(
     `select coalesce(lo.nome,'(sem loja / quer vender)') as loja,
             count(*) filter (where le.tipo='venda')  as vendas,
@@ -430,7 +467,11 @@ async function rotaResumo(req, res) {
       body: JSON.stringify({ from: 'ACEIMA <leads@intendenteautoshopping.com.br>', to: [ACEIMA_MAIL], subject: 'Resumo diário de leads — ACEIMA', text: linhas.join('\n') })
     });
   }
-  res.json({ ok: true, enviado: !!key, para: ACEIMA_MAIL, resumo: linhas });
+  return { enviado: !!key, para: ACEIMA_MAIL, resumo: linhas };
+}
+async function rotaResumo(req, res) {
+  await migra();
+  res.json({ ok: true, ...(await enviarResumo()) });
 }
 
 // ---------------- ROTEADOR ----------------
@@ -448,6 +489,7 @@ export default async function handler(req, res) {
     if (rota === 'leads') return await rotaLeads(req, res);
     if (rota === 'importar') return await rotaImportar(req, res);
     if (rota === 'resumo') return await rotaResumo(req, res);
+    if (rota === 'refresh') return await rotaRefresh(req, res);
     res.status(404).json({ erro: 'rota não encontrada', rota });
   } catch (e) {
     res.status(500).json({ erro: e.message });
