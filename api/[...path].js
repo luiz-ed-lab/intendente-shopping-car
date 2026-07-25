@@ -31,6 +31,10 @@ async function migra() {
   try { await query('alter table lojas add column if not exists ultima_sync timestamptz'); } catch (_) {}
   try { await query('alter table lojas add column if not exists ultimo_erro text'); } catch (_) {}
   try { await query('create table if not exists config (chave text primary key, valor text, em timestamptz default now())'); } catch (_) {}
+  // quando o veículo entrou no nosso site (para contar novos/saíram no resumo)
+  try { await query('alter table veiculos add column if not exists criado_em timestamptz'); } catch (_) {}
+  try { await query('update veiculos set criado_em = coalesce(sincronizado_em, now()) where criado_em is null'); } catch (_) {}
+  try { await query('alter table veiculos alter column criado_em set default now()'); } catch (_) {}
   migrado = true;
 }
 const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
@@ -50,29 +54,57 @@ function linhaInfo(rotulo, valor, destaque) {
   </tr>`;
 }
 function emailLayout({ etiqueta, titulo, subtitulo, tabela, botao, aviso, rodape }) {
-  return `<!doctype html><html><body style="margin:0;padding:0;background:#f5f3f2">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f3f2;padding:24px 12px">
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    @media only screen and (max-width:600px){
+      .pad{padding-left:16px!important;padding-right:16px!important}
+      .card{display:block!important;width:100%!important;padding:0 0 8px 0!important}
+      .h1{font-size:19px!important}
+      .cta{display:block!important;text-align:center!important}
+      .num{font-size:22px!important}
+      .col-min{font-size:12px!important}
+      .esconde{display:none!important}
+    }
+  </style></head><body style="margin:0;padding:0;background:#f5f3f2;-webkit-text-size-adjust:100%">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f3f2;padding:20px 10px">
    <tr><td align="center">
-    <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(40,10,6,.08)">
-      <tr><td style="background:linear-gradient(135deg,#2b0703,#9c2015);padding:22px 26px">
-        <img src="${SITE_URL}/logo.png" alt="Nova Intendente Shopping Car" width="150" style="display:block;border:0;max-width:150px;height:auto">
+    <table role="presentation" cellpadding="0" cellspacing="0" style="max-width:620px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden">
+      <tr><td class="pad" style="background:#7a1a10;padding:20px 26px">
+        <img src="${SITE_URL}/logo.png" alt="Nova Intendente Shopping Car" width="160" style="display:block;border:0;width:160px;max-width:60%;height:auto">
       </td></tr>
-      <tr><td style="padding:26px 26px 6px">
-        ${etiqueta ? `<div style="display:inline-block;background:#fdeede;color:#c2410c;font:700 11px/1 Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;padding:7px 12px;border-radius:99px;margin-bottom:14px">${esc(etiqueta)}</div>` : ''}
-        <h1 style="margin:0;font:800 22px/1.25 Arial,sans-serif;color:#280a06">${esc(titulo)}</h1>
+      <tr><td class="pad" style="padding:24px 26px 4px">
+        ${etiqueta ? `<div style="display:inline-block;background:#fdeede;color:#c2410c;font:700 11px/1 Arial,sans-serif;letter-spacing:.8px;text-transform:uppercase;padding:7px 12px;border-radius:99px;margin-bottom:14px">${esc(etiqueta)}</div>` : ''}
+        <h1 class="h1" style="margin:0;font:700 22px/1.3 Arial,sans-serif;color:#280a06">${esc(titulo)}</h1>
         ${subtitulo ? `<p style="margin:8px 0 0;font:400 14px/1.6 Arial,sans-serif;color:#6b5a55">${esc(subtitulo)}</p>` : ''}
       </td></tr>
-      ${tabela ? `<tr><td style="padding:12px 26px 4px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${tabela}</table></td></tr>` : ''}
-      ${botao ? `<tr><td style="padding:22px 26px 4px"><a href="${botao.url}" style="display:inline-block;background:#25a35a;color:#ffffff;font:700 15px/1 Arial,sans-serif;text-decoration:none;padding:15px 26px;border-radius:10px">${esc(botao.texto)}</a></td></tr>` : ''}
-      ${aviso ? `<tr><td style="padding:20px 26px 0"><div style="background:#fdf4f2;border:1px solid #f5ddd6;border-radius:12px;padding:14px 16px;font:400 13px/1.6 Arial,sans-serif;color:#94564c">${aviso}</div></td></tr>` : ''}
-      <tr><td style="padding:24px 26px 26px">
-        <div style="border-top:1px solid #f1e8e5;padding-top:16px;font:400 12px/1.7 Arial,sans-serif;color:#94867f">
-          ${rodape || 'Mensagem automática enviada pela ACEIMA — Associação dos Comerciantes da Estrada Intendente Magalhães.'}
-        </div>
-      </td></tr>
+      ${tabela ? `<tr><td class="pad" style="padding:14px 26px 4px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${tabela}</table></td></tr>` : ''}
+      ${aviso ? `<tr><td class="pad" style="padding:16px 26px 0"><div style="background:#fdf4f2;border:1px solid #f5ddd6;border-radius:12px;padding:14px 16px;font:400 13px/1.6 Arial,sans-serif;color:#94564c">${aviso}</div></td></tr>` : ''}
+      ${botao ? `<tr><td class="pad" style="padding:22px 26px 26px"><a class="cta" href="${botao.url}" style="display:inline-block;background:#25a35a;color:#ffffff;font:700 15px/1 Arial,sans-serif;text-decoration:none;padding:15px 26px;border-radius:10px">${esc(botao.texto)}</a></td></tr>` : ''}
+      ${rodape ? `<tr><td class="pad" style="padding:0 26px 26px">
+        <div style="border-top:1px solid #f1e8e5;padding-top:16px;font:400 12px/1.7 Arial,sans-serif;color:#94867f">${rodape}</div>
+      </td></tr>` : ''}
     </table>
    </td></tr>
   </table></body></html>`;
+}
+// blocos reutilizáveis do resumo
+function tituloSecao(txt, margemTopo) {
+  return `<tr><td style="padding:${margemTopo || 22}px 0 10px"><div style="font:700 12px/1 Arial,sans-serif;color:#b6a9a3;letter-spacing:1px;text-transform:uppercase">${esc(txt)}</div></td></tr>`;
+}
+function cartoes(itens) {
+  return `<tr><td><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${itens.map(c => `
+    <td class="card" width="${Math.floor(100 / itens.length)}%" valign="top" style="padding:0 4px">
+      <div style="background:#faf7f6;border:1px solid #f1e8e5;border-radius:12px;padding:14px 12px;text-align:center">
+        <div class="num" style="font:700 26px/1 Arial,sans-serif;color:${c.cor}">${c.valor}</div>
+        <div style="font:600 11px/1.35 Arial,sans-serif;color:#94867f;text-transform:uppercase;letter-spacing:.4px;margin-top:6px">${esc(c.rotulo)}</div>
+      </div></td>`).join('')}</tr></table></td></tr>`;
+}
+function tabelaDados(colunas, linhas, vazio) {
+  const th = colunas.map((c, i) => `<th align="${i === 0 ? 'left' : 'center'}" class="${i > 2 ? 'esconde' : ''}" style="padding:0 6px 8px;font:700 11px/1.2 Arial,sans-serif;color:#b6a9a3;text-transform:uppercase;letter-spacing:.5px">${esc(c)}</th>`).join('');
+  const tr = linhas.length ? linhas.map(l => `<tr>${l.map((cel, i) => `
+      <td align="${i === 0 ? 'left' : 'center'}" class="${i > 2 ? 'esconde' : ''} col-min" style="padding:11px 6px;border-top:1px solid #f4eeec;font:${i === 0 ? '700' : '400'} 13px/1.4 Arial,sans-serif;color:${i === 0 ? '#241b19' : '#5f5e5a'}">${cel}</td>`).join('')}</tr>`).join('')
+    : `<tr><td colspan="${colunas.length}" style="padding:14px 6px;border-top:1px solid #f4eeec;font:400 13px/1.4 Arial,sans-serif;color:#94867f">${esc(vazio || 'Nada por aqui.')}</td></tr>`;
+  return `<tr><td><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>${th}</tr>${tr}</table></td></tr>`;
 }
 
 // envio de e-mail dos leads — pronto para quando a chave do Resend estiver configurada.
@@ -515,66 +547,103 @@ async function rotaRefresh(req, res) {
 
 // resumo diário para a ACEIMA
 async function enviarResumo() {
-  const { rows: porLoja } = await query(
-    `select coalesce(lo.nome,'(sem loja / quer vender)') as loja,
-            count(*) filter (where le.tipo='venda')  as vendas,
-            count(*) filter (where le.tipo='compra') as compras,
-            count(*) filter (where coalesce(le.status,'novo')='novo') as novos
-       from leads le left join lojas lo on lo.id = le.loja_id
-      where le.criado_em >= now() - interval '1 day'
-      group by 1 order by 2 desc, 3 desc`);
-  const { rows: [tot] } = await query("select count(*) as n from leads where criado_em >= now() - interval '1 day'");
-  const { rows: lojasErro } = await query('select nome, ultimo_erro from lojas where ativa=true and ultimo_erro is not null');
+  // 1) LEADS de compra de carro (interesse em anúncio) por loja
+  const { rows: leadsLoja } = await query(
+    `select lo.nome as loja,
+            count(*) as total,
+            count(*) filter (where coalesce(le.status,'novo')='novo') as parados
+       from leads le join lojas lo on lo.id = le.loja_id
+      where le.criado_em >= now() - interval '1 day' and coalesce(le.tipo,'venda')='venda'
+      group by lo.nome order by 2 desc`);
+  // 2) LEADS de quem quer vender o próprio carro (não tem loja definida)
+  const { rows: [aval] } = await query(
+    `select count(*) as total, count(*) filter (where coalesce(status,'novo')='novo') as parados
+       from leads where criado_em >= now() - interval '1 day' and tipo='compra'`);
+  // 3) ESTOQUE por loja
+  const { rows: estoque } = await query(
+    `select l.nome, l.ultima_sync, l.ultimo_erro,
+            count(v.id) filter (where v.ativo and not coalesce(v.oculto,false)) as no_ar,
+            count(v.id) filter (where v.criado_em >= now() - interval '1 day') as novos,
+            count(v.id) filter (where not v.ativo and v.sincronizado_em >= now() - interval '1 day') as sairam,
+            count(v.id) filter (where coalesce(v.oculto,false)) as ocultos
+       from lojas l left join veiculos v on v.loja_id = l.id
+      where l.ativa = true
+      group by l.id, l.nome, l.ultima_sync, l.ultimo_erro
+      order by l.nome`);
+
+  const n = x => Number(x || 0);
+  const somaLeads = leadsLoja.reduce((s, l) => s + n(l.total), 0) + n(aval.total);
+  const parados = leadsLoja.reduce((s, l) => s + n(l.parados), 0) + n(aval.parados);
+  const totNoAr = estoque.reduce((s, l) => s + n(l.no_ar), 0);
+  const totNovos = estoque.reduce((s, l) => s + n(l.novos), 0);
+  const totSairam = estoque.reduce((s, l) => s + n(l.sairam), 0);
+  const totOcultos = estoque.reduce((s, l) => s + n(l.ocultos), 0);
+  const lojasErro = estoque.filter(l => l.ultimo_erro);
+
+  // versão em texto puro (para quem não vê HTML)
   const linhas = [
     'Resumo das últimas 24h — Intendente Shopping Car', '',
-    'Total de leads: ' + tot.n, ''
+    `Leads: ${somaLeads} (${parados} sem atendimento)`,
+    `Estoque no ar: ${totNoAr} · entraram ${totNovos} · saíram ${totSairam} · ocultos ${totOcultos}`, ''
   ];
-  if (porLoja.length) { porLoja.forEach(l => linhas.push(`${l.loja}: ${l.vendas} querem comprar · ${l.compras} querem vender · ${l.novos} sem atendimento`)); }
-  else linhas.push('Nenhum lead nas últimas 24h.');
-  if (lojasErro.length) { linhas.push('', 'Lojas com falha na sincronização:'); lojasErro.forEach(l => linhas.push(`- ${l.nome}: ${l.ultimo_erro}`)); }
+  leadsLoja.forEach(l => linhas.push(`${l.loja}: ${l.total} interessados (${l.parados} sem atendimento)`));
+  if (n(aval.total)) linhas.push(`Avaliação de veículo (cliente quer vender): ${aval.total} (${aval.parados} sem atendimento)`);
+  linhas.push('');
+  estoque.forEach(l => linhas.push(`${l.nome}: ${l.no_ar} no ar · +${l.novos} · -${l.sairam}${l.ultimo_erro ? ' · FALHA na sincronização' : ''}`));
 
-  const semAtend = porLoja.reduce((s, l) => s + Number(l.novos || 0), 0);
-  const cartao = (rotulo, valor, cor) => `<td width="33%" style="padding:0 5px">
-      <div style="background:#faf7f6;border:1px solid #f1e8e5;border-radius:12px;padding:14px 12px;text-align:center">
-        <div style="font:800 26px/1 Arial,sans-serif;color:${cor}">${valor}</div>
-        <div style="font:600 11px/1.3 Arial,sans-serif;color:#94867f;text-transform:uppercase;letter-spacing:.5px;margin-top:6px">${rotulo}</div>
-      </div></td>`;
-  const linhasTab = porLoja.length
-    ? porLoja.map(l => `<tr>
-        <td style="padding:12px 10px;border-bottom:1px solid #f1e8e5;font:700 14px/1.3 Arial,sans-serif;color:#241b19">${esc(l.loja)}</td>
-        <td align="center" style="padding:12px 6px;border-bottom:1px solid #f1e8e5;font:400 14px/1.3 Arial,sans-serif;color:#1c6fb0">${l.vendas}</td>
-        <td align="center" style="padding:12px 6px;border-bottom:1px solid #f1e8e5;font:400 14px/1.3 Arial,sans-serif;color:#158043">${l.compras}</td>
-        <td align="center" style="padding:12px 6px;border-bottom:1px solid #f1e8e5;font:700 14px/1.3 Arial,sans-serif;color:${Number(l.novos) > 0 ? '#c2410c' : '#94867f'}">${l.novos}</td>
-      </tr>`).join('')
-    : `<tr><td colspan="4" style="padding:18px 10px;font:400 14px/1.4 Arial,sans-serif;color:#94867f">Nenhum lead nas últimas 24 horas.</td></tr>`;
+  const quando = iso => {
+    if (!iso) return 'nunca';
+    const h = Math.floor((Date.now() - new Date(iso).getTime()) / 3600000);
+    if (h < 1) return 'agora';
+    if (h < 24) return h + 'h';
+    return Math.floor(h / 24) + 'd';
+  };
+  const badge = (txt, fundo, cor) => `<span style="display:inline-block;background:${fundo};color:${cor};font:700 11px/1 Arial,sans-serif;padding:5px 9px;border-radius:99px">${esc(txt)}</span>`;
 
-  const tabela = `<tr><td style="padding-bottom:18px">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-        ${cartao('Leads em 24h', tot.n, '#d3372a')}
-        ${cartao('Sem atendimento', semAtend, semAtend > 0 ? '#c2410c' : '#158043')}
-        ${cartao('Lojas ativas', porLoja.length, '#1c6fb0')}
-      </tr></table></td></tr>
-    <tr><td>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse">
-        <tr>
-          <th align="left" style="padding:0 10px 8px;font:700 11px/1.2 Arial,sans-serif;color:#b6a9a3;text-transform:uppercase;letter-spacing:.6px">Loja</th>
-          <th align="center" style="padding:0 6px 8px;font:700 11px/1.2 Arial,sans-serif;color:#b6a9a3;text-transform:uppercase;letter-spacing:.6px">Comprar</th>
-          <th align="center" style="padding:0 6px 8px;font:700 11px/1.2 Arial,sans-serif;color:#b6a9a3;text-transform:uppercase;letter-spacing:.6px">Vender</th>
-          <th align="center" style="padding:0 6px 8px;font:700 11px/1.2 Arial,sans-serif;color:#b6a9a3;text-transform:uppercase;letter-spacing:.6px">Parados</th>
-        </tr>
-        ${linhasTab}
-      </table></td></tr>`;
+  const tabela = [
+    tituloSecao('Leads recebidos', 2),
+    cartoes([
+      { rotulo: 'Leads em 24h', valor: somaLeads, cor: '#993C1D' },
+      { rotulo: 'Sem atendimento', valor: parados, cor: parados > 0 ? '#854F0B' : '#0F6E56' },
+      { rotulo: 'Querem vender', valor: n(aval.total), cor: '#185FA5' }
+    ]),
+    tituloSecao('Interesse nos anúncios, por loja'),
+    tabelaDados(['Loja', 'Contatos', 'Sem atendimento'],
+      leadsLoja.map(l => [esc(l.loja), n(l.total), n(l.parados) > 0 ? `<b style="color:#993C1D">${l.parados}</b>` : '0']),
+      'Nenhum cliente entrou em contato nas últimas 24h.'),
+    tituloSecao('Clientes que querem vender o próprio carro'),
+    tabelaDados(['Origem', 'Contatos', 'Sem atendimento'],
+      n(aval.total) ? [['Formulário de avaliação do site', n(aval.total), n(aval.parados) > 0 ? `<b style="color:#993C1D">${aval.parados}</b>` : '0']] : [],
+      'Ninguém pediu avaliação nas últimas 24h.'),
+    tituloSecao('Estoque no site'),
+    cartoes([
+      { rotulo: 'Veículos no ar', valor: totNoAr, cor: '#993C1D' },
+      { rotulo: 'Entraram', valor: '+' + totNovos, cor: '#0F6E56' },
+      { rotulo: 'Saíram', valor: '-' + totSairam, cor: '#854F0B' },
+      { rotulo: 'Ocultos', valor: totOcultos, cor: '#5F5E5A' }
+    ]),
+    tituloSecao('Estoque por loja'),
+    tabelaDados(['Loja', 'No ar', 'Entraram', 'Saíram', 'Sincronizou'],
+      estoque.map(l => [
+        esc(l.nome) + (l.ultimo_erro ? ' ' + badge('falha', '#fdeaea', '#b3261e') : ''),
+        n(l.no_ar),
+        n(l.novos) > 0 ? `<b style="color:#0F6E56">+${l.novos}</b>` : '0',
+        n(l.sairam) > 0 ? `<b style="color:#854F0B">-${l.sairam}</b>` : '0',
+        quando(l.ultima_sync)
+      ]),
+      'Nenhuma loja cadastrada.')
+  ].join('');
 
   const html = emailLayout({
     etiqueta: 'Resumo diário',
-    titulo: 'Como andaram os leads nas últimas 24h',
-    subtitulo: 'Panorama por loja: quem procurou para comprar, quem quer vender e quantos contatos seguem sem atendimento.',
+    titulo: 'Resumo das últimas 24 horas',
+    subtitulo: 'Contatos recebidos pelo site e movimentação do estoque das lojas.',
     tabela,
-    botao: { url: SITE_URL + '/painel.html', texto: 'Abrir o painel da ACEIMA' },
     aviso: lojasErro.length
-      ? '<b>Atenção:</b> ' + lojasErro.map(l => esc(l.nome)).join(', ') + ' — o estoque não conseguiu ser atualizado. Verifique se o site da loja está no ar.'
+      ? '<b>Sincronização com falha:</b> ' + lojasErro.map(l => esc(l.nome)).join(', ') + '. O estoque dessas lojas pode estar desatualizado no site — vale checar se o site delas está no ar.'
       : null,
-    rodape: 'Resumo automático da ACEIMA · gerado a partir dos contatos recebidos pelo site.'
+    botao: { url: SITE_URL + '/painel.html', texto: 'Abrir o painel da ACEIMA' },
+    rodape: null
   });
 
   const key = process.env.RESEND_API_KEY;
@@ -582,7 +651,7 @@ async function enviarResumo() {
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: REMETENTE, to: [ACEIMA_MAIL], subject: 'Resumo diário de leads — ACEIMA', text: linhas.join('\n'), html })
+      body: JSON.stringify({ from: REMETENTE, to: [ACEIMA_MAIL], subject: 'Resumo diário — Intendente Shopping Car', text: linhas.join('\n'), html })
     });
   }
   return { enviado: !!key, para: ACEIMA_MAIL, resumo: linhas };
