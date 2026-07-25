@@ -18,6 +18,7 @@
     --fh:'Plus Jakarta Sans',system-ui,sans-serif; --fb:'Plus Jakarta Sans',system-ui,sans-serif;
   }
   *{margin:0;padding:0;box-sizing:border-box}
+  html,body{max-width:100%;overflow-x:hidden}
   body{font-family:var(--fb);background:var(--bg);color:var(--txt);font-size:14.5px;line-height:1.5;letter-spacing:-.1px;-webkit-font-smoothing:antialiased}
   img{display:block;max-width:100%}
   button{font-family:inherit;cursor:pointer;border:none;background:none}
@@ -387,6 +388,8 @@
       <input id="fNome" placeholder="Ex: Auto Prime Veículos">
       <label>Endereço do site da loja</label>
       <input id="fUrl" placeholder="Ex: https://autobarra.com.br">
+      <label>E-mail da loja</label>
+      <input id="fEmail" placeholder="o robô preenche se o site publicar">
     </div>
     <div class="mfoot">
       <button class="btn ghost" onclick="closeM('mAdd')">Cancelar</button>
@@ -587,8 +590,8 @@ function entrar(){
    document.getElementById('lerr').style.display='block';
  }
 }
-function openAdd(){editId=null;document.getElementById('mAddTitle').textContent='Adicionar loja';['fNome','fUrl'].forEach(id=>document.getElementById(id).value='');document.getElementById('mAdd').classList.add('on');}
-function openEdit(i){const l=lojas[i];editId=l[6];const raw=lojasApi.find(x=>x.id===editId)||{};document.getElementById('mAddTitle').textContent='Editar loja';document.getElementById('fNome').value=l[0];document.getElementById('fUrl').value=raw.autocerto_id||raw.autocerto_url||l[2]||'';document.getElementById('mAdd').classList.add('on');}
+function openAdd(){editId=null;document.getElementById('mAddTitle').textContent='Adicionar loja';['fNome','fUrl','fEmail'].forEach(id=>document.getElementById(id).value='');document.getElementById('mAdd').classList.add('on');}
+function openEdit(i){const l=lojas[i];editId=l[6];const raw=lojasApi.find(x=>x.id===editId)||{};document.getElementById('mAddTitle').textContent='Editar loja';document.getElementById('fNome').value=l[0];document.getElementById('fUrl').value=raw.autocerto_id||raw.autocerto_url||l[2]||'';document.getElementById('fEmail').value=raw.email||'';document.getElementById('mAdd').classList.add('on');}
 async function excluirLoja(i){const l=lojas[i];if(!confirm('Excluir a loja "'+l[0]+'"? Os veículos dela saem do site.'))return;try{await fetch('/api/lojas?path=lojas&id='+l[6],{method:'DELETE'});toast(l[0]+' excluída');await carregarPainel();}catch(e){toast('Erro ao excluir');}}
 function closeM(id){document.getElementById(id).classList.remove('on');}
 
@@ -624,6 +627,7 @@ async function runImport(i, dbIdArg, nomeArg, idArg){
 async function addLoja(){
  const nome=document.getElementById('fNome').value.trim();
  const url=document.getElementById('fUrl').value.trim();   // site próprio da loja (ou ID do portal)
+ const email=document.getElementById('fEmail').value.trim()||null;
  if(!nome || !url){ toast('Preencha o nome e o site da loja'); return; }
  closeM('mAdd');
  if(editId){
@@ -631,7 +635,7 @@ async function addLoja(){
    toast('Salvando '+nome+'…');
    try{
      await fetch('/api/lojas?path=lojas',{method:'PATCH',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({id, nome, autocerto_id:url})});
+       body:JSON.stringify({id, nome, autocerto_id:url, email})});
      await carregarPainel(); toast(nome+' atualizada');
    }catch(e){ toast('Erro ao salvar: '+e.message); }
    return;
@@ -639,7 +643,7 @@ async function addLoja(){
  toast('Cadastrando '+nome+'…');
  try{
    const r=await fetch('/api/lojas?path=lojas',{method:'POST',headers:{'Content-Type':'application/json'},
-     body:JSON.stringify({nome, autocerto_id:url})});
+     body:JSON.stringify({nome, autocerto_id:url, email})});
    const loja=await r.json();
    await carregarPainel();
    runImport(-1, loja.id, nome, url);   // já roda o robô na loja nova
