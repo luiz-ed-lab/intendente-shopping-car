@@ -198,6 +198,26 @@
   .toast.on{opacity:1;transform:none}
   .toast .ok{width:22px;height:22px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
+  /* seletor próprio (o <select> do sistema não aceita cantos arredondados na lista) */
+  .dd{position:relative;display:inline-block;vertical-align:top}
+  .dd>select{position:absolute;width:0;height:0;opacity:0;pointer-events:none}
+  .dd-t{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+        padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;
+        font-size:.84rem;font-family:inherit;color:var(--txt);cursor:pointer;transition:.15s}
+  .dd-t:hover{border-color:var(--soft)}
+  .dd.on .dd-t{border-color:var(--red);box-shadow:0 0 0 3px rgba(211,55,42,.1)}
+  .dd-t svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.2;fill:none;flex-shrink:0;opacity:.55;transition:.2s}
+  .dd.on .dd-t svg{transform:rotate(180deg)}
+  .dd-p{position:absolute;top:calc(100% + 6px);left:0;min-width:100%;background:#fff;
+        border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh-lg);padding:6px;
+        display:none;z-index:70;max-height:262px;overflow:auto}
+  .dd.on .dd-p{display:block}
+  .dd-o{padding:10px 12px;border-radius:10px;font-size:.85rem;cursor:pointer;white-space:nowrap;transition:.1s}
+  .dd-o:hover{background:#faf7f6}
+  .dd-o.sel{background:#fdeeec;color:var(--red);font-weight:700}
+  .dd-p::-webkit-scrollbar{width:10px}
+  .dd-p::-webkit-scrollbar-thumb{background:#ddd0cb;border-radius:99px;border:3px solid #fff}
+
   /* notificações */
   .notifpop{position:absolute;top:52px;right:0;width:310px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh-lg);padding:6px;display:none;z-index:60}
   .notifpop.on{display:block}
@@ -299,6 +319,7 @@
       <div class="uchip">
         <div class="av">A</div>
         <div class="nm">Administrador<small>ACEIMA</small></div>
+        <button class="tbicon" title="Sair" onclick="sair()" style="margin-left:6px"><svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg></button>
       </div>
     </div>
 
@@ -438,7 +459,11 @@ let veicAll=[];    // objetos crus dos veículos (com id do banco)
 let leads=[];      // [data, nome, tel, veiculo, loja, canal, status]
 let leadsVistos=false, editId=null;
 let PAINEL_TOKEN='';
-try{PAINEL_TOKEN=sessionStorage.getItem('aceima_token')||'';}catch(e){}
+const SESSAO_HORAS=1;
+function salvarSessao(t){ try{ localStorage.setItem('aceima_sessao', JSON.stringify({t, exp:Date.now()+SESSAO_HORAS*3600000})); }catch(e){} }
+function lerSessao(){ try{ const s=JSON.parse(localStorage.getItem('aceima_sessao')||'null');
+  if(s && s.exp > Date.now()) return s; localStorage.removeItem('aceima_sessao'); }catch(e){} return null; }
+function sair(){ try{ localStorage.removeItem('aceima_sessao'); }catch(e){} location.reload(); }
 // toda chamada ao servidor leva a credencial do painel
 function api(url,opts){opts=opts||{};opts.headers=Object.assign({},opts.headers||{},{'x-painel-token':PAINEL_TOKEN});return fetch(url,opts);}
 const money=n=>'R$ '+Number(n||0).toLocaleString('pt-BR');
@@ -485,7 +510,46 @@ async function carregarPainel(){
     if(nums[3]) nums[3].textContent=syncs.length?quando(syncs[syncs.length-1]):'—';
     montarFiltros(); atualizaLeadBadge();
     renderLojas();renderDash();renderVeic();renderLeads();renderNotif();
+    aprimorarTodos();
   }catch(e){/* mantém o que tiver */}
+}
+
+/* ---------- SELETOR PRÓPRIO (troca o <select> do sistema, que não arredonda) ---------- */
+const setaBaixo='<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>';
+function aprimorarSelect(sel, cores){
+  if(!sel) return null;
+  if(sel.__dd){ sel.__dd.atualizar(); return sel.__dd; }
+  const wrap=document.createElement('div'); wrap.className='dd';
+  sel.parentNode.insertBefore(wrap, sel); wrap.appendChild(sel);
+  const t=document.createElement('button'); t.type='button'; t.className='dd-t';
+  const p=document.createElement('div'); p.className='dd-p';
+  wrap.appendChild(t); wrap.appendChild(p);
+  const api={
+    atualizar(){
+      const sel0=sel.options[sel.selectedIndex];
+      t.innerHTML='<span>'+(sel0?sel0.textContent:'')+'</span>'+setaBaixo;
+      if(cores){ const c=cores[sel.value]||['#fff','var(--txt)'];
+        t.style.background=c[0]; t.style.color=c[1]; t.style.borderColor=c[1]+'33'; t.style.fontWeight='700'; }
+      p.innerHTML='';
+      [...sel.options].forEach(o=>{
+        const d=document.createElement('div');
+        d.className='dd-o'+(o.value===sel.value?' sel':'');
+        d.textContent=o.textContent;
+        d.onclick=ev=>{ ev.stopPropagation(); sel.value=o.value; wrap.classList.remove('on');
+          api.atualizar(); sel.dispatchEvent(new Event('change',{bubbles:true})); };
+        p.appendChild(d);
+      });
+    }
+  };
+  t.onclick=ev=>{ ev.stopPropagation();
+    document.querySelectorAll('.dd.on').forEach(x=>{ if(x!==wrap) x.classList.remove('on'); });
+    wrap.classList.toggle('on'); };
+  sel.__dd=api; api.atualizar(); return api;
+}
+document.addEventListener('click',()=>document.querySelectorAll('.dd.on').forEach(x=>x.classList.remove('on')));
+function aprimorarTodos(){
+  ['fVLoja','fVMarca','fVOrd','fVStatus','repPeriodo'].forEach(id=>aprimorarSelect(document.getElementById(id)));
+  document.querySelectorAll('#leadsTb select').forEach(s=>aprimorarSelect(s, ST_COR));
 }
 
 const initials=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
@@ -665,9 +729,10 @@ function renderLeads(){
   <td><span class="tag" style="background:${t[1]};color:${t[2]}">${t[0]}</span></td>
   <td><b>${l[1]}</b></td><td>${l[2]}</td>
   <td>${l[3]||'—'}</td><td>${l[4]||(l[7]==='compra'?'Todas as lojas':'—')}</td>
-  <td><select onchange="mudarStatus(${l[8]},this.value)" style="padding:7px 10px;border:1.5px solid ${cor[1]}33;border-radius:9px;font-size:.8rem;font-weight:700;background:${cor[0]};color:${cor[1]}">
+  <td><select onchange="mudarStatus(${l[8]},this.value)">
     ${Object.keys(ST_LEAD).map(k=>`<option value="${k}"${k===l[6]?' selected':''}>${ST_LEAD[k]}</option>`).join('')}
   </select></td></tr>`;}).join(''):'<tr><td colspan="7" style="color:var(--muted);padding:22px 16px">Nenhum lead ainda.</td></tr>';
+ document.querySelectorAll('#leadsTb select').forEach(s=>aprimorarSelect(s, ST_COR));
 }
 async function mudarStatus(id,status){
  const l=leads.find(x=>x[8]===id); if(l)l[6]=status;
@@ -702,16 +767,19 @@ async function entrar(){
  }catch(e){ ok=false; }
  // enquanto a senha do servidor não estiver configurada, mantém o acesso local
  if(!protegido) ok = (u==='adm' && p==='Aceima2026');
- if(ok){
-   PAINEL_TOKEN = p;
-   try{ sessionStorage.setItem('aceima_token', p); }catch(e){}
-   document.getElementById('login').style.display='none';
-   document.getElementById('app').classList.add('on');
-   carregarPainel();
- }else{
-   err.style.display='block';
- }
+ if(ok){ salvarSessao(p); abrirPainel(p); }
+ else{ err.style.display='block'; }
 }
+function abrirPainel(token){
+  PAINEL_TOKEN = token;
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').classList.add('on');
+  carregarPainel();
+  const s=lerSessao();
+  if(s){ setTimeout(()=>{ alert('Sessão expirada. Entre novamente.'); sair(); }, Math.max(1000, s.exp - Date.now())); }
+}
+/* sessão de 1 hora: se ainda estiver válida, entra direto */
+(function(){ const s=lerSessao(); if(s && s.t) abrirPainel(s.t); })();
 function openAdd(){editId=null;document.getElementById('mAddTitle').textContent='Adicionar loja';['fNome','fUrl','fEmail'].forEach(id=>document.getElementById(id).value='');document.getElementById('mAdd').classList.add('on');}
 function openEdit(i){const l=lojas[i];editId=l[6];const raw=lojasApi.find(x=>x.id===editId)||{};document.getElementById('mAddTitle').textContent='Editar loja';document.getElementById('fNome').value=l[0];document.getElementById('fUrl').value=raw.autocerto_id||raw.autocerto_url||l[2]||'';document.getElementById('fEmail').value=raw.email||'';document.getElementById('mAdd').classList.add('on');}
 async function excluirLoja(i){const l=lojas[i];if(!confirm('Excluir a loja "'+l[0]+'"? Os veículos dela saem do site.'))return;try{await api('/api/lojas?path=lojas&id='+l[6],{method:'DELETE'});toast(l[0]+' excluída');await carregarPainel();}catch(e){toast('Erro ao excluir');}}
