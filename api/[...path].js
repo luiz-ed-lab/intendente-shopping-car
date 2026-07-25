@@ -64,13 +64,14 @@ function emailLayout({ etiqueta, titulo, subtitulo, tabela, botao, aviso, rodape
       .num{font-size:22px!important}
       .col-min{font-size:12px!important}
       .esconde{display:none!important}
+      .marca{width:150px!important;height:64px!important}
     }
   </style></head><body style="margin:0;padding:0;background:#f5f3f2;-webkit-text-size-adjust:100%">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff">
    <tr><td>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;background:#ffffff">
-      <tr><td class="pad" style="background:#7a1a10;padding:20px 26px">
-        <img src="${SITE_URL}/logo.png" alt="Nova Intendente Shopping Car" width="160" style="display:block;border:0;width:160px;max-width:60%;height:auto">
+      <tr><td class="pad" style="background:#1f1c1b;padding:20px 26px">
+        <div class="marca" style="width:180px;height:78px;max-width:70%;background:url('${SITE_URL}/logo.png') left center no-repeat;background-size:contain">&nbsp;</div>
       </td></tr>
       <tr><td class="pad" style="padding:24px 26px 4px">
         ${etiqueta ? `<div style="display:inline-block;background:#fdeede;color:#c2410c;font:700 11px/1 Arial,sans-serif;letter-spacing:.8px;text-transform:uppercase;padding:7px 12px;border-radius:99px;margin-bottom:14px">${esc(etiqueta)}</div>` : ''}
@@ -162,14 +163,12 @@ async function enviarEmailsLead(lead, soAceima) {
 
   const html = emailLayout({
     etiqueta: compra ? 'Cliente quer vender' : 'Novo cliente interessado',
-    titulo: compra ? 'Um cliente quer vender o veículo dele' : 'Novo contato pelo site',
-    subtitulo: compra
-      ? 'Este cliente preencheu o formulário de avaliação no site do Intendente Shopping Car e está aberto a propostas.'
-      : 'Este cliente veio do site do Intendente Shopping Car e se interessou por um veículo da sua loja.',
+    titulo: 'Tem lead novo no seu WhatsApp! 😄',
+    subtitulo: 'Confira os dados abaixo:',
     tabela,
     botao: tel ? { url: 'https://wa.me/' + (tel.length > 11 ? tel : '55' + tel), texto: 'Falar com o cliente no WhatsApp' } : null,
-    aviso: '<b>Fale logo com ele.</b> Cliente que recebe resposta rápida fecha mais — e a ACEIMA acompanha o atendimento de cada contato.',
-    rodape: 'Contato gerado pelo site do Intendente Shopping Car e repassado pela ACEIMA.<br>Uma cópia foi enviada à associação.'
+    aviso: null,
+    rodape: 'Contato gerado pelo site do Intendente Shopping Car e repassado pela ACEIMA.'
   });
 
   await fetch('https://api.resend.com/emails', {
@@ -258,6 +257,29 @@ function pegarContato($) {
     telefone: tel ? tel[1].trim() : null,
     whatsapp
   };
+}
+
+// e-mail da loja: procura na página de contato (mailto ou texto), ignorando e-mails de terceiros
+const emailValido = s => /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(s)
+  && !/autocerto|resend|google|facebook|instagram|youtube|whatsapp|sentry|example|\.(png|jpg|jpeg|gif|webp)$/i.test(s);
+async function pegarEmail(base) {
+  for (const pag of ['/Contato', '/contato', '/Empresa', '/']) {
+    let html;
+    try { html = await get(base + pag); } catch (_) { continue; }
+    const $ = cheerio.load(html);
+    let achado = null;
+    $('a[href^="mailto:"]').each((_, el) => {
+      if (achado) return;
+      const e = ($(el).attr('href') || '').replace(/^mailto:/i, '').split('?')[0].trim();
+      if (emailValido(e)) achado = e;
+    });
+    if (!achado) {
+      const lista = ($('body').text().match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g) || []);
+      achado = lista.find(emailValido) || null;
+    }
+    if (achado) return achado.toLowerCase();
+  }
+  return null;
 }
 
 // ---------------- ROBÔ: site próprio da loja ----------------
@@ -452,15 +474,18 @@ async function importarLoja(loja) {
       let itens, logoSite = null, contato = null;
       if (fonte.tipo === 'site') { const r = await lerSite(fonte.base); itens = r.itens; logoSite = r.logo; contato = r.contato; }
       else { itens = await lerPortal(fonte.base, fonte.portalId); }
-      // o robô preenche os dados da loja sozinho
+      // o robô preenche os dados da loja sozinho (inclusive o e-mail, lido da página de contato)
+      let emailSite = null;
+      if (fonte.tipo === 'site') { try { emailSite = await pegarEmail(fonte.base); } catch (_) {} }
       try {
         await query(`update lojas set
             logo_url = coalesce($1, logo_url),
             endereco = coalesce($2, endereco),
             telefone = coalesce($3, telefone),
-            whatsapp = coalesce($4, whatsapp)
-          where id = $5`,
-          [logoSite, contato && contato.endereco, contato && contato.telefone, contato && contato.whatsapp, loja.id]);
+            whatsapp = coalesce($4, whatsapp),
+            email    = coalesce($5, email)
+          where id = $6`,
+          [logoSite, contato && contato.endereco, contato && contato.telefone, contato && contato.whatsapp, emailSite, loja.id]);
       } catch (_) {}
       await query('update veiculos set ativo = false where loja_id = $1', [loja.id]);
       for (const it of itens) {
