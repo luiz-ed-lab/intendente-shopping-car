@@ -109,11 +109,12 @@ function tabelaDados(colunas, linhas, vazio) {
 
 // envio de e-mail dos leads — pronto para quando a chave do Resend estiver configurada.
 // Enquanto não houver RESEND_API_KEY (ou e-mail nas lojas), não faz nada.
-async function enviarEmailsLead(lead) {
+async function enviarEmailsLead(lead, soAceima) {
   const key = process.env.RESEND_API_KEY;
   if (!key || !lead) return;
   let emails = [];
-  if (lead.tipo === 'compra') {
+  if (soAceima) { /* teste de layout: nunca vai para a loja */ }
+  else if (lead.tipo === 'compra') {
     const { rows } = await query("select email from lojas where ativa=true and email is not null and email<>''");
     emails = rows.map(r => r.email);
   } else if (lead.loja_id) {
@@ -650,6 +651,33 @@ async function rotaResumo(req, res) {
   res.json({ ok: true, ...(await enviarResumo()) });
 }
 
+// envia um e-mail de lead de EXEMPLO só para a ACEIMA, para conferir o layout.
+// Não grava nada no banco e nunca manda para a loja.
+async function rotaTesteEmail(req, res) {
+  await migra();
+  const tipo = req.query.tipo === 'compra' ? 'compra' : 'venda';
+  const { rows: [v] } = await query(
+    `select v.id, v.marca, v.modelo, v.ano_modelo, v.loja_id, l.nome as loja_nome
+       from veiculos v join lojas l on l.id = v.loja_id
+      where v.ativo = true order by v.preco desc nulls last limit 1`);
+  const exemplo = tipo === 'compra'
+    ? {
+        tipo: 'compra', canal: 'venda_site',
+        cliente_nome: 'Exemplo de Cliente', cliente_telefone: '21999998888',
+        cliente_email: 'cliente@exemplo.com',
+        detalhes: { marca: 'FIAT', modelo: 'Argo Drive', ano: '2021', km: '48000', valor: '62.000', fotos: 4 }
+      }
+    : {
+        tipo: 'venda', canal: 'formulario',
+        loja_id: v && v.loja_id, veiculo_id: v && v.id,
+        veiculo_nome: v ? [v.marca, v.modelo, v.ano_modelo].filter(Boolean).join(' ') : 'Veículo do anúncio',
+        cliente_nome: 'Exemplo de Cliente', cliente_telefone: '21999998888',
+        forma_compra: 'financiado', entrada: ' com entrada de 20.000'
+      };
+  await enviarEmailsLead(exemplo, true);
+  res.json({ ok: true, tipo, enviadoPara: ACEIMA_MAIL, loja: v ? v.loja_nome : null, veiculo: exemplo.veiculo_nome || null });
+}
+
 // ---------------- ROTEADOR ----------------
 export default async function handler(req, res) {
   let rota;
@@ -666,6 +694,7 @@ export default async function handler(req, res) {
     if (rota === 'importar') return await rotaImportar(req, res);
     if (rota === 'resumo') return await rotaResumo(req, res);
     if (rota === 'refresh') return await rotaRefresh(req, res);
+    if (rota === 'testeemail') return await rotaTesteEmail(req, res);
     res.status(404).json({ erro: 'rota não encontrada', rota });
   } catch (e) {
     res.status(500).json({ erro: e.message });
