@@ -573,7 +573,6 @@ async function enviarResumo() {
 
   const n = x => Number(x || 0);
   const somaLeads = leadsLoja.reduce((s, l) => s + n(l.total), 0) + n(aval.total);
-  const parados = leadsLoja.reduce((s, l) => s + n(l.parados), 0) + n(aval.parados);
   const totNoAr = estoque.reduce((s, l) => s + n(l.no_ar), 0);
   const totNovos = estoque.reduce((s, l) => s + n(l.novos), 0);
   const totSairam = estoque.reduce((s, l) => s + n(l.sairam), 0);
@@ -583,11 +582,11 @@ async function enviarResumo() {
   // versão em texto puro (para quem não vê HTML)
   const linhas = [
     'Resumo das últimas 24h — Intendente Shopping Car', '',
-    `Leads: ${somaLeads} (${parados} sem atendimento)`,
+    `Leads: ${somaLeads} (${n(aval.total)} querem vender o próprio carro)`,
     `Estoque no ar: ${totNoAr} · entraram ${totNovos} · saíram ${totSairam} · ocultos ${totOcultos}`, ''
   ];
-  leadsLoja.forEach(l => linhas.push(`${l.loja}: ${l.total} interessados (${l.parados} sem atendimento)`));
-  if (n(aval.total)) linhas.push(`Avaliação de veículo (cliente quer vender): ${aval.total} (${aval.parados} sem atendimento)`);
+  leadsLoja.forEach(l => linhas.push(`${l.loja}: ${l.total} interessados nos anúncios`));
+  if (n(aval.total)) linhas.push(`Formulário de avaliação (quer vender): ${aval.total}`);
   linhas.push('');
   estoque.forEach(l => linhas.push(`${l.nome}: ${l.no_ar} no ar · +${l.novos} · -${l.sairam}${l.ultimo_erro ? ' · FALHA na sincronização' : ''}`));
 
@@ -600,27 +599,17 @@ async function enviarResumo() {
   };
   const badge = (txt, fundo, cor) => `<span style="display:inline-block;background:${fundo};color:${cor};font:700 11px/1 Arial,sans-serif;padding:5px 9px;border-radius:99px">${esc(txt)}</span>`;
 
-  const linhasLeads = leadsLoja.map(l => [
-    esc(l.loja),
-    'Interesse em anúncio',
-    n(l.total),
-    n(l.parados) > 0 ? `<b style="color:#993C1D">${l.parados}</b>` : '0'
-  ]);
-  if (n(aval.total)) linhasLeads.push([
-    'Formulário de avaliação',
-    'Quer vender o carro',
-    n(aval.total),
-    n(aval.parados) > 0 ? `<b style="color:#993C1D">${aval.parados}</b>` : '0'
-  ]);
+  const linhasLeads = leadsLoja.map(l => [esc(l.loja), 'Interesse em anúncio', n(l.total)]);
+  if (n(aval.total)) linhasLeads.push(['Formulário de avaliação', 'Quer vender o carro', n(aval.total)]);
 
   const tabela = [
     cartoes([
       { rotulo: 'Leads em 24h', valor: somaLeads, cor: '#993C1D' },
-      { rotulo: 'Aguardando atendimento', valor: parados, cor: parados > 0 ? '#854F0B' : '#0F6E56' },
-      { rotulo: 'Veículos no ar', valor: totNoAr, cor: '#185FA5' }
+      { rotulo: 'Querem vender', valor: n(aval.total), cor: '#185FA5' },
+      { rotulo: 'Veículos no ar', valor: totNoAr, cor: '#0F6E56' }
     ]),
     tituloSecao('Leads das últimas 24h'),
-    tabelaDados(['Origem', 'Tipo', 'Contatos', 'Aguardando'], linhasLeads,
+    tabelaDados(['Origem', 'Tipo', 'Contatos'], linhasLeads,
       'Nenhum contato nas últimas 24h.'),
     tituloSecao('Estoque por loja'),
     tabelaDados(['Loja', 'No ar', 'Entraram', 'Saíram', 'Sincronizou'],
