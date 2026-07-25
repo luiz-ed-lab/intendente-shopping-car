@@ -922,8 +922,8 @@ function mkMarcaModelo(marcaEl,modeloEl){
 }
 // home
 (()=>{const {m,mod}=mkMarcaModelo('hMarca','hModelo');cs.hMarca=m;cs.hModelo=mod;
-  cs.hAnoDe=new CSelect('hAnoDe',{placeholder:'Ano de',options:['Indiferente',...anos]});
-  cs.hAnoAte=new CSelect('hAnoAte',{placeholder:'Ano até',options:['Indiferente',...anos]});})();
+  cs.hAnoDe=new CSelect('hAnoDe',{placeholder:'Ano de',options:['Todos',...anos]});
+  cs.hAnoAte=new CSelect('hAnoAte',{placeholder:'Ano até',options:['Todos',...anos]});})();
 // estoque
 (()=>{const {m,mod}=mkMarcaModelo('eMarca','eModelo');cs.eMarca=m;cs.eModelo=mod;
   cs.eAnoDe=new CSelect('eAnoDe',{placeholder:'De',options:['—',...anos]});
@@ -939,7 +939,7 @@ cs.vdMarca=new CSelect('vdMarca',{placeholder:'Marca',search:true,options:marcas
 cs.ctAssunto=new CSelect('ctAssunto',{placeholder:'Selecione',options:['Dúvidas','Solicitações','Sugestão','Reclamação','Sou lojista']});
 
 /* ==================== FILTRAGEM ==================== */
-const val=v=>v&&!['Todas as marcas','Todos os modelos','Indiferente','—','Todas as lojas'].includes(v)?v:'';
+const val=v=>v&&!['Todas as marcas','Todos os modelos','Todos','Indiferente','—','Todas as lojas'].includes(v)?v:'';
 function numI(s){return parseInt((s||'').toString().replace(/\D/g,''))||0;}
 function coletarEstoque(){
   filtro.marca=val(cs.eMarca.value);
@@ -1066,7 +1066,7 @@ const lojasCards=[
 const initials=n=>n.split(' ').map(w=>w[0]).filter(c=>/[A-Za-zÀ-ÿ]/.test(c)).slice(0,2).join('').toUpperCase();
 const lojaMap={};lojasCards.forEach(l=>lojaMap[l[0]]={addr:l[1],tel:l[3],wa:l[4],id:l[5],logo:l[6]});
 const lcard=l=>`<div class="lcard">
-  <div class="lg"><img src="${L+(l[6]||l[5]+'_logo.png')}" alt="${l[0]}" onerror="this.parentNode.classList.add('mono');this.parentNode.textContent='${initials(l[0])}'"></div>
+  <div class="lg"><img src="${(l[6]&&/^(data:|https?:)/.test(String(l[6])))?l[6]:L+(l[6]||l[5]+'_logo.png')}" alt="${l[0]}" onerror="this.parentNode.classList.add('mono');this.parentNode.textContent='${initials(l[0])}'"></div>
   <h3>${l[0]}</h3>
   <p>${l[1]}<br>${l[2]}<br>📞 ${l[3]}</p>
   <div class="row"><button class="btn" onclick="verLoja('${l[0].replace(/'/g,"\\'")}')">Ver estoque</button>
@@ -1226,7 +1226,14 @@ function mapApi(v){
 async function carregarDados(){
   try{
     const rl = await fetch('/api/lojas?path=lojas').then(r=>r.json()).catch(()=>[]);
-    if(Array.isArray(rl)) rl.forEach(l=>{ const c=lojaMap[l.nome]||(lojaMap[l.nome]={}); c.id=l.id; if(l.logo_url) c.logo=l.logo_url; if(!c.addr&&l.endereco) c.addr=l.endereco; if(!c.wa&&l.whatsapp) c.wa=l.whatsapp; });
+    if(Array.isArray(rl) && rl.length){
+      rl.forEach(l=>{ const c=lojaMap[l.nome]||(lojaMap[l.nome]={}); c.id=l.id; if(l.logo_url) c.logo=l.logo_url; if(l.endereco) c.addr=l.endereco; if(l.whatsapp) c.wa=l.whatsapp; if(l.telefone) c.tel=l.telefone; });
+      // página Lojas passa a mostrar as lojas REAIS cadastradas no painel
+      const reais=rl.map(l=>[l.nome, l.endereco||'Estrada Intendente Magalhães', 'Loja associada ACEIMA', l.telefone||'—', l.whatsapp||'', l.id, l.logo_url||null]);
+      const elL=document.getElementById('lojas'); if(elL) elL.innerHTML=reais.map(lcard).join('');
+      const elH=document.getElementById('lojasHome'); if(elH) elH.innerHTML=reais.slice(0,6).map(lcard).join('');
+      const nL=document.getElementById('nLojas'); if(nL) nL.textContent=reais.length;
+    }
     const rv = await fetch('/api/veiculos?path=veiculos').then(r=>r.json());
     if(Array.isArray(rv) && rv.length){
       veiculos = rv.map(mapApi);
