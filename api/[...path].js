@@ -66,9 +66,9 @@ function emailLayout({ etiqueta, titulo, subtitulo, tabela, botao, aviso, rodape
       .esconde{display:none!important}
     }
   </style></head><body style="margin:0;padding:0;background:#f5f3f2;-webkit-text-size-adjust:100%">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f3f2;padding:20px 10px">
-   <tr><td align="center">
-    <table role="presentation" cellpadding="0" cellspacing="0" style="max-width:620px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff">
+   <tr><td>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;background:#ffffff">
       <tr><td class="pad" style="background:#7a1a10;padding:20px 26px">
         <img src="${SITE_URL}/logo.png" alt="Nova Intendente Shopping Car" width="160" style="display:block;border:0;width:160px;max-width:60%;height:auto">
       </td></tr>
@@ -100,9 +100,9 @@ function cartoes(itens) {
       </div></td>`).join('')}</tr></table></td></tr>`;
 }
 function tabelaDados(colunas, linhas, vazio) {
-  const th = colunas.map((c, i) => `<th align="${i === 0 ? 'left' : 'center'}" class="${i > 2 ? 'esconde' : ''}" style="padding:0 6px 8px;font:700 11px/1.2 Arial,sans-serif;color:#b6a9a3;text-transform:uppercase;letter-spacing:.5px">${esc(c)}</th>`).join('');
+  const th = colunas.map((c, i) => `<th align="${i === 0 ? 'left' : 'center'}" class="${i > 3 ? 'esconde' : ''}" style="padding:0 6px 8px;font:700 11px/1.2 Arial,sans-serif;color:#b6a9a3;text-transform:uppercase;letter-spacing:.5px">${esc(c)}</th>`).join('');
   const tr = linhas.length ? linhas.map(l => `<tr>${l.map((cel, i) => `
-      <td align="${i === 0 ? 'left' : 'center'}" class="${i > 2 ? 'esconde' : ''} col-min" style="padding:11px 6px;border-top:1px solid #f4eeec;font:${i === 0 ? '700' : '400'} 13px/1.4 Arial,sans-serif;color:${i === 0 ? '#241b19' : '#5f5e5a'}">${cel}</td>`).join('')}</tr>`).join('')
+      <td align="${i === 0 ? 'left' : 'center'}" class="${i > 3 ? 'esconde' : ''} col-min" style="padding:11px 6px;border-top:1px solid #f4eeec;font:${i === 0 ? '700' : '400'} 13px/1.4 Arial,sans-serif;color:${i === 0 ? '#241b19' : '#5f5e5a'}">${cel}</td>`).join('')}</tr>`).join('')
     : `<tr><td colspan="${colunas.length}" style="padding:14px 6px;border-top:1px solid #f4eeec;font:400 13px/1.4 Arial,sans-serif;color:#94867f">${esc(vazio || 'Nada por aqui.')}</td></tr>`;
   return `<tr><td><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>${th}</tr>${tr}</table></td></tr>`;
 }
@@ -600,28 +600,28 @@ async function enviarResumo() {
   };
   const badge = (txt, fundo, cor) => `<span style="display:inline-block;background:${fundo};color:${cor};font:700 11px/1 Arial,sans-serif;padding:5px 9px;border-radius:99px">${esc(txt)}</span>`;
 
+  const linhasLeads = leadsLoja.map(l => [
+    esc(l.loja),
+    'Interesse em anúncio',
+    n(l.total),
+    n(l.parados) > 0 ? `<b style="color:#993C1D">${l.parados}</b>` : '0'
+  ]);
+  if (n(aval.total)) linhasLeads.push([
+    'Formulário de avaliação',
+    'Quer vender o carro',
+    n(aval.total),
+    n(aval.parados) > 0 ? `<b style="color:#993C1D">${aval.parados}</b>` : '0'
+  ]);
+
   const tabela = [
-    tituloSecao('Leads recebidos', 2),
     cartoes([
       { rotulo: 'Leads em 24h', valor: somaLeads, cor: '#993C1D' },
-      { rotulo: 'Sem atendimento', valor: parados, cor: parados > 0 ? '#854F0B' : '#0F6E56' },
-      { rotulo: 'Querem vender', valor: n(aval.total), cor: '#185FA5' }
+      { rotulo: 'Aguardando atendimento', valor: parados, cor: parados > 0 ? '#854F0B' : '#0F6E56' },
+      { rotulo: 'Veículos no ar', valor: totNoAr, cor: '#185FA5' }
     ]),
-    tituloSecao('Interesse nos anúncios, por loja'),
-    tabelaDados(['Loja', 'Contatos', 'Sem atendimento'],
-      leadsLoja.map(l => [esc(l.loja), n(l.total), n(l.parados) > 0 ? `<b style="color:#993C1D">${l.parados}</b>` : '0']),
-      'Nenhum cliente entrou em contato nas últimas 24h.'),
-    tituloSecao('Clientes que querem vender o próprio carro'),
-    tabelaDados(['Origem', 'Contatos', 'Sem atendimento'],
-      n(aval.total) ? [['Formulário de avaliação do site', n(aval.total), n(aval.parados) > 0 ? `<b style="color:#993C1D">${aval.parados}</b>` : '0']] : [],
-      'Ninguém pediu avaliação nas últimas 24h.'),
-    tituloSecao('Estoque no site'),
-    cartoes([
-      { rotulo: 'Veículos no ar', valor: totNoAr, cor: '#993C1D' },
-      { rotulo: 'Entraram', valor: '+' + totNovos, cor: '#0F6E56' },
-      { rotulo: 'Saíram', valor: '-' + totSairam, cor: '#854F0B' },
-      { rotulo: 'Ocultos', valor: totOcultos, cor: '#5F5E5A' }
-    ]),
+    tituloSecao('Leads das últimas 24h'),
+    tabelaDados(['Origem', 'Tipo', 'Contatos', 'Aguardando'], linhasLeads,
+      'Nenhum contato nas últimas 24h.'),
     tituloSecao('Estoque por loja'),
     tabelaDados(['Loja', 'No ar', 'Entraram', 'Saíram', 'Sincronizou'],
       estoque.map(l => [
