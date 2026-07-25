@@ -368,6 +368,19 @@
           <button class="lchip on" data-lt="todos" onclick="filtLead(this)">Todos</button>
           <button class="lchip" data-lt="venda" onclick="filtLead(this)">Vendas</button>
           <button class="lchip" data-lt="compra" onclick="filtLead(this)">Compras</button>
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select id="repPeriodo" onchange="repTrocou()" style="padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:.84rem;background:#fff">
+              <option value="dia">Hoje</option>
+              <option value="semana" selected>Últimos 7 dias</option>
+              <option value="mes">Últimos 30 dias</option>
+              <option value="periodo">Período…</option>
+            </select>
+            <span id="repDatas" style="display:none;gap:6px;align-items:center">
+              <input type="date" id="repDe" style="padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;font-size:.82rem">
+              <input type="date" id="repAte" style="padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;font-size:.82rem">
+            </span>
+            <button class="btn" onclick="gerarRelatorio()"><svg class="ic sm" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg> Relatório PDF</button>
+          </div>
         </div>
         <div class="panel flush"><div class="pb"><table>
           <thead><tr><th>Data</th><th>Tipo</th><th>Cliente</th><th>Contato</th><th>Veículo</th><th>Loja</th><th>Canal</th></tr></thead>
@@ -544,6 +557,97 @@ async function toggleVeic(id,el){
    toast(ocultarAgora?'Veículo ocultado do site':'Veículo publicado no site'); }
  catch(e){ toast('Não deu pra atualizar'); }
 }
+/* ---------- RELATÓRIO DE LEADS EM PDF ---------- */
+function repTrocou(){
+ const p=document.getElementById('repPeriodo').value;
+ const cx=document.getElementById('repDatas');
+ cx.style.display = p==='periodo' ? 'flex' : 'none';
+ if(p==='periodo' && !document.getElementById('repDe').value){
+   const hoje=new Date(), atras=new Date(Date.now()-6*864e5);
+   document.getElementById('repDe').value=atras.toISOString().slice(0,10);
+   document.getElementById('repAte').value=hoje.toISOString().slice(0,10);
+ }
+}
+function repIntervalo(){
+ const p=document.getElementById('repPeriodo').value;
+ const fim=new Date(); fim.setHours(23,59,59,999);
+ const ini=new Date();
+ if(p==='dia'){ ini.setHours(0,0,0,0); return {ini,fim,rotulo:'Hoje · '+ini.toLocaleDateString('pt-BR')}; }
+ if(p==='semana'){ ini.setTime(Date.now()-6*864e5); ini.setHours(0,0,0,0); return {ini,fim,rotulo:'Últimos 7 dias'}; }
+ if(p==='mes'){ ini.setTime(Date.now()-29*864e5); ini.setHours(0,0,0,0); return {ini,fim,rotulo:'Últimos 30 dias'}; }
+ const de=document.getElementById('repDe').value, ate=document.getElementById('repAte').value;
+ if(!de||!ate) return null;
+ const i=new Date(de+'T00:00:00'), f=new Date(ate+'T23:59:59');
+ return {ini:i,fim:f,rotulo:'De '+i.toLocaleDateString('pt-BR')+' a '+f.toLocaleDateString('pt-BR')};
+}
+async function gerarRelatorio(){
+ const iv=repIntervalo();
+ if(!iv){ toast('Escolha as duas datas do período'); return; }
+ let dados=[];
+ try{ dados=await fetch('/api/leads?path=leads&nc='+Date.now(),{cache:'no-store'}).then(r=>r.json()); }
+ catch(e){ toast('Não deu pra buscar os leads'); return; }
+ const lista=dados.filter(l=>{const d=new Date(l.criado_em);return d>=iv.ini && d<=iv.fim;})
+                  .sort((a,b)=>new Date(a.criado_em)-new Date(b.criado_em));
+ const nVenda=lista.filter(l=>(l.tipo||'venda')==='venda').length;
+ const nCompra=lista.filter(l=>l.tipo==='compra').length;
+ const porLoja={};
+ lista.forEach(l=>{const k=l.loja_nome||'Quer vender o carro (sem loja)';porLoja[k]=(porLoja[k]||0)+1;});
+ const dt=d=>{const x=new Date(d);return isNaN(x)?'—':x.toLocaleDateString('pt-BR')+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});};
+ const linhas=lista.map(l=>`<tr>
+   <td>${dt(l.criado_em)}</td>
+   <td><b>${(l.cliente_nome||'—')}</b></td>
+   <td>${l.cliente_telefone||'—'}</td>
+   <td>${(l.tipo==='compra')?'Quer vender':'Interesse'}</td>
+   <td>${(l.veiculo_nome||'—').trim()}</td>
+   <td>${l.loja_nome||'—'}</td>
+   <td>${ST_LEAD[l.status||'novo']||'Novo'}</td></tr>`).join('')
+   || '<tr><td colspan="7" style="text-align:center;color:#777;padding:18px">Nenhum lead nesse período.</td></tr>';
+ const resumoLojas=Object.keys(porLoja).sort((a,b)=>porLoja[b]-porLoja[a])
+   .map(k=>`<tr><td>${k}</td><td style="text-align:right"><b>${porLoja[k]}</b></td></tr>`).join('')
+   || '<tr><td colspan="2" style="color:#777">—</td></tr>';
+ const logo=document.querySelector('aside .brand img')?.src||'';
+ const w=window.open('','_blank');
+ if(!w){ toast('Libere o pop-up para gerar o PDF'); return; }
+ w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Relatorio de leads — ACEIMA</title>
+ <style>
+  @page{size:A4 landscape;margin:14mm}
+  *{font-family:Arial,Helvetica,sans-serif;box-sizing:border-box}
+  body{margin:0;color:#241b19}
+  .top{display:flex;align-items:center;gap:14px;border-bottom:2px solid #d3372a;padding-bottom:12px;margin-bottom:16px}
+  .top img{height:42px}
+  h1{font-size:17px;margin:0}
+  .sub{font-size:12px;color:#6b5a55;margin-top:3px}
+  .cards{display:flex;gap:10px;margin-bottom:16px}
+  .c{flex:1;border:1px solid #eee;border-radius:8px;padding:10px 12px}
+  .c b{display:block;font-size:20px}
+  .c span{font-size:10px;color:#777;text-transform:uppercase;letter-spacing:.5px}
+  h2{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:#94867f;margin:16px 0 6px}
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th{text-align:left;background:#f6f2f1;padding:7px 8px;border-bottom:1px solid #e6ddda;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:#6b5a55}
+  td{padding:7px 8px;border-bottom:1px solid #f1eae8}
+  .peq{width:38%}
+  @media print{.aviso{display:none}}
+  .aviso{margin:18px 0;padding:10px;background:#fdf4f2;border:1px solid #f5ddd6;border-radius:8px;font-size:12px}
+ </style></head><body>
+ <div class="top">${logo?`<img src="${logo}">`:''}<div><h1>Relatório de leads — ACEIMA</h1>
+ <div class="sub">${iv.rotulo} · gerado em ${new Date().toLocaleString('pt-BR')}</div></div></div>
+ <div class="cards">
+   <div class="c"><b>${lista.length}</b><span>Total de leads</span></div>
+   <div class="c"><b>${nVenda}</b><span>Interesse em anúncios</span></div>
+   <div class="c"><b>${nCompra}</b><span>Querem vender o carro</span></div>
+   <div class="c"><b>${Object.keys(porLoja).length}</b><span>Origens</span></div>
+ </div>
+ <h2>Por loja</h2>
+ <table class="peq"><tr><th>Origem</th><th style="text-align:right">Leads</th></tr>${resumoLojas}</table>
+ <h2>Leads do período</h2>
+ <table><tr><th>Data</th><th>Cliente</th><th>Contato</th><th>Tipo</th><th>Veículo</th><th>Loja</th><th>Atendimento</th></tr>${linhas}</table>
+ <div class="aviso">Use <b>Imprimir → Salvar como PDF</b> para guardar este relatório.</div>
+ </body></html>`);
+ w.document.close();
+ setTimeout(()=>{ try{ w.focus(); w.print(); }catch(e){} }, 600);
+ toast('Relatório gerado: '+lista.length+' lead(s)');
+}
+
 let leadFiltro='todos';
 function filtLead(el){leadFiltro=el.dataset.lt;document.querySelectorAll('.lchip').forEach(c=>c.classList.toggle('on',c===el));renderLeads();}
 function renderLeads(){
