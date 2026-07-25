@@ -38,6 +38,42 @@ const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
 // (que só entrega para o e-mail do dono da conta). Depois, basta criar a variável
 // RESEND_FROM no Vercel com: ACEIMA <leads@intendenteautoshopping.com.br>
 const REMETENTE = process.env.RESEND_FROM || 'ACEIMA <onboarding@resend.dev>';
+const SITE_URL = process.env.SITE_URL || 'https://intendente-shopping-car.vercel.app';
+
+// ---------------- MODELO VISUAL DOS E-MAILS ----------------
+const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function linhaInfo(rotulo, valor, destaque) {
+  if (valor == null || valor === '') return '';
+  return `<tr>
+    <td style="padding:11px 0;border-bottom:1px solid #f1e8e5;font:600 12px/1.2 Arial,sans-serif;color:#94867f;text-transform:uppercase;letter-spacing:.6px;width:42%">${esc(rotulo)}</td>
+    <td style="padding:11px 0;border-bottom:1px solid #f1e8e5;font:${destaque ? '700 17px' : '400 15px'}/1.4 Arial,sans-serif;color:${destaque ? '#d3372a' : '#241b19'}">${valor}</td>
+  </tr>`;
+}
+function emailLayout({ etiqueta, titulo, subtitulo, tabela, botao, aviso, rodape }) {
+  return `<!doctype html><html><body style="margin:0;padding:0;background:#f5f3f2">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f3f2;padding:24px 12px">
+   <tr><td align="center">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(40,10,6,.08)">
+      <tr><td style="background:linear-gradient(135deg,#2b0703,#9c2015);padding:22px 26px">
+        <img src="${SITE_URL}/logo.png" alt="Nova Intendente Shopping Car" width="150" style="display:block;border:0;max-width:150px;height:auto">
+      </td></tr>
+      <tr><td style="padding:26px 26px 6px">
+        ${etiqueta ? `<div style="display:inline-block;background:#fdeede;color:#c2410c;font:700 11px/1 Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;padding:7px 12px;border-radius:99px;margin-bottom:14px">${esc(etiqueta)}</div>` : ''}
+        <h1 style="margin:0;font:800 22px/1.25 Arial,sans-serif;color:#280a06">${esc(titulo)}</h1>
+        ${subtitulo ? `<p style="margin:8px 0 0;font:400 14px/1.6 Arial,sans-serif;color:#6b5a55">${esc(subtitulo)}</p>` : ''}
+      </td></tr>
+      ${tabela ? `<tr><td style="padding:12px 26px 4px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${tabela}</table></td></tr>` : ''}
+      ${botao ? `<tr><td style="padding:22px 26px 4px"><a href="${botao.url}" style="display:inline-block;background:#25a35a;color:#ffffff;font:700 15px/1 Arial,sans-serif;text-decoration:none;padding:15px 26px;border-radius:10px">${esc(botao.texto)}</a></td></tr>` : ''}
+      ${aviso ? `<tr><td style="padding:20px 26px 0"><div style="background:#fdf4f2;border:1px solid #f5ddd6;border-radius:12px;padding:14px 16px;font:400 13px/1.6 Arial,sans-serif;color:#94564c">${aviso}</div></td></tr>` : ''}
+      <tr><td style="padding:24px 26px 26px">
+        <div style="border-top:1px solid #f1e8e5;padding-top:16px;font:400 12px/1.7 Arial,sans-serif;color:#94867f">
+          ${rodape || 'Mensagem automática enviada pela ACEIMA — Associação dos Comerciantes da Estrada Intendente Magalhães.'}
+        </div>
+      </td></tr>
+    </table>
+   </td></tr>
+  </table></body></html>`;
+}
 
 // envio de e-mail dos leads — pronto para quando a chave do Resend estiver configurada.
 // Enquanto não houver RESEND_API_KEY (ou e-mail nas lojas), não faz nada.
@@ -70,10 +106,43 @@ async function enviarEmailsLead(lead) {
     lead.forma_compra ? ('Forma de compra: ' + lead.forma_compra + (lead.entrada || '')) : null,
     '', 'Mensagem enviada automaticamente pela ACEIMA.'
   ].filter(x => x !== null);
+
+  const tel = String(lead.cliente_telefone || '').replace(/\D/g, '');
+  const telBonito = tel.length >= 10
+    ? '(' + tel.slice(-11, -9) + ') ' + tel.slice(-9, -4) + '-' + tel.slice(-4)
+    : (lead.cliente_telefone || '—');
+  const carroCliente = det ? [det.marca, det.modelo, det.ano].filter(Boolean).join(' ') : null;
+  const compra = lead.tipo === 'compra';
+
+  const tabela = [
+    linhaInfo('Cliente', esc(lead.cliente_nome), true),
+    linhaInfo('WhatsApp', `<a href="https://wa.me/${tel.length > 11 ? tel : '55' + tel}" style="color:#25a35a;text-decoration:none;font-weight:700">${esc(telBonito)}</a>`),
+    linhaInfo('E-mail', lead.cliente_email ? `<a href="mailto:${esc(lead.cliente_email)}" style="color:#241b19;text-decoration:none">${esc(lead.cliente_email)}</a>` : ''),
+    compra
+      ? linhaInfo('Veículo do cliente', esc(carroCliente || '—'))
+      : linhaInfo('Veículo de interesse', esc(lead.veiculo_nome || '—')),
+    compra ? linhaInfo('Quilometragem', det && det.km ? esc(det.km) + ' km' : '') : '',
+    compra ? linhaInfo('Valor pretendido', det && det.valor ? 'R$ ' + esc(det.valor) : '') : '',
+    compra ? linhaInfo('Fotos enviadas', det && det.fotos ? esc(det.fotos) + ' foto(s)' : '') : '',
+    !compra ? linhaInfo('Forma de compra', lead.forma_compra ? esc(lead.forma_compra + (lead.entrada || '')) : '') : ''
+  ].join('');
+
+  const html = emailLayout({
+    etiqueta: compra ? 'Cliente quer vender' : 'Novo cliente interessado',
+    titulo: compra ? 'Um cliente quer vender o veículo dele' : 'Novo contato pelo site',
+    subtitulo: compra
+      ? 'Este cliente preencheu o formulário de avaliação no site do Intendente Shopping Car e está aberto a propostas.'
+      : 'Este cliente veio do site do Intendente Shopping Car e se interessou por um veículo da sua loja.',
+    tabela,
+    botao: tel ? { url: 'https://wa.me/' + (tel.length > 11 ? tel : '55' + tel), texto: 'Falar com o cliente no WhatsApp' } : null,
+    aviso: '<b>Fale logo com ele.</b> Cliente que recebe resposta rápida fecha mais — e a ACEIMA acompanha o atendimento de cada contato.',
+    rodape: 'Contato gerado pelo site do Intendente Shopping Car e repassado pela ACEIMA.<br>Uma cópia foi enviada à associação.'
+  });
+
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: REMETENTE, to: emails, subject: assunto, text: linhas.join('\n') })
+    body: JSON.stringify({ from: REMETENTE, to: emails, subject: assunto, text: linhas.join('\n'), html })
   });
 }
 
@@ -463,12 +532,57 @@ async function enviarResumo() {
   if (porLoja.length) { porLoja.forEach(l => linhas.push(`${l.loja}: ${l.vendas} querem comprar · ${l.compras} querem vender · ${l.novos} sem atendimento`)); }
   else linhas.push('Nenhum lead nas últimas 24h.');
   if (lojasErro.length) { linhas.push('', 'Lojas com falha na sincronização:'); lojasErro.forEach(l => linhas.push(`- ${l.nome}: ${l.ultimo_erro}`)); }
+
+  const semAtend = porLoja.reduce((s, l) => s + Number(l.novos || 0), 0);
+  const cartao = (rotulo, valor, cor) => `<td width="33%" style="padding:0 5px">
+      <div style="background:#faf7f6;border:1px solid #f1e8e5;border-radius:12px;padding:14px 12px;text-align:center">
+        <div style="font:800 26px/1 Arial,sans-serif;color:${cor}">${valor}</div>
+        <div style="font:600 11px/1.3 Arial,sans-serif;color:#94867f;text-transform:uppercase;letter-spacing:.5px;margin-top:6px">${rotulo}</div>
+      </div></td>`;
+  const linhasTab = porLoja.length
+    ? porLoja.map(l => `<tr>
+        <td style="padding:12px 10px;border-bottom:1px solid #f1e8e5;font:700 14px/1.3 Arial,sans-serif;color:#241b19">${esc(l.loja)}</td>
+        <td align="center" style="padding:12px 6px;border-bottom:1px solid #f1e8e5;font:400 14px/1.3 Arial,sans-serif;color:#1c6fb0">${l.vendas}</td>
+        <td align="center" style="padding:12px 6px;border-bottom:1px solid #f1e8e5;font:400 14px/1.3 Arial,sans-serif;color:#158043">${l.compras}</td>
+        <td align="center" style="padding:12px 6px;border-bottom:1px solid #f1e8e5;font:700 14px/1.3 Arial,sans-serif;color:${Number(l.novos) > 0 ? '#c2410c' : '#94867f'}">${l.novos}</td>
+      </tr>`).join('')
+    : `<tr><td colspan="4" style="padding:18px 10px;font:400 14px/1.4 Arial,sans-serif;color:#94867f">Nenhum lead nas últimas 24 horas.</td></tr>`;
+
+  const tabela = `<tr><td style="padding-bottom:18px">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+        ${cartao('Leads em 24h', tot.n, '#d3372a')}
+        ${cartao('Sem atendimento', semAtend, semAtend > 0 ? '#c2410c' : '#158043')}
+        ${cartao('Lojas ativas', porLoja.length, '#1c6fb0')}
+      </tr></table></td></tr>
+    <tr><td>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse">
+        <tr>
+          <th align="left" style="padding:0 10px 8px;font:700 11px/1.2 Arial,sans-serif;color:#b6a9a3;text-transform:uppercase;letter-spacing:.6px">Loja</th>
+          <th align="center" style="padding:0 6px 8px;font:700 11px/1.2 Arial,sans-serif;color:#b6a9a3;text-transform:uppercase;letter-spacing:.6px">Comprar</th>
+          <th align="center" style="padding:0 6px 8px;font:700 11px/1.2 Arial,sans-serif;color:#b6a9a3;text-transform:uppercase;letter-spacing:.6px">Vender</th>
+          <th align="center" style="padding:0 6px 8px;font:700 11px/1.2 Arial,sans-serif;color:#b6a9a3;text-transform:uppercase;letter-spacing:.6px">Parados</th>
+        </tr>
+        ${linhasTab}
+      </table></td></tr>`;
+
+  const html = emailLayout({
+    etiqueta: 'Resumo diário',
+    titulo: 'Como andaram os leads nas últimas 24h',
+    subtitulo: 'Panorama por loja: quem procurou para comprar, quem quer vender e quantos contatos seguem sem atendimento.',
+    tabela,
+    botao: { url: SITE_URL + '/painel.html', texto: 'Abrir o painel da ACEIMA' },
+    aviso: lojasErro.length
+      ? '<b>Atenção:</b> ' + lojasErro.map(l => esc(l.nome)).join(', ') + ' — o estoque não conseguiu ser atualizado. Verifique se o site da loja está no ar.'
+      : null,
+    rodape: 'Resumo automático da ACEIMA · gerado a partir dos contatos recebidos pelo site.'
+  });
+
   const key = process.env.RESEND_API_KEY;
   if (key) {
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: REMETENTE, to: [ACEIMA_MAIL], subject: 'Resumo diário de leads — ACEIMA', text: linhas.join('\n') })
+      body: JSON.stringify({ from: REMETENTE, to: [ACEIMA_MAIL], subject: 'Resumo diário de leads — ACEIMA', text: linhas.join('\n'), html })
     });
   }
   return { enviado: !!key, para: ACEIMA_MAIL, resumo: linhas };
