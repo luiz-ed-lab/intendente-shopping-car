@@ -18,6 +18,8 @@
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
+  /* nada pode ultrapassar a largura da tela (a gaveta do menu fica fora dela quando fechada) */
+  html,body{max-width:100%;overflow-x:hidden}
   body{font-family:var(--font-b);background:var(--bg);color:var(--txt)}
   img{display:block;max-width:100%}
   a{text-decoration:none;color:inherit}
@@ -241,8 +243,9 @@
   /* ============ VEÍCULO ============ */
   .vdet{display:grid;grid-template-columns:minmax(0,860px) 1fr;gap:22px;padding-top:30px;align-items:start}
   @media(max-width:1000px){
-    .vdet{grid-template-columns:1fr;padding-top:16px}
-    .gal .main{aspect-ratio:auto;height:calc((100vw - 40px)*0.72);max-height:64vh}
+    .vdet{grid-template-columns:minmax(0,1fr);padding-top:16px}
+    .gal{max-width:100%}
+    .gal .main{aspect-ratio:4/3;width:100%;height:auto;max-height:72vh}
     .thumbs div{width:74px;min-width:74px}
   }
   .gal{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
