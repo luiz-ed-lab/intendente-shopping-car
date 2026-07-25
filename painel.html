@@ -225,8 +225,11 @@
     .grid2{grid-template-columns:1fr}
     .panel .pb{overflow-x:auto}
     table{min-width:540px}
-    .filters{gap:8px}
-    .filters .fi,.filters input,.filters select{flex:1;min-width:130px}
+    .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .filters .fi{grid-column:1/-1}
+    .filters .fi input,.filters select{width:100%;min-width:0}
+    .notifpop{position:fixed;top:64px;left:12px;right:12px;width:auto}
+    #v-leads .lchip{flex:1}
     .mbox{width:100%}
     .notifpop{width:min(88vw,310px)}
   }
@@ -434,6 +437,10 @@ let lojas=[];      // exibição: [nome, whatsapp, chave, logoFile, nVeic, ultim
 let veicAll=[];    // objetos crus dos veículos (com id do banco)
 let leads=[];      // [data, nome, tel, veiculo, loja, canal, status]
 let leadsVistos=false, editId=null;
+let PAINEL_TOKEN='';
+try{PAINEL_TOKEN=sessionStorage.getItem('aceima_token')||'';}catch(e){}
+// toda chamada ao servidor leva a credencial do painel
+function api(url,opts){opts=opts||{};opts.headers=Object.assign({},opts.headers||{},{'x-painel-token':PAINEL_TOKEN});return fetch(url,opts);}
 const money=n=>'R$ '+Number(n||0).toLocaleString('pt-BR');
 const ST_LEAD={novo:'Novo',atendimento:'Em atendimento',finalizado:'Finalizado',repescagem:'Repescagem',perdido:'Perdido'};
 const ST_COR={novo:['#fdeede','#c2410c'],atendimento:['#e7f1fb','#1c6fb0'],finalizado:['#e4f7ec','#158043'],repescagem:['#f3ecfd','#6d3fc4'],perdido:['#f1eae8','#7a6a64']};
@@ -455,9 +462,9 @@ function origemLabel(chave){const s=String(chave||'');if(/^https?:\/\//i.test(s)
 async function carregarPainel(){
   try{
     const [lj, ve, le] = await Promise.all([
-      fetch('/api/lojas?path=lojas').then(r=>r.json()).catch(()=>[]),
-      fetch('/api/veiculos?path=veiculos').then(r=>r.json()).catch(()=>[]),
-      fetch('/api/leads?path=leads').then(r=>r.json()).catch(()=>[])
+      api('/api/lojas?path=lojas').then(r=>r.json()).catch(()=>[]),
+      api('/api/veiculos?path=veiculos').then(r=>r.json()).catch(()=>[]),
+      api('/api/leads?path=leads').then(r=>r.json()).catch(()=>[])
     ]);
     lojasApi = Array.isArray(lj)?lj:[];
     veicAll  = Array.isArray(ve)?ve:[];
@@ -553,7 +560,7 @@ async function toggleVeic(id,el){
  const ocultarAgora=el.classList.contains('on'); // estava visível -> vai ocultar
  el.classList.toggle('on'); el.title=ocultarAgora?'Oculto no site':'Aparece no site';
  const v=veicAll.find(x=>x.id===id); if(v) v.oculto=ocultarAgora;
- try{ await fetch('/api/veiculos?path=veiculos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,oculto:ocultarAgora})});
+ try{ await api('/api/veiculos?path=veiculos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,oculto:ocultarAgora})});
    toast(ocultarAgora?'Veículo ocultado do site':'Veículo publicado no site'); }
  catch(e){ toast('Não deu pra atualizar'); }
 }
@@ -584,7 +591,7 @@ async function gerarRelatorio(){
  const iv=repIntervalo();
  if(!iv){ toast('Escolha as duas datas do período'); return; }
  let dados=[];
- try{ dados=await fetch('/api/leads?path=leads&nc='+Date.now(),{cache:'no-store'}).then(r=>r.json()); }
+ try{ dados=await api('/api/leads?path=leads&nc='+Date.now(),{cache:'no-store'}).then(r=>r.json()); }
  catch(e){ toast('Não deu pra buscar os leads'); return; }
  const lista=dados.filter(l=>{const d=new Date(l.criado_em);return d>=iv.ini && d<=iv.fim;})
                   .sort((a,b)=>new Date(a.criado_em)-new Date(b.criado_em));
@@ -664,7 +671,7 @@ function renderLeads(){
 }
 async function mudarStatus(id,status){
  const l=leads.find(x=>x[8]===id); if(l)l[6]=status;
- try{ await fetch('/api/leads?path=leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
+ try{ await api('/api/leads?path=leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
    toast('Lead: '+ST_LEAD[status]); renderLeads(); renderDash(); atualizaLeadBadge();
    const nums=document.querySelectorAll('.kpi .num');
    if(nums[2]) nums[2].textContent=leads.filter(x=>x[6]==='novo').length;
@@ -683,20 +690,31 @@ function nav(el){
 }
 function toggleAside(){const a=document.querySelector('aside'),bk=document.getElementById('pnavback');const o=a.classList.toggle('open');if(bk)bk.classList.toggle('on',o);}
 function closeAside(){const a=document.querySelector('aside'),bk=document.getElementById('pnavback');if(a)a.classList.remove('open');if(bk)bk.classList.remove('on');}
-function entrar(){
+async function entrar(){
  const u=document.getElementById('luser').value.trim();
  const p=document.getElementById('lpass').value;
- if(u==='adm' && p==='Aceima2026'){
+ const err=document.getElementById('lerr');
+ let ok=false, protegido=false;
+ try{
+   const r=await fetch('/api/auth?path=auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:p})});
+   const j=await r.json().catch(()=>({}));
+   ok=!!j.ok; protegido=!!j.protegido;
+ }catch(e){ ok=false; }
+ // enquanto a senha do servidor não estiver configurada, mantém o acesso local
+ if(!protegido) ok = (u==='adm' && p==='Aceima2026');
+ if(ok){
+   PAINEL_TOKEN = p;
+   try{ sessionStorage.setItem('aceima_token', p); }catch(e){}
    document.getElementById('login').style.display='none';
    document.getElementById('app').classList.add('on');
    carregarPainel();
  }else{
-   document.getElementById('lerr').style.display='block';
+   err.style.display='block';
  }
 }
 function openAdd(){editId=null;document.getElementById('mAddTitle').textContent='Adicionar loja';['fNome','fUrl','fEmail'].forEach(id=>document.getElementById(id).value='');document.getElementById('mAdd').classList.add('on');}
 function openEdit(i){const l=lojas[i];editId=l[6];const raw=lojasApi.find(x=>x.id===editId)||{};document.getElementById('mAddTitle').textContent='Editar loja';document.getElementById('fNome').value=l[0];document.getElementById('fUrl').value=raw.autocerto_id||raw.autocerto_url||l[2]||'';document.getElementById('fEmail').value=raw.email||'';document.getElementById('mAdd').classList.add('on');}
-async function excluirLoja(i){const l=lojas[i];if(!confirm('Excluir a loja "'+l[0]+'"? Os veículos dela saem do site.'))return;try{await fetch('/api/lojas?path=lojas&id='+l[6],{method:'DELETE'});toast(l[0]+' excluída');await carregarPainel();}catch(e){toast('Erro ao excluir');}}
+async function excluirLoja(i){const l=lojas[i];if(!confirm('Excluir a loja "'+l[0]+'"? Os veículos dela saem do site.'))return;try{await api('/api/lojas?path=lojas&id='+l[6],{method:'DELETE'});toast(l[0]+' excluída');await carregarPainel();}catch(e){toast('Erro ao excluir');}}
 function closeM(id){document.getElementById(id).classList.remove('on');}
 
 const spin='<svg class="ic sm" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>';
@@ -715,7 +733,7 @@ async function runImport(i, dbIdArg, nomeArg, idArg){
  box.innerHTML=steps.map((s,j)=>`<div class="istep" id="st${j}"><span class="d">${j+1}</span> ${s}</div>`).join('');
  const bar=document.getElementById('impBar');bar.style.width='0';
  // dispara a importação REAL (robô lê o site da loja e grava no banco)
- const req = dbId ? fetch('/api/importar?path=importar&loja='+dbId).then(r=>r.json()).catch(e=>({erro:e.message})) : Promise.resolve({erro:'sem id'});
+ const req = dbId ? api('/api/importar?path=importar&loja='+dbId).then(r=>r.json()).catch(e=>({erro:e.message})) : Promise.resolve({erro:'sem id'});
  // animação dos passos
  let k=0;
  await new Promise(res=>{(function next(){
@@ -738,7 +756,7 @@ async function addLoja(){
    const id=editId; editId=null;
    toast('Salvando '+nome+'…');
    try{
-     await fetch('/api/lojas?path=lojas',{method:'PATCH',headers:{'Content-Type':'application/json'},
+     await api('/api/lojas?path=lojas',{method:'PATCH',headers:{'Content-Type':'application/json'},
        body:JSON.stringify({id, nome, autocerto_id:url, email})});
      await carregarPainel(); toast(nome+' atualizada');
    }catch(e){ toast('Erro ao salvar: '+e.message); }
@@ -746,7 +764,7 @@ async function addLoja(){
  }
  toast('Cadastrando '+nome+'…');
  try{
-   const r=await fetch('/api/lojas?path=lojas',{method:'POST',headers:{'Content-Type':'application/json'},
+   const r=await api('/api/lojas?path=lojas',{method:'POST',headers:{'Content-Type':'application/json'},
      body:JSON.stringify({nome, autocerto_id:url, email})});
    const loja=await r.json();
    await carregarPainel();
