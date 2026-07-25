@@ -44,6 +44,20 @@ const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
 const REMETENTE = process.env.RESEND_FROM || 'ACEIMA <onboarding@resend.dev>';
 const SITE_URL = process.env.SITE_URL || 'https://intendente-shopping-car.vercel.app';
 
+// ---------------- SEGURANÇA ----------------
+// Só a ACEIMA pode escrever (cadastrar/editar/excluir loja, ocultar veículo, ver e mudar leads).
+// A senha fica na variável PAINEL_TOKEN do Vercel — nunca no código, que é público.
+// Enquanto a variável não existir, nada trava (compatibilidade), mas fica desprotegido.
+const PAINEL_TOKEN = process.env.PAINEL_TOKEN || null;
+function autorizado(req) {
+  if (!PAINEL_TOKEN) return true;
+  const h = req.headers || {};
+  const enviado = h['x-painel-token'] || h['X-Painel-Token'] ||
+    ((req.query && req.query.token) ? String(req.query.token) : '');
+  return enviado === PAINEL_TOKEN;
+}
+function negar(res) { return res.status(401).json({ erro: 'não autorizado' }); }
+
 // ---------------- MODELO VISUAL DOS E-MAILS ----------------
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 function linhaInfo(rotulo, valor, destaque) {
@@ -70,7 +84,7 @@ function emailLayout({ etiqueta, titulo, subtitulo, tabela, botao, aviso, rodape
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff">
    <tr><td>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;background:#ffffff">
-      <tr><td class="pad" style="background:#1f1c1b;padding:20px 26px">
+      <tr><td class="pad" style="background:#f2f0ed;border-bottom:1px solid #e6e0dc;padding:20px 26px">
         <div class="marca" style="width:180px;height:78px;max-width:70%;background:url('${SITE_URL}/logo.png') left center no-repeat;background-size:contain">&nbsp;</div>
       </td></tr>
       <tr><td class="pad" style="padding:24px 26px 4px">
@@ -370,6 +384,7 @@ async function detalhePortal(base, slug, id) {
 
 // ---------------- ROTAS ----------------
 async function rotaLojas(req, res) {
+  if (req.method !== 'GET' && !autorizado(req)) return negar(res);
   if (req.method === 'GET') {
     const { rows } = await query('select * from lojas where ativa = true order by nome');
     return res.json(rows);
@@ -408,6 +423,7 @@ async function rotaLojas(req, res) {
 async function rotaVeiculos(req, res) {
   await migra();
   if (req.method === 'POST' || req.method === 'PATCH') {
+    if (!autorizado(req)) return negar(res);
     const b = req.body || {};
     if (!b.id) return res.status(400).json({ erro: 'id obrigatório' });
     const oculto = b.oculto === true || b.ativo === false;
@@ -435,6 +451,8 @@ async function rotaVeiculos(req, res) {
 
 async function rotaLeads(req, res) {
   await migra();
+  // dados de cliente: só a ACEIMA lê e altera. O site continua podendo CRIAR lead (POST).
+  if (req.method !== 'POST' && !autorizado(req)) return negar(res);
   if (req.method === 'GET') {
     const { rows } = await query(
       `select le.*, lo.nome as loja_nome,
@@ -540,6 +558,9 @@ async function resumoSeDevido() {
 }
 
 async function rotaImportar(req, res) {
+  // o cron do Vercel chama sem token; aceitamos, mas quem vem de fora precisa estar autorizado
+  const doCron = !!(req.headers && (req.headers['x-vercel-cron'] || /vercel-cron/i.test(req.headers['user-agent'] || '')));
+  if (!doCron && !autorizado(req)) return negar(res);
   await migra();
   const soLoja = req.query.loja;
   // sem ?loja=ID, importa UMA loja por chamada (a mais desatualizada) para não estourar o tempo da função
@@ -717,9 +738,15 @@ export default async function handler(req, res) {
     if (rota === 'veiculos') return await rotaVeiculos(req, res);
     if (rota === 'leads') return await rotaLeads(req, res);
     if (rota === 'importar') return await rotaImportar(req, res);
-    if (rota === 'resumo') return await rotaResumo(req, res);
+    if (rota === 'resumo') return autorizado(req) ? await rotaResumo(req, res) : negar(res);
     if (rota === 'refresh') return await rotaRefresh(req, res);
-    if (rota === 'testeemail') return await rotaTesteEmail(req, res);
+    if (rota === 'testeemail') return autorizado(req) ? await rotaTesteEmail(req, res) : negar(res);
+    // login do painel: confere a senha sem nunca devolvê-la
+    if (rota === 'auth') {
+      const b = req.body || {};
+      if (!PAINEL_TOKEN) return res.json({ ok: true, protegido: false });
+      return (b.token === PAINEL_TOKEN) ? res.json({ ok: true, protegido: true }) : negar(res);
+    }
     res.status(404).json({ erro: 'rota não encontrada', rota });
   } catch (e) {
     res.status(500).json({ erro: e.message });
