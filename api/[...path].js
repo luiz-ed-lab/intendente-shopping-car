@@ -27,8 +27,12 @@ async function migra() {
   try { await query('alter table veiculos add column if not exists oculto boolean default false'); } catch (_) {}
   try { await query("alter table leads add column if not exists tipo text default 'venda'"); } catch (_) {}
   try { await query('alter table leads add column if not exists detalhes jsonb'); } catch (_) {}
+  try { await query("alter table leads add column if not exists status text default 'novo'"); } catch (_) {}
+  try { await query('alter table lojas add column if not exists ultima_sync timestamptz'); } catch (_) {}
+  try { await query('alter table lojas add column if not exists ultimo_erro text'); } catch (_) {}
   migrado = true;
 }
+const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
 
 // envio de e-mail dos leads — pronto para quando a chave do Resend estiver configurada.
 // Enquanto não houver RESEND_API_KEY (ou e-mail nas lojas), não faz nada.
@@ -43,7 +47,7 @@ async function enviarEmailsLead(lead) {
     const { rows } = await query("select email from lojas where id=$1 and email is not null and email<>''", [lead.loja_id]);
     emails = rows.map(r => r.email);
   }
-  if (process.env.ACEIMA_EMAIL) emails.push(process.env.ACEIMA_EMAIL);
+  emails.push(ACEIMA_MAIL);
   emails = [...new Set(emails.filter(Boolean))];
   if (!emails.length) return;
   const det = lead.detalhes ? (typeof lead.detalhes === 'string' ? JSON.parse(lead.detalhes) : lead.detalhes) : null;
@@ -129,6 +133,26 @@ async function pegarLogo(base, $) {
   } catch (_) { return src; }
 }
 
+// dados de contato da loja lidos do próprio site (endereço, telefone, WhatsApp)
+function pegarContato($) {
+  const txt = $('body').text().replace(/\s+/g, ' ');
+  let whatsapp = null;
+  $('a[href*="whatsapp.com"], a[href*="wa.me"]').each((_, e) => {
+    if (whatsapp) return;
+    const h = $(e).attr('href') || '';
+    const m = h.match(/(?:phone=|wa\.me\/)\+?(\d{10,15})/);
+    if (m) whatsapp = m[1].replace(/^0+/, '');
+  });
+  if (whatsapp && !whatsapp.startsWith('55')) whatsapp = '55' + whatsapp;
+  const end = txt.match(/Endere[çc]o:?\s*((?:Est|Estrada|Rua|Av|Avenida|Rod)[^|]{5,90}?)(?:\s*-\s*Rio de Janeiro|\s*Telefone|\s*CEP|\s*$)/i);
+  const tel = txt.match(/Telefone:?\s*(\(?\d{2}\)?\s*\d{4,5}-?\d{4})/i);
+  return {
+    endereco: end ? end[1].trim().replace(/\s*,?\s*$/, '') : null,
+    telefone: tel ? tel[1].trim() : null,
+    whatsapp
+  };
+}
+
 // ---------------- ROBÔ: site próprio da loja ----------------
 async function lerSite(base) {
   const $ = cheerio.load(await get(base + '/Veiculos'));
@@ -169,7 +193,7 @@ async function lerSite(base) {
     });
   });
   const logo = await pegarLogo(base, $);
-  return { itens, logo };
+  return { itens, logo, contato: pegarContato($) };
 }
 // detalhe do site próprio: só enriquece fotos + opcionais
 async function detalheSite(base, slug, id) {
@@ -294,6 +318,12 @@ async function rotaLeads(req, res) {
         order by le.criado_em desc limit 300`);
     return res.json(rows);
   }
+  if (req.method === 'PATCH') {
+    const b = req.body || {};
+    if (!b.id) return res.status(400).json({ erro: 'id obrigatório' });
+    const { rows: [l] } = await query('update leads set status=$2 where id=$1 returning id, status', [b.id, b.status || 'novo']);
+    return res.json({ ok: true, lead: l });
+  }
   if (req.method !== 'POST') return res.status(405).end();
   const b = req.body || {};
   const { rows: [lead] } = await query(
@@ -317,10 +347,19 @@ async function rotaImportar(req, res) {
     if (!chave) { resultado.push({ loja: loja.nome, erro: 'sem site/ID cadastrado' }); continue; }
     try {
       const fonte = fonteDaLoja(chave);
-      let itens, logoSite = null;
-      if (fonte.tipo === 'site') { const r = await lerSite(fonte.base); itens = r.itens; logoSite = r.logo; }
+      let itens, logoSite = null, contato = null;
+      if (fonte.tipo === 'site') { const r = await lerSite(fonte.base); itens = r.itens; logoSite = r.logo; contato = r.contato; }
       else { itens = await lerPortal(fonte.base, fonte.portalId); }
-      if (logoSite && !loja.logo_url) { try { await query('update lojas set logo_url = $1 where id = $2', [logoSite, loja.id]); } catch (_) {} }
+      // o robô preenche os dados da loja sozinho
+      try {
+        await query(`update lojas set
+            logo_url = coalesce($1, logo_url),
+            endereco = coalesce($2, endereco),
+            telefone = coalesce($3, telefone),
+            whatsapp = coalesce($4, whatsapp)
+          where id = $5`,
+          [logoSite, contato && contato.endereco, contato && contato.telefone, contato && contato.whatsapp, loja.id]);
+      } catch (_) {}
       await query('update veiculos set ativo = false where loja_id = $1', [loja.id]);
       for (const it of itens) {
         let extra = {};
@@ -352,11 +391,46 @@ async function rotaImportar(req, res) {
            it.combustivel || extra.combustivel || null,
            extra.opcionais || [], fotos]);
       }
+      try { await query('update lojas set ultima_sync = now(), ultimo_erro = null where id = $1', [loja.id]); } catch (_) {}
       resultado.push({ loja: loja.nome, veiculos: itens.length });
       await pausa(500);
-    } catch (e) { resultado.push({ loja: loja.nome, erro: e.message }); }
+    } catch (e) {
+      try { await query('update lojas set ultima_sync = now(), ultimo_erro = $1 where id = $2', [String(e.message).slice(0, 300), loja.id]); } catch (_) {}
+      resultado.push({ loja: loja.nome, erro: e.message });
+    }
   }
   res.json({ ok: true, lojas: resultado });
+}
+
+// resumo diário para a ACEIMA (roda no cron)
+async function rotaResumo(req, res) {
+  await migra();
+  const { rows: porLoja } = await query(
+    `select coalesce(lo.nome,'(sem loja / quer vender)') as loja,
+            count(*) filter (where le.tipo='venda')  as vendas,
+            count(*) filter (where le.tipo='compra') as compras,
+            count(*) filter (where coalesce(le.status,'novo')='novo') as novos
+       from leads le left join lojas lo on lo.id = le.loja_id
+      where le.criado_em >= now() - interval '1 day'
+      group by 1 order by 2 desc, 3 desc`);
+  const { rows: [tot] } = await query("select count(*) as n from leads where criado_em >= now() - interval '1 day'");
+  const { rows: lojasErro } = await query('select nome, ultimo_erro from lojas where ativa=true and ultimo_erro is not null');
+  const linhas = [
+    'Resumo das últimas 24h — Intendente Shopping Car', '',
+    'Total de leads: ' + tot.n, ''
+  ];
+  if (porLoja.length) { porLoja.forEach(l => linhas.push(`${l.loja}: ${l.vendas} querem comprar · ${l.compras} querem vender · ${l.novos} sem atendimento`)); }
+  else linhas.push('Nenhum lead nas últimas 24h.');
+  if (lojasErro.length) { linhas.push('', 'Lojas com falha na sincronização:'); lojasErro.forEach(l => linhas.push(`- ${l.nome}: ${l.ultimo_erro}`)); }
+  const key = process.env.RESEND_API_KEY;
+  if (key) {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: 'ACEIMA <leads@intendenteautoshopping.com.br>', to: [ACEIMA_MAIL], subject: 'Resumo diário de leads — ACEIMA', text: linhas.join('\n') })
+    });
+  }
+  res.json({ ok: true, enviado: !!key, para: ACEIMA_MAIL, resumo: linhas });
 }
 
 // ---------------- ROTEADOR ----------------
@@ -373,6 +447,7 @@ export default async function handler(req, res) {
     if (rota === 'veiculos') return await rotaVeiculos(req, res);
     if (rota === 'leads') return await rotaLeads(req, res);
     if (rota === 'importar') return await rotaImportar(req, res);
+    if (rota === 'resumo') return await rotaResumo(req, res);
     res.status(404).json({ erro: 'rota não encontrada', rota });
   } catch (e) {
     res.status(500).json({ erro: e.message });
