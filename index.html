@@ -1245,6 +1245,17 @@ async function carregarDados(){
       marcas=[...new Set(veiculos.map(v=>v.b).filter(Boolean))].sort();
       lojasList=[...new Set(veiculos.map(v=>v.loja).filter(Boolean))].sort();
       if(marcas.length){const mq=document.getElementById('marquee');if(mq)mq.innerHTML=[...marcas,...marcas].map(m=>`<span onclick="buscarMarca('${String(m).replace(/'/g,"\\'")}')">${m}</span>`).join('');}
+      // fotos da página A ACEIMA: usa carros REAIS do nosso estoque (populares, nada de importado)
+      const populares=['COMPASS','ONIX','POLO','HB20','ARGO','RENEGADE','TRACKER','KWID','CRETA','COROLLA','GOL','MOBI','KICKS'];
+      const comFoto=veiculos.filter(v=>v.img);
+      const escolhe=lista=>lista.length?lista[Math.floor(Math.random()*lista.length)]:null;
+      const pop=comFoto.filter(v=>populares.some(p=>(v.mod||'').toUpperCase().includes(p)));
+      const banner=escolhe(pop.length?pop:comFoto);
+      const segunda=escolhe((pop.length>1?pop:comFoto).filter(v=>v!==banner))||banner;
+      const elB=document.querySelector('.acbanner');
+      if(elB&&banner) elB.style.backgroundImage="linear-gradient(120deg,rgba(43,7,3,.94),rgba(94,16,9,.78) 60%,rgba(207,53,39,.5)),url('"+banner.img+"')";
+      const elF=document.querySelector('.acphoto');
+      if(elF&&segunda){ elF.src=segunda.img; elF.alt=(segunda.b+' '+segunda.mod).trim(); }
       cs.hMarca.setOptions(['Todas as marcas',...marcas]);
       cs.eMarca.setOptions(['Todas as marcas',...marcas]);
       cs.hModelo.setOptions(['Todos os modelos',...modelosDe('')]);
