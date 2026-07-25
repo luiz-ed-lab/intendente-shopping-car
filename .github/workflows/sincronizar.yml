@@ -1,0 +1,33 @@
+name: Sincronizar estoque das lojas
+
+# De hora em hora. Chama a nossa API uma loja por vez, para nenhuma
+# chamada estourar o tempo limite da função.
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sincronizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ler as lojas e sincronizar uma por uma
+        run: |
+          SITE="https://intendente-shopping-car.vercel.app"
+          echo "Buscando lojas ativas..."
+          IDS=$(curl -s --max-time 30 "$SITE/api/lojas?path=lojas" \
+                | grep -o '"id":[0-9]*' | cut -d: -f2)
+          if [ -z "$IDS" ]; then
+            echo "Nenhuma loja encontrada (API fora do ar?)."
+            exit 0
+          fi
+          for ID in $IDS; do
+            echo "--- Sincronizando loja $ID"
+            CODE=$(curl -s -o /tmp/out.json -w '%{http_code}' --max-time 90 \
+                   "$SITE/api/importar?path=importar&loja=$ID" || echo "erro")
+            echo "HTTP $CODE"
+            head -c 400 /tmp/out.json 2>/dev/null || true
+            echo ""
+            sleep 5
+          done
+          echo "Sincronização concluída."
