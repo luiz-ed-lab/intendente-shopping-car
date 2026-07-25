@@ -34,6 +34,10 @@ async function migra() {
   migrado = true;
 }
 const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
+// Enquanto o domínio não estiver verificado no Resend, usa o remetente de teste dele
+// (que só entrega para o e-mail do dono da conta). Depois, basta criar a variável
+// RESEND_FROM no Vercel com: ACEIMA <leads@intendenteautoshopping.com.br>
+const REMETENTE = process.env.RESEND_FROM || 'ACEIMA <onboarding@resend.dev>';
 
 // envio de e-mail dos leads — pronto para quando a chave do Resend estiver configurada.
 // Enquanto não houver RESEND_API_KEY (ou e-mail nas lojas), não faz nada.
@@ -69,7 +73,7 @@ async function enviarEmailsLead(lead) {
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: 'ACEIMA <leads@intendenteautoshopping.com.br>', to: emails, subject: assunto, text: linhas.join('\n') })
+    body: JSON.stringify({ from: REMETENTE, to: emails, subject: assunto, text: linhas.join('\n') })
   });
 }
 
@@ -464,7 +468,7 @@ async function enviarResumo() {
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: 'ACEIMA <leads@intendenteautoshopping.com.br>', to: [ACEIMA_MAIL], subject: 'Resumo diário de leads — ACEIMA', text: linhas.join('\n') })
+      body: JSON.stringify({ from: REMETENTE, to: [ACEIMA_MAIL], subject: 'Resumo diário de leads — ACEIMA', text: linhas.join('\n') })
     });
   }
   return { enviado: !!key, para: ACEIMA_MAIL, resumo: linhas };
