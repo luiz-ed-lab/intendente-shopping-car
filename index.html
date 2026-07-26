@@ -1092,7 +1092,7 @@ function setFotos(arr){fotos=arr;document.getElementById('galThumbs').innerHTML=
 setFotos(fotos);
 
 /* abre o anúncio do veículo clicado */
-function abrirVeiculo(i){
+function abrirVeiculo(i,url){
   const v=veiculos[i];const lj=lojaMap[v.loja]||{};
   document.getElementById('dBc').textContent=v.b+' '+v.mod;
   document.getElementById('dTitle').textContent=v.b+' '+v.mod+' '+v.anoN;
@@ -1117,7 +1117,9 @@ function abrirVeiculo(i){
   document.getElementById('leadNome').value='';document.getElementById('leadTel').value='';
   document.getElementById('leadOk').classList.remove('on');document.getElementById('btnLead').classList.add('off');
   document.getElementById('telWarn').classList.remove('on');document.getElementById('leadTel').classList.remove('bad');
-  go('veiculo');
+  go('veiculo',url===false?false:urlVeiculo(v));
+  document.title=[v.b,v.mod,v.anoN].filter(Boolean).join(' ')+' à venda — '+MARCA_SITE;
+  if(url!==false)definirCanonica(urlVeiculo(v));
 }
 
 /* simulador home */
@@ -1149,13 +1151,13 @@ function setEnt(v,el){ent=v;el.parentNode.querySelectorAll('button').forEach(b=>
 function entrarContato(){
   const nome=document.getElementById('leadNome').value.trim();const tel=document.getElementById('leadTel').value.trim();
   if(!nome||!tel)return;
-  let forma='à vista',detalhe='';
-  if(pag==='financiado'){forma='financiado';
-    if(ent==='valor'){const v=document.getElementById('entValor').value.trim();detalhe=v?' com entrada de '+v:' (entrada a combinar)';}
-    else{const c=[val(cs.trMarca.value),val(cs.trModelo.value),cs.trAno.value].filter(Boolean).join(' ');detalhe=' dando '+(c||'um veículo')+' na troca';}}
+  let forma='À vista',detalhe='',extra=null;
+  if(pag==='financiado'){forma='Financiamento';
+    if(ent==='valor'){const v=document.getElementById('entValor').value.trim();detalhe=v?' com entrada de '+v:' (entrada a combinar)';extra={entrada:v||'a combinar'};}
+    else{const c=[val(cs.trMarca.value),val(cs.trModelo.value),cs.trAno.value].filter(Boolean).join(' ');detalhe=' dando '+(c||'um veículo')+' na troca';extra={troca:c||'veículo a definir',entrada:'usa o carro como entrada'};}}
   const wamsg=`Olá, meu nome é ${nome}! Vim pelo site do Intendente Shopping Car e me interessei pelo ${veiculoNome}. Você pode me auxiliar?`;
   window.open('https://wa.me/'+lojaLead.whatsapp+'?text='+encodeURIComponent(wamsg),'_blank');
-  fetch('/api/leads?path=leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'venda',canal:'formulario',loja_id:leadLojaId,veiculo_id:leadVeicId,cliente_nome:nome,cliente_telefone:tel.replace(/\D/g,''),forma_compra:forma,entrada:(detalhe||null)})}).catch(()=>{});
+  fetch('/api/leads?path=leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'venda',canal:'formulario',loja_id:leadLojaId,veiculo_id:leadVeicId,cliente_nome:nome,cliente_telefone:tel.replace(/\D/g,''),forma_compra:forma,entrada:(detalhe||null),detalhes:extra})}).catch(()=>{});
   console.log('E-MAIL LOJA:\nCliente: '+nome+' | '+tel+' | '+veiculoLead+' | '+forma+detalhe);
   console.log('E-MAIL ACEIMA:\nLead de '+nome+' ('+tel+') para '+lojaLead.nome+' — '+veiculoLead+' — '+forma+detalhe);
   const ok=document.getElementById('leadOk');
@@ -1201,15 +1203,53 @@ function enviarContato(){
   ok.classList.add('on');
 }
 
-/* ==================== NAV ==================== */
-function go(v){
+/* ==================== NAV + ENDEREÇO PRÓPRIO DE CADA PÁGINA ==================== */
+const ROTAS={home:'/',busca:'/estoque',lojas:'/lojas',vender:'/vender',aceima:'/a-aceima',contato:'/contato'};
+const MARCA_SITE='Nova Intendente Shopping Car';
+const TITULOS={
+  home:MARCA_SITE+' — O maior polo automotivo da América Latina',
+  busca:'Estoque de veículos — '+MARCA_SITE,
+  lojas:'Lojas associadas — '+MARCA_SITE,
+  vender:'Venda seu veículo — '+MARCA_SITE,
+  aceima:'A ACEIMA — '+MARCA_SITE,
+  contato:'Contato — '+MARCA_SITE
+};
+function slugify(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+function urlVeiculo(v){return '/veiculo/'+v.id+'-'+slugify([v.b,v.mod,v.ver,v.anoN].filter(Boolean).join(' '));}
+function definirCanonica(url){
+  let l=document.querySelector('link[rel="canonical"]');
+  if(!l){l=document.createElement('link');l.rel='canonical';document.head.appendChild(l);}
+  l.href=location.origin+url;
+}
+// url: endereço a gravar na barra; false = não mexer no histórico (voltar/avançar e carga inicial)
+function go(v,url){
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.querySelectorAll('nav a').forEach(a=>a.classList.remove('on'));
   closeMenu();
   if(v==='busca'&&document.getElementById('resultados').innerHTML==='')renderResultados();
   window.scrollTo({top:0});
+  if(url!==false){
+    const alvo=url||ROTAS[v]||'/';
+    if(location.pathname!==alvo)history.pushState({v:v},'',alvo);
+    definirCanonica(alvo);
+  }
+  if(TITULOS[v])document.title=TITULOS[v];
 }
+function aplicarRota(){
+  const p=(decodeURIComponent(location.pathname).replace(/\/+$/,''))||'/';
+  const mv=p.match(/^\/veiculo\/(\d+)/);
+  if(mv){
+    const id=parseInt(mv[1],10);
+    const i=veiculos.findIndex(x=>x.id===id);
+    if(i>=0){abrirVeiculo(i,false);return;}
+    if(veiculos.length){go('busca',ROTAS.busca);}  // anúncio saiu do estoque: cai no estoque
+    return;
+  }
+  const par=Object.keys(ROTAS).find(k=>ROTAS[k]===p);
+  go(par||'home',false);
+}
+window.addEventListener('popstate',aplicarRota);
 function openM(id){document.getElementById(id).classList.add('on');}
 function closeM(id){document.getElementById(id).classList.remove('on');}
 function toggleMenu(){const n=document.querySelector('nav'),b=document.querySelector('.burger'),bk=document.getElementById('navback');const open=n.classList.toggle('open');if(bk)bk.classList.toggle('on',open);document.body.style.overflow=open?'hidden':'';if(b)b.textContent=open?'✕':'☰';}
@@ -1255,12 +1295,15 @@ async function carregarDados(){
       atualizaHomeTotal();
     }
   }catch(e){ /* se a API falhar, mantém os carros de exemplo */ }
+  // link direto de anúncio (/veiculo/ID-...) só pode abrir depois que os carros chegam
+  if(/^\/veiculo\//.test(location.pathname))aplicarRota();
   // atualização por visita: pede pro servidor reler a loja mais desatualizada (tem trava, não repete)
   setTimeout(()=>{ fetch('/api/refresh?path=refresh&horas=2').catch(()=>{}); }, 1500);
 }
 
 /* init */
 atualizaHomeTotal();renderResultados();
+aplicarRota();   // abre a página certa conforme o endereço digitado/compartilhado
 carregarDados();
 </script>
 </body>
