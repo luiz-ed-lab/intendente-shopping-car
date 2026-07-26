@@ -157,6 +157,28 @@ async function enviarEmailsLead(lead, soAceima) {
   emails = [...new Set(emails.filter(Boolean))];
   if (!emails.length) return;
   const det = lead.detalhes ? (typeof lead.detalhes === 'string' ? JSON.parse(lead.detalhes) : lead.detalhes) : null;
+
+  // o lead recém-criado vem do INSERT ... RETURNING *, que NÃO traz o nome do veículo
+  // (isso é um join que só existe no GET). Sem isso o e-mail saía com "—".
+  let carroInteresse = lead.veiculo_nome || null, precoAnuncio = null, kmAnuncio = null;
+  if (lead.veiculo_id) {
+    try {
+      const { rows: [v] } = await query(
+        'select marca, modelo, versao, ano_modelo, ano_fabricacao, km, preco from veiculos where id=$1',
+        [lead.veiculo_id]);
+      if (v) {
+        const ano = v.ano_modelo || v.ano_fabricacao;
+        carroInteresse = [v.marca, v.modelo, v.versao].filter(Boolean).join(' ') + (ano ? ' — ' + ano : '');
+        precoAnuncio = v.preco; kmAnuncio = v.km;
+      }
+    } catch (_) {}
+  }
+  const numero = (n) => {
+    const x = Number(String(n == null ? '' : n).replace(/[^\d.,-]/g, '').replace(/\./g, '').replace(',', '.'));
+    return isFinite(x) && x > 0 ? x : null;
+  };
+  const moeda = (n) => { const x = numero(n); return x ? 'R$ ' + x.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) : ''; };
+  const kms = (n) => { const x = numero(n); return x ? x.toLocaleString('pt-BR') + ' km' : ''; };
   const assunto = lead.tipo === 'compra'
     ? 'Cliente quer VENDER um veículo — via site Intendente Shopping Car'
     : 'Novo lead de venda — via site Intendente Shopping Car';
@@ -168,6 +190,8 @@ async function enviarEmailsLead(lead, soAceima) {
     det ? ('Veículo do cliente: ' + [det.marca, det.modelo, det.ano].filter(Boolean).join(' ')
       + (det.km ? (' — ' + det.km + ' km') : '') + (det.valor ? (' — pretende ' + det.valor) : '')
       + (det.fotos ? (' — ' + det.fotos + ' foto(s) enviadas') : '')) : null,
+    (!det && carroInteresse) ? ('Veículo de interesse: ' + carroInteresse
+      + (moeda(precoAnuncio) ? (' — ' + moeda(precoAnuncio)) : '')) : null,
     lead.forma_compra ? ('Forma de compra: ' + lead.forma_compra + (lead.entrada || '')) : null,
     '', 'Mensagem enviada automaticamente pela ACEIMA.'
   ].filter(x => x !== null);
@@ -185,10 +209,12 @@ async function enviarEmailsLead(lead, soAceima) {
     linhaInfo('E-mail', lead.cliente_email ? `<a href="mailto:${esc(lead.cliente_email)}" style="color:#241b19;text-decoration:none">${esc(lead.cliente_email)}</a>` : ''),
     compra
       ? linhaInfo('Veículo do cliente', esc(carroCliente || '—'))
-      : linhaInfo('Veículo de interesse', esc(lead.veiculo_nome || '—')),
+      : linhaInfo('Veículo de interesse', esc(carroInteresse || '—')),
     compra ? linhaInfo('Quilometragem', det && det.km ? esc(det.km) + ' km' : '') : '',
     compra ? linhaInfo('Valor pretendido', det && det.valor ? 'R$ ' + esc(det.valor) : '') : '',
     compra ? linhaInfo('Fotos enviadas', det && det.fotos ? esc(det.fotos) + ' foto(s)' : '') : '',
+    !compra ? linhaInfo('Anunciado por', esc(moeda(precoAnuncio))) : '',
+    !compra ? linhaInfo('Quilometragem', esc(kms(kmAnuncio))) : '',
     !compra ? linhaInfo('Forma de compra', lead.forma_compra ? esc(lead.forma_compra + (lead.entrada || '')) : '') : ''
   ].join('');
 
