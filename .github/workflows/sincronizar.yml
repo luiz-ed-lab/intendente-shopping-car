@@ -10,10 +10,18 @@ on:
 jobs:
   sincronizar:
     runs-on: ubuntu-latest
+    env:
+      # mesma senha do painel (variável PAINEL_TOKEN na Vercel).
+      # cadastrar em: Settings > Secrets and variables > Actions > New repository secret
+      PAINEL_TOKEN: ${{ secrets.PAINEL_TOKEN }}
     steps:
       - name: Ler as lojas e sincronizar uma por uma
         run: |
           SITE="https://intendente-shopping-car.vercel.app"
+          if [ -z "$PAINEL_TOKEN" ]; then
+            echo "AVISO: secret PAINEL_TOKEN não cadastrado neste repositório."
+            echo "A API vai recusar a importação (401)."
+          fi
           echo "Buscando lojas ativas..."
           IDS=$(curl -s --max-time 30 "$SITE/api/lojas?path=lojas" \
                 | grep -o '"id":[0-9]*' | cut -d: -f2)
@@ -24,6 +32,7 @@ jobs:
           for ID in $IDS; do
             echo "--- Sincronizando loja $ID"
             CODE=$(curl -s -o /tmp/out.json -w '%{http_code}' --max-time 90 \
+                   -H "x-painel-token: $PAINEL_TOKEN" \
                    "$SITE/api/importar?path=importar&loja=$ID" || echo "erro")
             echo "HTTP $CODE"
             head -c 400 /tmp/out.json 2>/dev/null || true
