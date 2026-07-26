@@ -1236,6 +1236,7 @@ function go(v,url){
   }
   if(TITULOS[v])document.title=TITULOS[v];
 }
+let dadosCarregados=false;   // enquanto os carros reais não chegam, não desiste do link do anúncio
 function aplicarRota(){
   const p=(decodeURIComponent(location.pathname).replace(/\/+$/,''))||'/';
   const mv=p.match(/^\/veiculo\/(\d+)/);
@@ -1243,7 +1244,7 @@ function aplicarRota(){
     const id=parseInt(mv[1],10);
     const i=veiculos.findIndex(x=>x.id===id);
     if(i>=0){abrirVeiculo(i,false);return;}
-    if(veiculos.length){go('busca',ROTAS.busca);}  // anúncio saiu do estoque: cai no estoque
+    if(dadosCarregados){go('busca',ROTAS.busca);}  // anúncio saiu do estoque: cai no estoque
     return;
   }
   const par=Object.keys(ROTAS).find(k=>ROTAS[k]===p);
@@ -1296,6 +1297,7 @@ async function carregarDados(){
     }
   }catch(e){ /* se a API falhar, mantém os carros de exemplo */ }
   // link direto de anúncio (/veiculo/ID-...) só pode abrir depois que os carros chegam
+  dadosCarregados=true;
   if(/^\/veiculo\//.test(location.pathname))aplicarRota();
   // atualização por visita: pede pro servidor reler a loja mais desatualizada (tem trava, não repete)
   setTimeout(()=>{ fetch('/api/refresh?path=refresh&horas=2').catch(()=>{}); }, 1500);
