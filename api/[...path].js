@@ -38,10 +38,28 @@ async function migra() {
   migrado = true;
 }
 const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
-// Domínio aceima.com.br verificado no Resend: pode enviar para qualquer destinatário.
-// Para trocar o remetente sem mexer no código, criar RESEND_FROM no Vercel.
+// Remetente próprio (domínio aceima.com.br verificado no Resend). Se a chave de API
+// em uso ainda não tiver esse domínio liberado, o envio cai automaticamente no
+// remetente de teste do Resend — que só entrega para o dono da conta, mas não perde o aviso.
 const REMETENTE = process.env.RESEND_FROM || 'ACEIMA <leads@aceima.com.br>';
+const REMETENTE_RESERVA = 'ACEIMA <onboarding@resend.dev>';
 const SITE_URL = process.env.SITE_URL || 'https://intendente-shopping-car.vercel.app';
+
+// envia pelo Resend tentando o remetente próprio e, se ele for recusado, o de teste
+async function enviarResend(key, payload) {
+  const post = (from) => fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+    body: JSON.stringify(Object.assign({}, payload, { from }))
+  });
+  let r = await post(REMETENTE);
+  if (!r.ok && REMETENTE !== REMETENTE_RESERVA) {
+    let detalhe = ''; try { detalhe = (await r.text()).slice(0, 200); } catch (_) {}
+    console.log('Resend recusou o remetente ' + REMETENTE + ' (' + r.status + '): ' + detalhe);
+    r = await post(REMETENTE_RESERVA);
+  }
+  return r;
+}
 
 // ---------------- SEGURANÇA ----------------
 // Só a ACEIMA pode escrever (cadastrar/editar/excluir loja, ocultar veículo, ver e mudar leads).
@@ -184,11 +202,7 @@ async function enviarEmailsLead(lead, soAceima) {
     rodape: 'Contato gerado pelo site do Intendente Shopping Car e repassado pela ACEIMA.'
   });
 
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: REMETENTE, to: emails, reply_to: ACEIMA_MAIL, subject: assunto, text: linhas.join('\n'), html })
-  });
+  await enviarResend(key, { to: emails, reply_to: ACEIMA_MAIL, subject: assunto, text: linhas.join('\n'), html });
 }
 
 // ---------------- utilidades ----------------
@@ -683,11 +697,7 @@ async function enviarResumo() {
 
   const key = process.env.RESEND_API_KEY;
   if (key) {
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: REMETENTE, to: [ACEIMA_MAIL], subject: 'Resumo diário — Intendente Shopping Car', text: linhas.join('\n'), html })
-    });
+    await enviarResend(key, { to: [ACEIMA_MAIL], subject: 'Resumo diário — Intendente Shopping Car', text: linhas.join('\n'), html });
   }
   return { enviado: !!key, para: ACEIMA_MAIL, resumo: linhas };
 }
