@@ -38,10 +38,10 @@ async function migra() {
   migrado = true;
 }
 const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
-// Remetente próprio (domínio aceima.com.br verificado no Resend). Se a chave de API
-// em uso ainda não tiver esse domínio liberado, o envio cai automaticamente no
-// remetente de teste do Resend — que só entrega para o dono da conta, mas não perde o aviso.
-const REMETENTE = process.env.RESEND_FROM || 'ACEIMA <leads@aceima.com.br>';
+// Remetente próprio: mesmo domínio do site (aceima.com.br fica para o PitGest).
+// Enquanto o domínio não estiver verificado no Resend da conta cuja chave está aqui,
+// o envio cai sozinho no remetente de teste — que só entrega para o dono da conta.
+const REMETENTE = process.env.RESEND_FROM || 'ACEIMA <leads@intendenteautoshopping.com.br>';
 const REMETENTE_RESERVA = 'ACEIMA <onboarding@resend.dev>';
 const SITE_URL = process.env.SITE_URL || 'https://intendente-shopping-car.vercel.app';
 
