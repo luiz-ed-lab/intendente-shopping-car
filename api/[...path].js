@@ -38,10 +38,9 @@ async function migra() {
   migrado = true;
 }
 const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
-// Enquanto o domínio não estiver verificado no Resend, usa o remetente de teste dele
-// (que só entrega para o e-mail do dono da conta). Depois, basta criar a variável
-// RESEND_FROM no Vercel com: ACEIMA <leads@intendenteautoshopping.com.br>
-const REMETENTE = process.env.RESEND_FROM || 'ACEIMA <onboarding@resend.dev>';
+// Domínio aceima.com.br verificado no Resend: pode enviar para qualquer destinatário.
+// Para trocar o remetente sem mexer no código, criar RESEND_FROM no Vercel.
+const REMETENTE = process.env.RESEND_FROM || 'ACEIMA <leads@aceima.com.br>';
 const SITE_URL = process.env.SITE_URL || 'https://intendente-shopping-car.vercel.app';
 
 // ---------------- SEGURANÇA ----------------
@@ -188,7 +187,7 @@ async function enviarEmailsLead(lead, soAceima) {
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: REMETENTE, to: emails, subject: assunto, text: linhas.join('\n'), html })
+    body: JSON.stringify({ from: REMETENTE, to: emails, reply_to: ACEIMA_MAIL, subject: assunto, text: linhas.join('\n'), html })
   });
 }
 
