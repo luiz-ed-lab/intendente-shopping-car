@@ -179,7 +179,14 @@ async function enviarEmailsLead(lead, soAceima) {
   };
   const moeda = (n) => { const x = numero(n); return x ? 'R$ ' + x.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) : ''; };
   const kms = (n) => { const x = numero(n); return x ? x.toLocaleString('pt-BR') + ' km' : ''; };
-  const assunto = lead.tipo === 'compra'
+  const compra = lead.tipo === 'compra';
+  // lead de venda: a entrada / o carro da troca vêm em detalhes; leads antigos só têm o texto em entrada
+  const entradaTxt = (!compra && det && det.entrada) ? (moeda(det.entrada) || String(det.entrada)) : '';
+  const trocaTxt = (!compra && det && det.troca) ? String(det.troca) : '';
+  const formaTxt = lead.forma_compra
+    ? (lead.forma_compra + ((entradaTxt || trocaTxt) ? '' : (lead.entrada || '')))
+    : '';
+  const assunto = compra
     ? 'Cliente quer VENDER um veículo — via site Intendente Shopping Car'
     : 'Novo lead de venda — via site Intendente Shopping Car';
   const linhas = [
@@ -190,9 +197,11 @@ async function enviarEmailsLead(lead, soAceima) {
     det ? ('Veículo do cliente: ' + [det.marca, det.modelo, det.ano].filter(Boolean).join(' ')
       + (det.km ? (' — ' + det.km + ' km') : '') + (det.valor ? (' — pretende ' + det.valor) : '')
       + (det.fotos ? (' — ' + det.fotos + ' foto(s) enviadas') : '')) : null,
-    (!det && carroInteresse) ? ('Veículo de interesse: ' + carroInteresse
+    (!compra && carroInteresse) ? ('Veículo de interesse: ' + carroInteresse
       + (moeda(precoAnuncio) ? (' — ' + moeda(precoAnuncio)) : '')) : null,
-    lead.forma_compra ? ('Forma de compra: ' + lead.forma_compra + (lead.entrada || '')) : null,
+    formaTxt ? ('Forma de compra: ' + formaTxt) : null,
+    entradaTxt ? ('Entrada: ' + entradaTxt) : null,
+    trocaTxt ? ('Carro na troca: ' + trocaTxt) : null,
     '', 'Mensagem enviada automaticamente pela ACEIMA.'
   ].filter(x => x !== null);
 
@@ -201,7 +210,6 @@ async function enviarEmailsLead(lead, soAceima) {
     ? '(' + tel.slice(-11, -9) + ') ' + tel.slice(-9, -4) + '-' + tel.slice(-4)
     : (lead.cliente_telefone || '—');
   const carroCliente = det ? [det.marca, det.modelo, det.ano].filter(Boolean).join(' ') : null;
-  const compra = lead.tipo === 'compra';
 
   const tabela = [
     linhaInfo('Cliente', esc(lead.cliente_nome), true),
@@ -215,7 +223,9 @@ async function enviarEmailsLead(lead, soAceima) {
     compra ? linhaInfo('Fotos enviadas', det && det.fotos ? esc(det.fotos) + ' foto(s)' : '') : '',
     !compra ? linhaInfo('Anunciado por', esc(moeda(precoAnuncio))) : '',
     !compra ? linhaInfo('Quilometragem', esc(kms(kmAnuncio))) : '',
-    !compra ? linhaInfo('Forma de compra', lead.forma_compra ? esc(lead.forma_compra + (lead.entrada || '')) : '') : ''
+    !compra ? linhaInfo('Forma de compra', esc(formaTxt)) : '',
+    !compra ? linhaInfo('Entrada', esc(entradaTxt)) : '',
+    !compra ? linhaInfo('Carro na troca', esc(trocaTxt)) : ''
   ].join('');
 
   const html = emailLayout({
