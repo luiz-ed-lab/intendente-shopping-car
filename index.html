@@ -323,7 +323,8 @@
   .wvend-grid span{color:var(--orange);font-weight:800;flex-shrink:0}
   @media(max-width:820px){.wvend-grid{grid-template-columns:1fr 1fr}}
   @media(max-width:520px){.wvend-grid{grid-template-columns:1fr}}
-  .acphoto{width:100%;height:190px;object-fit:cover;border-radius:14px;margin-top:22px}
+  .acphoto{display:block;width:100%;height:215px;object-fit:cover;object-position:center 42%;border-radius:16px;margin-top:22px}
+  @media(max-width:900px){.acphoto{height:170px}}
   .acbanner .kicker{color:var(--orange)}
   .acbanner h2{font-size:clamp(1.6rem,3vw,2.3rem);letter-spacing:-.6px;max-width:640px;line-height:1.12}
   .acbanner p{color:#ffd9d0;margin-top:12px;max-width:600px;line-height:1.6}
@@ -697,13 +698,7 @@
             <div class="spec"><small>Estoque</small><b>+1.200</b></div>
             <div class="spec"><small>Marcas</small><b>+40</b></div>
           </div>
-          <div style="margin-top:22px;background:#faf5f3;border:1px solid #f1e4e0;border-radius:16px;padding:20px 22px">
-            <p style="font-size:.95rem;line-height:1.75;color:#5c4f4b;margin:0">
-              Numa única rua você compara <b>dezenas de lojas</b> sem sair do lugar: cada uma com estoque próprio,
-              procedência verificada e o selo de qualidade da associação. Achou o carro, fala direto com a loja —
-              a ACEIMA só garante que a negociação comece do jeito certo.
-            </p>
-          </div>
+          <img class="acphoto" src="/familia.jpg" alt="Família escolhendo um carro em uma loja do Autoshopping Intendente" loading="lazy">
         </div>
         <div>
           <div class="panel">
