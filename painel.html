@@ -381,7 +381,7 @@
           <select id="fVLoja" onchange="filtrarVeic()"><option value="">Todas as lojas</option></select>
           <select id="fVMarca" onchange="filtrarVeic()"><option value="">Todas as marcas</option></select>
           <select id="fVOrd" onchange="filtrarVeic()"><option value="recentes">Mais recentes</option><option value="menor">Menor preço</option><option value="maior">Maior preço</option></select>
-          <select id="fVStatus" onchange="filtrarVeic()"><option value="todos">Todos</option><option value="nosite">No site</option><option value="ocultos">Ocultos</option></select>
+          <select id="fVStatus" onchange="filtrarVeic()"><option value="todos">Todos</option><option value="nosite">No site</option><option value="ocultos">Ocultos</option><option value="semfoto">Sem foto</option></select>
         </div>
         <div class="vgrid" id="veicGrid"></div>
       </div>
@@ -600,6 +600,7 @@ function filtrarVeic(){
    if(mc && v.marca!==mc) return false;
    if(st==='nosite' && v.oculto===true) return false;
    if(st==='ocultos' && v.oculto!==true) return false;
+   if(st==='semfoto' && (v.fotos&&v.fotos.length)) return false;
    return true;
  });
  if(ord==='menor') list=list.slice().sort((a,b)=>(a.preco||0)-(b.preco||0));
@@ -611,10 +612,12 @@ function renderVeic(list){
  const g=document.getElementById('veicGrid');
  if(!list.length){ g.innerHTML='<p style="color:var(--muted);padding:24px">Nenhum veículo encontrado.</p>'; return; }
  g.innerHTML=list.slice(0,300).map(v=>{
-  const foto=(v.fotos&&v.fotos[0])||''; const oc=v.oculto===true;
+  const foto=(v.fotos&&v.fotos[0])||''; const oc=v.oculto===true; const semFoto=!foto;
+  const etiqueta = semFoto ? '<span class="st" style="background:#d3372a;color:#fff">sem foto</span>'
+                 : (oc ? '<span class="st" style="background:#b6a9a3;color:#fff">oculto</span>' : '');
   return `<div class="vc">
-   <div class="ph" style="background-image:url('${foto}')">${oc?'<span class="st" style="background:#b6a9a3;color:#fff">oculto</span>':''}</div>
-   <div class="b"><h4>${((v.marca||'')+' '+(v.modelo||'')).trim()}</h4><div class="pr">${money(v.preco)}</div>
+   <div class="ph" style="background-image:url('${foto}')">${etiqueta}</div>
+   <div class="b"><h4>${((v.marca||'')+' '+(v.modelo||'')).trim()}</h4><div class="pr">${(v.preco&&+v.preco>0)?money(v.preco):'Consultar'}</div>
    <div class="lj"><span>${v.loja_nome||''} · ${v.ano_modelo||''}</span>
      <span class="switch ${oc?'':'on'}" title="${oc?'Oculto no site':'Aparece no site'}" style="transform:scale(.78)" onclick="toggleVeic(${v.id},this)"></span>
    </div></div></div>`;
