@@ -434,6 +434,12 @@
       <input id="fUrl" placeholder="Ex: https://autobarra.com.br">
       <label>E-mail da loja</label>
       <input id="fEmail" placeholder="contato@loja.com.br">
+      <label>Cor de fundo da logo</label>
+      <div style="display:flex;gap:10px;align-items:center">
+        <input type="color" id="fCor" style="width:52px;height:40px;padding:4px;cursor:pointer" oninput="document.getElementById('fCorTxt').value=this.value">
+        <input id="fCorTxt" placeholder="deixe vazio para automático" oninput="document.getElementById('fCor').value=/^#[0-9a-f]{6}$/i.test(this.value)?this.value:'#ffffff'" style="flex:1">
+        <button class="btn ghost" style="height:40px" onclick="document.getElementById('fCorTxt').value='';document.getElementById('fCor').value='#ffffff'">Automático</button>
+      </div>
     </div>
     <div class="mfoot">
       <button class="btn ghost" onclick="closeM('mAdd')">Cancelar</button>
@@ -461,7 +467,7 @@ const F='https://www.autocerto.com/fotos/';
 const L='https://static.autocerto.com/LogoClientesPortais/';
 
 let lojasApi=[];   // dados crus das lojas (com id do banco)
-let lojas=[];      // exibição: [nome, whatsapp, chave, logoFile, nVeic, ultimaImp, dbId, origem]
+let lojas=[];      // exibição: [nome, whatsapp, chave, logoFile, nVeic, ultimaImp, dbId, origem, erro, cor]
 let veicAll=[];    // objetos crus dos veículos (com id do banco)
 let leads=[];      // [data, nome, tel, veiculo, loja, canal, status]
 let leadsVistos=false, editId=null;
@@ -502,7 +508,7 @@ async function carregarPainel(){
     veicAll  = Array.isArray(ve)?ve:[];
     const lds  = Array.isArray(le)?le:[];
     const cont={}; veicAll.forEach(v=>{cont[v.loja_id]=(cont[v.loja_id]||0)+1;});
-    lojas = lojasApi.map(l=>[l.nome, l.whatsapp||l.telefone||'—', l.autocerto_id||l.autocerto_url||'', l.logo_url||null, cont[l.id]||0, quando(l.ultima_sync), l.id, origemLabel(l.autocerto_id||l.autocerto_url), l.ultimo_erro||null]);
+    lojas = lojasApi.map(l=>[l.nome, l.whatsapp||l.telefone||'—', l.autocerto_id||l.autocerto_url||'', l.logo_url||null, cont[l.id]||0, quando(l.ultima_sync), l.id, origemLabel(l.autocerto_id||l.autocerto_url), l.ultimo_erro||null, l.cor||null]);
     const smap={novo:'new',enviado:'sent',atendido:'done'};
     leads = lds.map(l=>{
       const d=new Date(l.criado_em);
@@ -560,14 +566,65 @@ function aprimorarTodos(){
 }
 
 const initials=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
-const lgHtml=(id,file,name)=>{const src=(file&&/^(data:|https?:)/.test(String(file)))?file:(L+(file||id+'_logo.png'));return `<img src="${src}" alt="${name}" onerror="this.parentNode.textContent='${initials(name)}'">`;};
+const corLogoCache={};
+function fundoDaLogo(img){
+  const cx=img.parentNode; if(!cx) return;
+  // cor definida à mão no painel manda em tudo
+  const manual=img.getAttribute('data-cor');
+  const chave=(img.getAttribute('src')||'').slice(-90);
+  if(corLogoCache[chave]!==undefined){ aplicar(cx,img,corLogoCache[chave],manual); return; }
+  let r={cor:null,escala:1};
+  try{
+    const N=32, c=document.createElement('canvas'); c.width=N; c.height=N;
+    const g=c.getContext('2d',{willReadFrequently:true});
+    g.drawImage(img,0,0,N,N);
+    const d=g.getImageData(0,0,N,N).data;
+    const px=(x,y)=>{const i=(y*N+x)*4;return [d[i],d[i+1],d[i+2],d[i+3]];};
+    const lum=p=>(p[0]*299+p[1]*587+p[2]*114)/1000;
+    const borda=[]; for(let i=0;i<N;i++)borda.push(px(i,0),px(i,N-1),px(0,i),px(N-1,i));
+    const opacos=borda.filter(p=>p[3]>200);
+    const temFundoProprio=opacos.length>borda.length*0.7;
+    if(temFundoProprio){
+      const m=opacos.reduce((a,p)=>[a[0]+p[0],a[1]+p[1],a[2]+p[2]],[0,0,0]).map(v=>Math.round(v/opacos.length));
+      if(lum(m)<=232) r.cor='rgb('+m.join(',')+')';   // fundo colorido da marca
+    }else{
+      // transparente: só escurece se o desenho for FINO e claro (letra branca).
+      // Se a arte tem um bloco branco próprio (caso Jotta), fundo escuro fica feio.
+      let soma=0,n=0,brancos=0;
+      for(let i=0;i<d.length;i+=4){ if(d[i+3]>200){ const p=[d[i],d[i+1],d[i+2]]; soma+=lum(p); n++; if(lum(p)>238)brancos++; } }
+      const areaOpaca=n/(N*N), blocoBranco=brancos/(N*N);
+      if(n && soma/n>175 && areaOpaca<0.55 && blocoBranco<0.35) r.cor='#241b19';
+    }
+    // logo pequena dentro da imagem: acha o desenho e amplia até preencher a caixa
+    const fundoClaro = !r.cor || lum([36,27,25])>200;
+    let x0=N,y0=N,x1=-1,y1=-1;
+    for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+      const p=px(x,y);
+      const visivel = temFundoProprio ? (Math.abs(lum(p)-lum(opacos[0]||[255,255,255,255]))>26) : p[3]>60;
+      if(visivel){ if(x<x0)x0=x; if(y<y0)y0=y; if(x>x1)x1=x; if(y>y1)y1=y; }
+    }
+    if(x1>x0&&y1>y0){
+      const ocupa=Math.max((x1-x0+1)/N,(y1-y0+1)/N);
+      if(ocupa<0.82) r.escala=Math.min(1.8, 0.94/ocupa);
+    }
+  }catch(e){ /* imagem de outro domínio sem CORS: fica como está */ }
+  corLogoCache[chave]=r;
+  aplicar(cx,img,r,manual);
+}
+function aplicar(cx,img,r,manual){
+  const cor=manual||(r&&r.cor);
+  if(cor){ cx.style.background=cor; cx.style.borderColor='rgba(0,0,0,.10)'; }
+  if(r&&r.escala>1.02){ img.style.transform='scale('+r.escala.toFixed(2)+')'; img.style.transformOrigin='center'; }
+}
+const lgHtml=(id,file,name,cor)=>{const src=(file&&/^(data:|https?:)/.test(String(file)))?file:(L+(file||id+'_logo.png'));
+ return `<img src="${src}" alt="${name}" ${cor?`data-cor="${cor}"`:''} onload="fundoDaLogo(this)" onerror="this.parentNode.textContent='${initials(name)}'">`;};
 const waIco='<svg class="ic sm" viewBox="0 0 24 24" style="color:#25a35a"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5z"/></svg>';
 const fmIco='<svg class="ic sm" viewBox="0 0 24 24" style="color:#3ba0d6"><path d="M4 4h16v12H5.2L4 17.5z"/></svg>';
 
 function renderLojas(){
  const c=document.getElementById('lojasCount'); if(c) c.textContent=lojas.length;
  document.getElementById('lojasTb').innerHTML=lojas.map((l,i)=>`<tr>
-  <td><div style="display:flex;align-items:center;gap:11px"><div class="lg">${lgHtml(l[2],l[3],l[0])}</div><b>${l[0]}</b></div></td>
+  <td><div style="display:flex;align-items:center;gap:11px"><div class="lg">${lgHtml(l[2],l[3],l[0],l[9])}</div><b>${l[0]}</b></div></td>
   <td><span style="color:var(--muted)">${l[7]}</span></td>
   <td>${l[1]}</td>
   <td><b>${l[4]}</b></td>
@@ -582,7 +639,7 @@ function renderLojas(){
 }
 function renderDash(){
  document.getElementById('impRecent').innerHTML=lojas.slice(0,6).map(l=>`<tr>
-  <td><div style="display:flex;align-items:center;gap:10px"><div class="lg" style="width:46px;height:31px">${lgHtml(l[2],l[3],l[0])}</div>${l[0]}</div></td>
+  <td><div style="display:flex;align-items:center;gap:10px"><div class="lg" style="width:46px;height:31px">${lgHtml(l[2],l[3],l[0],l[9])}</div>${l[0]}</div></td>
   <td><b>${l[4]}</b></td><td style="color:var(--muted)">${l[5]}</td>
   <td>${l[8]?`<span class="tag" style="background:#fdeaea;color:#b3261e" title="${String(l[8]).replace(/"/g,'')}">falhou</span>`:(l[5]==='nunca'?'<span class="tag" style="background:#f1eae8;color:#7a6a64">aguardando</span>':'<span class="tag ok">ok</span>')}</td></tr>`).join('');
  const st=x=>{const c=ST_COR[x]||ST_COR.novo;return `<span class="tag" style="background:${c[0]};color:${c[1]}">${ST_LEAD[x]||x}</span>`;};
@@ -806,8 +863,11 @@ function abrirPainel(token){
 }
 /* sessão de 1 hora: se ainda estiver válida, entra direto */
 (function(){ const s=lerSessao(); if(s && s.t) abrirPainel(s.t); })();
-function openAdd(){editId=null;document.getElementById('mAddTitle').textContent='Adicionar loja';['fNome','fUrl','fEmail'].forEach(id=>document.getElementById(id).value='');document.getElementById('mAdd').classList.add('on');}
-function openEdit(i){const l=lojas[i];editId=l[6];const raw=lojasApi.find(x=>x.id===editId)||{};document.getElementById('mAddTitle').textContent='Editar loja';document.getElementById('fNome').value=l[0];document.getElementById('fUrl').value=raw.autocerto_id||raw.autocerto_url||l[2]||'';document.getElementById('fEmail').value=raw.email||'';document.getElementById('mAdd').classList.add('on');}
+function openAdd(){editId=null;document.getElementById('mAddTitle').textContent='Adicionar loja';['fNome','fUrl','fEmail','fCorTxt'].forEach(id=>document.getElementById(id).value='');document.getElementById('fCor').value='#ffffff';document.getElementById('mAdd').classList.add('on');}
+function openEdit(i){const l=lojas[i];editId=l[6];const raw=lojasApi.find(x=>x.id===editId)||{};document.getElementById('mAddTitle').textContent='Editar loja';document.getElementById('fNome').value=l[0];document.getElementById('fUrl').value=raw.autocerto_id||raw.autocerto_url||l[2]||'';document.getElementById('fEmail').value=raw.email||'';
+ document.getElementById('fCorTxt').value=raw.cor||'';
+ document.getElementById('fCor').value=/^#[0-9a-f]{6}$/i.test(raw.cor||'')?raw.cor:'#ffffff';
+ document.getElementById('mAdd').classList.add('on');}
 async function excluirLoja(i){const l=lojas[i];if(!confirm('Excluir a loja "'+l[0]+'"? Os veículos dela saem do site.'))return;try{await api('/api/lojas?path=lojas&id='+l[6],{method:'DELETE'});toast(l[0]+' excluída');await carregarPainel();}catch(e){toast('Erro ao excluir');}}
 function closeM(id){document.getElementById(id).classList.remove('on');}
 
@@ -844,6 +904,7 @@ async function addLoja(){
  const nome=document.getElementById('fNome').value.trim();
  const url=document.getElementById('fUrl').value.trim();   // site próprio da loja (ou ID do portal)
  const email=document.getElementById('fEmail').value.trim()||null;
+ const cor=document.getElementById('fCorTxt').value.trim();
  if(!nome || !url){ toast('Preencha o nome e o site da loja'); return; }
  closeM('mAdd');
  if(editId){
@@ -851,7 +912,7 @@ async function addLoja(){
    toast('Salvando '+nome+'…');
    try{
      await api('/api/lojas?path=lojas',{method:'PATCH',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({id, nome, autocerto_id:url, email})});
+       body:JSON.stringify({id, nome, autocerto_id:url, email, cor})});
      await carregarPainel(); toast(nome+' atualizada');
    }catch(e){ toast('Erro ao salvar: '+e.message); }
    return;
