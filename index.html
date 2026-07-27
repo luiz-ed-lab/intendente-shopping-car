@@ -213,7 +213,7 @@
   .lcard{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;transition:.2s;display:flex;flex-direction:column}
   .lcard:hover{transform:translateY(-4px)}
   .lcard .lg{width:100px;height:58px;border-radius:12px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:7px;margin-bottom:14px}
-  .lcard .lg img{max-width:100%;max-height:100%;object-fit:contain}
+  .lcard .lg img{max-width:100%;max-height:100%;object-fit:contain;transition:transform .2s}
   .lcard .lg.mono{background:linear-gradient(135deg,var(--red),var(--red-deep));color:#fff;font-family:var(--font-h);font-weight:800;font-size:1.2rem;border:none;letter-spacing:.5px}
   .lcard h3{font-size:1.05rem;line-height:1.2}
   .lcard p{color:var(--muted);font-size:.85rem;margin:9px 0 16px;line-height:1.6}
@@ -1188,40 +1188,55 @@ const lojaMap={};lojasCards.forEach(l=>lojaMap[l[0]]={addr:l[1],tel:l[3],wa:l[4]
 const corLogoCache={};
 function fundoDaLogo(img){
   const cx=img.parentNode; if(!cx) return;
+  // cor definida à mão no painel manda em tudo
+  const manual=img.getAttribute('data-cor');
   const chave=(img.getAttribute('src')||'').slice(-90);
-  if(corLogoCache[chave]!==undefined){ aplicaFundo(cx,corLogoCache[chave]); return; }
-  let cor=null;
+  if(corLogoCache[chave]!==undefined){ aplicar(cx,img,corLogoCache[chave],manual); return; }
+  let r={cor:null,escala:1};
   try{
-    const N=24, c=document.createElement('canvas'); c.width=N; c.height=N;
+    const N=32, c=document.createElement('canvas'); c.width=N; c.height=N;
     const g=c.getContext('2d',{willReadFrequently:true});
     g.drawImage(img,0,0,N,N);
     const d=g.getImageData(0,0,N,N).data;
     const px=(x,y)=>{const i=(y*N+x)*4;return [d[i],d[i+1],d[i+2],d[i+3]];};
-    const borda=[];
-    for(let i=0;i<N;i++){borda.push(px(i,0),px(i,N-1),px(0,i),px(N-1,i));}
+    const lum=p=>(p[0]*299+p[1]*587+p[2]*114)/1000;
+    const borda=[]; for(let i=0;i<N;i++)borda.push(px(i,0),px(i,N-1),px(0,i),px(N-1,i));
     const opacos=borda.filter(p=>p[3]>200);
-    if(opacos.length>borda.length*0.7){
-      // tem fundo próprio: usa a média da borda (se não for quase branco)
+    const temFundoProprio=opacos.length>borda.length*0.7;
+    if(temFundoProprio){
       const m=opacos.reduce((a,p)=>[a[0]+p[0],a[1]+p[1],a[2]+p[2]],[0,0,0]).map(v=>Math.round(v/opacos.length));
-      const claro=(m[0]*299+m[1]*587+m[2]*114)/1000 > 232;
-      if(!claro) cor='rgb('+m.join(',')+')';
+      if(lum(m)<=232) r.cor='rgb('+m.join(',')+')';   // fundo colorido da marca
     }else{
-      // fundo transparente: se o desenho é claro, precisa de fundo escuro para aparecer
-      let soma=0,n=0;
-      for(let i=0;i<d.length;i+=4){ if(d[i+3]>200){ soma+=(d[i]*299+d[i+1]*587+d[i+2]*114)/1000; n++; } }
-      if(n && soma/n > 175) cor='#241b19';
+      // transparente: só escurece se o desenho for FINO e claro (letra branca).
+      // Se a arte tem um bloco branco próprio (caso Jotta), fundo escuro fica feio.
+      let soma=0,n=0,brancos=0;
+      for(let i=0;i<d.length;i+=4){ if(d[i+3]>200){ const p=[d[i],d[i+1],d[i+2]]; soma+=lum(p); n++; if(lum(p)>238)brancos++; } }
+      const areaOpaca=n/(N*N), blocoBranco=brancos/(N*N);
+      if(n && soma/n>175 && areaOpaca<0.55 && blocoBranco<0.35) r.cor='#241b19';
     }
-  }catch(e){ /* imagem de outro domínio sem CORS: deixa o fundo branco mesmo */ }
-  corLogoCache[chave]=cor;
-  aplicaFundo(cx,cor);
+    // logo pequena dentro da imagem: acha o desenho e amplia até preencher a caixa
+    const fundoClaro = !r.cor || lum([36,27,25])>200;
+    let x0=N,y0=N,x1=-1,y1=-1;
+    for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+      const p=px(x,y);
+      const visivel = temFundoProprio ? (Math.abs(lum(p)-lum(opacos[0]||[255,255,255,255]))>26) : p[3]>60;
+      if(visivel){ if(x<x0)x0=x; if(y<y0)y0=y; if(x>x1)x1=x; if(y>y1)y1=y; }
+    }
+    if(x1>x0&&y1>y0){
+      const ocupa=Math.max((x1-x0+1)/N,(y1-y0+1)/N);
+      if(ocupa<0.82) r.escala=Math.min(1.8, 0.94/ocupa);
+    }
+  }catch(e){ /* imagem de outro domínio sem CORS: fica como está */ }
+  corLogoCache[chave]=r;
+  aplicar(cx,img,r,manual);
 }
-function aplicaFundo(cx,cor){
-  if(!cor) return;
-  cx.style.background=cor;
-  cx.style.borderColor='rgba(0,0,0,.10)';
+function aplicar(cx,img,r,manual){
+  const cor=manual||(r&&r.cor);
+  if(cor){ cx.style.background=cor; cx.style.borderColor='rgba(0,0,0,.10)'; }
+  if(r&&r.escala>1.02){ img.style.transform='scale('+r.escala.toFixed(2)+')'; img.style.transformOrigin='center'; }
 }
 const lcard=l=>`<div class="lcard">
-  <div class="lg"><img src="${(l[6]&&/^(data:|https?:)/.test(String(l[6])))?l[6]:L+(l[6]||l[5]+'_logo.png')}" alt="${l[0]}" onload="fundoDaLogo(this)" onerror="this.parentNode.classList.add('mono');this.parentNode.textContent='${initials(l[0])}'"></div>
+  <div class="lg"><img src="${(l[6]&&/^(data:|https?:)/.test(String(l[6])))?l[6]:L+(l[6]||l[5]+'_logo.png')}" alt="${l[0]}" ${l[7]?`data-cor="${l[7]}"`:''} onload="fundoDaLogo(this)" onerror="this.parentNode.classList.add('mono');this.parentNode.textContent='${initials(l[0])}'"></div>
   <h3>${l[0]}</h3>
   <p>${l[1]}<br>${l[2]}<br>📞 ${l[3]}</p>
   <div class="row"><button class="btn" onclick="verLoja('${l[0].replace(/'/g,"\\'")}')">Ver estoque</button>
@@ -1258,6 +1273,7 @@ function abrirVeiculo(i,url){
   const logoUrl=(lj.logo&&/^(data:|https?:)/.test(String(lj.logo)))?lj.logo:L+(lj.logo||lj.id+'_logo.png');
   const lb=document.getElementById('dLojaLogo');lb.innerHTML='';lb.style.background='';lb.style.borderColor='';
   const im=new Image();im.src=logoUrl;im.alt=v.loja;
+  if(lj.cor)im.setAttribute('data-cor',lj.cor);
   im.onload=()=>fundoDaLogo(im);
   im.onerror=()=>{lb.textContent=initials(v.loja);};
   lb.appendChild(im);
@@ -1427,9 +1443,9 @@ async function carregarDados(){
   try{
     const rl = await fetch('/api/lojas?path=lojas').then(r=>r.json()).catch(()=>[]);
     if(Array.isArray(rl) && rl.length){
-      rl.forEach(l=>{ const c=lojaMap[l.nome]||(lojaMap[l.nome]={}); c.id=l.id; if(l.logo_url) c.logo=l.logo_url; if(l.endereco) c.addr=l.endereco; if(l.whatsapp) c.wa=l.whatsapp; if(l.telefone) c.tel=l.telefone; });
+      rl.forEach(l=>{ const c=lojaMap[l.nome]||(lojaMap[l.nome]={}); c.cor=l.cor||null; c.id=l.id; if(l.logo_url) c.logo=l.logo_url; if(l.endereco) c.addr=l.endereco; if(l.whatsapp) c.wa=l.whatsapp; if(l.telefone) c.tel=l.telefone; });
       // página Lojas passa a mostrar as lojas REAIS cadastradas no painel
-      const reais=rl.map(l=>[l.nome, l.endereco||'Estrada Intendente Magalhães', 'Loja associada ACEIMA', l.telefone||'—', l.whatsapp||'', l.id, l.logo_url||null]);
+      const reais=rl.map(l=>[l.nome, l.endereco||'Estrada Intendente Magalhães', 'Loja associada ACEIMA', l.telefone||'—', l.whatsapp||'', l.id, l.logo_url||null, l.cor||null]);
       const elL=document.getElementById('lojas'); if(elL) elL.innerHTML=reais.map(lcard).join('');
       const elH=document.getElementById('lojasHome'); if(elH) elH.innerHTML=reais.slice(0,6).map(lcard).join('');
       const nL=document.getElementById('nLojas'); if(nL) nL.textContent=reais.length;
