@@ -43,6 +43,16 @@ async function migra() {
                   where coalesce(tipo,'') <> 'moto'
                     and upper(regexp_replace(marca, '^I/', '')) = any($1)`, [MARCAS_MOTO]);
   } catch (_) {}
+  try {
+    // caminhão: marca pesada, linha conhecida ou PBT no nome (8.160, 11.180, 24.280)
+    await query(`update veiculos set tipo='caminhao'
+                  where coalesce(tipo,'') not in ('moto','caminhao')
+                    and (upper(marca) = any($1)
+                         or upper(coalesce(modelo,'') || ' ' || coalesce(versao,'')) ~ $2
+                         or coalesce(modelo,'') ~ '[0-9]{1,2}\\.[0-9]{3}'
+                         or (upper(marca) = 'MERCEDES-BENZ' and coalesce(modelo,'') ~ '^[0-9]{3,4}$'))`,
+      [MARCAS_CAMINHAO, '(CARGO|CONSTELLATION|DELIVERY|WORKER|ATEGO|ACCELO|AXOR|ACTROS|ATRON|TECTOR|STRALIS|EUROCARGO|DAILY|NPR|NQR|NKR|BONGO|CAMINH)']);
+  } catch (_) {}
   try { await query("update veiculos set tipo='carro' where tipo is null"); } catch (_) {}
   migrado = true;
 }
@@ -55,12 +65,21 @@ const MARCAS_MISTAS = ['HONDA', 'SUZUKI', 'BMW'];
 const MODELOS_MOTO = /\b(CG|BIZ|POP|TITAN|FAN|BROS|XRE|CB ?\d|CBR|PCX|ADV|HORNET|TWISTER|LEAD|NXR|ELITE|SH ?\d|BURGMAN|INTRUDER|GSX|V-STROM|BANDIT|YES|FAZER|FACTOR|CRYPTON|LANDER|TENERE|MT-?\d|XJ6|NMAX|XMAX|CRF|NINJA|VERSYS|VULCAN|G ?310|R ?1250|F ?850|S ?1000)\b/i;
 // scooter/ciclomotor elétrico vem com a potência no nome (ex.: "X11 3000W")
 const ELETRICA_MOTO = /\b\d{3,4}\s?W\b/i;
+// caminhões: marcas que só fazem pesados + linhas conhecidas + o padrão de PBT (11.180, 24.280)
+const MARCAS_CAMINHAO = ['SCANIA', 'IVECO', 'DAF', 'MAN', 'AGRALE', 'INTERNATIONAL', 'FREIGHTLINER',
+  'WESTERN STAR', 'SINOTRUK', 'SHACMAN', 'FOTON', 'HINO', 'ISUZU'];
+const MODELOS_CAMINHAO = /\b(CARGO|CONSTELLATION|DELIVERY|WORKER|ATEGO|ACCELO|AXOR|ACTROS|ATRON|TECTOR|STRALIS|EUROCARGO|DAILY|VM ?\d{2}|FH ?\d{2}|FM ?\d{2}|NPR|NQR|NKR|BONGO|CAMINH)/i;
+const NUMERO_CAMINHAO = /\b\d{1,2}\.\d{3}\b/;                 // PBT no nome: 8.160, 11.180, 24.280
+const MB_CAMINHAO = /^\s*\d{3,4}\s*$/;                        // Mercedes antigo: 710, 1113, 1620
 function tipoVeiculo(marca, modelo, versao) {
   const m = String(marca || '').toUpperCase().trim().replace(/^I\//, '');  // "I/" = importado, no AutoCerto
   const txt = [modelo, versao].join(' ');
   if (MARCAS_MOTO.indexOf(m) >= 0) return 'moto';
   if (ELETRICA_MOTO.test(txt)) return 'moto';
   if (MARCAS_MISTAS.indexOf(m) >= 0 && MODELOS_MOTO.test(txt)) return 'moto';
+  if (MARCAS_CAMINHAO.indexOf(m) >= 0) return 'caminhao';
+  if (MODELOS_CAMINHAO.test(txt) || NUMERO_CAMINHAO.test(String(modelo || ''))) return 'caminhao';
+  if (m === 'MERCEDES-BENZ' && MB_CAMINHAO.test(String(modelo || ''))) return 'caminhao';
   return 'carro';
 }
 const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
@@ -520,7 +539,7 @@ async function rotaVeiculos(req, res) {
   const { rows } = await query(
     `select v.*, l.nome as loja_nome, l.whatsapp as loja_whatsapp
        from veiculos v join lojas l on l.id = v.loja_id
-      where ${cond.join(' and ')} order by v.sincronizado_em desc limit 500`, p);
+      where ${cond.join(' and ')} order by v.sincronizado_em desc limit 3000`, p);
   res.json(rows);
 }
 
