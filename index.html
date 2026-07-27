@@ -282,6 +282,8 @@
   .skel .l{height:11px;border-radius:6px;background:#efe7e4;margin-bottom:9px}
   .skel .l.c{width:65%}
   .skel .l.p{width:42%;height:17px;margin-top:6px}
+  .pulsa{color:var(--muted);animation:respira 1.2s ease-in-out infinite}
+  @keyframes respira{0%,100%{opacity:.45}50%{opacity:.9}}
   @keyframes brilho{0%{background-position:200% 0}100%{background-position:-200% 0}}
   .nores{background:#fff;border-radius:16px;padding:40px;text-align:center;color:var(--muted);box-shadow:var(--shadow)}
 
@@ -456,8 +458,8 @@
         <div class="stabs">
           <button class="on" onclick="setTipo('carro',this)">🚗 Carros</button>
           <button onclick="setTipo('moto',this)">🏍️ Motos</button>
-          <button id="tabCaminhao" style="display:none" onclick="setTipo('caminhao',this)">🚚 Caminhões</button>
-          <span class="total" id="homeTotal"></span>
+          <button id="tabCaminhao" onclick="setTipo('caminhao',this)">🚚 Caminhões</button>
+          <span class="total" id="homeTotal"><span class="pulsa">carregando estoque…</span></span>
         </div>
         <div class="sgrid">
           <div id="hMarca"></div>
@@ -566,7 +568,7 @@
           <button class="on" data-v="">Todos</button>
           <button data-v="carro">Carros</button>
           <button data-v="moto">Motos</button>
-          <button data-v="caminhao" id="segCaminhao" style="display:none">Caminhões</button>
+          <button data-v="caminhao" id="segCaminhao">Caminhões</button>
         </div>
         <h4>Marca</h4><div id="eMarca"></div>
         <h4>Modelo</h4><div id="eModelo"></div>
@@ -908,6 +910,8 @@ let veiculos=[
 
 veiculos.forEach((v,i)=>v._i=i);   // índice mestre p/ abrir o anúncio certo
 const money=v=>'R$ '+v.toLocaleString('pt-BR');
+// anúncio sem preço publicado não mostra "R$ 0"
+const preco=v=>(v&&v>0)?money(v):'Consultar a loja';
 const kmT=v=>v===0?'0 km':v.toLocaleString('pt-BR')+' km';
 function vcard(v){
   // algumas lojas repetem o modelo dentro da versão (ex.: "ER-6N ABS" / "ER-6N ABS")
@@ -916,7 +920,7 @@ function vcard(v){
   <div class="ph" style="background-image:url('${v.img}')">${v.tag?`<span class="tag">${v.tag}</span>`:''}</div>
   <div class="bd"><h3>${[v.b,v.mod,ver].filter(Boolean).join(' ')}</h3>
   <div class="meta"><span>${v.ano}</span><span>${kmT(v.km)}</span></div>
-  <div class="price">${money(v.preco)}</div>
+  <div class="price">${preco(v.preco)}</div>
   <div class="loja"><span>🏪 ${v.loja}</span><span class="wa">Ver anúncio ›</span></div></div></div>`;}
 
 /* ==================== ESTADO DOS FILTROS ==================== */
@@ -1112,13 +1116,10 @@ let tipoHome='carro';
 function setTipo(t,b){tipoHome=t;b.parentNode.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');atualizaHomeTotal();}
 const NOME_TIPO={carro:'carros',moto:'motos',caminhao:'caminhões'};
 function atualizaHomeTotal(){
+  const el=document.getElementById('homeTotal');
+  if(!dadosCarregados){el.innerHTML='<span class="pulsa">carregando estoque…</span>';return;}
   const n=veiculos.filter(v=>v.tipo===tipoHome).length;
-  document.getElementById('homeTotal').innerHTML=`<b>${n}</b> ${NOME_TIPO[tipoHome]||'veículos'} disponíveis`;
-  // as abas de caminhão só aparecem quando existe caminhão no estoque
-  const tem=veiculos.some(v=>v.tipo==='caminhao');
-  const t1=document.getElementById('tabCaminhao'),t2=document.getElementById('segCaminhao');
-  if(t1)t1.style.display=tem?'':'none';
-  if(t2)t2.style.display=tem?'':'none';
+  el.innerHTML=`<b>${n}</b> ${NOME_TIPO[tipoHome]||'veículos'} disponíveis`;
 }
 function buscarHome(){
   filtro.tipo=tipoHome;
@@ -1208,7 +1209,7 @@ function abrirVeiculo(i,url){
   document.getElementById('dBc').textContent=v.b+' '+v.mod;
   document.getElementById('dTitle').textContent=v.b+' '+v.mod+' '+v.anoN;
   document.getElementById('dSpecs').textContent=(v.ver&&v.ver.trim())?v.ver:[v.comb,v.cambio?'Câmbio '+v.cambio:''].filter(Boolean).join(' · ');
-  document.getElementById('dPrice').textContent=money(v.preco);
+  document.getElementById('dPrice').textContent=preco(v.preco);
   document.getElementById('dAno').textContent=v.ano;
   document.getElementById('dKm').textContent=kmT(v.km);
   document.getElementById('dCambio').textContent=v.cambio;
@@ -1421,6 +1422,7 @@ async function carregarDados(){
 /* init */
 atualizaHomeTotal();renderResultados();
 try{if(localStorage.getItem('visualEstoque')==='menor')setVisual('menor');}catch(e){}
+atualizaHomeTotal();
 aplicarRota();   // abre a página certa conforme o endereço digitado/compartilhado
 carregarDados();
 </script>
