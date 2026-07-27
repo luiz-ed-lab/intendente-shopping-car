@@ -56,6 +56,12 @@ async function migra() {
   try { await query("update veiculos set tipo='carro' where tipo is null"); } catch (_) {}
   // por que o anúncio está oculto: null = nunca mexido, 'sem_foto' = o robô escondeu, 'manual' = a ACEIMA decidiu
   try { await query('alter table veiculos add column if not exists oculto_motivo text'); } catch (_) {}
+  // anúncio sem foto que entrou antes dessa regra: tira do site agora (fica no painel)
+  try {
+    await query(`update veiculos set oculto = true, oculto_motivo = 'sem_foto'
+                  where coalesce(array_length(fotos,1),0) = 0
+                    and coalesce(oculto,false) = false and oculto_motivo is null`);
+  } catch (_) {}
   migrado = true;
 }
 // marcas que só fazem moto — para as que fazem os dois, olhamos o modelo
