@@ -43,15 +43,34 @@ async function migra() {
                   where coalesce(tipo,'') <> 'moto'
                     and upper(regexp_replace(marca, '^I/', '')) = any($1)`, [MARCAS_MOTO]);
   } catch (_) {}
+  const RX_CAMINHAO = '(CONSTELLATION|DELIVERY|WORKER|ATEGO|ACCELO|AXOR|ACTROS|ATRON|TECTOR|STRALIS|EUROCARGO|NPR|NQR|NKR|CAMINH)';
+  const RX_UTILITARIO = '^(DAILY|SPRINTER|MASTER|DUCATO|JUMPER|BOXER|V260|BONGO|K-?2500|EXPERT|JUMPY|SCUDO|TRAFIC)';
   try {
-    // caminhão: marca pesada, linha conhecida ou PBT no nome (8.160, 11.180, 24.280)
+    // caminhão: marca pesada, linha conhecida, furgão grande ou PBT no nome (8.160, 11.180)
     await query(`update veiculos set tipo='caminhao'
                   where coalesce(tipo,'') not in ('moto','caminhao')
                     and (upper(marca) = any($1)
                          or upper(coalesce(modelo,'') || ' ' || coalesce(versao,'')) ~ $2
+                         or upper(coalesce(modelo,'')) ~ $3
+                         or (upper(marca) = 'FORD' and upper(coalesce(modelo,'') || ' ' || coalesce(versao,'')) ~ 'CARGO')
+                         or (upper(marca) = 'HYUNDAI' and upper(coalesce(modelo,'')) ~ '^HR( |$)')
                          or coalesce(modelo,'') ~ '[0-9]{1,2}\\.[0-9]{3}'
                          or (upper(marca) = 'MERCEDES-BENZ' and coalesce(modelo,'') ~ '^[0-9]{3,4}$'))`,
-      [MARCAS_CAMINHAO, '(CARGO|CONSTELLATION|DELIVERY|WORKER|ATEGO|ACCELO|AXOR|ACTROS|ATRON|TECTOR|STRALIS|EUROCARGO|DAILY|NPR|NQR|NKR|BONGO|CAMINH)']);
+      [MARCAS_CAMINHAO, RX_CAMINHAO, RX_UTILITARIO]);
+  } catch (_) {}
+  try {
+    // devolve para "carro" o que foi marcado como caminhão pela regra antiga e não bate mais
+    // (era o caso do FIAT DOBLO 1.8 CARGO16V, pego pelo "CARGO" genérico)
+    await query(`update veiculos set tipo='carro'
+                  where tipo='caminhao'
+                    and upper(marca) <> all($1)
+                    and upper(coalesce(modelo,'') || ' ' || coalesce(versao,'')) !~ $2
+                    and upper(coalesce(modelo,'')) !~ $3
+                    and not (upper(marca) = 'FORD' and upper(coalesce(modelo,'') || ' ' || coalesce(versao,'')) ~ 'CARGO')
+                    and not (upper(marca) = 'HYUNDAI' and upper(coalesce(modelo,'')) ~ '^HR( |$)')
+                    and coalesce(modelo,'') !~ '[0-9]{1,2}\\.[0-9]{3}'
+                    and not (upper(marca) = 'MERCEDES-BENZ' and coalesce(modelo,'') ~ '^[0-9]{3,4}$')`,
+      [MARCAS_CAMINHAO, RX_CAMINHAO, RX_UTILITARIO]);
   } catch (_) {}
   try { await query("update veiculos set tipo='carro' where tipo is null"); } catch (_) {}
   // por que o anúncio está oculto: null = nunca mexido, 'sem_foto' = o robô escondeu, 'manual' = a ACEIMA decidiu
@@ -78,18 +97,27 @@ const ELETRICA_MOTO = /\b\d{3,4}\s?W\b/i;
 // caminhões: marcas que só fazem pesados + linhas conhecidas + o padrão de PBT (11.180, 24.280)
 const MARCAS_CAMINHAO = ['SCANIA', 'IVECO', 'DAF', 'MAN', 'AGRALE', 'INTERNATIONAL', 'FREIGHTLINER',
   'WESTERN STAR', 'SINOTRUK', 'SHACMAN', 'FOTON', 'HINO', 'ISUZU'];
-const MODELOS_CAMINHAO = /\b(CARGO|CONSTELLATION|DELIVERY|WORKER|ATEGO|ACCELO|AXOR|ACTROS|ATRON|TECTOR|STRALIS|EUROCARGO|DAILY|VM ?\d{2}|FH ?\d{2}|FM ?\d{2}|NPR|NQR|NKR|BONGO|CAMINH)/i;
+// linhas de caminhão de verdade. "CARGO" saiu daqui: pegava "DOBLO 1.8 CARGO16V",
+// que é furgão pequeno. Ford Cargo é tratado à parte, pela marca.
+const MODELOS_CAMINHAO = /\b(CONSTELLATION|DELIVERY|WORKER|ATEGO|ACCELO|AXOR|ACTROS|ATRON|TECTOR|STRALIS|EUROCARGO|VM ?\d{2}|FH ?\d{2}|FM ?\d{2}|NPR|NQR|NKR|CAMINH)/i;
+// furgões grandes / utilitários de carga entram junto com os caminhões
+const MODELOS_UTILITARIO = /^(DAILY|SPRINTER|MASTER|DUCATO|JUMPER|BOXER|V260|BONGO|K-?2500|EXPERT|JUMPY|SCUDO|TRAFIC)\b/i;
 const NUMERO_CAMINHAO = /\b\d{1,2}\.\d{3}\b/;                 // PBT no nome: 8.160, 11.180, 24.280
 const MB_CAMINHAO = /^\s*\d{3,4}\s*$/;                        // Mercedes antigo: 710, 1113, 1620
 function tipoVeiculo(marca, modelo, versao) {
   const m = String(marca || '').toUpperCase().trim().replace(/^I\//, '');  // "I/" = importado, no AutoCerto
+  const mod = String(modelo || '').toUpperCase().trim();
   const txt = [modelo, versao].join(' ');
   if (MARCAS_MOTO.indexOf(m) >= 0) return 'moto';
   if (ELETRICA_MOTO.test(txt)) return 'moto';
   if (MARCAS_MISTAS.indexOf(m) >= 0 && MODELOS_MOTO.test(txt)) return 'moto';
   if (MARCAS_CAMINHAO.indexOf(m) >= 0) return 'caminhao';
-  if (MODELOS_CAMINHAO.test(txt) || NUMERO_CAMINHAO.test(String(modelo || ''))) return 'caminhao';
-  if (m === 'MERCEDES-BENZ' && MB_CAMINHAO.test(String(modelo || ''))) return 'caminhao';
+  if (MODELOS_CAMINHAO.test(txt)) return 'caminhao';
+  if (MODELOS_UTILITARIO.test(mod)) return 'caminhao';
+  if (m === 'FORD' && /\bCARGO\b/i.test(txt)) return 'caminhao';   // linha Cargo é caminhão
+  if (m === 'HYUNDAI' && /^HR\b/.test(mod) && !/^HR-?V/.test(mod)) return 'caminhao';
+  if (NUMERO_CAMINHAO.test(mod)) return 'caminhao';
+  if (m === 'MERCEDES-BENZ' && MB_CAMINHAO.test(mod)) return 'caminhao';
   return 'carro';
 }
 const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
