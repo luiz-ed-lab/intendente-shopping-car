@@ -1395,6 +1395,7 @@ async function carregarDados(){
     if(Array.isArray(rv) && rv.length){
       veiculos = rv.map(mapApi);
       veiculos.forEach((v,i)=>v._i=i);
+      dadosCarregados=true;   // libera a listagem real (antes disso a tela mostra esqueleto)
       marcas=[...new Set(veiculos.map(v=>v.b).filter(Boolean))].sort();
       lojasList=[...new Set(veiculos.map(v=>v.loja).filter(Boolean))].sort();
       if(marcas.length){const mq=document.getElementById('marquee');if(mq)mq.innerHTML=[...marcas,...marcas].map(m=>`<span onclick="buscarMarca('${String(m).replace(/'/g,"\\'")}')">${m}</span>`).join('');}
@@ -1408,8 +1409,10 @@ async function carregarDados(){
       atualizaHomeTotal();
     }
   }catch(e){ /* se a API falhar, mantém os carros de exemplo */ }
+  // se a API falhou, libera assim mesmo para não ficar preso no esqueleto
+  if(!dadosCarregados){ dadosCarregados=true; renderResultados(); atualizaHomeTotal();
+    document.getElementById('destaques').innerHTML=veiculos.slice(0,12).map(vcard).join(''); }
   // link direto de anúncio (/veiculo/ID-...) só pode abrir depois que os carros chegam
-  dadosCarregados=true;
   if(/^\/veiculo\//.test(location.pathname))aplicarRota();
   // atualização por visita: pede pro servidor reler a loja mais desatualizada (tem trava, não repete)
   setTimeout(()=>{ fetch('/api/refresh?path=refresh&horas=2').catch(()=>{}); }, 1500);
