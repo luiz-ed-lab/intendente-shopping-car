@@ -447,6 +447,7 @@
         <div class="stabs">
           <button class="on" onclick="setTipo('carro',this)">🚗 Carros</button>
           <button onclick="setTipo('moto',this)">🏍️ Motos</button>
+          <button id="tabCaminhao" style="display:none" onclick="setTipo('caminhao',this)">🚚 Caminhões</button>
           <span class="total" id="homeTotal"></span>
         </div>
         <div class="sgrid">
@@ -556,6 +557,7 @@
           <button class="on" data-v="">Todos</button>
           <button data-v="carro">Carros</button>
           <button data-v="moto">Motos</button>
+          <button data-v="caminhao" id="segCaminhao" style="display:none">Caminhões</button>
         </div>
         <h4>Marca</h4><div id="eMarca"></div>
         <h4>Modelo</h4><div id="eModelo"></div>
@@ -1089,7 +1091,16 @@ function kmSug(){
 /* ==================== BUSCA A PARTIR DA HOME ==================== */
 let tipoHome='carro';
 function setTipo(t,b){tipoHome=t;b.parentNode.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');atualizaHomeTotal();}
-function atualizaHomeTotal(){const n=veiculos.filter(v=>v.tipo===tipoHome).length;document.getElementById('homeTotal').innerHTML=`<b>${n}</b> ${tipoHome==='moto'?'motos':'carros'} disponíveis`;}
+const NOME_TIPO={carro:'carros',moto:'motos',caminhao:'caminhões'};
+function atualizaHomeTotal(){
+  const n=veiculos.filter(v=>v.tipo===tipoHome).length;
+  document.getElementById('homeTotal').innerHTML=`<b>${n}</b> ${NOME_TIPO[tipoHome]||'veículos'} disponíveis`;
+  // as abas de caminhão só aparecem quando existe caminhão no estoque
+  const tem=veiculos.some(v=>v.tipo==='caminhao');
+  const t1=document.getElementById('tabCaminhao'),t2=document.getElementById('segCaminhao');
+  if(t1)t1.style.display=tem?'':'none';
+  if(t2)t2.style.display=tem?'':'none';
+}
 function buscarHome(){
   filtro.tipo=tipoHome;
   filtro.marca=val(cs.hMarca.value);filtro.modelo=val(cs.hModelo.value);
