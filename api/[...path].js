@@ -54,6 +54,8 @@ async function migra() {
       [MARCAS_CAMINHAO, '(CARGO|CONSTELLATION|DELIVERY|WORKER|ATEGO|ACCELO|AXOR|ACTROS|ATRON|TECTOR|STRALIS|EUROCARGO|DAILY|NPR|NQR|NKR|BONGO|CAMINH)']);
   } catch (_) {}
   try { await query("update veiculos set tipo='carro' where tipo is null"); } catch (_) {}
+  // por que o anúncio está oculto: null = nunca mexido, 'sem_foto' = o robô escondeu, 'manual' = a ACEIMA decidiu
+  try { await query('alter table veiculos add column if not exists oculto_motivo text'); } catch (_) {}
   migrado = true;
 }
 // marcas que só fazem moto — para as que fazem os dois, olhamos o modelo
@@ -570,14 +572,15 @@ async function rotaVeiculos(req, res) {
     const b = req.body || {};
     if (!b.id) return res.status(400).json({ erro: 'id obrigatório' });
     const oculto = b.oculto === true || b.ativo === false;
-    const { rows: [v] } = await query('update veiculos set oculto=$2 where id=$1 returning id, oculto', [b.id, oculto]);
+    const { rows: [v] } = await query(
+      "update veiculos set oculto=$2, oculto_motivo='manual' where id=$1 returning id, oculto", [b.id, oculto]);
     return res.json({ ok: true, veiculo: v });
   }
   const q = req.query || {};
-  const cond = ['v.ativo = true', 'coalesce(v.oculto,false) = false']; const p = [];
-  // o site só mostra anúncio com foto; o painel (que manda o token) vê tudo,
-  // para a ACEIMA saber quais carros a loja ainda não fotografou
-  if (!autorizado(req)) cond.push('coalesce(array_length(v.fotos,1),0) > 0');
+  // o site não mostra o que está oculto; o painel (com token) PRECISA ver,
+  // senão a ACEIMA esconde um carro e nunca mais consegue trazer de volta
+  const cond = ['v.ativo = true']; const p = [];
+  if (!autorizado(req)) cond.push('coalesce(v.oculto,false) = false');
   const add = (frag, val) => { p.push(val); cond.push(frag.replace('?', '$' + p.length)); };
   if (q.tipo) add('v.tipo = ?', q.tipo);
   if (q.marca) add('v.marca = ?', q.marca);
@@ -635,8 +638,8 @@ async function importarLoja(loja) {
     if (!chave) { return { loja: loja.nome, erro: 'sem site/ID cadastrado' }; }
     try {
       const fonte = fonteDaLoja(chave);
-      let itens, logoSite = null, contato = null;
-      if (fonte.tipo === 'site') { const r = await lerSite(fonte.base); itens = r.itens; logoSite = r.logo; contato = r.contato; }
+      let itens, logoSite = null, contato = null, ignorados = [];
+      if (fonte.tipo === 'site') { const r = await lerSite(fonte.base); itens = r.itens; ignorados = r.ignorados || []; logoSite = r.logo; contato = r.contato; }
       else { itens = await lerPortal(fonte.base, fonte.portalId); }
       // o robô preenche os dados da loja sozinho (inclusive o e-mail, lido da página de contato)
       let emailSite = null;
@@ -651,7 +654,9 @@ async function importarLoja(loja) {
           where id = $6`,
           [logoSite, contato && contato.endereco, contato && contato.telefone, contato && contato.whatsapp, emailSite, loja.id]);
       } catch (_) {}
-      await query('update veiculos set ativo = false where loja_id = $1', [loja.id]);
+      // ATENÇÃO: NÃO desativar tudo aqui. Se a função morrer no meio (loja grande),
+      // o estoque inteiro ficaria fora do ar. A baixa acontece só no fim, e apenas
+      // nos anúncios que realmente sumiram do site da loja.
 
       // quem já tem galeria salva não precisa da página de detalhes de novo.
       // Em loja grande (600 anúncios) buscar tudo estouraria o tempo da função:
@@ -664,7 +669,7 @@ async function importarLoja(loja) {
         jaTemGaleria = new Set(rows.map(r => String(r.autocerto_id)));
       } catch (_) {}
       const t0 = Date.now();
-      const ORCAMENTO_MS = 32000;   // tempo máximo gasto abrindo páginas de detalhe
+      const ORCAMENTO_MS = 20000;   // tempo máximo gasto abrindo páginas de detalhe
       let detalhesLidos = 0, detalhesPendentes = 0;
 
       for (const it of itens) {
@@ -681,8 +686,11 @@ async function importarLoja(loja) {
         } else if (precisaDetalhe) { detalhesPendentes++; }
         const fotos = (extra.fotos && extra.fotos.length) ? extra.fotos : (it.img ? [it.img] : []);
         await query(
-          `insert into veiculos (loja_id, autocerto_id, marca, modelo, versao, ano_fabricacao, ano_modelo, km, preco, cambio, combustivel, opcionais, fotos, tipo, ativo, sincronizado_em)
-           values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,true,now())
+          `insert into veiculos (loja_id, autocerto_id, marca, modelo, versao, ano_fabricacao, ano_modelo, km, preco, cambio, combustivel, opcionais, fotos, tipo, oculto, oculto_motivo, ativo, sincronizado_em)
+           values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,
+                   coalesce(array_length($13::text[],1),0) = 0,
+                   case when coalesce(array_length($13::text[],1),0) = 0 then 'sem_foto' else null end,
+                   true, now())
            on conflict (loja_id, autocerto_id) do update set
              marca=excluded.marca, modelo=excluded.modelo, versao=excluded.versao,
              ano_fabricacao=excluded.ano_fabricacao, ano_modelo=excluded.ano_modelo,
@@ -693,7 +701,15 @@ async function importarLoja(loja) {
                               then excluded.opcionais else veiculos.opcionais end,
              fotos = case when coalesce(array_length(excluded.fotos,1),0) >= coalesce(array_length(veiculos.fotos,1),0)
                           then excluded.fotos else veiculos.fotos end,
-             tipo=excluded.tipo, ativo=true, sincronizado_em=now()`,
+             tipo=excluded.tipo, ativo=true, sincronizado_em=now(),
+             -- escondido por falta de foto volta sozinho quando a loja publica a imagem;
+             -- decisão manual da ACEIMA ('manual') o robô nunca desfaz
+             oculto = case when veiculos.oculto_motivo = 'sem_foto'
+                            and coalesce(array_length(excluded.fotos,1),0) > 0 then false
+                           else veiculos.oculto end,
+             oculto_motivo = case when veiculos.oculto_motivo = 'sem_foto'
+                                   and coalesce(array_length(excluded.fotos,1),0) > 0 then null
+                                  else veiculos.oculto_motivo end`,
           [loja.id, it.anuncioId,
            it.marca || extra.marca || null,
            it.modelo || extra.modelo || null,
@@ -707,8 +723,21 @@ async function importarLoja(loja) {
            extra.opcionais || [], fotos,
            tipoVeiculo(it.marca || extra.marca, it.modelo || extra.modelo, it.versao)]);
       }
+      // agora sim: some do site quem não apareceu mais na leitura de hoje.
+      // Só faz a baixa se a leitura veio íntegra (algum anúncio encontrado).
+      let saiuDoAr = 0;
+      if (itens.length) {
+        try {
+          const vistosIds = itens.map(x => String(x.anuncioId));
+          const { rowCount } = await query(
+            `update veiculos set ativo = false
+              where loja_id = $1 and ativo = true and autocerto_id <> all($2::text[])`,
+            [loja.id, vistosIds]);
+          saiuDoAr = rowCount || 0;
+        } catch (_) {}
+      }
       try { await query('update lojas set ultima_sync = now(), ultimo_erro = null where id = $1', [loja.id]); } catch (_) {}
-      return { loja: loja.nome, veiculos: itens.length, galerias_lidas: detalhesLidos, galerias_pendentes: detalhesPendentes };
+      return { loja: loja.nome, veiculos: itens.length, sairam: saiuDoAr, sem_nome: (ignorados || []).length, galerias_lidas: detalhesLidos, galerias_pendentes: detalhesPendentes };
     } catch (e) {
       try { await query('update lojas set ultima_sync = now(), ultimo_erro = $1 where id = $2', [String(e.message).slice(0, 300), loja.id]); } catch (_) {}
       return { loja: loja.nome, erro: e.message };
