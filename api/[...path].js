@@ -35,7 +35,26 @@ async function migra() {
   try { await query('alter table veiculos add column if not exists criado_em timestamptz'); } catch (_) {}
   try { await query('update veiculos set criado_em = coalesce(sincronizado_em, now()) where criado_em is null'); } catch (_) {}
   try { await query('alter table veiculos alter column criado_em set default now()'); } catch (_) {}
+  // carro x moto (o site tem filtro de tipo e as motos vinham marcadas como carro)
+  try { await query('alter table veiculos add column if not exists tipo text'); } catch (_) {}
+  try {
+    await query(`update veiculos set tipo='moto'
+                  where tipo is null and upper(marca) = any($1)`, [MARCAS_MOTO]);
+  } catch (_) {}
+  try { await query("update veiculos set tipo='carro' where tipo is null"); } catch (_) {}
   migrado = true;
+}
+// marcas que só fazem moto — para as que fazem os dois, olhamos o modelo
+const MARCAS_MOTO = ['KAWASAKI', 'YAMAHA', 'SHINERAY', 'DAFRA', 'HARLEY-DAVIDSON', 'HALEY', 'ROYAL ENFIELD',
+  'TRIUMPH', 'DUCATI', 'KTM', 'KASINSKI', 'TRAXX', 'HAOJUE', 'APRILIA', 'BENELLI', 'MV AGUSTA', 'INDIAN',
+  'HUSQVARNA', 'BAJAJ', 'SYM', 'KYMCO', 'PIAGGIO', 'VESPA', 'MOTTU', 'AVELLOZ', 'BULL'];
+const MARCAS_MISTAS = ['HONDA', 'SUZUKI', 'BMW'];
+const MODELOS_MOTO = /\b(CG|BIZ|POP|TITAN|FAN|BROS|XRE|CB ?\d|CBR|PCX|ADV|HORNET|TWISTER|LEAD|NXR|ELITE|SH ?\d|BURGMAN|INTRUDER|GSX|V-STROM|BANDIT|YES|FAZER|FACTOR|CRYPTON|LANDER|TENERE|MT-?\d|XJ6|NMAX|XMAX|CRF|NINJA|VERSYS|VULCAN|G ?310|R ?1250|F ?850|S ?1000)\b/i;
+function tipoVeiculo(marca, modelo, versao) {
+  const m = String(marca || '').toUpperCase().trim();
+  if (MARCAS_MOTO.indexOf(m) >= 0) return 'moto';
+  if (MARCAS_MISTAS.indexOf(m) >= 0 && MODELOS_MOTO.test([modelo, versao].join(' '))) return 'moto';
+  return 'carro';
 }
 const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
 // Remetente próprio: mesmo domínio do site (aceima.com.br fica para o PitGest).
@@ -190,7 +209,7 @@ async function enviarEmailsLead(lead, soAceima) {
     ? 'Cliente quer VENDER um veículo — via site Intendente Shopping Car'
     : 'Novo lead de venda — via site Intendente Shopping Car';
   const linhas = [
-    'Este é um cliente vindo do site do Intendente Shopping Car.', '',
+    'Este é um cliente vindo do site da Intendente Shopping Car.', '',
     'Nome: ' + (lead.cliente_nome || '-'),
     'WhatsApp: ' + (lead.cliente_telefone || '-'),
     lead.cliente_email ? ('E-mail: ' + lead.cliente_email) : null,
@@ -235,7 +254,7 @@ async function enviarEmailsLead(lead, soAceima) {
     tabela,
     botao: tel ? { url: 'https://wa.me/' + (tel.length > 11 ? tel : '55' + tel), texto: 'Falar com o cliente no WhatsApp' } : null,
     aviso: null,
-    rodape: 'Contato gerado pelo site do Intendente Shopping Car e repassado pela ACEIMA.'
+    rodape: 'Contato gerado pelo site da Intendente Shopping Car e repassado pela ACEIMA.'
   });
 
   await enviarResend(key, { to: emails, reply_to: ACEIMA_MAIL, subject: assunto, text: linhas.join('\n'), html });
@@ -565,14 +584,14 @@ async function importarLoja(loja) {
         } catch (_) {}
         const fotos = (extra.fotos && extra.fotos.length) ? extra.fotos : (it.img ? [it.img] : []);
         await query(
-          `insert into veiculos (loja_id, autocerto_id, marca, modelo, versao, ano_fabricacao, ano_modelo, km, preco, cambio, combustivel, opcionais, fotos, ativo, sincronizado_em)
-           values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,true,now())
+          `insert into veiculos (loja_id, autocerto_id, marca, modelo, versao, ano_fabricacao, ano_modelo, km, preco, cambio, combustivel, opcionais, fotos, tipo, ativo, sincronizado_em)
+           values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,true,now())
            on conflict (loja_id, autocerto_id) do update set
              marca=excluded.marca, modelo=excluded.modelo, versao=excluded.versao,
              ano_fabricacao=excluded.ano_fabricacao, ano_modelo=excluded.ano_modelo,
              km=excluded.km, preco=excluded.preco, cambio=excluded.cambio,
              combustivel=excluded.combustivel, opcionais=excluded.opcionais,
-             fotos=excluded.fotos, ativo=true, sincronizado_em=now()`,
+             fotos=excluded.fotos, tipo=excluded.tipo, ativo=true, sincronizado_em=now()`,
           [loja.id, it.anuncioId,
            it.marca || extra.marca || null,
            it.modelo || extra.modelo || null,
@@ -583,7 +602,8 @@ async function importarLoja(loja) {
            it.preco != null ? it.preco : null,
            it.cambio || extra.cambio || null,
            it.combustivel || extra.combustivel || null,
-           extra.opcionais || [], fotos]);
+           extra.opcionais || [], fotos,
+           tipoVeiculo(it.marca || extra.marca, it.modelo || extra.modelo, it.versao)]);
       }
       try { await query('update lojas set ultima_sync = now(), ultimo_erro = null where id = $1', [loja.id]); } catch (_) {}
       return { loja: loja.nome, veiculos: itens.length };
