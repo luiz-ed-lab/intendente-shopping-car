@@ -458,7 +458,7 @@
         <div class="stabs">
           <button class="on" onclick="setTipo('carro',this)">🚗 Carros</button>
           <button onclick="setTipo('moto',this)">🏍️ Motos</button>
-          <button id="tabCaminhao" onclick="setTipo('caminhao',this)">🚚 Caminhões</button>
+          <button id="tabCaminhao" onclick="setTipo('caminhao',this)">🚚 Comerciais</button>
           <span class="total" id="homeTotal"><span class="pulsa">carregando estoque…</span></span>
         </div>
         <div class="sgrid">
@@ -568,7 +568,7 @@
           <button class="on" data-v="">Todos</button>
           <button data-v="carro">Carros</button>
           <button data-v="moto">Motos</button>
-          <button data-v="caminhao" id="segCaminhao">Caminhões</button>
+          <button data-v="caminhao" id="segCaminhao">Comerciais</button>
         </div>
         <h4>Marca</h4><div id="eMarca"></div>
         <h4>Modelo</h4><div id="eModelo"></div>
@@ -1114,7 +1114,7 @@ function kmSug(){
 /* ==================== BUSCA A PARTIR DA HOME ==================== */
 let tipoHome='carro';
 function setTipo(t,b){tipoHome=t;b.parentNode.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');atualizaHomeTotal();}
-const NOME_TIPO={carro:'carros',moto:'motos',caminhao:'caminhões'};
+const NOME_TIPO={carro:'carros',moto:'motos',caminhao:'comerciais'};
 function atualizaHomeTotal(){
   const el=document.getElementById('homeTotal');
   if(!dadosCarregados){el.innerHTML='<span class="pulsa">carregando estoque…</span>';return;}
