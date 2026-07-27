@@ -287,8 +287,12 @@ async function enviarEmailsLead(lead, soAceima) {
 }
 
 // ---------------- utilidades ----------------
-async function get(url) {
-  const r = await fetch(url, { headers: { 'User-Agent': 'ACEIMA-Importer/1.0 (+contato ACEIMA)' }, redirect: 'follow' });
+async function get(url, ajax) {
+  const headers = { 'User-Agent': 'ACEIMA-Importer/1.0 (+contato ACEIMA)' };
+  // o template novo do AutoCerto só devolve o pedaço com a próxima dúzia de anúncios
+  // quando o pedido parece um XHR (o site faz $.get("/Veiculos/"+pagina) na rolagem)
+  if (ajax) headers['X-Requested-With'] = 'XMLHttpRequest';
+  const r = await fetch(url, { headers, redirect: 'follow' });
   if (!r.ok) throw new Error('HTTP ' + r.status + ' em ' + url);
   return await r.text();
 }
@@ -397,6 +401,26 @@ async function lerSite(base) {
   const modelos = uniqTexts($, 'a[href*="modelo="]').map(t => t.toUpperCase()).sort((a, b) => b.length - a.length);
   const vistos = new Set();
   const itens = [];
+  colherCards($, { marcas, modelos, vistos, itens });
+
+  // páginas seguintes (/Veiculos/2, /3, ...) — até vir vazio, repetir ou bater o limite
+  for (let pagina = 2; pagina <= 80; pagina++) {
+    let html;
+    try { html = await get(`${base}/Veiculos/${pagina}`, true); } catch (_) { break; }
+    if (!html || html.length < 300) break;                       // fim da lista
+    const antes = itens.length;
+    colherCards(cheerio.load(html), { marcas, modelos, vistos, itens });
+    if (itens.length === antes) break;                           // nada novo (template antigo devolve a página toda)
+    await pausa(80);
+  }
+
+  const logo = await pegarLogo(base, $);
+  return { itens, logo, contato: pegarContato($) };
+}
+
+// extrai os cartões de anúncio de uma página (ou do pedaço devolvido pela rolagem)
+function colherCards($, ctx) {
+  const { marcas, modelos, vistos, itens } = ctx;
   $('a[href*="Veiculo/"][href*="detalhes"]').each((_, a) => {
     const $a = $(a);
     const href = $a.attr('href') || '';
@@ -429,8 +453,6 @@ async function lerSite(base) {
       ano: sl.ano || intDe(ctxt.match(/Ano\s*(\d{4})/i))
     });
   });
-  const logo = await pegarLogo(base, $);
-  return { itens, logo, contato: pegarContato($) };
 }
 // detalhe do site próprio: só enriquece fotos + opcionais
 async function detalheSite(base, slug, id) {
@@ -600,14 +622,33 @@ async function importarLoja(loja) {
           [logoSite, contato && contato.endereco, contato && contato.telefone, contato && contato.whatsapp, emailSite, loja.id]);
       } catch (_) {}
       await query('update veiculos set ativo = false where loja_id = $1', [loja.id]);
+
+      // quem já tem galeria salva não precisa da página de detalhes de novo.
+      // Em loja grande (600 anúncios) buscar tudo estouraria o tempo da função:
+      // a lista já traz preço/km/ano/foto principal, e as galerias entram aos poucos.
+      let jaTemGaleria = new Set();
+      try {
+        const { rows } = await query(
+          `select autocerto_id from veiculos
+            where loja_id = $1 and coalesce(array_length(fotos,1),0) > 1`, [loja.id]);
+        jaTemGaleria = new Set(rows.map(r => String(r.autocerto_id)));
+      } catch (_) {}
+      const t0 = Date.now();
+      const ORCAMENTO_MS = 32000;   // tempo máximo gasto abrindo páginas de detalhe
+      let detalhesLidos = 0, detalhesPendentes = 0;
+
       for (const it of itens) {
         let extra = {};
-        try {
-          extra = fonte.tipo === 'site'
-            ? await detalheSite(fonte.base, it.slug, it.anuncioId)
-            : await detalhePortal(fonte.base, it.slug, it.anuncioId);
-          await pausa(120);
-        } catch (_) {}
+        const precisaDetalhe = !jaTemGaleria.has(String(it.anuncioId));
+        if (precisaDetalhe && (Date.now() - t0) < ORCAMENTO_MS) {
+          try {
+            extra = fonte.tipo === 'site'
+              ? await detalheSite(fonte.base, it.slug, it.anuncioId)
+              : await detalhePortal(fonte.base, it.slug, it.anuncioId);
+            detalhesLidos++;
+            await pausa(120);
+          } catch (_) {}
+        } else if (precisaDetalhe) { detalhesPendentes++; }
         const fotos = (extra.fotos && extra.fotos.length) ? extra.fotos : (it.img ? [it.img] : []);
         await query(
           `insert into veiculos (loja_id, autocerto_id, marca, modelo, versao, ano_fabricacao, ano_modelo, km, preco, cambio, combustivel, opcionais, fotos, tipo, ativo, sincronizado_em)
@@ -616,8 +657,13 @@ async function importarLoja(loja) {
              marca=excluded.marca, modelo=excluded.modelo, versao=excluded.versao,
              ano_fabricacao=excluded.ano_fabricacao, ano_modelo=excluded.ano_modelo,
              km=excluded.km, preco=excluded.preco, cambio=excluded.cambio,
-             combustivel=excluded.combustivel, opcionais=excluded.opcionais,
-             fotos=excluded.fotos, tipo=excluded.tipo, ativo=true, sincronizado_em=now()`,
+             combustivel=excluded.combustivel,
+             -- não apaga galeria/opcionais já salvos quando a rodada não abriu o detalhe
+             opcionais = case when coalesce(array_length(excluded.opcionais,1),0) > 0
+                              then excluded.opcionais else veiculos.opcionais end,
+             fotos = case when coalesce(array_length(excluded.fotos,1),0) >= coalesce(array_length(veiculos.fotos,1),0)
+                          then excluded.fotos else veiculos.fotos end,
+             tipo=excluded.tipo, ativo=true, sincronizado_em=now()`,
           [loja.id, it.anuncioId,
            it.marca || extra.marca || null,
            it.modelo || extra.modelo || null,
@@ -632,7 +678,7 @@ async function importarLoja(loja) {
            tipoVeiculo(it.marca || extra.marca, it.modelo || extra.modelo, it.versao)]);
       }
       try { await query('update lojas set ultima_sync = now(), ultimo_erro = null where id = $1', [loja.id]); } catch (_) {}
-      return { loja: loja.nome, veiculos: itens.length };
+      return { loja: loja.nome, veiculos: itens.length, galerias_lidas: detalhesLidos, galerias_pendentes: detalhesPendentes };
     } catch (e) {
       try { await query('update lojas set ultima_sync = now(), ultimo_erro = $1 where id = $2', [String(e.message).slice(0, 300), loja.id]); } catch (_) {}
       return { loja: loja.nome, erro: e.message };
