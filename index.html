@@ -223,7 +223,7 @@
   /* ============ RESULTADOS / ESTOQUE ============ */
   .results{display:grid;grid-template-columns:280px 1fr;gap:22px;padding-top:30px}
   @media(max-width:900px){.results{grid-template-columns:1fr}}
-  .filters{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;height:fit-content;position:sticky;top:96px;max-height:calc(100vh - 120px);overflow-y:auto;scrollbar-width:thin}
+  .filters{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;height:fit-content;position:sticky;top:124px;max-height:calc(100vh - 150px);overflow-y:auto;scrollbar-width:thin}
   .filters::-webkit-scrollbar{width:6px}
   .filters::-webkit-scrollbar-thumb{background:#e3d6d2;border-radius:99px}
   @media(max-width:900px){.filters{position:static;max-height:none;overflow:visible}}
@@ -244,8 +244,14 @@
   @media(max-width:560px){.grid{grid-template-columns:1fr}}
   .resbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
   .resbar .cnt b{font-family:var(--font-h)}
-  .resbar .meio{display:flex;align-items:center;gap:8px;flex:1;justify-content:center;flex-wrap:wrap}
-  .btnlimpar{border:1px solid #e8dbd7;background:#fff;color:var(--red);font-weight:700;font-size:.83rem;padding:8px 14px;border-radius:99px;cursor:pointer;transition:.15s}
+  .resbar .meio{display:flex;align-items:center;gap:0;flex:1;justify-content:center}
+  /* o "Limpar filtros" nasce com largura zero e cresce: empurra o seletor de visual
+     para a direita e os dois terminam centralizados juntos */
+  .btnlimpar{border:1px solid transparent;background:#fff;color:var(--red);font-weight:700;font-size:.83rem;
+    padding:8px 0;border-radius:99px;cursor:pointer;white-space:nowrap;overflow:hidden;
+    max-width:0;opacity:0;pointer-events:none;margin-right:0;
+    transition:max-width .3s ease,opacity .25s ease,padding .3s ease,margin .3s ease}
+  .btnlimpar.on{max-width:180px;opacity:1;padding:8px 14px;margin-right:10px;border-color:#e8dbd7;pointer-events:auto}
   .btnlimpar:hover{background:#fdf2f0;border-color:#f0cdc7}
   .vermodo{display:flex;gap:4px;background:#f1e9e7;border-radius:99px;padding:3px}
   .vermodo button{width:34px;height:28px;border-radius:99px;border:0;background:transparent;cursor:pointer;color:#9a8b86;display:flex;align-items:center;justify-content:center}
@@ -572,7 +578,7 @@
         <div class="resbar">
           <div class="cnt"><b id="resCount">0</b> veículos encontrados</div>
           <div class="meio">
-            <button class="btnlimpar" onclick="limparFiltros()">Limpar filtros</button>
+            <button class="btnlimpar" id="btnLimpar" onclick="limparFiltros()">Limpar filtros</button>
             <div class="vermodo">
               <button id="verG" class="on" title="Visualização grande" onclick="setVisual('grande')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></button>
               <button id="verP" title="Visualização menor" onclick="setVisual('menor')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5" rx="1.4"/><rect x="9.5" y="3" width="5" height="5" rx="1.4"/><rect x="16" y="3" width="5" height="5" rx="1.4"/><rect x="3" y="9.5" width="5" height="5" rx="1.4"/><rect x="9.5" y="9.5" width="5" height="5" rx="1.4"/><rect x="16" y="9.5" width="5" height="5" rx="1.4"/><rect x="3" y="16" width="5" height="5" rx="1.4"/><rect x="9.5" y="16" width="5" height="5" rx="1.4"/><rect x="16" y="16" width="5" height="5" rx="1.4"/></svg></button>
@@ -1047,6 +1053,8 @@ function renderResultados(manterPagina){
   document.getElementById('resCount').textContent=list.length;
   document.getElementById('resultados').innerHTML=list.length?fatia.map(vcard).join(''):'<div class="nores" style="grid-column:1/-1">Nenhum veículo encontrado com esses filtros. <a style="color:var(--red);cursor:pointer" onclick="limparFiltros()">Limpar filtros</a></div>';
   document.getElementById('paginacao').innerHTML=paginacaoHtml(list.length,paginas);
+  const algumFiltro=Object.keys(filtro).some(k=>filtro[k]!==''&&filtro[k]!=null);
+  document.getElementById('btnLimpar').classList.toggle('on',algumFiltro);
 }
 function aplicarFiltros(){coletarEstoque();renderResultados();}
 function limparFiltros(){
