@@ -898,9 +898,12 @@ let veiculos=[
 veiculos.forEach((v,i)=>v._i=i);   // índice mestre p/ abrir o anúncio certo
 const money=v=>'R$ '+v.toLocaleString('pt-BR');
 const kmT=v=>v===0?'0 km':v.toLocaleString('pt-BR')+' km';
-function vcard(v){return `<div class="vcard" onclick="abrirVeiculo(${v._i})">
+function vcard(v){
+  // algumas lojas repetem o modelo dentro da versão (ex.: "ER-6N ABS" / "ER-6N ABS")
+  const ver=(v.ver&&!(' '+v.mod+' ').includes(' '+v.ver+' ')&&!v.ver.startsWith(v.mod))?v.ver:(v.ver&&v.ver!==v.mod?v.ver.replace(v.mod,'').trim():'');
+  return `<div class="vcard" onclick="abrirVeiculo(${v._i})">
   <div class="ph" style="background-image:url('${v.img}')">${v.tag?`<span class="tag">${v.tag}</span>`:''}</div>
-  <div class="bd"><h3>${v.b} ${v.mod} ${v.ver}</h3>
+  <div class="bd"><h3>${[v.b,v.mod,ver].filter(Boolean).join(' ')}</h3>
   <div class="meta"><span>${v.ano}</span><span>${kmT(v.km)}</span></div>
   <div class="price">${money(v.preco)}</div>
   <div class="loja"><span>🏪 ${v.loja}</span><span class="wa">Ver anúncio ›</span></div></div></div>`;}
