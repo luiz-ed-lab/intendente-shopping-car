@@ -297,14 +297,32 @@ async function enviarEmailsLead(lead, soAceima) {
 }
 
 // ---------------- utilidades ----------------
-async function get(url, ajax) {
-  const headers = { 'User-Agent': 'ACEIMA-Importer/1.0 (+contato ACEIMA)' };
-  // o template novo do AutoCerto só devolve o pedaço com a próxima dúzia de anúncios
+async function get(url, ajax, cookie) {
+  const headers = { 'User-Agent': 'Mozilla/5.0 (compatible; ACEIMA-Importer/1.0)' };
+  // O template novo do AutoCerto só devolve o pedaço com a próxima dúzia de anúncios
   // quando o pedido parece um XHR (o site faz $.get("/Veiculos/"+pagina) na rolagem)
-  if (ajax) headers['X-Requested-With'] = 'XMLHttpRequest';
+  // E carrega o cookie de sessão — sem ele a resposta volta vazia.
+  if (ajax) { headers['X-Requested-With'] = 'XMLHttpRequest'; headers['Accept'] = 'text/html, */*; q=0.01'; }
+  if (cookie) headers['Cookie'] = cookie;
   const r = await fetch(url, { headers, redirect: 'follow' });
   if (!r.ok) throw new Error('HTTP ' + r.status + ' em ' + url);
   return await r.text();
+}
+// primeira visita: além do HTML, guarda o cookie de sessão que o servidor entrega
+async function getComSessao(url) {
+  const r = await fetch(url, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ACEIMA-Importer/1.0)' }, redirect: 'follow'
+  });
+  if (!r.ok) throw new Error('HTTP ' + r.status + ' em ' + url);
+  const html = await r.text();
+  let cookie = '';
+  try {
+    const lista = (typeof r.headers.getSetCookie === 'function')
+      ? r.headers.getSetCookie()
+      : [r.headers.get('set-cookie')].filter(Boolean);
+    cookie = lista.map(c => String(c).split(';')[0]).filter(Boolean).join('; ');
+  } catch (_) {}
+  return { html, cookie };
 }
 function precoDe(txt) { const m = (txt || '').match(/R\$\s*([\d.]+),/); return m ? parseInt(m[1].replace(/\D/g, '')) : null; }
 function intDe(m) { return m ? parseInt(String(m[1]).replace(/\D/g, '')) : null; }
@@ -406,7 +424,8 @@ async function pegarEmail(base) {
 
 // ---------------- ROBÔ: site próprio da loja ----------------
 async function lerSite(base) {
-  const $ = cheerio.load(await get(base + '/Veiculos'));
+  const inicial = await getComSessao(base + '/Veiculos');
+  const $ = cheerio.load(inicial.html);
   const marcas = uniqTexts($, 'a[href*="marca="]').map(t => t.toUpperCase());
   const modelos = uniqTexts($, 'a[href*="modelo="]').map(t => t.toUpperCase()).sort((a, b) => b.length - a.length);
   const vistos = new Set();
@@ -416,7 +435,7 @@ async function lerSite(base) {
   // páginas seguintes (/Veiculos/2, /3, ...) — até vir vazio, repetir ou bater o limite
   for (let pagina = 2; pagina <= 80; pagina++) {
     let html;
-    try { html = await get(`${base}/Veiculos/${pagina}`, true); } catch (_) { break; }
+    try { html = await get(`${base}/Veiculos/${pagina}`, true, inicial.cookie); } catch (_) { break; }
     if (!html || html.length < 300) break;                       // fim da lista
     const antes = itens.length + ignorados.length;
     colherCards(cheerio.load(html), { marcas, modelos, vistos, itens, ignorados });
