@@ -19,7 +19,10 @@
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
   /* nada pode ultrapassar a largura da tela (a gaveta do menu fica fora dela quando fechada) */
+  /* "hidden" segura a barra horizontal da gaveta do menu, MAS quebra position:sticky
+     (vira container de rolagem). "clip" corta igual sem quebrar o sticky dos filtros. */
   html,body{max-width:100%;overflow-x:hidden}
+  @supports (overflow-x:clip){html,body{overflow-x:clip}}
   body{font-family:var(--font-b);background:var(--bg);color:var(--txt)}
   img{display:block;max-width:100%}
   a{text-decoration:none;color:inherit}
