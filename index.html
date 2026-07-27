@@ -274,6 +274,15 @@
   .paginacao button.on{background:var(--red);border-color:var(--red);color:#fff}
   .paginacao button:disabled{opacity:.4;cursor:default}
   .paginacao .info{color:var(--muted);font-size:.82rem;margin:0 8px}
+  /* esqueleto enquanto o estoque real não chega (evita piscar os carros de exemplo) */
+  .skel{cursor:default}
+  .skel:hover{transform:none;box-shadow:var(--shadow)}
+  .skel .ph{background:linear-gradient(90deg,#efe7e4 25%,#f8f4f2 50%,#efe7e4 75%);background-size:200% 100%;animation:brilho 1.3s infinite linear}
+  .skel .ph::after{display:none}
+  .skel .l{height:11px;border-radius:6px;background:#efe7e4;margin-bottom:9px}
+  .skel .l.c{width:65%}
+  .skel .l.p{width:42%;height:17px;margin-top:6px}
+  @keyframes brilho{0%{background-position:200% 0}100%{background-position:-200% 0}}
   .nores{background:#fff;border-radius:16px;padding:40px;text-align:center;color:var(--muted);box-shadow:var(--shadow)}
 
   /* ============ VEÍCULO ============ */
@@ -1045,7 +1054,17 @@ function paginacaoHtml(total,paginas){
   h+=btn(pagina<paginas?pagina+1:0,'›');
   return h+`<span class="info">${total} veículos</span>`;
 }
+const CARD_SKEL='<div class="vcard skel"><div class="ph"></div><div class="bd"><div class="l"></div><div class="l c"></div><div class="l p"></div></div></div>';
+const esqueleto=n=>Array(n).fill(CARD_SKEL).join('');
 function renderResultados(manterPagina){
+  // enquanto o estoque real não chega, mostra esqueleto em vez dos carros de exemplo
+  if(!dadosCarregados){
+    document.getElementById('resCount').textContent='—';
+    document.getElementById('resultados').innerHTML=esqueleto(9);
+    document.getElementById('paginacao').innerHTML='';
+    const bl=document.getElementById('btnLimpar');if(bl)bl.classList.remove('on');
+    return;
+  }
   let list=filtrar();
   const ord=cs.eOrder.value;
   if(ord==='Menor preço')list.sort((a,b)=>a.preco-b.preco);
@@ -1124,7 +1143,7 @@ function buscarMarca(m){
 }
 
 /* ==================== RENDERS INICIAIS ==================== */
-document.getElementById('destaques').innerHTML=veiculos.filter(v=>v.tag).slice(0,10).map(vcard).join('');
+document.getElementById('destaques').innerHTML=esqueleto(6);   // real entra em carregarDados()
 
 const marcasMarq=['CHEVROLET','FIAT','VOLKSWAGEN','HONDA','TOYOTA','HYUNDAI','PEUGEOT','RENAULT','JEEP','NISSAN','CITROËN','MITSUBISHI','FORD','SHINERAY'];
 document.getElementById('marquee').innerHTML=[...marcasMarq,...marcasMarq].map(m=>`<span onclick="buscarMarca('${m.charAt(0)+m.slice(1).toLowerCase().replace('ë','ë')}')">${m}</span>`).join('');
