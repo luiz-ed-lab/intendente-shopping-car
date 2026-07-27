@@ -11,7 +11,6 @@
   ],
   "headers": [
     {
-      "comment": "as rotas do site caem em index.html por rewrite; sem isso a borda da Vercel guarda o HTML antigo e o deploy novo demora a aparecer",
       "source": "/((?!api/|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|js|css|txt|xml)$).*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
