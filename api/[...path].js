@@ -400,42 +400,57 @@ async function lerSite(base) {
   const marcas = uniqTexts($, 'a[href*="marca="]').map(t => t.toUpperCase());
   const modelos = uniqTexts($, 'a[href*="modelo="]').map(t => t.toUpperCase()).sort((a, b) => b.length - a.length);
   const vistos = new Set();
-  const itens = [];
-  colherCards($, { marcas, modelos, vistos, itens });
+  const itens = [], ignorados = [];
+  colherCards($, { marcas, modelos, vistos, itens, ignorados });
 
   // páginas seguintes (/Veiculos/2, /3, ...) — até vir vazio, repetir ou bater o limite
   for (let pagina = 2; pagina <= 80; pagina++) {
     let html;
     try { html = await get(`${base}/Veiculos/${pagina}`, true); } catch (_) { break; }
     if (!html || html.length < 300) break;                       // fim da lista
-    const antes = itens.length;
-    colherCards(cheerio.load(html), { marcas, modelos, vistos, itens });
-    if (itens.length === antes) break;                           // nada novo (template antigo devolve a página toda)
+    const antes = itens.length + ignorados.length;
+    colherCards(cheerio.load(html), { marcas, modelos, vistos, itens, ignorados });
+    if (itens.length + ignorados.length === antes) break;                           // nada novo (template antigo devolve a página toda)
     await pausa(80);
   }
 
   const logo = await pegarLogo(base, $);
-  return { itens, logo, contato: pegarContato($) };
+  return { itens, ignorados, logo, contato: pegarContato($) };
 }
 
 // extrai os cartões de anúncio de uma página (ou do pedaço devolvido pela rolagem)
+// textos de botão que NÃO são nome de veículo (cada loja usa o seu)
+const ROTULO_GENERICO = /^(ver mais|mais detalhes|saiba mais|ver detalhes|detalhes|financiamento|ver an[úu]ncio|whatsapp|compartilhar|simular|reservar|\+)$/i;
 function colherCards($, ctx) {
-  const { marcas, modelos, vistos, itens } = ctx;
+  const { marcas, modelos, vistos, itens, ignorados } = ctx;
   $('a[href*="Veiculo/"][href*="detalhes"]').each((_, a) => {
     const $a = $(a);
     const href = $a.attr('href') || '';
     const m = href.match(/Veiculo\/([^/]+)\/(\d+)\/detalhes/);
     if (!m) return;
     const id = m[2];
-    const titulo = $a.text().trim().replace(/\s+/g, ' ');
-    if (!titulo || titulo.length < 3 || /mais detalhes|financiamento/i.test(titulo)) return; // ignora o link da imagem e os botões
     if (vistos.has(id)) return;
-    vistos.add(id);
     // sobe até o cartão que contém o preço
     let card = $a;
     for (let k = 0; k < 6; k++) { const pr = card.parent(); if (!pr || !pr.length) break; card = pr; if (/R\$/.test(card.text()) && card.find('img').length) break; }
+
+    // O NOME pode estar no texto do link (template antigo) ou num cabeçalho do cartão
+    // (template da Bragança, onde o link é só "Ver mais"). Sem nome de verdade, não sobe.
+    const textoLink = $a.text().trim().replace(/\s+/g, ' ');
+    const heads = card.find('h1,h2,h3,h4,h5').map((_, e) => $(e).text().trim().replace(/\s+/g, ' ')).get().filter(Boolean);
+    let titulo = '';
+    if (heads.length) {
+      titulo = heads[0];
+      if (heads[1] && !titulo.toUpperCase().includes(heads[1].toUpperCase())) titulo += ' ' + heads[1];
+    }
+    if ((!titulo || ROTULO_GENERICO.test(titulo)) && textoLink && !ROTULO_GENERICO.test(textoLink)) titulo = textoLink;
+    if (!titulo || titulo.length < 3 || ROTULO_GENERICO.test(titulo)) return;   // ainda é botão, não é anúncio
+
+    vistos.add(id);
     const ctxt = card.text().replace(/\s+/g, ' ');
-    let img = card.find('img').first().attr('src') || null; if (img && /embreve/i.test(img)) img = null;
+    const $img = card.find('img').first();
+    let img = $img.attr('src') || $img.attr('data-src') || $img.attr('data-original') || null;
+    if (img && /embreve/i.test(img)) img = null;
     const T = titulo.toUpperCase();
     const marca = marcas.find(x => T.startsWith(x)) || titulo.split(' ')[0].toUpperCase();
     const resto = titulo.slice(marca.length).trim();
@@ -443,15 +458,27 @@ function colherCards($, ctx) {
     const modelo = modelos.find(x => R.startsWith(x)) || resto.split(' ')[0].toUpperCase();
     const versao = resto.slice(modelo.length).trim();
     const sl = parseSlug(m[1]);
-    itens.push({
+    // km: "Km 19.000" (um template) ou "19000 km" (outro)
+    const km = intDe(ctxt.match(/Km\s*([\d.]+)/i)) || intDe(ctxt.match(/([\d.]{3,})\s*km/i));
+    // ano: do slug, "Ano 2021" ou "2021/2021"
+    const ano = sl.ano || intDe(ctxt.match(/Ano\s*(\d{4})/i)) || (() => {
+      const p = ctxt.match(/\b(\d{4})\/(\d{4})\b/); return p ? parseInt(p[2], 10) : null;
+    })();
+    const item = {
       anuncioId: id, slug: m[1], img,
       marca, modelo, versao,
-      preco: precoDe(ctxt),
-      km: intDe(ctxt.match(/Km\s*([\d.]+)/i)),
+      preco: precoDe(ctxt), km,
       cambio: (ctxt.match(/C[âa]mbio\s*([A-Za-zÁ-ÿ]+)/i) || [])[1] || null,
-      combustivel: sl.combustivel,
-      ano: sl.ano || intDe(ctxt.match(/Ano\s*(\d{4})/i))
-    });
+      combustivel: sl.combustivel, ano
+    };
+    // porteira: sem nome utilizável não entra de jeito nenhum (era o caso do "VER MAIS")
+    if (!item.marca || item.marca.length < 2 || ROTULO_GENERICO.test(item.marca)) {
+      if (ignorados) ignorados.push(id);
+      return;
+    }
+    // sem foto ele ENTRA, mas fica só no painel: o GET público exige ao menos uma foto,
+    // então no minuto em que a loja publicar a imagem o anúncio aparece no site sozinho.
+    itens.push(item);
   });
 }
 // detalhe do site próprio: só enriquece fotos + opcionais
@@ -548,6 +575,9 @@ async function rotaVeiculos(req, res) {
   }
   const q = req.query || {};
   const cond = ['v.ativo = true', 'coalesce(v.oculto,false) = false']; const p = [];
+  // o site só mostra anúncio com foto; o painel (que manda o token) vê tudo,
+  // para a ACEIMA saber quais carros a loja ainda não fotografou
+  if (!autorizado(req)) cond.push('coalesce(array_length(v.fotos,1),0) > 0');
   const add = (frag, val) => { p.push(val); cond.push(frag.replace('?', '$' + p.length)); };
   if (q.tipo) add('v.tipo = ?', q.tipo);
   if (q.marca) add('v.marca = ?', q.marca);
