@@ -165,6 +165,11 @@
   .bar{height:8px;border-radius:99px;background:#f1e8e5;overflow:hidden;margin:16px 0 4px}
   .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),var(--red));width:0;transition:width .4s;border-radius:99px}
 
+  .blimpar{border:1px solid #e8dbd7;background:#fff;color:var(--red);font-weight:700;font-size:.82rem;padding:0 14px;height:38px;border-radius:99px;cursor:pointer;opacity:.45;transition:.15s}
+  .blimpar.on{opacity:1;border-color:#f0cdc7}
+  .blimpar:hover{background:#fdf2f0}
+  .vcount{color:var(--muted);font-size:.85rem;margin:-6px 0 14px}
+  .vcount .alerta{color:#d3372a;font-weight:700}
   .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
   .vc{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--sh);transition:.18s}
   .vc:hover{transform:translateY(-3px);box-shadow:var(--sh-lg)}
@@ -382,7 +387,9 @@
           <select id="fVMarca" onchange="filtrarVeic()"><option value="">Todas as marcas</option></select>
           <select id="fVOrd" onchange="filtrarVeic()"><option value="recentes">Mais recentes</option><option value="menor">Menor preço</option><option value="maior">Maior preço</option></select>
           <select id="fVStatus" onchange="filtrarVeic()"><option value="todos">Todos</option><option value="nosite">No site</option><option value="ocultos">Ocultos</option><option value="semfoto">Sem foto</option></select>
+          <button class="blimpar" id="btnLimparVeic" onclick="limparFiltrosVeic()">Limpar filtros</button>
         </div>
+        <div class="vcount" id="veicCount"></div>
         <div class="vgrid" id="veicGrid"></div>
       </div>
 
@@ -607,9 +614,25 @@ function filtrarVeic(){
  else if(ord==='maior') list=list.slice().sort((a,b)=>(b.preco||0)-(a.preco||0));
  renderVeic(list);
 }
+function limparFiltrosVeic(){
+ document.getElementById('fVBusca').value='';
+ ['fVLoja','fVMarca'].forEach(id=>{const e=document.getElementById(id);if(e){e.value='';e.dispatchEvent(new Event('change'));}});
+ const o=document.getElementById('fVOrd'); if(o){o.value='recentes';o.dispatchEvent(new Event('change'));}
+ const st=document.getElementById('fVStatus'); if(st){st.value='todos';st.dispatchEvent(new Event('change'));}
+ filtrarVeic();
+}
 function renderVeic(list){
  list=list||veicAll;
  const g=document.getElementById('veicGrid');
+ const c=document.getElementById('veicCount');
+ if(c){
+   const semFoto=veicAll.filter(v=>!(v.fotos&&v.fotos.length)).length;
+   c.innerHTML=`<b>${list.length}</b> de ${veicAll.length} veículos`+(semFoto?` · <span class="alerta">${semFoto} sem foto</span>`:'');
+ }
+ const alg=['fVBusca','fVLoja','fVMarca'].some(id=>document.getElementById(id)?.value)
+   || (document.getElementById('fVStatus')?.value||'todos')!=='todos'
+   || (document.getElementById('fVOrd')?.value||'recentes')!=='recentes';
+ document.getElementById('btnLimparVeic')?.classList.toggle('on',alg);
  if(!list.length){ g.innerHTML='<p style="color:var(--muted);padding:24px">Nenhum veículo encontrado.</p>'; return; }
  g.innerHTML=list.slice(0,300).map(v=>{
   const foto=(v.fotos&&v.fotos[0])||''; const oc=v.oculto===true; const semFoto=!foto;
