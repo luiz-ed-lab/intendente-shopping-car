@@ -38,8 +38,10 @@ async function migra() {
   // carro x moto (o site tem filtro de tipo e as motos vinham marcadas como carro)
   try { await query('alter table veiculos add column if not exists tipo text'); } catch (_) {}
   try {
+    // marca de moto é decisiva: corrige inclusive o que já estava gravado como carro
     await query(`update veiculos set tipo='moto'
-                  where tipo is null and upper(marca) = any($1)`, [MARCAS_MOTO]);
+                  where coalesce(tipo,'') <> 'moto'
+                    and upper(regexp_replace(marca, '^I/', '')) = any($1)`, [MARCAS_MOTO]);
   } catch (_) {}
   try { await query("update veiculos set tipo='carro' where tipo is null"); } catch (_) {}
   migrado = true;
@@ -47,13 +49,18 @@ async function migra() {
 // marcas que só fazem moto — para as que fazem os dois, olhamos o modelo
 const MARCAS_MOTO = ['KAWASAKI', 'YAMAHA', 'SHINERAY', 'DAFRA', 'HARLEY-DAVIDSON', 'HALEY', 'ROYAL ENFIELD',
   'TRIUMPH', 'DUCATI', 'KTM', 'KASINSKI', 'TRAXX', 'HAOJUE', 'APRILIA', 'BENELLI', 'MV AGUSTA', 'INDIAN',
-  'HUSQVARNA', 'BAJAJ', 'SYM', 'KYMCO', 'PIAGGIO', 'VESPA', 'MOTTU', 'AVELLOZ', 'BULL'];
+  'HUSQVARNA', 'BAJAJ', 'SYM', 'KYMCO', 'PIAGGIO', 'VESPA', 'MOTTU', 'AVELLOZ', 'BULL', 'GCX', 'SOUSA',
+  'MUUV', 'WATTS', 'LEV', 'GOODE'];
 const MARCAS_MISTAS = ['HONDA', 'SUZUKI', 'BMW'];
 const MODELOS_MOTO = /\b(CG|BIZ|POP|TITAN|FAN|BROS|XRE|CB ?\d|CBR|PCX|ADV|HORNET|TWISTER|LEAD|NXR|ELITE|SH ?\d|BURGMAN|INTRUDER|GSX|V-STROM|BANDIT|YES|FAZER|FACTOR|CRYPTON|LANDER|TENERE|MT-?\d|XJ6|NMAX|XMAX|CRF|NINJA|VERSYS|VULCAN|G ?310|R ?1250|F ?850|S ?1000)\b/i;
+// scooter/ciclomotor elétrico vem com a potência no nome (ex.: "X11 3000W")
+const ELETRICA_MOTO = /\b\d{3,4}\s?W\b/i;
 function tipoVeiculo(marca, modelo, versao) {
-  const m = String(marca || '').toUpperCase().trim();
+  const m = String(marca || '').toUpperCase().trim().replace(/^I\//, '');  // "I/" = importado, no AutoCerto
+  const txt = [modelo, versao].join(' ');
   if (MARCAS_MOTO.indexOf(m) >= 0) return 'moto';
-  if (MARCAS_MISTAS.indexOf(m) >= 0 && MODELOS_MOTO.test([modelo, versao].join(' '))) return 'moto';
+  if (ELETRICA_MOTO.test(txt)) return 'moto';
+  if (MARCAS_MISTAS.indexOf(m) >= 0 && MODELOS_MOTO.test(txt)) return 'moto';
   return 'carro';
 }
 const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
