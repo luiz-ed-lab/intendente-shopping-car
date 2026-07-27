@@ -56,6 +56,8 @@ async function migra() {
   try { await query("update veiculos set tipo='carro' where tipo is null"); } catch (_) {}
   // por que o anúncio está oculto: null = nunca mexido, 'sem_foto' = o robô escondeu, 'manual' = a ACEIMA decidiu
   try { await query('alter table veiculos add column if not exists oculto_motivo text'); } catch (_) {}
+  // cor de fundo da logo definida à mão pela ACEIMA (vence a detecção automática)
+  try { await query('alter table lojas add column if not exists cor text'); } catch (_) {}
   // anúncio sem foto que entrou antes dessa regra: tira do site agora (fica no painel)
   try {
     await query(`update veiculos set oculto = true, oculto_motivo = 'sem_foto'
@@ -556,9 +558,11 @@ async function rotaLojas(req, res) {
       `update lojas set nome=coalesce($2,nome), endereco=coalesce($3,endereco),
          telefone=coalesce($4,telefone), whatsapp=coalesce($5,whatsapp),
          email=coalesce($6,email), autocerto_id=coalesce($7,autocerto_id),
-         logo_url=coalesce($8,logo_url)
+         logo_url=coalesce($8,logo_url),
+         cor = case when $9::text is null then cor when $9 = '' then null else $9 end
        where id=$1 returning *`,
-      [b.id, b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id, b.logo_url || null]);
+      [b.id, b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id, b.logo_url || null,
+       (b.cor === undefined ? null : String(b.cor))]);
     return res.json(loja || { erro: 'loja não encontrada' });
   }
   if (req.method === 'DELETE') {
