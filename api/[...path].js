@@ -732,12 +732,13 @@ async function importarLoja(loja) {
       for (const it of itens) {
         let extra = {};
         const precisaDetalhe = !jaTemGaleria.has(String(it.anuncioId));
+        let abriuDetalhe = false;   // só quem teve a galeria conferida pode ser julgado
         if (precisaDetalhe && (Date.now() - t0) < ORCAMENTO_MS) {
           try {
             extra = fonte.tipo === 'site'
               ? await detalheSite(fonte.base, it.slug, it.anuncioId)
               : await detalhePortal(fonte.base, it.slug, it.anuncioId);
-            detalhesLidos++;
+            detalhesLidos++; abriuDetalhe = true;
             await pausa(120);
           } catch (_) {}
         } else if (precisaDetalhe) { detalhesPendentes++; }
@@ -745,8 +746,8 @@ async function importarLoja(loja) {
         await query(
           `insert into veiculos (loja_id, autocerto_id, marca, modelo, versao, ano_fabricacao, ano_modelo, km, preco, cambio, combustivel, opcionais, fotos, tipo, oculto, oculto_motivo, ativo, sincronizado_em)
            values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,
-                   coalesce(array_length($13::text[],1),0) = 0,
-                   case when coalesce(array_length($13::text[],1),0) = 0 then 'sem_foto' else null end,
+                   coalesce(array_length($13::text[],1),0) <= 1,
+                   case when coalesce(array_length($13::text[],1),0) <= 1 then 'sem_foto' else null end,
                    true, now())
            on conflict (loja_id, autocerto_id) do update set
              marca=excluded.marca, modelo=excluded.modelo, versao=excluded.versao,
@@ -761,12 +762,18 @@ async function importarLoja(loja) {
              tipo=excluded.tipo, ativo=true, sincronizado_em=now(),
              -- escondido por falta de foto volta sozinho quando a loja publica a imagem;
              -- decisão manual da ACEIMA ('manual') o robô nunca desfaz
-             oculto = case when veiculos.oculto_motivo = 'sem_foto'
-                            and coalesce(array_length(excluded.fotos,1),0) > 0 then false
-                           else veiculos.oculto end,
-             oculto_motivo = case when veiculos.oculto_motivo = 'sem_foto'
-                                   and coalesce(array_length(excluded.fotos,1),0) > 0 then null
-                                  else veiculos.oculto_motivo end`,
+             oculto = case
+                 when veiculos.oculto_motivo = 'manual' then veiculos.oculto
+                 when $15::boolean and coalesce(array_length(excluded.fotos,1),0) <= 1 then true
+                 when veiculos.oculto_motivo = 'sem_foto'
+                      and coalesce(array_length(excluded.fotos,1),0) > 1 then false
+                 else veiculos.oculto end,
+             oculto_motivo = case
+                 when veiculos.oculto_motivo = 'manual' then 'manual'
+                 when $15::boolean and coalesce(array_length(excluded.fotos,1),0) <= 1 then 'sem_foto'
+                 when veiculos.oculto_motivo = 'sem_foto'
+                      and coalesce(array_length(excluded.fotos,1),0) > 1 then null
+                 else veiculos.oculto_motivo end`,
           [loja.id, it.anuncioId,
            it.marca || extra.marca || null,
            it.modelo || extra.modelo || null,
@@ -778,7 +785,8 @@ async function importarLoja(loja) {
            it.cambio || extra.cambio || null,
            it.combustivel || extra.combustivel || null,
            extra.opcionais || [], fotos,
-           tipoVeiculo(it.marca || extra.marca, it.modelo || extra.modelo, it.versao)]);
+           tipoVeiculo(it.marca || extra.marca, it.modelo || extra.modelo, it.versao),
+           abriuDetalhe]);
       }
       // agora sim: some do site quem não apareceu mais na leitura de hoje.
       // Só faz a baixa se a leitura veio íntegra (algum anúncio encontrado).
