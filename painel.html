@@ -590,10 +590,14 @@ function fundoDaLogo(img){
     }else{
       // transparente: só escurece se o desenho for FINO e claro (letra branca).
       // Se a arte tem um bloco branco próprio (caso Jotta), fundo escuro fica feio.
-      let soma=0,n=0,brancos=0;
-      for(let i=0;i<d.length;i+=4){ if(d[i+3]>200){ const p=[d[i],d[i+1],d[i+2]]; soma+=lum(p); n++; if(lum(p)>238)brancos++; } }
-      const areaOpaca=n/(N*N), blocoBranco=brancos/(N*N);
-      if(n && soma/n>175 && areaOpaca<0.55 && blocoBranco<0.35) r.cor='#241b19';
+      let soma=0,n=0,x0b=N,y0b=N,x1b=-1,y1b=-1;
+      for(let y=0;y<N;y++)for(let x=0;x<N;x++){const p=px(x,y);
+        if(p[3]>200){ soma+=lum(p); n++; if(x<x0b)x0b=x; if(y<y0b)y0b=y; if(x>x1b)x1b=x; if(y>y1b)y1b=y; }}
+      // área que o desenho ocupa: bloco grande e claro é logo com fundo branco próprio
+      // (caso Jotta) — aí fundo escuro fica feio. Letra/traço fino ganha fundo escuro.
+      const areaBloco=(x1b>x0b&&y1b>y0b)?((x1b-x0b+1)*(y1b-y0b+1))/(N*N):0;
+      const densidade=areaBloco?n/((x1b-x0b+1)*(y1b-y0b+1)):0;
+      if(n && soma/n>175 && !(areaBloco>0.70 && densidade>0.80)) r.cor='#241b19';
     }
     // logo pequena dentro da imagem: acha o desenho e amplia até preencher a caixa
     const fundoClaro = !r.cor || lum([36,27,25])>200;
@@ -605,7 +609,7 @@ function fundoDaLogo(img){
     }
     if(x1>x0&&y1>y0){
       const ocupa=Math.max((x1-x0+1)/N,(y1-y0+1)/N);
-      if(ocupa<0.82) r.escala=Math.min(1.8, 0.94/ocupa);
+      if(ocupa<0.82) r.escala=Math.min(1.45, 0.92/ocupa);
     }
   }catch(e){ /* imagem de outro domínio sem CORS: fica como está */ }
   corLogoCache[chave]=r;
