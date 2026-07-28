@@ -380,7 +380,7 @@
           <button class="btn" onclick="openAdd()"><svg class="ic sm" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Adicionar loja</button>
         </div>
         <div class="panel flush"><div class="pb"><table>
-          <thead><tr><th>Loja</th><th>Site</th><th>WhatsApp</th><th>Veículos</th><th>Última sincronização</th><th>No site</th><th></th></tr></thead>
+          <thead><tr><th>Loja</th><th>Site</th><th>E-mail</th><th>WhatsApp</th><th>Veículos</th><th>Última sincronização</th><th>No site</th><th></th></tr></thead>
           <tbody id="lojasTb"></tbody>
         </table></div></div>
       </div>
@@ -440,6 +440,14 @@
       <input id="fUrl" placeholder="Ex: https://autobarra.com.br">
       <label>E-mail da loja</label>
       <input id="fEmail" placeholder="contato@loja.com.br">
+      <label>Logo da loja</label>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:4px">
+        <div id="fLogoPrev" class="lg" style="width:78px;height:50px;flex-shrink:0"></div>
+        <div style="flex:1">
+          <input type="file" id="fLogo" accept="image/*" onchange="lerLogo(this)" style="font-size:.85rem">
+          <button class="btn ghost sm" type="button" style="margin-top:6px" onclick="limparLogo()">Remover</button>
+        </div>
+      </div>
       <label>Cor de fundo da logo</label>
       <div style="display:flex;gap:10px;align-items:center">
         <input type="color" id="fCor" style="width:52px;height:40px;padding:4px;cursor:pointer" oninput="document.getElementById('fCorTxt').value=this.value">
@@ -473,7 +481,7 @@ const F='https://www.autocerto.com/fotos/';
 const L='https://static.autocerto.com/LogoClientesPortais/';
 
 let lojasApi=[];   // dados crus das lojas (com id do banco)
-let lojas=[];      // exibição: [nome, whatsapp, chave, logoFile, nVeic, ultimaImp, dbId, origem, erro, cor]
+let lojas=[];      // exibição: [nome, whatsapp, chave, logoFile, nVeic, ultimaImp, dbId, origem, erro, cor, email]
 let veicAll=[];    // objetos crus dos veículos (com id do banco)
 let leads=[];      // [data, nome, tel, veiculo, loja, canal, status]
 let leadsVistos=false, editId=null;
@@ -514,7 +522,7 @@ async function carregarPainel(){
     veicAll  = Array.isArray(ve)?ve:[];
     const lds  = Array.isArray(le)?le:[];
     const cont={}; veicAll.forEach(v=>{cont[v.loja_id]=(cont[v.loja_id]||0)+1;});
-    lojas = lojasApi.map(l=>[l.nome, l.whatsapp||l.telefone||'—', l.autocerto_id||l.autocerto_url||'', l.logo_url||null, cont[l.id]||0, quando(l.ultima_sync), l.id, origemLabel(l.autocerto_id||l.autocerto_url), l.ultimo_erro||null, l.cor||null]);
+    lojas = lojasApi.map(l=>[l.nome, l.whatsapp||l.telefone||'—', l.autocerto_id||l.autocerto_url||'', l.logo_url||null, cont[l.id]||0, quando(l.ultima_sync), l.id, origemLabel(l.autocerto_id||l.autocerto_url), l.ultimo_erro||null, l.cor||null, l.email||null]);
     const smap={novo:'new',enviado:'sent',atendido:'done'};
     leads = lds.map(l=>{
       const d=new Date(l.criado_em);
@@ -636,6 +644,8 @@ function renderLojas(){
  document.getElementById('lojasTb').innerHTML=lojas.map((l,i)=>`<tr>
   <td><div style="display:flex;align-items:center;gap:11px"><div class="lg">${lgHtml(l[2],l[3],l[0],l[9])}</div><b>${l[0]}</b></div></td>
   <td><span style="color:var(--muted)">${l[7]}</span></td>
+  <td>${l[10]?`<span title="${l[10]}" style="color:#1f7a3d;font-weight:600">✓ ${String(l[10]).slice(0,22)}</span>`
+             :'<span class="tag" style="background:#fdeaea;color:#b3261e">sem e-mail</span>'}</td>
   <td>${l[1]}</td>
   <td><b>${l[4]}</b></td>
   <td>${l[5]}</td>
@@ -873,10 +883,30 @@ function abrirPainel(token){
 }
 /* sessão de 1 hora: se ainda estiver válida, entra direto */
 (function(){ const s=lerSessao(); if(s && s.t) abrirPainel(s.t); })();
-function openAdd(){editId=null;document.getElementById('mAddTitle').textContent='Adicionar loja';['fNome','fUrl','fEmail','fCorTxt'].forEach(id=>document.getElementById(id).value='');document.getElementById('fCor').value='#ffffff';document.getElementById('mAdd').classList.add('on');}
+let logoData=null;   // data URI da logo escolhida no modal
+function lerLogo(input){
+ const f=input.files&&input.files[0]; if(!f) return;
+ const img=new Image(), fr=new FileReader();
+ fr.onload=e=>{ img.onload=()=>{
+   const L=260, k=Math.min(1, L/img.width), c=document.createElement('canvas');
+   c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+   const g=c.getContext('2d'); g.drawImage(img,0,0,c.width,c.height);
+   logoData = /png/i.test(f.type) ? c.toDataURL('image/png') : c.toDataURL('image/jpeg',0.9);
+   const prev=document.getElementById('fLogoPrev');
+   prev.innerHTML='<img src="'+logoData+'" alt="logo" onload="fundoDaLogo(this)">';
+   toast('Logo pronta — salve para aplicar');
+ }; img.src=e.target.result; };
+ fr.readAsDataURL(f);
+}
+function limparLogo(){ logoData=null; document.getElementById('fLogo').value='';
+ document.getElementById('fLogoPrev').innerHTML=''; document.getElementById('fLogoPrev').style.background=''; }
+function openAdd(){editId=null;document.getElementById('mAddTitle').textContent='Adicionar loja';['fNome','fUrl','fEmail','fCorTxt'].forEach(id=>document.getElementById(id).value='');document.getElementById('fCor').value='#ffffff';limparLogo();document.getElementById('mAdd').classList.add('on');}
 function openEdit(i){const l=lojas[i];editId=l[6];const raw=lojasApi.find(x=>x.id===editId)||{};document.getElementById('mAddTitle').textContent='Editar loja';document.getElementById('fNome').value=l[0];document.getElementById('fUrl').value=raw.autocerto_id||raw.autocerto_url||l[2]||'';document.getElementById('fEmail').value=raw.email||'';
  document.getElementById('fCorTxt').value=raw.cor||'';
  document.getElementById('fCor').value=/^#[0-9a-f]{6}$/i.test(raw.cor||'')?raw.cor:'#ffffff';
+ limparLogo();
+ const prev=document.getElementById('fLogoPrev');
+ if(raw.logo_url){ prev.innerHTML=lgHtml(editId,raw.logo_url,l[0],raw.cor); }
  document.getElementById('mAdd').classList.add('on');}
 async function excluirLoja(i){const l=lojas[i];if(!confirm('Excluir a loja "'+l[0]+'"? Os veículos dela saem do site.'))return;try{await api('/api/lojas?path=lojas&id='+l[6],{method:'DELETE'});toast(l[0]+' excluída');await carregarPainel();}catch(e){toast('Erro ao excluir');}}
 function closeM(id){document.getElementById(id).classList.remove('on');}
@@ -915,6 +945,7 @@ async function addLoja(){
  const url=document.getElementById('fUrl').value.trim();   // site próprio da loja (ou ID do portal)
  const email=document.getElementById('fEmail').value.trim()||null;
  const cor=document.getElementById('fCorTxt').value.trim();
+ const logo=logoData;
  if(!nome || !url){ toast('Preencha o nome e o site da loja'); return; }
  closeM('mAdd');
  if(editId){
@@ -922,7 +953,7 @@ async function addLoja(){
    toast('Salvando '+nome+'…');
    try{
      await api('/api/lojas?path=lojas',{method:'PATCH',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({id, nome, autocerto_id:url, email, cor})});
+       body:JSON.stringify({id, nome, autocerto_id:url, email, cor, logo_url:logo})});
      await carregarPainel(); toast(nome+' atualizada');
    }catch(e){ toast('Erro ao salvar: '+e.message); }
    return;
@@ -930,7 +961,7 @@ async function addLoja(){
  toast('Cadastrando '+nome+'…');
  try{
    const r=await api('/api/lojas?path=lojas',{method:'POST',headers:{'Content-Type':'application/json'},
-     body:JSON.stringify({nome, autocerto_id:url, email})});
+     body:JSON.stringify({nome, autocerto_id:url, email, logo_url:logo})});
    const loja=await r.json();
    await carregarPainel();
    runImport(-1, loja.id, nome, url);   // já roda o robô na loja nova
