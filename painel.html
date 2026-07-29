@@ -148,7 +148,7 @@
   .modal{position:fixed;inset:0;background:rgba(40,10,6,.5);backdrop-filter:blur(3px);z-index:150;display:none;align-items:center;justify-content:center;padding:20px}
   .modal.on{display:flex;animation:fade .2s}
   .mbox{background:#fff;border-radius:20px;width:540px;max-width:100%;max-height:90vh;overflow:auto;box-shadow:var(--sh-lg)}
-  .mbox.lg{width:820px}
+  .mbox.larga{width:820px}
   /* ficha do anúncio dentro do pop-up */
   .fv{display:grid;grid-template-columns:1.05fr .95fr;gap:22px}
   @media(max-width:760px){.fv{grid-template-columns:1fr}}
@@ -508,7 +508,7 @@
 
 <!-- ===== POP-UP DO ANÚNCIO ===== -->
 <div class="modal" id="mVeic" onclick="if(event.target===this)closeM('mVeic')">
-  <div class="mbox lg">
+  <div class="mbox larga">
     <div class="mhead"><h3 id="mvTitulo">Anúncio</h3><button class="x" onclick="closeM('mVeic')"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
     <div class="mbody" id="mvCorpo"></div>
   </div>
