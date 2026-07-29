@@ -105,7 +105,7 @@
   .csel-trigger svg{width:16px;height:16px;flex-shrink:0;transition:.2s;color:var(--muted)}
   .csel.open .csel-trigger{border-color:var(--red);box-shadow:0 0 0 3px rgba(207,53,39,.1)}
   .csel.open .csel-trigger svg{transform:rotate(180deg)}
-  .csel-pop{position:absolute;z-index:60;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid #efe4e0;border-radius:14px;box-shadow:0 18px 44px rgba(40,10,6,.18);padding:6px;display:none;max-height:264px;overflow:auto}
+  .csel-pop{position:absolute;z-index:210;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid #efe4e0;border-radius:14px;box-shadow:0 18px 44px rgba(40,10,6,.18);padding:6px;display:none;max-height:264px;overflow:auto}
   .csel.open .csel-pop{display:block}
   .csel-search{width:100%;padding:10px 12px;border:1.5px solid #eadfdc;border-radius:10px;font-size:.92rem;margin-bottom:6px}
   .csel-opt{padding:11px 13px;border-radius:10px;font-size:.92rem;cursor:pointer;color:var(--txt);transition:.1s}
@@ -159,7 +159,9 @@
   .vcard .ph .tag{position:absolute;top:10px;left:10px;background:var(--orange);color:#6b3400;font-size:.7rem;font-weight:800;padding:5px 10px;border-radius:99px}
   .vcard .ph::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(43,7,3,.35),transparent 45%)}
   .vcard .bd{padding:15px 15px 13px;display:flex;flex-direction:column;gap:5px;flex:1}
-  .vcard h3{font-size:.93rem;font-weight:700;line-height:1.3;font-family:var(--font-b)}
+  /* 2 linhas fixas: mantem preco e loja alinhados entre todos os cartoes da grade */
+  .vcard h3{font-size:.93rem;font-weight:700;line-height:1.3;font-family:var(--font-b);
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}
   .vcard .meta{color:var(--muted);font-size:.8rem;display:flex;gap:10px}
   .vcard .price{font-size:1.22rem;font-weight:800;color:var(--red);margin-top:auto;font-family:var(--font-h)}
   .vcard .loja{font-size:.79rem;color:var(--muted);border-top:1px solid #f4edeb;padding-top:9px;margin-top:9px;display:flex;justify-content:space-between;align-items:center}
@@ -224,9 +226,19 @@
   .svindex{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 30px}
   .svindex a{background:#fff;border:1px solid var(--line);border-radius:99px;padding:9px 16px;font-weight:700;font-size:.88rem;color:#5c4f4b;cursor:pointer;transition:.15s}
   .svindex a:hover{border-color:var(--red);color:var(--red)}
-  .pcard{background:var(--card);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-columns:1.25fr .75fr;margin-bottom:22px}
+  .svfaixa{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:-2px 0 26px}
+  @media(max-width:760px){.svfaixa{grid-template-columns:1fr 1fr}}
+  .svfaixa div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+  .svfaixa b{display:block;font-family:var(--font-h);font-size:1.5rem;color:var(--red-deep);line-height:1}
+  .svfaixa small{display:block;color:var(--muted);font-size:.8rem;font-weight:600;margin-top:5px;line-height:1.35}
+  /* alterna o lado da coluna escura pra pagina nao ficar repetitiva */
+  .pcard.inv{grid-template-columns:.7fr 1.3fr}
+  .pcard.inv .pinfo{order:2}
+  .pcard.inv .pvisual{order:1}
+  @media(max-width:900px){.pcard.inv{grid-template-columns:1fr}.pcard.inv .pinfo{order:1}.pcard.inv .pvisual{order:2}}
+  .pcard{background:var(--card);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-columns:1.3fr .7fr;margin-bottom:22px;scroll-margin-top:120px}
   @media(max-width:900px){.pcard{grid-template-columns:1fr}}
-  .pinfo{padding:34px 34px 30px}
+  .pinfo{padding:34px 34px 30px;display:flex;flex-direction:column}
   .ptop{display:flex;align-items:center;gap:16px;margin-bottom:16px}
   .plogo{width:92px;height:62px;border-radius:14px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:8px;flex-shrink:0;font-family:var(--font-h);font-weight:800;color:var(--red)}
   .plogo img{max-width:100%;max-height:100%;object-fit:contain}
@@ -239,27 +251,24 @@
   .pmeta{color:var(--muted);font-size:.88rem;line-height:1.9;margin-top:16px}
   .pacoes{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
   .pacoes .btn{padding:12px 20px;font-size:.9rem}
-  .pvisual{background:linear-gradient(160deg,#2b0703,#5e1009);color:#fff;padding:34px 30px;display:flex;flex-direction:column;justify-content:center;gap:16px}
-  .pnum{display:flex;align-items:baseline;gap:10px}
-  .pnum b{font-family:var(--font-h);font-size:1.9rem;line-height:1;color:var(--orange)}
-  .pnum span{color:#ffd9d0;font-size:.88rem;line-height:1.45}
+  /* coluna escura: destaque + contato + acoes, sem sobrar espaco vazio */
+  .pvisual{background:radial-gradient(320px 220px at 85% 8%,rgba(246,162,29,.18),transparent 65%),linear-gradient(165deg,#3a0a04,#6b1109);
+    color:#fff;padding:30px 28px;display:flex;flex-direction:column;gap:18px}
+  .pselo{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;background:rgba(246,162,29,.16);
+    border:1px solid rgba(246,162,29,.4);color:var(--orange);font-size:.72rem;font-weight:800;
+    text-transform:uppercase;letter-spacing:.7px;padding:6px 12px;border-radius:99px}
+  .pnum{display:flex;flex-direction:column;gap:2px}
+  .pnum b{font-family:var(--font-h);font-size:1.5rem;line-height:1.05;color:var(--orange);letter-spacing:-.3px}
+  .pnum span{color:#ffd9d0;font-size:.86rem;line-height:1.5}
   .pvisual .sep{height:1px;background:rgba(255,255,255,.14)}
-  /* ===== SERVIÇOS / PARCEIROS (cartões simples, parceiros extras) ===== */
-  .svgrupo{margin-bottom:34px}
-  .svgrupo h3{font-family:var(--font-h);font-size:1.12rem;margin-bottom:4px}
-  .svgrupo .sub{color:var(--muted);font-size:.88rem;margin-bottom:16px}
-  .svgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
-  .svcard{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;display:flex;flex-direction:column;gap:12px}
-  .svcard .topo{display:flex;align-items:center;gap:14px}
-  .svcard .lg{width:76px;height:52px;border-radius:12px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:7px;flex-shrink:0;font-family:var(--font-h);font-weight:800;color:var(--red);font-size:.9rem}
-  .svcard .lg img{max-width:100%;max-height:100%;object-fit:contain}
-  .svcard h4{font-size:1.02rem;line-height:1.25}
-  .svcard .cat{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.6px;font-weight:700}
-  .svcard p{color:#5c4f4b;font-size:.92rem;line-height:1.65}
-  .svcard .benef{background:#fff8ea;border:1px solid #f4e3c2;color:#8a6420;border-radius:12px;padding:9px 12px;font-size:.86rem;font-weight:600}
-  .svcard .info{color:var(--muted);font-size:.85rem;display:flex;flex-direction:column;gap:3px}
-  .svcard .acoes{display:flex;gap:8px;margin-top:auto;padding-top:6px}
-  .svcard .acoes .btn{flex:1;padding:11px 10px;font-size:.88rem}
+  .pdest{display:flex;flex-direction:column;gap:14px}
+  .pcontato{display:flex;flex-direction:column;gap:9px;font-size:.87rem;color:#f3d9d2;line-height:1.5;margin-top:auto}
+  .pcontato div{display:flex;gap:9px;align-items:flex-start}
+  .pcontato i{font-style:normal;opacity:.75;flex-shrink:0}
+  .pvisual .pacoes{margin-top:4px}
+  .pvisual .pacoes .btn{flex:1;justify-content:center;text-align:center;min-width:130px}
+  .pvisual .pacoes .btn.ghost{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.28);color:#fff}
+  .pvisual .pacoes .btn.ghost:hover{background:rgba(255,255,255,.18)}
   .lcard .lg{width:100px;height:58px;border-radius:12px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:7px;margin-bottom:14px}
   .lcard .lg img{max-width:100%;max-height:100%;object-fit:contain;transition:transform .2s}
   .lcard .lg.mono{background:linear-gradient(135deg,var(--red),var(--red-deep));color:#fff;font-family:var(--font-h);font-weight:800;font-size:1.2rem;border:none;letter-spacing:.5px}
@@ -313,7 +322,7 @@
   @media(max-width:560px){.grid.mini{grid-template-columns:repeat(2,1fr)}}
   .grid.mini .vcard .ph{aspect-ratio:16/11}
   .grid.mini .vcard .bd{padding:10px 11px 11px;gap:3px}
-  .grid.mini .vcard h3{font-size:.8rem}
+  .grid.mini .vcard h3{font-size:.8rem;min-height:2.6em}
   .grid.mini .vcard .meta{font-size:.72rem;gap:8px}
   .grid.mini .vcard .price{font-size:1rem}
   .grid.mini .vcard .loja{font-size:.7rem;padding-top:7px;margin-top:7px}
@@ -391,9 +400,12 @@
   /* ============ CONTATO ============ */
   .cinfo{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
   @media(max-width:560px){.cinfo{grid-template-columns:1fr}}
-  .cgrid{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start;padding-top:6px}
+  .cgrid{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:stretch;padding-top:6px}
   @media(max-width:900px){.cgrid{grid-template-columns:1fr}}
-  .ccard{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:20px;display:flex;gap:14px;align-items:flex-start;transition:.18s}
+  .ccol{display:flex;flex-direction:column}
+  .cmapa{padding:0;overflow:hidden;flex:1;display:flex;min-height:320px}
+  .cmapa iframe{width:100%;flex:1;border:0}
+  .ccard{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:22px 18px;display:flex;flex-direction:column;gap:11px;align-items:center;text-align:center;justify-content:flex-start;transition:.18s}
   .ccard:hover{transform:translateY(-3px)}
   .ccard .ci{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff}
   .ccard:nth-child(1) .ci{background:linear-gradient(135deg,var(--red),var(--red-deep))}
@@ -401,7 +413,7 @@
   .ccard:nth-child(3) .ci{background:linear-gradient(135deg,#ffb63f,#e0821a)}
   .ccard:nth-child(4) .ci{background:linear-gradient(135deg,#33c06f,#178443)}
   .ccard .ci svg{width:22px;height:22px}
-  .ccard small{color:var(--muted);font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+  .ccard small{color:var(--muted);font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;display:block}
   .ccard b{display:block;font-size:.95rem;margin-top:3px;line-height:1.4}
   .cform label{font-size:.82rem;color:var(--muted);font-weight:600;display:block;margin:13px 0 6px}
   .cform label:first-child{margin-top:0}
@@ -414,11 +426,31 @@
   .acbanner{border-radius:24px;overflow:hidden;position:relative;color:#fff;padding:52px 44px;margin-bottom:22px;background:linear-gradient(120deg,rgba(43,7,3,.93),rgba(94,16,9,.78) 60%,rgba(207,53,39,.45)),url('https://images.unsplash.com/photo-1585503418537-88331351ad99?q=80&w=1600&auto=format&fit=crop') center 55%/cover no-repeat}
   .vgrid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
   @media(max-width:820px){.vgrid2{grid-template-columns:1fr}}
-  .wvend-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-  .wvend-grid div{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;line-height:1.5;color:#ffe3da}
-  .wvend-grid span{color:var(--orange);font-weight:800;flex-shrink:0}
-  @media(max-width:820px){.wvend-grid{grid-template-columns:1fr 1fr}}
-  @media(max-width:520px){.wvend-grid{grid-template-columns:1fr}}
+  /* "Por que vender aqui" */
+  .vwhy{margin-top:20px;border-radius:22px;padding:34px 34px 30px;color:#fff;
+    background:radial-gradient(600px 320px at 8% 0%,rgba(246,162,29,.18),transparent 62%),linear-gradient(150deg,var(--red-ink),#6b1109)}
+  .vwhy h3{font-family:var(--font-h);font-size:clamp(1.2rem,2.4vw,1.65rem);letter-spacing:-.4px;margin-top:4px}
+  .vwhy .sub{color:#ffd9d0;font-size:.95rem;margin-top:8px;max-width:620px;line-height:1.6}
+  .vwhy-g{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:26px}
+  @media(max-width:860px){.vwhy-g{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.vwhy-g{grid-template-columns:1fr}}
+  .vwhy-g article{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:18px 16px}
+  .vwhy-g .n{font-family:var(--font-h);font-size:.8rem;font-weight:800;color:var(--orange);letter-spacing:1px}
+  .vwhy-g b{display:block;font-size:.97rem;margin:8px 0 6px;line-height:1.3}
+  .vwhy-g p{color:#f0cfc7;font-size:.85rem;line-height:1.55}
+  /* miniaturas das fotos enviadas */
+  .vnfotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:9px;margin-top:10px}
+  .vnfoto{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;border:1px solid #eadfdc;background:#f6efed center/cover no-repeat}
+  .vnfoto button{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;cursor:pointer;
+    background:rgba(43,7,3,.78);color:#fff;font-size:.85rem;line-height:1;display:flex;align-items:center;justify-content:center}
+  .vnfoto button:hover{background:var(--red)}
+  .prefixo{position:relative}
+  .prefixo input{padding-left:36px}
+  .prefixo .rs{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700;pointer-events:none}
+  .csel.off{opacity:.5;pointer-events:none}
+  .dica{color:var(--muted);font-size:.78rem;margin-top:7px;line-height:1.45}
+  .dica.off{display:none}
+  .csel-opt.novo{color:var(--red);font-weight:700}
   .acphoto{display:block;width:100%;height:215px;object-fit:cover;object-position:center 42%;border-radius:16px;margin-top:22px}
   @media(max-width:900px){.acphoto{height:170px}}
   .acbanner .kicker{color:var(--orange)}
@@ -532,10 +564,10 @@
 
   <div class="wrap">
     <div class="stats reveal">
-      <div class="stat"><b data-count="24" data-prefix="+">0</b><small>lojas associadas</small></div>
-      <div class="stat"><b data-count="1200" data-prefix="+">0</b><small>veículos em estoque</small></div>
-      <div class="stat"><b data-count="40" data-prefix="+">0</b><small>marcas disponíveis</small></div>
-      <div class="stat"><b data-count="28">0</b><small>anos de tradição ACEIMA</small></div>
+      <div class="stat"><b id="stLojas" data-count="0">0</b><small>lojas associadas</small></div>
+      <div class="stat"><b id="stVeic" data-count="0">0</b><small>veículos em estoque</small></div>
+      <div class="stat"><b id="stMarcas" data-count="0">0</b><small>marcas disponíveis</small></div>
+      <div class="stat"><b id="stAnos" data-count="0">0</b><small>anos de tradição ACEIMA</small></div>
     </div>
 
     <section>
@@ -696,8 +728,8 @@
           <span class="badge-ac"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> Loja associada ACEIMA</span>
         </div>
         <div class="panel" id="propform">
-          <div class="ititle">Tenho interesse</div>
-          <p style="color:var(--muted);font-size:.85rem;margin:1px 0 16px">Entraremos em contato com você.</p>
+          <div class="ititle">Tem interesse?</div>
+          <p style="color:var(--muted);font-size:.79rem;margin:1px 0 16px;white-space:nowrap">Preenche aqui e dá um zap agora mesmo.</p>
           <div class="iform">
             <label>Nome</label>
             <input id="leadNome" oninput="checkLead()" placeholder="Seu nome">
@@ -751,12 +783,17 @@
         <div class="panel">
           <h2 style="font-size:1.1rem;margin-bottom:14px">Dados do veículo</h2>
           <div class="iform">
-            <div class="selrow" style="margin-bottom:2px"><div id="vdMarca"></div><input id="vnModelo" placeholder="Modelo (ex: Onix LT)"></div>
-            <div class="selrow" style="margin-top:8px"><input id="vnAno" placeholder="Ano (ex: 2020)" inputmode="numeric"><input id="vnKm" placeholder="Km" inputmode="numeric"></div>
-            <label>Valor pretendido</label><input id="vnValor" placeholder="R$" inputmode="numeric">
+            <label>Marca</label><div id="vdMarca"></div>
+            <label>Modelo</label><div id="vdModelo"></div>
+            <label>Versão</label><div id="vdVersao"></div>
+            <div class="dica" id="vdDicaVersao">Escolha a marca e o modelo para liberar a versão.</div>
+            <div class="selrow" style="margin-top:12px"><input id="vnAno" placeholder="Ano (ex: 2020)" inputmode="numeric"><input id="vnKm" placeholder="Km" inputmode="numeric"></div>
+            <label>Valor pretendido</label>
+            <div class="prefixo"><span class="rs">R$</span><input id="vnValor" placeholder="0" inputmode="numeric" oninput="formatarValor(this)"></div>
             <label>Fotos do veículo</label>
             <input type="file" id="vnFotos" accept="image/*" multiple style="display:none" onchange="vnFotosSel(this)">
-            <div id="vnFotosBox" style="border:2px dashed #eadfdc;border-radius:12px;padding:26px;text-align:center;color:var(--muted);cursor:pointer" onclick="document.getElementById('vnFotos').click()">📷 Clique para adicionar fotos<br><small>Frente, traseira, laterais e interior</small></div>
+            <div id="vnFotosBox" style="border:2px dashed #eadfdc;border-radius:12px;padding:22px;text-align:center;color:var(--muted);cursor:pointer" onclick="document.getElementById('vnFotos').click()">📷 Clique para adicionar fotos<br><small>Frente, traseira, laterais e interior</small></div>
+            <div class="vnfotos" id="vnFotosGrade"></div>
           </div>
         </div>
         <div class="panel" style="display:flex;flex-direction:column">
@@ -772,13 +809,16 @@
           </div>
         </div>
       </div>
-      <div class="panel" style="margin-top:20px;background:linear-gradient(130deg,var(--red-ink),var(--red-deep));color:#fff">
-        <h3 style="font-size:1.05rem;margin-bottom:14px">Por que vender aqui?</h3>
-        <div class="wvend-grid">
-          <div><span>✓</span> Mais de 20 lojas veem seu anúncio</div>
-          <div><span>✓</span> Propostas em até 48h</div>
-          <div><span>✓</span> Pagamento à vista ou troca com volta</div>
-          <div><span>✓</span> Documentação assistida pela loja</div>
+      <div class="vwhy">
+        <div class="kicker" style="color:var(--orange)">Por que vender aqui</div>
+        <h3>Um anúncio só, o polo inteiro olhando</h3>
+        <p class="sub">Em vez de negociar loja por loja, você manda os dados uma vez e
+           <b id="vdLojas">todas as</b> lojas associadas da Estrada Intendente Magalhães recebem seu veículo ao mesmo tempo.</p>
+        <div class="vwhy-g">
+          <article><span class="n">01</span><b>Concorrência a seu favor</b><p>As lojas disputam o mesmo carro — quem quiser mais, paga melhor.</p></article>
+          <article><span class="n">02</span><b>Resposta em até 48h</b><p>Se o veículo interessa, o contato chega direto no seu WhatsApp.</p></article>
+          <article><span class="n">03</span><b>À vista ou na troca</b><p>Dá pra receber o valor cheio ou usar como entrada em outro carro.</p></article>
+          <article><span class="n">04</span><b>Documentação assistida</b><p>Transferência e vistoria resolvidas pela loja que fechar o negócio.</p></article>
         </div>
       </div>
     </section>
@@ -807,6 +847,13 @@
         <a onclick="irPara('p-r21')">Bar &amp; restaurante</a>
       </div>
 
+      <div class="svfaixa">
+        <div><b>4</b><small>parceiros credenciados</small></div>
+        <div><b>1 rua</b><small>todos na Intendente Magalhães</small></div>
+        <div><b>Inmetro</b><small>e SENATRAN na inspeção</small></div>
+        <div><b>Sem taxa</b><small>o credenciamento não custa nada pra você</small></div>
+      </div>
+
       <!-- LAUDOCAR -->
       <article class="pcard" id="p-laudocar">
         <div class="pinfo">
@@ -823,27 +870,28 @@
           </div>
           <div class="pfaixa">Três níveis de vistoria — Básica, Premium e Premium Completa — a partir de R$&nbsp;270.
             Agendamento online e atendimento em todo o Rio.</div>
-          <div class="pmeta">
-            📍 Intendente Magalhães, 503 — Vila Valqueire<br>
-            🕐 Seg a sex 9h–18h · sáb 9h–14h<br>
-            ✉️ contato@laudocarrj.com.br
-          </div>
-          <div class="pacoes">
-            <a class="btn green" target="_blank" rel="noopener" href="https://wa.me/5521988932124?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Intendente%20Shopping%20Car%20e%20quero%20fazer%20uma%20vistoria.">WhatsApp (21) 98893-2124</a>
-            <a class="btn ghost" target="_blank" rel="noopener" href="https://laudocarrj.com.br/">Ver o site</a>
-          </div>
         </div>
         <div class="pvisual">
-          <div class="pnum"><b>Mesmo dia</b><span>a vistoria sai no dia do agendamento</span></div>
-          <div class="sep"></div>
-          <div class="pnum"><b>Eng.</b><span>laudo com assinatura de engenheiro mecânico</span></div>
-          <div class="sep"></div>
-          <div class="pnum"><b>2017</b><span>no mercado de laudos veiculares desde então</span></div>
+          <span class="pselo">Credenciado ACEIMA</span>
+          <div class="pdest">
+            <div class="pnum"><b>Fica pronto no mesmo dia</b><span>você agenda e sai com o laudo em mãos</span></div>
+            <div class="sep"></div>
+            <div class="pnum"><b>Assinado por engenheiro</b><span>responsabilidade técnica de verdade no documento</span></div>
+          </div>
+          <div class="pcontato">
+            <div><i>📍</i><span>Intendente Magalhães, 503 — Vila Valqueire</span></div>
+            <div><i>🕐</i><span>Seg a sex 9h–18h · sáb 9h–14h</span></div>
+            <div><i>✉️</i><span>contato@laudocarrj.com.br</span></div>
+          </div>
+          <div class="pacoes">
+            <a class="btn green" target="_blank" rel="noopener" href="https://wa.me/5521988932124?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Intendente%20Shopping%20Car%20e%20quero%20fazer%20uma%20vistoria.">WhatsApp</a>
+            <a class="btn ghost" target="_blank" rel="noopener" href="https://laudocarrj.com.br/">Ver o site</a>
+          </div>
         </div>
       </article>
 
       <!-- SISV -->
-      <article class="pcard" id="p-sisv">
+      <article class="pcard inv" id="p-sisv">
         <div class="pinfo">
           <div class="ptop">
             <div class="plogo">SISV</div>
@@ -858,22 +906,23 @@
           </div>
           <div class="pfaixa">Equipamentos automatizados e equipe treinada — resultado objetivo, sem achismo.
             Faz parte do Grupo Vialog, com 18 unidades credenciadas.</div>
-          <div class="pmeta">
-            📍 Rua Mataura, 68 — esquina com a Intendente Magalhães<br>
-            📞 (21) 2454-9926<br>
-            ✉️ contato@sisvinspecao.com.br
-          </div>
-          <div class="pacoes">
-            <a class="btn green" target="_blank" rel="noopener" href="https://wa.me/5521970193793?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Intendente%20Shopping%20Car%20e%20quero%20agendar%20uma%20inspe%C3%A7%C3%A3o.">WhatsApp (21) 97019-3793</a>
-            <a class="btn ghost" target="_blank" rel="noopener" href="https://grupovialog.com.br/sisv-vila-valqueire-rj/">Ver a unidade</a>
-          </div>
         </div>
         <div class="pvisual">
-          <div class="pnum"><b>Inmetro</b><span>acreditada pela CGCRE sob ISO/IEC 17020</span></div>
-          <div class="sep"></div>
-          <div class="pnum"><b>ITL</b><span>licenciada pelo SENATRAN</span></div>
-          <div class="sep"></div>
-          <div class="pnum"><b>Aqui</b><span>na esquina da rua do polo</span></div>
+          <span class="pselo">Credenciado ACEIMA</span>
+          <div class="pdest">
+            <div class="pnum"><b>Acreditada pelo Inmetro</b><span>avaliada pela CGCRE segundo a norma ISO/IEC 17020</span></div>
+            <div class="sep"></div>
+            <div class="pnum"><b>Licenciada pelo SENATRAN</b><span>Instituição Técnica Licenciada — o laudo vale no Detran</span></div>
+          </div>
+          <div class="pcontato">
+            <div><i>📍</i><span>Rua Mataura, 68 — esquina com a Intendente Magalhães</span></div>
+            <div><i>📞</i><span>(21) 2454-9926</span></div>
+            <div><i>✉️</i><span>contato@sisvinspecao.com.br</span></div>
+          </div>
+          <div class="pacoes">
+            <a class="btn green" target="_blank" rel="noopener" href="https://wa.me/5521970193793?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Intendente%20Shopping%20Car%20e%20quero%20agendar%20uma%20inspe%C3%A7%C3%A3o.">WhatsApp</a>
+            <a class="btn ghost" target="_blank" rel="noopener" href="https://grupovialog.com.br/sisv-vila-valqueire-rj/">Ver a unidade</a>
+          </div>
         </div>
       </article>
 
@@ -893,27 +942,28 @@
           </div>
           <div class="pfaixa">Mais de 30 anos na mesma rua do polo — o carro sai da loja e já resolve o ar
             sem precisar atravessar a cidade.</div>
-          <div class="pmeta">
-            📍 Estrada Intendente Magalhães, 413 — Vila Valqueire<br>
-            🕐 Seg a sex 8h–18h · sáb 8h–12h<br>
-            📞 (21) 3359-8354 · (21) 3350-7909
-          </div>
-          <div class="pacoes">
-            <a class="btn green" target="_blank" rel="noopener" href="https://wa.me/5521964677676?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Intendente%20Shopping%20Car%20e%20quero%20um%20or%C3%A7amento%20de%20ar-condicionado.">WhatsApp (21) 96467-7676</a>
-            <a class="btn ghost" target="_blank" rel="noopener" href="https://www.frioline.com.br/">Ver o site</a>
-          </div>
         </div>
         <div class="pvisual">
-          <div class="pnum"><b>1989</b><span>fundada em abril — pioneira no ar automotivo</span></div>
-          <div class="sep"></div>
-          <div class="pnum"><b>+30</b><span>anos atendendo o polo</span></div>
-          <div class="sep"></div>
-          <div class="pnum"><b>413</b><span>número dela na Intendente Magalhães</span></div>
+          <span class="pselo">Credenciado ACEIMA</span>
+          <div class="pdest">
+            <div class="pnum"><b>Desde 1989</b><span>uma das primeiras oficinas de ar automotivo do Rio</span></div>
+            <div class="sep"></div>
+            <div class="pnum"><b>Só peça original</b><span>nacionais e importados, com garantia do serviço</span></div>
+          </div>
+          <div class="pcontato">
+            <div><i>📍</i><span>Estrada Intendente Magalhães, 413 — Vila Valqueire</span></div>
+            <div><i>🕐</i><span>Seg a sex 8h–18h · sáb 8h–12h</span></div>
+            <div><i>📞</i><span>(21) 3359-8354 · (21) 3350-7909</span></div>
+          </div>
+          <div class="pacoes">
+            <a class="btn green" target="_blank" rel="noopener" href="https://wa.me/5521964677676?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Intendente%20Shopping%20Car%20e%20quero%20um%20or%C3%A7amento%20de%20ar-condicionado.">WhatsApp</a>
+            <a class="btn ghost" target="_blank" rel="noopener" href="https://www.frioline.com.br/">Ver o site</a>
+          </div>
         </div>
       </article>
 
       <!-- R21 -->
-      <article class="pcard" id="p-r21">
+      <article class="pcard inv" id="p-r21">
         <div class="pinfo">
           <div class="ptop">
             <div class="plogo"><img src="https://r21.com.br/wp-content/uploads/2025/05/LogoR21-scaled.png" alt="R21" onerror="this.parentNode.textContent='R21'"></div>
@@ -928,31 +978,36 @@
           </div>
           <div class="pfaixa">Comprar carro leva tempo. Aqui a família espera sentada, come bem e você volta
             para a negociação com a cabeça no lugar.</div>
-          <div class="pmeta">
-            📍 Estrada Intendente Magalhães, 799 — Vila Valqueire<br>
-            📱 Instagram @r21barerestaurante
+        </div>
+        <div class="pvisual">
+          <span class="pselo">Credenciado ACEIMA</span>
+          <div class="pdest">
+            <div class="pnum"><b>Música ao vivo</b><span>agenda toda semana, do almoço até a noite</span></div>
+            <div class="sep"></div>
+            <div class="pnum"><b>Espaço kids</b><span>dá pra levar a família enquanto você decide</span></div>
+          </div>
+          <div class="pcontato">
+            <div><i>📍</i><span>Estrada Intendente Magalhães, 799 — Vila Valqueire</span></div>
+            <div><i>🍽️</i><span>Almoço, jantar e delivery na região</span></div>
+            <div><i>📱</i><span>Instagram @r21barerestaurante</span></div>
           </div>
           <div class="pacoes">
-            <a class="btn green" target="_blank" rel="noopener" href="https://wa.me/552123914010?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Intendente%20Shopping%20Car.">WhatsApp</a>
-            <a class="btn ghost" target="_blank" rel="noopener" href="https://nxp.digital/reserva/r21-vila-valqueire">Reservar mesa</a>
+            <a class="btn green" target="_blank" rel="noopener" href="https://nxp.digital/reserva/r21-vila-valqueire">Reservar mesa</a>
             <a class="btn ghost" target="_blank" rel="noopener" href="https://app.jotaja.com/r21valqueire">Delivery</a>
           </div>
         </div>
-        <div class="pvisual">
-          <div class="pnum"><b>799</b><span>número dele na Intendente Magalhães</span></div>
-          <div class="sep"></div>
-          <div class="pnum"><b>Ao vivo</b><span>música e espaço kids</span></div>
-          <div class="sep"></div>
-          <div class="pnum"><b>6</b><span>unidades no Rio de Janeiro</span></div>
-        </div>
       </article>
 
-      <div id="servicosLista"></div>
-
-      <div class="panel" style="text-align:center;margin-top:26px">
-        <h3 style="font-size:1.05rem;margin-bottom:8px">Sua empresa atende o polo?</h3>
-        <p style="color:var(--muted);font-size:.92rem;margin-bottom:14px">Fale com a associação para entrar nesta página.</p>
-        <button class="btn" onclick="go('contato')">Falar com a ACEIMA</button>
+      <div class="sellcta" style="margin-top:30px">
+        <div class="sc-inner">
+          <div>
+            <div class="kicker" style="color:var(--orange)">Para empresas da região</div>
+            <h2>Sua empresa atende quem compra carro no polo?</h2>
+            <p>O credenciamento ACEIMA coloca você nesta página, na frente de quem já está
+               decidindo uma compra a poucos metros da sua porta.</p>
+          </div>
+          <button class="btn" onclick="go('contato')">Falar com a associação</button>
+        </div>
       </div>
     </section>
   </div>
@@ -974,9 +1029,9 @@
           <p style="line-height:1.8;font-size:1rem;margin-top:14px">Hoje, o Autoshopping Intendente é o <b>maior polo automobilístico do Rio de Janeiro e da América Latina</b>. As lojas credenciadas à associação oferecem as melhores taxas do mercado, segurança e certificado de compra.</p>
           <div class="specs" style="margin-top:22px">
             <div class="spec"><small>Fundação</small><b>1998</b></div>
-            <div class="spec"><small>Lojas</small><b>+20</b></div>
-            <div class="spec"><small>Estoque</small><b>+1.200</b></div>
-            <div class="spec"><small>Marcas</small><b>+40</b></div>
+            <div class="spec"><small>Lojas</small><b id="acLojas">—</b></div>
+            <div class="spec"><small>Estoque</small><b id="acVeic">—</b></div>
+            <div class="spec"><small>Marcas</small><b id="acMarcas">—</b></div>
           </div>
           <img class="acphoto" src="/familia.jpg" alt="Família escolhendo um carro em uma loja do Autoshopping Intendente" loading="lazy">
         </div>
@@ -1005,15 +1060,15 @@
     <section style="padding-top:18px">
       <div class="sec-head"><div><div class="kicker">Fale conosco</div><h2>Estamos aqui pra ajudar</h2></div></div>
       <div class="cgrid">
-        <div>
+        <div class="ccol">
           <div class="cinfo">
             <div class="ccard"><div class="ci"><svg class="ic" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><small>Endereço</small><b>Estrada Intendente Magalhães, 830<br>Vila Valqueire, RJ</b></div></div>
             <div class="ccard"><div class="ci"><svg class="ic" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.4 2.1L8.1 9.9a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2z"/></svg></div><div><small>Telefones</small><b>(21) 3283-6600<br>(21) 99104-1424</b></div></div>
             <div class="ccard"><div class="ci"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><small>Atendimento</small><b>Segunda a sexta<br>9h às 18h</b></div></div>
             <div class="ccard"><div class="ci"><svg class="ic" viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 1 1 21 11.5z"/></svg></div><div><small>WhatsApp</small><b>(21) 99104-1424</b></div></div>
           </div>
-          <div class="panel" style="padding:0;overflow:hidden">
-            <iframe src="https://maps.google.com/maps?q=Estrada%20Intendente%20Magalh%C3%A3es%2C%20Vila%20Valqueire%2C%20Rio%20de%20Janeiro&z=15&output=embed" style="width:100%;height:300px;border:0" loading="lazy" title="Mapa"></iframe>
+          <div class="panel cmapa">
+            <iframe src="https://maps.google.com/maps?q=Estrada%20Intendente%20Magalh%C3%A3es%2C%20830%2C%20Vila%20Valqueire%2C%20Rio%20de%20Janeiro&z=16&output=embed" loading="lazy" title="Mapa"></iframe>
           </div>
         </div>
         <div class="panel">
@@ -1136,7 +1191,7 @@ veiculos.forEach((v,i)=>v._i=i);   // índice mestre p/ abrir o anúncio certo
 const money=v=>'R$ '+v.toLocaleString('pt-BR');
 // anúncio sem preço publicado não mostra "R$ 0"
 const preco=v=>(v&&v>0)?money(v):'Consultar a loja';
-const kmT=v=>v===0?'0 km':v.toLocaleString('pt-BR')+' km';
+const kmT=v=>v==null?'Km a consultar':(v===0?'Zero km':v.toLocaleString('pt-BR')+' km');
 function vcard(v){
   // algumas lojas repetem o modelo dentro da versão (ex.: "ER-6N ABS" / "ER-6N ABS")
   const ver=(v.ver&&!(' '+v.mod+' ').includes(' '+v.ver+' ')&&!v.ver.startsWith(v.mod))?v.ver:(v.ver&&v.ver!==v.mod?v.ver.replace(v.mod,'').trim():'');
@@ -1160,6 +1215,7 @@ class CSelect{
     this.mount=typeof mount==='string'?document.getElementById(mount):mount;
     this.placeholder=opts.placeholder||'Selecione';
     this.search=opts.search||false;
+    this.livre=opts.livre||false;   // permite usar um texto que não está na lista
     this.onChange=opts.onChange||function(){};
     this.value='';
     this.options=opts.options||[];
@@ -1180,12 +1236,18 @@ class CSelect{
     this.fill('');
   }
   fill(q){
-    q=(q||'').toLowerCase();
+    const bruto=(q||'').trim();
+    q=bruto.toLowerCase();
     const list=this.options.filter(o=>o.toLowerCase().includes(q));
-    if(!list.length){this.list.innerHTML='<div class="csel-empty">Nada encontrado</div>';return;}
-    this.list.innerHTML=list.map(o=>`<div class="csel-opt ${o===this.value?'sel':''}">${o}</div>`).join('');
-    [...this.list.children].forEach(el=>{el.onclick=()=>{this.set(el.textContent);this.close();};});
+    // campo livre: quem vende pode ter um carro que não está no estoque do polo
+    const extra=(this.livre&&bruto&&!this.options.some(o=>o.toLowerCase()===q))
+      ? `<div class="csel-opt novo" data-livre="1">Usar “${bruto.toUpperCase()}”</div>` : '';
+    if(!list.length&&!extra){this.list.innerHTML='<div class="csel-empty">Nada encontrado</div>';return;}
+    this.list.innerHTML=extra+list.map(o=>`<div class="csel-opt ${o===this.value?'sel':''}">${o}</div>`).join('');
+    [...this.list.children].forEach(el=>{el.onclick=()=>{
+      this.set(el.dataset.livre?bruto.toUpperCase():el.textContent);this.close();};});
   }
+  desabilitar(off){this.mount.classList.toggle('off',!!off);if(off)this.close();}
   set(v,silent){
     this.value=v;
     this.cv.textContent=v||this.placeholder;
@@ -1194,10 +1256,30 @@ class CSelect{
   }
   setOptions(list){this.options=list;if(this.value&&!list.includes(this.value))this.set('',true);this.fill(this.search&&this.si?this.si.value:'');}
   toggle(){this.mount.classList.contains('open')?this.close():this.open();}
-  open(){document.querySelectorAll('.csel.open').forEach(c=>c.classList.remove('open'));this.mount.classList.add('open');if(this.search){this.si.value='';this.fill('');this.si.focus();}}
+  open(){
+    document.querySelectorAll('.csel.open').forEach(c=>c.classList.remove('open'));
+    this.mount.classList.add('open');
+    this.flutuar();   // sai de dentro de blocos com rolagem/overflow
+    if(this.search){this.si.value='';this.fill('');this.si.focus();}
+  }
+  // a lista abre presa à tela, então nenhum painel com overflow consegue cortá-la
+  flutuar(){
+    const r=this.trigger.getBoundingClientRect();
+    const alturaMax=Math.min(264,Math.max(160,window.innerHeight-r.bottom-16));
+    const cabeEmbaixo=window.innerHeight-r.bottom>190;
+    const p=this.pop.style;
+    p.position='fixed';p.left=r.left+'px';p.width=r.width+'px';p.right='auto';p.maxHeight=alturaMax+'px';
+    if(cabeEmbaixo){p.top=(r.bottom+6)+'px';p.bottom='auto';}
+    else{p.top='auto';p.bottom=(window.innerHeight-r.top+6)+'px';p.maxHeight=Math.min(264,r.top-16)+'px';}
+  }
   close(){this.mount.classList.remove('open');}
 }
 document.addEventListener('click',()=>document.querySelectorAll('.csel.open').forEach(c=>c.classList.remove('open')));
+// rolar ou redimensionar fecha a lista (ela está presa à tela, não ao bloco)
+['scroll','resize'].forEach(ev=>window.addEventListener(ev,e=>{
+  if(e.target&&e.target.closest&&e.target.closest('.csel-pop'))return;   // rolagem dentro da própria lista
+  document.querySelectorAll('.csel.open').forEach(c=>c.classList.remove('open'));
+},true));
 
 /* instâncias */
 const cs={};
@@ -1218,12 +1300,33 @@ function mkMarcaModelo(marcaEl,modeloEl){
   cs.eAnoDe=new CSelect('eAnoDe',{placeholder:'De',options:['—',...anos]});
   cs.eAnoAte=new CSelect('eAnoAte',{placeholder:'Até',options:['—',...anos]});
   cs.eLoja=new CSelect('eLoja',{placeholder:'Todas as lojas',search:true,options:['Todas as lojas',...lojasList]});
-  cs.eOrder=new CSelect('eOrder',{placeholder:'Mais recentes',options:['Mais recentes','Menor preço','Maior preço','Menor km'],onChange:()=>renderResultados()});})();
+  cs.eOrder=new CSelect('eOrder',{placeholder:'Recomendados',options:['Recomendados','Menor preço','Maior preço','Menor km','Menor ano','Maior ano'],onChange:()=>renderResultados()});})();
 // troca (form interesse)
 (()=>{const {m,mod}=mkMarcaModelo('trMarca','trModelo');cs.trMarca=m;cs.trModelo=mod;
   cs.trAno=new CSelect('trAno',{placeholder:'Ano',options:anos});})();
-// venda
-cs.vdMarca=new CSelect('vdMarca',{placeholder:'Marca',search:true,options:marcas});
+/* ---- venda: marca → modelo → versão, com busca e preenchimento automático ---- */
+function marcaDoModelo(mod){const v=veiculos.find(v=>v.mod===mod);return v?v.b:'';}
+function versoesDe(marca,mod){
+  return [...new Set(veiculos.filter(v=>(!marca||v.b===marca)&&v.mod===mod).map(v=>v.ver).filter(Boolean))].sort();
+}
+function vdLiberaVersao(){
+  const marca=cs.vdMarca.value, mod=cs.vdModelo.value;
+  const pronto=!!(marca&&mod);
+  cs.vdVersao.desabilitar(!pronto);
+  document.getElementById('vdDicaVersao').classList.toggle('off',pronto);
+  if(pronto) cs.vdVersao.setOptions(versoesDe(marca,mod));
+  else { cs.vdVersao.setOptions([]); cs.vdVersao.set('',true); }
+}
+cs.vdMarca=new CSelect('vdMarca',{placeholder:'Selecione a marca',search:true,livre:true,options:marcas,onChange:v=>{
+  cs.vdModelo.setOptions(modelosDe(v)); cs.vdModelo.set('',true); vdLiberaVersao();
+}});
+cs.vdModelo=new CSelect('vdModelo',{placeholder:'Selecione o modelo',search:true,livre:true,options:modelosDe(''),onChange:v=>{
+  // escolheu o modelo antes da marca: a marca entra sozinha
+  if(v&&!cs.vdMarca.value){ const m=marcaDoModelo(v); if(m){cs.vdMarca.set(m,true);cs.vdModelo.setOptions(modelosDe(m));} }
+  vdLiberaVersao();
+}});
+cs.vdVersao=new CSelect('vdVersao',{placeholder:'Selecione a versão',search:true,livre:true,options:[]});
+cs.vdVersao.desabilitar(true);
 // contato assunto
 cs.ctAssunto=new CSelect('ctAssunto',{placeholder:'Selecione',options:['Dúvidas','Solicitações','Sugestão','Reclamação','Sou lojista']});
 
@@ -1298,6 +1401,9 @@ function renderResultados(manterPagina){
   if(ord==='Menor preço')list.sort((a,b)=>a.preco-b.preco);
   else if(ord==='Maior preço')list.sort((a,b)=>b.preco-a.preco);
   else if(ord==='Menor km')list.sort((a,b)=>a.km-b.km);
+  else if(ord==='Menor ano')list.sort((a,b)=>(a.anoN||0)-(b.anoN||0));
+  else if(ord==='Maior ano')list.sort((a,b)=>(b.anoN||0)-(a.anoN||0));
+  // "Recomendados" mantém a ordem base, que já vem em rodízio entre as lojas
   const paginas=Math.max(1,Math.ceil(list.length/POR_PAGINA));
   if(!manterPagina)pagina=1;
   if(pagina>paginas)pagina=paginas;
@@ -1564,25 +1670,53 @@ function entrarContato(){
 }
 
 /* ==================== VENDA (lead de compra) ==================== */
-function vnFotosSel(input){vnFotosCount=input.files?input.files.length:0;const box=document.getElementById('vnFotosBox');box.innerHTML=vnFotosCount?('📷 '+vnFotosCount+' foto(s) selecionada(s)<br><small>Clique para trocar</small>'):'📷 Clique para adicionar fotos<br><small>Frente, traseira, laterais e interior</small>';}
+/* fotos: acumulam a cada clique (não substituem) e cada uma tem o próprio "x" */
+let vnFotosLista=[];
+function vnFotosSel(input){
+  const novos=[...(input.files||[])];
+  novos.forEach(f=>{
+    if(vnFotosLista.some(x=>x.arquivo.name===f.name&&x.arquivo.size===f.size)) return; // não duplica
+    vnFotosLista.push({arquivo:f,url:URL.createObjectURL(f)});
+  });
+  input.value='';   // libera reescolher o mesmo arquivo depois de remover
+  vnFotosRender();
+}
+function vnFotoRemover(i){
+  const f=vnFotosLista[i]; if(f)URL.revokeObjectURL(f.url);
+  vnFotosLista.splice(i,1); vnFotosRender();
+}
+function vnFotosRender(){
+  vnFotosCount=vnFotosLista.length;
+  document.getElementById('vnFotosGrade').innerHTML=vnFotosLista.map((f,i)=>
+    `<div class="vnfoto" style="background-image:url('${f.url}')"><button type="button" title="Remover" onclick="vnFotoRemover(${i})">×</button></div>`).join('');
+  document.getElementById('vnFotosBox').innerHTML = vnFotosCount
+    ? `📷 ${vnFotosCount} foto(s) · clique para adicionar mais<br><small>As fotos ficam salvas — use o × para tirar alguma</small>`
+    : '📷 Clique para adicionar fotos<br><small>Frente, traseira, laterais e interior</small>';
+}
+function formatarValor(el){
+  const n=el.value.replace(/\D/g,'');
+  el.value=n?Number(n).toLocaleString('pt-BR'):'';
+}
 function enviarVenda(){
-  const marca=val(cs.vdMarca.value),modelo=document.getElementById('vnModelo').value.trim(),
+  const marca=val(cs.vdMarca.value),modelo=val(cs.vdModelo.value),versao=val(cs.vdVersao.value),
     ano=document.getElementById('vnAno').value.trim(),km=document.getElementById('vnKm').value.trim(),
     valor=document.getElementById('vnValor').value.trim(),nome=document.getElementById('vnNome').value.trim(),
     waRaw=document.getElementById('vnWa').value,wa=waRaw.replace(/\D/g,''),email=document.getElementById('vnEmail').value.trim();
-  const req={vdMarca:!!marca,vnModelo:!!modelo,vnAno:!!ano,vnNome:!!nome,vnWa:wa.length>=10};
+  const req={vnAno:!!ano,vnNome:!!nome,vnWa:wa.length>=10};
   let faltou=false;
-  ['vnModelo','vnAno','vnNome','vnWa'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('bad',!req[id]);if(!req[id])faltou=true;});
+  ['vnAno','vnNome','vnWa'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('bad',!req[id]);if(!req[id])faltou=true;});
   document.querySelector('#vdMarca .csel-trigger')?.classList.toggle('bad',!marca);
-  if(!marca)faltou=true;
+  document.querySelector('#vdModelo .csel-trigger')?.classList.toggle('bad',!modelo);
+  if(!marca||!modelo)faltou=true;
   if(faltou){const ok=document.getElementById('vnOk');ok.classList.add('on');ok.style.color='var(--red)';ok.innerHTML='Preencha os campos obrigatórios: marca, modelo, ano, nome e WhatsApp válido.';return;}
-  const detalhes={marca,modelo,ano,km,valor,fotos:vnFotosCount};
+  const detalhes={marca,modelo,versao,ano,km,valor:(valor?'R$ '+valor:''),fotos:vnFotosCount};
   fetch('/api/leads?path=leads',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({tipo:'compra',canal:'venda_site',cliente_nome:nome,cliente_telefone:wa,cliente_email:email||null,detalhes})}).catch(()=>{});
   const ok=document.getElementById('vnOk');ok.style.color='';ok.classList.add('on');
   ok.innerHTML=`<b>✓ Enviado para avaliação!</b><br>Obrigado, ${nome.split(' ')[0]}. As lojas da ACEIMA vão avaliar seu ${marca} ${modelo} e entrar em contato pelo WhatsApp.`;
-  ['vnModelo','vnAno','vnKm','vnValor','vnNome','vnWa','vnEmail'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  cs.vdMarca.set('',true);vnFotosCount=0;document.getElementById('vnFotosBox').innerHTML='📷 Clique para adicionar fotos<br><small>Frente, traseira, laterais e interior</small>';
+  ['vnAno','vnKm','vnValor','vnNome','vnWa','vnEmail'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  cs.vdMarca.set('',true);cs.vdModelo.set('',true);cs.vdVersao.set('',true);vdLiberaVersao();
+  vnFotosLista.forEach(f=>URL.revokeObjectURL(f.url));vnFotosLista=[];vnFotosRender();
 }
 
 /* ==================== CONTATO ==================== */
@@ -1604,52 +1738,6 @@ function enviarContato(){
 
 /* ==================== SERVIÇOS / PARCEIROS DO POLO ==================== */
 function irPara(id){const e=document.getElementById(id);if(e)e.scrollIntoView({behavior:'smooth',block:'start'});}
-const GRUPOS=[
-  ['vistoria','Antes de fechar negócio','Vistoria, laudo e inspeção — para você comprar com segurança.'],
-  ['manutencao','Depois da compra','Quem cuida do carro que saiu daqui.'],
-  ['alimentacao','Enquanto você procura','Para quem passa o dia no polo e para quem trabalha aqui.'],
-  ['servico','Outros parceiros','']
-];
-let parceiros=[];
-function svcard(p){
-  const tel=String(p.whatsapp||'').replace(/\D/g,'');
-  const wa=tel?`https://wa.me/${tel.length>11?tel:'55'+tel}?text=${encodeURIComponent('Olá! Vim pelo site do Intendente Shopping Car.')}`:null;
-  const inicial=(p.nome||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
-  return `<div class="svcard">
-    <div class="topo">
-      <div class="lg">${p.logo_url?`<img src="${p.logo_url}" alt="${p.nome}" ${p.cor?`data-cor="${p.cor}"`:''} onload="fundoDaLogo(this)" onerror="this.parentNode.textContent='${inicial}'">`:inicial}</div>
-      <div><h4>${p.nome}</h4><div class="cat">${(GRUPOS.find(g=>g[0]===(p.categoria||'servico'))||['','Parceiro'])[1]||'Parceiro'}</div></div>
-    </div>
-    ${p.descricao?`<p>${p.descricao}</p>`:''}
-    ${p.beneficio?`<div class="benef">★ ${p.beneficio}</div>`:''}
-    <div class="info">
-      ${p.endereco?`<span>📍 ${p.endereco}</span>`:''}
-      ${p.telefone?`<span>📞 ${p.telefone}</span>`:''}
-    </div>
-    <div class="acoes">
-      ${wa?`<a class="btn green" href="${wa}" target="_blank" rel="noopener">WhatsApp</a>`:''}
-      ${p.site?`<a class="btn ghost" href="${/^https?:/.test(p.site)?p.site:'https://'+p.site}" target="_blank" rel="noopener">Site</a>`:''}
-    </div>
-  </div>`;
-}
-function renderServicos(){
-  const box=document.getElementById('servicosLista'); if(!box) return;
-  if(!parceiros.length){ box.innerHTML=''; return; }
-  box.innerHTML=GRUPOS.map(([cat,titulo,sub])=>{
-    const lista=parceiros.filter(p=>(p.categoria||'servico')===cat);
-    if(!lista.length) return '';
-    return `<div class="svgrupo"><h3>${titulo}</h3>${sub?`<div class="sub">${sub}</div>`:''}
-      <div class="svgrid">${lista.map(svcard).join('')}</div></div>`;
-  }).join('');
-}
-async function carregarParceiros(){
-  try{
-    const r=await fetch('/api/parceiros?path=parceiros',{cache:'no-store'});
-    const j=await r.json();
-    if(Array.isArray(j)){ parceiros=j; renderServicos(); }
-  }catch(e){ /* silencioso: a página mostra o aviso de "em breve" */ }
-}
-
 /* ==================== NAV + ENDEREÇO PRÓPRIO DE CADA PÁGINA ==================== */
 const ROTAS={home:'/',busca:'/estoque',lojas:'/lojas',servicos:'/servicos',vender:'/vender',aceima:'/aceima',contato:'/contato'};
 const MARCA_SITE='Nova Intendente Shopping Car';
@@ -1711,11 +1799,40 @@ function mapApi(v){
   return {
     id:v.id, lojaId:v.loja_id,
     b:(v.marca||'').trim(), mod:(v.modelo||'').trim(), ver:(v.versao||'').trim(),
-    anoN: v.ano_modelo||null, ano, km: v.km||0, preco: parseInt(v.preco)||0,
+    anoN: v.ano_modelo||null, ano, km: (v.km==null?null:(parseInt(v.km)||0)), preco: parseInt(v.preco)||0,
     cambio: v.cambio||'', comb: v.combustivel||'', loja: v.loja_nome||'',
     lojaWa: v.loja_whatsapp||'', tipo: v.tipo||'carro',
     fotos: v.fotos||[], img:(v.fotos&&v.fotos[0])||'', opcionais: v.opcionais||[], tag:''
   };
+}
+/* Nenhuma parte do site pode ficar dominada por uma loja só: as lojas entram em rodízio,
+   uma de cada vez, e a ordem interna e a ordem das lojas mudam a cada visita. */
+function baralhar(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function intercalarLojas(lista){
+  const grupos={};
+  lista.forEach(v=>{const k=v.loja||'—';(grupos[k]||(grupos[k]=[])).push(v);});
+  const chaves=baralhar(Object.keys(grupos));
+  chaves.forEach(k=>baralhar(grupos[k]));
+  const saida=[];
+  for(let i=0,faltou=true;faltou;i++){
+    faltou=false;
+    for(const k of chaves){ const v=grupos[k][i]; if(v){saida.push(v);faltou=true;} }
+  }
+  return saida;
+}
+function atualizarNumeros(){
+  if(!dadosCarregados) return;
+  const nLojas=lojasList.length||new Set(veiculos.map(v=>v.loja).filter(Boolean)).size;
+  const nVeic=veiculos.length, nMarcas=marcas.length, nAnos=new Date().getFullYear()-1998;
+  const põe=(id,valor,prefixo)=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.dataset.count=valor; el.dataset.prefix=prefixo||'';
+    // se a animação já rodou (ou nem vai rodar), grava o número direto
+    el.textContent=(prefixo||'')+Number(valor).toLocaleString('pt-BR');
+  };
+  põe('stLojas',nLojas);põe('stVeic',nVeic);põe('stMarcas',nMarcas);põe('stAnos',nAnos);
+  põe('acLojas',nLojas);põe('acVeic',nVeic);põe('acMarcas',nMarcas);
+  const el=document.getElementById('vdLojas'); if(el) el.textContent=nLojas;
 }
 async function carregarDados(){
   try{
@@ -1730,7 +1847,7 @@ async function carregarDados(){
     }
     const rv = await fetch('/api/veiculos?path=veiculos').then(r=>r.json());
     if(Array.isArray(rv) && rv.length){
-      veiculos = rv.map(mapApi);
+      veiculos = intercalarLojas(rv.map(mapApi));
       veiculos.forEach((v,i)=>v._i=i);
       dadosCarregados=true;   // libera a listagem real (antes disso a tela mostra esqueleto)
       marcas=[...new Set(veiculos.map(v=>v.b).filter(Boolean))].sort();
@@ -1744,6 +1861,9 @@ async function carregarDados(){
       document.getElementById('destaques').innerHTML=veiculos.slice(0,12).map(vcard).join('');
       renderResultados();
       atualizaHomeTotal();
+      atualizarNumeros();
+      cs.vdMarca.setOptions(marcas);
+      cs.vdModelo.setOptions(modelosDe(cs.vdMarca.value||''));
     }
   }catch(e){ /* se a API falhar, mantém os carros de exemplo */ }
   // se a API falhou, libera assim mesmo para não ficar preso no esqueleto
@@ -1759,7 +1879,6 @@ async function carregarDados(){
 atualizaHomeTotal();renderResultados();
 try{if(localStorage.getItem('visualEstoque')==='menor')setVisual('menor');}catch(e){}
 atualizaHomeTotal();
-carregarParceiros();
 aplicarRota();   // abre a página certa conforme o endereço digitado/compartilhado
 carregarDados();
 </script>
