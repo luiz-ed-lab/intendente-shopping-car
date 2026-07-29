@@ -40,7 +40,10 @@
   .lbox .sub{color:var(--muted);font-size:.82rem;margin-bottom:24px}
   .lbox label{display:block;text-align:left;font-size:.78rem;font-weight:600;color:var(--muted);margin:14px 0 6px}
   .lbox .field{position:relative}
-  .lbox .field svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--soft)}
+  .lbox .field > svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--soft)}
+  .olho{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;background:transparent;
+    border-radius:9px;color:var(--soft);cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .olho:hover{background:#f6f0ee;color:var(--txt)}
   .lbox input{width:100%;padding:13px 13px 13px 40px;border:1.5px solid var(--line);border-radius:11px;font-size:.95rem;transition:.15s}
   .lbox input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(211,55,42,.1)}
   .lbox .go{width:100%;margin-top:22px;background:linear-gradient(135deg,var(--red),var(--red-deep));color:#fff;font-weight:700;padding:14px;border-radius:11px;font-size:.95rem;box-shadow:0 8px 20px rgba(211,55,42,.28);transition:.15s}
@@ -145,6 +148,32 @@
   .modal{position:fixed;inset:0;background:rgba(40,10,6,.5);backdrop-filter:blur(3px);z-index:150;display:none;align-items:center;justify-content:center;padding:20px}
   .modal.on{display:flex;animation:fade .2s}
   .mbox{background:#fff;border-radius:20px;width:540px;max-width:100%;max-height:90vh;overflow:auto;box-shadow:var(--sh-lg)}
+  .mbox.lg{width:820px}
+  /* ficha do anúncio dentro do pop-up */
+  .fv{display:grid;grid-template-columns:1.05fr .95fr;gap:22px}
+  @media(max-width:760px){.fv{grid-template-columns:1fr}}
+  .fv .foto{aspect-ratio:4/3;border-radius:14px;background:#e8dedb center/cover no-repeat;border:1px solid var(--line)}
+  .fv .tiras{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
+  .fv .tiras div{aspect-ratio:4/3;border-radius:8px;background:#e8dedb center/cover no-repeat;cursor:pointer;border:2px solid transparent}
+  .fv .tiras div.sel{border-color:var(--red)}
+  .fv h4{font-size:1.15rem;line-height:1.3}
+  .fv .preco{font-family:var(--fh);font-size:1.7rem;color:var(--red);margin:6px 0 14px}
+  .fv .linhas{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .fv .linhas div{background:#faf7f6;border:1px solid var(--line2);border-radius:11px;padding:9px 12px}
+  .fv .linhas small{display:block;color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+  .fv .linhas b{font-size:.9rem}
+  .fv .lojabox{display:flex;align-items:center;gap:11px;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:13px}
+  .fv .acoes{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .fv .estado{display:flex;align-items:center;gap:9px;background:#faf7f6;border:1px solid var(--line2);border-radius:12px;padding:10px 14px;font-size:.85rem;font-weight:600}
+  /* ficha do lead */
+  .fl{display:flex;flex-direction:column;gap:0}
+  .fl .li{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line2);font-size:.9rem}
+  .fl .li:last-child{border-bottom:0}
+  .fl .li span{color:var(--muted);font-size:.82rem;flex-shrink:0}
+  .fl .li b{text-align:right;font-weight:700;word-break:break-word}
+  .fl .topo{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .fl .av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#e5493b,var(--red-deep));color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-family:var(--fh)}
   .mhead{padding:22px 24px;border-bottom:1px solid var(--line2);display:flex;justify-content:space-between;align-items:center}
   .mhead h3{font-size:1.15rem}
   .mhead .x{width:34px;height:34px;border-radius:9px;color:var(--muted);display:flex;align-items:center;justify-content:center}
@@ -282,7 +311,10 @@
     <label>Senha</label>
     <div class="field">
       <svg class="ic sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      <input id="lpass" type="password" placeholder="Senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')entrar()">
+      <input id="lpass" type="password" placeholder="Senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')entrar()" style="padding-right:44px">
+      <button type="button" id="lolho" class="olho" title="Mostrar senha" onclick="verSenha()">
+        <svg class="ic sm" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
     </div>
     <div id="lerr" style="display:none;color:var(--red);font-size:.8rem;font-weight:600;margin-top:12px">Login ou senha incorretos.</div>
     <button class="go" onclick="entrar()">Entrar no painel</button>
@@ -298,17 +330,17 @@
     </div>
     <div class="nlabel">Geral</div>
     <a class="on" data-v="dash" onclick="nav(this)">
-      <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+      <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.4"/><rect x="14" y="3" width="7" height="5" rx="1.4"/><rect x="14" y="12" width="7" height="9" rx="1.4"/><rect x="3" y="16" width="7" height="5" rx="1.4"/></svg>
       Dashboard</a>
     <div class="nlabel">Operação</div>
     <a data-v="lojas" onclick="nav(this)">
-      <svg class="ic" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>
+      <svg class="ic" viewBox="0 0 24 24"><path d="m2 7 4.4-4.4A2 2 0 0 1 7.8 2h8.4a2 2 0 0 1 1.4.6L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></svg>
       Lojas</a>
     <a data-v="veiculos" onclick="nav(this)">
-      <svg class="ic" viewBox="0 0 24 24"><path d="M5 17h14M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm18 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/><path d="M3 17v-4l2-5h11l3 5v4"/><path d="M5 8h11"/></svg>
+      <svg class="ic" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9c-.1.4-.2.8-.2 1.2v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
       Veículos</a>
     <a data-v="leads" onclick="nav(this)">
-      <svg class="ic" viewBox="0 0 24 24"><path d="M4 4h16v12H5.2L4 17.5z"/><path d="M8 9h8M8 12h5"/></svg>
+      <svg class="ic" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg>
       Leads <span class="badge" id="leadBadge" style="display:none">0</span></a>
     <div class="foot"><span class="st"></span> Sistema online</div>
   </aside>
@@ -339,19 +371,19 @@
       <div class="view on" id="v-dash">
         <div class="kpis">
           <div class="kpi">
-            <div class="chip"><svg class="ic" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/></svg></div>
+            <div class="chip"><svg class="ic" viewBox="0 0 24 24"><path d="m2 7 4.4-4.4A2 2 0 0 1 7.8 2h8.4a2 2 0 0 1 1.4.6L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></svg></div>
             <div class="lab">Lojas cadastradas</div><div class="num">—</div>
           </div>
           <div class="kpi">
-            <div class="chip"><svg class="ic" viewBox="0 0 24 24"><path d="M3 17v-4l2-5h11l3 5v4"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg></div>
+            <div class="chip"><svg class="ic" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9c-.1.4-.2.8-.2 1.2v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg></div>
             <div class="lab">Veículos no ar</div><div class="num" id="kVeic">—</div>
           </div>
           <div class="kpi">
-            <div class="chip"><svg class="ic" viewBox="0 0 24 24"><path d="M4 4h16v12H5.2L4 17.5z"/></svg></div>
+            <div class="chip"><svg class="ic" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg></div>
             <div class="lab">Leads sem atendimento</div><div class="num">—</div>
           </div>
           <div class="kpi">
-            <div class="chip"><svg class="ic" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></div>
+            <div class="chip"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.8 9.8 0 0 1 6.7 2.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.8 9.8 0 0 1-6.7-2.7L3 16"/><path d="M8 16H3v5"/></svg></div>
             <div class="lab">Última sincronização</div><div class="num" id="kSync" style="font-size:1.25rem">—</div>
           </div>
         </div>
@@ -474,6 +506,22 @@
   </div>
 </div>
 
+<!-- ===== POP-UP DO ANÚNCIO ===== -->
+<div class="modal" id="mVeic" onclick="if(event.target===this)closeM('mVeic')">
+  <div class="mbox lg">
+    <div class="mhead"><h3 id="mvTitulo">Anúncio</h3><button class="x" onclick="closeM('mVeic')"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="mbody" id="mvCorpo"></div>
+  </div>
+</div>
+
+<!-- ===== POP-UP DO LEAD ===== -->
+<div class="modal" id="mLead" onclick="if(event.target===this)closeM('mLead')">
+  <div class="mbox">
+    <div class="mhead"><h3 id="mlTitulo">Lead</h3><button class="x" onclick="closeM('mLead')"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="mbody" id="mlCorpo"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -484,6 +532,7 @@ let lojasApi=[];   // dados crus das lojas (com id do banco)
 let lojas=[];      // exibição: [nome, whatsapp, chave, logoFile, nVeic, ultimaImp, dbId, origem, erro, cor, email]
 let veicAll=[];    // objetos crus dos veículos (com id do banco)
 let leads=[];      // [data, nome, tel, veiculo, loja, canal, status]
+let leadsRaw=[];   // resposta crua da API (tem detalhes, e-mail, forma de compra...)
 let leadsVistos=false, editId=null;
 let PAINEL_TOKEN='';
 const SESSAO_HORAS=1;
@@ -521,6 +570,7 @@ async function carregarPainel(){
     lojasApi = Array.isArray(lj)?lj:[];
     veicAll  = Array.isArray(ve)?ve:[];
     const lds  = Array.isArray(le)?le:[];
+    leadsRaw = lds;
     const cont={}; veicAll.forEach(v=>{cont[v.loja_id]=(cont[v.loja_id]||0)+1;});
     lojas = lojasApi.map(l=>[l.nome, l.whatsapp||l.telefone||'—', l.autocerto_id||l.autocerto_url||'', l.logo_url||null, cont[l.id]||0, quando(l.ultima_sync), l.id, origemLabel(l.autocerto_id||l.autocerto_url), l.ultimo_erro||null, l.cor||null, l.email||null]);
     const smap={novo:'new',enviado:'sent',atendido:'done'};
@@ -570,10 +620,26 @@ function aprimorarSelect(sel, cores){
   };
   t.onclick=ev=>{ ev.stopPropagation();
     document.querySelectorAll('.dd.on').forEach(x=>{ if(x!==wrap) x.classList.remove('on'); });
-    wrap.classList.toggle('on'); };
+    wrap.classList.toggle('on');
+    if(wrap.classList.contains('on')) ddFlutuar(t,p); };
+  p.onclick=ev=>ev.stopPropagation();
   sel.__dd=api; api.atualizar(); return api;
 }
+/* a lista abre presa à tela: painéis e tabelas com overflow não conseguem mais cortá-la */
+function ddFlutuar(t,p){
+  const r=t.getBoundingClientRect();
+  const cabeEmbaixo=window.innerHeight-r.bottom>200;
+  p.style.position='fixed'; p.style.left=r.left+'px'; p.style.minWidth=r.width+'px'; p.style.zIndex=300;
+  if(cabeEmbaixo){ p.style.top=(r.bottom+6)+'px'; p.style.bottom='auto';
+    p.style.maxHeight=Math.min(262,window.innerHeight-r.bottom-16)+'px'; }
+  else { p.style.bottom=(window.innerHeight-r.top+6)+'px'; p.style.top='auto';
+    p.style.maxHeight=Math.min(262,r.top-16)+'px'; }
+}
 document.addEventListener('click',()=>document.querySelectorAll('.dd.on').forEach(x=>x.classList.remove('on')));
+['scroll','resize'].forEach(ev=>window.addEventListener(ev,e=>{
+  if(e.target&&e.target.closest&&e.target.closest('.dd-p'))return;
+  document.querySelectorAll('.dd.on').forEach(x=>x.classList.remove('on'));
+},true));
 function aprimorarTodos(){
   ['fVLoja','fVMarca','fVOrd','fVStatus','repPeriodo'].forEach(id=>aprimorarSelect(document.getElementById(id)));
   document.querySelectorAll('#leadsTb select').forEach(s=>aprimorarSelect(s, ST_COR));
@@ -715,11 +781,11 @@ function renderVeic(list){
   const foto=(v.fotos&&v.fotos[0])||''; const oc=v.oculto===true; const semFoto=!foto;
   const etiqueta = semFoto ? '<span class="st" style="background:#d3372a;color:#fff">sem foto</span>'
                  : (oc ? '<span class="st" style="background:#b6a9a3;color:#fff">oculto</span>' : '');
-  return `<div class="vc">
+  return `<div class="vc" style="cursor:pointer" onclick="abrirVeic(${v.id})">
    <div class="ph" style="background-image:url('${foto}')">${etiqueta}</div>
    <div class="b"><h4>${((v.marca||'')+' '+(v.modelo||'')).trim()}</h4><div class="pr">${(v.preco&&+v.preco>0)?money(v.preco):'Consultar'}</div>
    <div class="lj"><span>${v.loja_nome||''} · ${v.ano_modelo||''}</span>
-     <span class="switch ${oc?'':'on'}" title="${oc?'Oculto no site':'Aparece no site'}" style="transform:scale(.78)" onclick="toggleVeic(${v.id},this)"></span>
+     <span class="switch ${oc?'':'on'}" title="${oc?'Oculto no site':'Aparece no site'}" style="transform:scale(.78)" onclick="event.stopPropagation();toggleVeic(${v.id},this)"></span>
    </div></div></div>`;
  }).join('');
 }
@@ -731,6 +797,104 @@ async function toggleVeic(id,el){
    toast(ocultarAgora?'Veículo ocultado do site':'Veículo publicado no site'); }
  catch(e){ toast('Não deu pra atualizar'); }
 }
+/* ---------- POP-UP: ANÚNCIO COMPLETO ---------- */
+const slugify=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+let mvFotos=[];
+function mvTrocar(i){
+  document.getElementById('mvPrincipal').style.backgroundImage=`url('${mvFotos[i]}')`;
+  document.querySelectorAll('#mvCorpo .tiras div').forEach((d,k)=>d.classList.toggle('sel',k===i));
+}
+function abrirVeic(id){
+  const v=veicAll.find(x=>x.id===id); if(!v) return;
+  const loja=lojasApi.find(l=>l.id===v.loja_id)||{};
+  mvFotos=(v.fotos&&v.fotos.length)?v.fotos:[];
+  const nome=[v.marca,v.modelo,v.versao].filter(Boolean).join(' ');
+  const oc=v.oculto===true;
+  const km=(v.km==null)?'Não informado':(Number(v.km)===0?'Zero km':Number(v.km).toLocaleString('pt-BR')+' km');
+  const ano=[v.ano_fabricacao,v.ano_modelo].filter(Boolean).join('/')||'—';
+  const url='/veiculo/'+v.id+'-'+slugify([v.marca,v.modelo,v.versao,v.ano_modelo].filter(Boolean).join(' '));
+  document.getElementById('mvTitulo').textContent=nome||'Anúncio';
+  document.getElementById('mvCorpo').innerHTML=`<div class="fv">
+    <div>
+      <div class="foto" id="mvPrincipal" style="background-image:url('${mvFotos[0]||''}')"></div>
+      ${mvFotos.length>1?`<div class="tiras">${mvFotos.slice(0,10).map((f,i)=>
+        `<div class="${i===0?'sel':''}" style="background-image:url('${f}')" onclick="mvTrocar(${i})"></div>`).join('')}</div>`:''}
+      ${!mvFotos.length?'<p style="color:var(--muted);font-size:.85rem;margin-top:10px">Este anúncio ainda não tem foto publicada pela loja.</p>':''}
+    </div>
+    <div>
+      <h4>${esc(nome)}</h4>
+      <div class="preco">${(v.preco&&+v.preco>0)?money(v.preco):'Preço sob consulta'}</div>
+      <div class="linhas">
+        <div><small>Ano</small><b>${esc(ano)}</b></div>
+        <div><small>Quilometragem</small><b>${esc(km)}</b></div>
+        <div><small>Câmbio</small><b>${esc(v.cambio||'—')}</b></div>
+        <div><small>Combustível</small><b>${esc(v.combustivel||'—')}</b></div>
+        <div><small>Categoria</small><b>${({carro:'Carro',moto:'Moto',caminhao:'Comercial'})[v.tipo]||'Carro'}</b></div>
+        <div><small>Fotos</small><b>${mvFotos.length}</b></div>
+      </div>
+      <div class="lojabox">
+        <div class="lg">${loja.logo_url?`<img src="${loja.logo_url}" alt="" ${loja.cor?`data-cor="${loja.cor}"`:''} onload="fundoDaLogo(this)">`:esc(initials(v.loja_nome||'?'))}</div>
+        <div><b style="font-size:.92rem">${esc(v.loja_nome||'—')}</b>
+        <div style="color:var(--muted);font-size:.78rem">${esc(loja.endereco||'Estrada Intendente Magalhães')}</div></div>
+      </div>
+      <div class="acoes">
+        <div class="estado">
+          <span class="switch ${oc?'':'on'}" onclick="toggleVeic(${v.id},this);mvEstado(${v.id})"></span>
+          <span id="mvEstadoTxt">${oc?'Oculto no site':'Aparece no site'}</span>
+        </div>
+        ${mvFotos.length?`<a class="btn ghost" href="${url}" target="_blank" rel="noopener">Ver no site</a>`:''}
+      </div>
+      ${v.opcionais&&v.opcionais.length?`<div style="margin-top:14px"><small style="color:var(--muted);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Opcionais</small>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${v.opcionais.slice(0,14).map(o=>
+        `<span style="background:#faf7f6;border:1px solid var(--line2);border-radius:99px;padding:5px 11px;font-size:.78rem">${esc(o)}</span>`).join('')}</div></div>`:''}
+    </div>
+  </div>`;
+  openM('mVeic');
+}
+function mvEstado(id){
+  const v=veicAll.find(x=>x.id===id); const t=document.getElementById('mvEstadoTxt');
+  if(v&&t) t.textContent = v.oculto ? 'Oculto no site' : 'Aparece no site';
+  filtrarVeic();   // a grade atrás do pop-up acompanha a mudança
+}
+
+/* ---------- POP-UP: LEAD COMPLETO ---------- */
+function abrirLead(id){
+  const l=leadsRaw.find(x=>x.id===id); if(!l) return;
+  const det=l.detalhes||{};
+  const tel=String(l.cliente_telefone||'').replace(/\D/g,'');
+  const telFmt=tel.length>=10?`(${tel.slice(-11,-9)}) ${tel.slice(-9,-4)}-${tel.slice(-4)}`:(l.cliente_telefone||'—');
+  const compra=l.tipo==='compra';
+  const d=new Date(l.criado_em);
+  const quando=isNaN(d)?'—':d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const linha=(rot,val)=>val?`<div class="li"><span>${rot}</span><b>${esc(val)}</b></div>`:'';
+  const carroCliente=[det.marca,det.modelo,det.versao,det.ano].filter(Boolean).join(' ');
+  document.getElementById('mlTitulo').textContent=compra?'Cliente quer vender um veículo':'Interesse em um anúncio';
+  document.getElementById('mlCorpo').innerHTML=`
+    <div class="fl">
+      <div class="topo">
+        <div class="av">${esc(initials(l.cliente_nome||'?').toUpperCase())}</div>
+        <div><b style="font-size:1.05rem">${esc(l.cliente_nome||'—')}</b>
+          <div style="color:var(--muted);font-size:.8rem">${esc(quando)} · ${l.canal==='whatsapp'?'WhatsApp':'Formulário do site'}</div></div>
+      </div>
+      ${linha('Telefone / WhatsApp',telFmt)}
+      ${linha('E-mail',l.cliente_email)}
+      ${!compra?linha('Veículo de interesse',(l.veiculo_nome||'').trim()):''}
+      ${!compra?linha('Loja anunciante',l.loja_nome):''}
+      ${!compra?linha('Forma de compra',l.forma_compra):''}
+      ${!compra?linha('Entrada / troca',(det.entrada||det.troca||l.entrada||'')):''}
+      ${compra?linha('Veículo do cliente',carroCliente):''}
+      ${compra?linha('Quilometragem',det.km?det.km+' km':''):''}
+      ${compra?linha('Valor pretendido',det.valor?(/^R\$/.test(String(det.valor))?det.valor:'R$ '+det.valor):''):''}
+      ${compra?linha('Fotos enviadas',det.fotos?det.fotos+' foto(s)':''):''}
+      ${linha('Atendimento',ST_LEAD[l.status||'novo'])}
+    </div>
+    <div style="display:flex;gap:9px;margin-top:20px;flex-wrap:wrap">
+      <a class="btn" style="background:#25a35a" href="https://wa.me/${tel.length>11?tel:'55'+tel}" target="_blank" rel="noopener">Chamar no WhatsApp</a>
+      ${l.cliente_email?`<a class="btn ghost" href="mailto:${esc(l.cliente_email)}">Responder por e-mail</a>`:''}
+    </div>`;
+  openM('mLead');
+}
+
 /* ---------- RELATÓRIO DE LEADS EM PDF ---------- */
 function repTrocou(){
  const p=document.getElementById('repPeriodo').value;
@@ -827,12 +991,12 @@ function filtLead(el){leadFiltro=el.dataset.lt;document.querySelectorAll('.lchip
 function renderLeads(){
  const tp={venda:['Venda','#e7f1fb','#1c6fb0'],compra:['Compra','#e4f7ec','#158043']};
  const list=leads.filter(l=>leadFiltro==='todos'||l[7]===leadFiltro);
- document.getElementById('leadsTb').innerHTML=list.length?list.map(l=>{const t=tp[l[7]]||tp.venda;const cor=ST_COR[l[6]]||ST_COR.novo;return `<tr>
+ document.getElementById('leadsTb').innerHTML=list.length?list.map(l=>{const t=tp[l[7]]||tp.venda;const cor=ST_COR[l[6]]||ST_COR.novo;return `<tr style="cursor:pointer" onclick="abrirLead(${l[8]})">
   <td style="color:var(--muted);white-space:nowrap">${l[0]}</td>
   <td><span class="tag" style="background:${t[1]};color:${t[2]}">${t[0]}</span></td>
   <td><b>${l[1]}</b></td><td>${l[2]}</td>
   <td>${l[3]||'—'}</td><td>${l[4]||(l[7]==='compra'?'Todas as lojas':'—')}</td>
-  <td><div style="display:flex;align-items:center;gap:6px"><select style="flex:1" onchange="mudarStatus(${l[8]},this.value)">
+  <td onclick="event.stopPropagation()"><div style="display:flex;align-items:center;gap:6px"><select style="flex:1" onchange="mudarStatus(${l[8]},this.value)">
     ${Object.keys(ST_LEAD).map(k=>`<option value="${k}"${k===l[6]?' selected':''}>${ST_LEAD[k]}</option>`).join('')}
   </select><button class="btn ghost sm" title="Excluir lead" onclick="excluirLead(${l[8]})">${icTrash}</button></div></td></tr>`;}).join(''):'<tr><td colspan="7" style="color:var(--muted);padding:22px 16px">Nenhum lead ainda.</td></tr>';
  document.querySelectorAll('#leadsTb select').forEach(s=>aprimorarSelect(s, ST_COR));
@@ -864,6 +1028,16 @@ function nav(el){
 }
 function toggleAside(){const a=document.querySelector('aside'),bk=document.getElementById('pnavback');const o=a.classList.toggle('open');if(bk)bk.classList.toggle('on',o);}
 function closeAside(){const a=document.querySelector('aside'),bk=document.getElementById('pnavback');if(a)a.classList.remove('open');if(bk)bk.classList.remove('on');}
+function verSenha(){
+  const i=document.getElementById('lpass'), b=document.getElementById('lolho');
+  const mostrando = i.type==='text';
+  i.type = mostrando ? 'password' : 'text';
+  b.title = mostrando ? 'Mostrar senha' : 'Ocultar senha';
+  b.innerHTML = mostrando
+    ? '<svg class="ic sm" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>'
+    : '<svg class="ic sm" viewBox="0 0 24 24"><path d="M10.7 5.1A10.9 10.9 0 0 1 12 5c6.4 0 10 7 10 7a18 18 0 0 1-2.7 3.7"/><path d="M6.6 6.6A17.8 17.8 0 0 0 2 12s3.6 7 10 7a10.7 10.7 0 0 0 5.4-1.4"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m2 2 20 20"/></svg>';
+  i.focus();
+}
 async function entrar(){
  const u=document.getElementById('luser').value.trim();
  const p=document.getElementById('lpass').value;
@@ -915,6 +1089,7 @@ function openEdit(i){const l=lojas[i];editId=l[6];const raw=lojasApi.find(x=>x.i
  if(raw.logo_url){ prev.innerHTML=lgHtml(editId,raw.logo_url,l[0],raw.cor); }
  document.getElementById('mAdd').classList.add('on');}
 async function excluirLoja(i){const l=lojas[i];if(!confirm('Excluir a loja "'+l[0]+'"? Os veículos dela saem do site.'))return;try{await api('/api/lojas?path=lojas&id='+l[6],{method:'DELETE'});toast(l[0]+' excluída');await carregarPainel();}catch(e){toast('Erro ao excluir');}}
+function openM(id){document.getElementById(id).classList.add('on');}
 function closeM(id){document.getElementById(id).classList.remove('on');}
 
 const spin='<svg class="ic sm" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>';
