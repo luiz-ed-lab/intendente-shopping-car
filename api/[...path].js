@@ -80,6 +80,8 @@ async function migra() {
                   where km is not null and km > 1900
                     and (km = ano_modelo or km = ano_fabricacao)`);
   } catch (_) {}
+  // quilometragem absurda digitada pela loja (9.999.999) some da vitrine
+  try { await query('update veiculos set km = null where km > 1500000'); } catch (_) {}
   // por que o anúncio está oculto: null = nunca mexido, 'sem_foto' = o robô escondeu, 'manual' = a ACEIMA decidiu
   try { await query('alter table veiculos add column if not exists oculto_motivo text'); } catch (_) {}
   // cor de fundo da logo definida à mão pela ACEIMA (vence a detecção automática)
@@ -552,6 +554,7 @@ function colherCards($, ctx) {
     const kmSolto = intDe(ctxt.match(/(?:^|[^\d.,/])(\d[\d.]*)\s*km\b/i));
     let km = (kmRotulado != null) ? kmRotulado : kmSolto;
     if (km != null && ano && km === ano) km = null;   // pegou o ano, não a quilometragem
+    if (km != null && km > 1500000) km = null;        // "9.999.999 km" é lixo digitado pela loja
     const item = {
       anuncioId: id, slug: m[1], img,
       marca, modelo, versao,
