@@ -77,6 +77,24 @@ async function migra() {
   try { await query('alter table veiculos add column if not exists oculto_motivo text'); } catch (_) {}
   // cor de fundo da logo definida à mão pela ACEIMA (vence a detecção automática)
   try { await query('alter table lojas add column if not exists cor text'); } catch (_) {}
+  // parceiros de serviço do polo (vistoria, laudo, ar-condicionado, alimentação...)
+  try {
+    await query(`create table if not exists parceiros (
+      id serial primary key, nome text not null, categoria text, descricao text,
+      beneficio text, endereco text, telefone text, whatsapp text, site text,
+      logo_url text, cor text, ordem int default 100, ativa boolean default true,
+      criado_em timestamptz default now())`);
+  } catch (_) {}
+  try {
+    const { rows: [c] } = await query('select count(*)::int as n from parceiros');
+    if (c && c.n === 0) {
+      await query(`insert into parceiros (nome, categoria, descricao, ordem) values
+        ('LaudoCar','vistoria','Laudo cautelar e vistoria veicular completa antes de fechar negócio.',10),
+        ('SISV Inspeção Veicular','vistoria','Inspeção veicular e vistoria de transferência.',20),
+        ('Frioline','manutencao','Ar-condicionado automotivo: carga de gás, higienização e reparo.',30),
+        ('R21','alimentacao','Restaurante do polo — para quem passa o dia procurando carro e para quem trabalha aqui.',40)`);
+    }
+  } catch (_) {}
   // anúncio sem foto que entrou antes dessa regra: tira do site agora (fica no painel)
   try {
     await query(`update veiculos set oculto = true, oculto_motivo = 'sem_foto'
@@ -622,6 +640,50 @@ async function rotaLojas(req, res) {
   res.status(405).end();
 }
 
+// parceiros de serviço do polo — leitura pública, escrita só com token
+async function rotaParceiros(req, res) {
+  await migra();
+  if (req.method === 'GET') {
+    const { rows } = await query(
+      `select * from parceiros ${autorizado(req) ? '' : 'where ativa = true'} order by ordem, nome`);
+    return res.json(rows);
+  }
+  if (!autorizado(req)) return negar(res);
+  const b = req.body || {};
+  if (req.method === 'POST') {
+    if (!b.nome) return res.status(400).json({ erro: 'nome é obrigatório' });
+    const { rows: [p] } = await query(
+      `insert into parceiros (nome, categoria, descricao, beneficio, endereco, telefone, whatsapp, site, logo_url, cor, ordem)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,coalesce($11,100)) returning *`,
+      [b.nome, b.categoria || 'servico', b.descricao, b.beneficio, b.endereco, b.telefone,
+       b.whatsapp, b.site, b.logo_url || null, b.cor || null, b.ordem]);
+    return res.status(201).json(p);
+  }
+  if (req.method === 'PATCH') {
+    if (!b.id) return res.status(400).json({ erro: 'id obrigatório' });
+    const { rows: [p] } = await query(
+      `update parceiros set nome=coalesce($2,nome), categoria=coalesce($3,categoria),
+         descricao=coalesce($4,descricao), beneficio=coalesce($5,beneficio),
+         endereco=coalesce($6,endereco), telefone=coalesce($7,telefone),
+         whatsapp=coalesce($8,whatsapp), site=coalesce($9,site),
+         logo_url=coalesce($10,logo_url),
+         cor = case when $11::text is null then cor when $11 = '' then null else $11 end,
+         ordem=coalesce($12,ordem), ativa=coalesce($13,ativa)
+       where id=$1 returning *`,
+      [b.id, b.nome, b.categoria, b.descricao, b.beneficio, b.endereco, b.telefone,
+       b.whatsapp, b.site, b.logo_url || null, (b.cor === undefined ? null : String(b.cor)),
+       b.ordem, (b.ativa === undefined ? null : !!b.ativa)]);
+    return res.json(p || { erro: 'parceiro não encontrado' });
+  }
+  if (req.method === 'DELETE') {
+    const id = (req.query && req.query.id) || b.id;
+    if (!id) return res.status(400).json({ erro: 'id obrigatório' });
+    await query('delete from parceiros where id = $1', [id]);
+    return res.json({ ok: true });
+  }
+  return res.status(405).end();
+}
+
 async function rotaVeiculos(req, res) {
   await migra();
   if (req.method === 'POST' || req.method === 'PATCH') {
@@ -1002,6 +1064,7 @@ export default async function handler(req, res) {
   }
   try {
     if (rota === 'lojas') return await rotaLojas(req, res);
+    if (rota === 'parceiros') return await rotaParceiros(req, res);
     if (rota === 'veiculos') return await rotaVeiculos(req, res);
     if (rota === 'leads') return await rotaLeads(req, res);
     if (rota === 'importar') return await rotaImportar(req, res);
