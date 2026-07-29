@@ -677,6 +677,12 @@ async function rotaLeads(req, res) {
     const { rows: [l] } = await query('update leads set status=$2 where id=$1 returning id, status', [b.id, b.status || 'novo']);
     return res.json({ ok: true, lead: l });
   }
+  if (req.method === 'DELETE') {
+    const id = (req.query && req.query.id) || (req.body || {}).id;
+    if (!id) return res.status(400).json({ erro: 'id obrigatório' });
+    await query('delete from leads where id = $1', [id]);
+    return res.json({ ok: true });
+  }
   if (req.method !== 'POST') return res.status(405).end();
   const b = req.body || {};
   const { rows: [lead] } = await query(
