@@ -798,6 +798,7 @@ async function toggleVeic(id,el){
  catch(e){ toast('Não deu pra atualizar'); }
 }
 /* ---------- POP-UP: ANÚNCIO COMPLETO ---------- */
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const slugify=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 let mvFotos=[];
 function mvTrocar(i){
