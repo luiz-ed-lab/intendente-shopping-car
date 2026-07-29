@@ -73,6 +73,13 @@ async function migra() {
       [MARCAS_CAMINHAO, RX_CAMINHAO, RX_UTILITARIO]);
   } catch (_) {}
   try { await query("update veiculos set tipo='carro' where tipo is null"); } catch (_) {}
+  // limpa a quilometragem que na verdade era o ANO do anúncio (0 km lido errado pelo robô).
+  // fica nulo até a próxima leitura, que agora entende "0 Km" corretamente.
+  try {
+    await query(`update veiculos set km = null
+                  where km is not null and km > 1900
+                    and (km = ano_modelo or km = ano_fabricacao)`);
+  } catch (_) {}
   // por que o anúncio está oculto: null = nunca mexido, 'sem_foto' = o robô escondeu, 'manual' = a ACEIMA decidiu
   try { await query('alter table veiculos add column if not exists oculto_motivo text'); } catch (_) {}
   // cor de fundo da logo definida à mão pela ACEIMA (vence a detecção automática)
@@ -295,7 +302,7 @@ async function enviarEmailsLead(lead, soAceima) {
     'Nome: ' + (lead.cliente_nome || '-'),
     'WhatsApp: ' + (lead.cliente_telefone || '-'),
     lead.cliente_email ? ('E-mail: ' + lead.cliente_email) : null,
-    det ? ('Veículo do cliente: ' + [det.marca, det.modelo, det.ano].filter(Boolean).join(' ')
+    det ? ('Veículo do cliente: ' + [det.marca, det.modelo, det.versao, det.ano].filter(Boolean).join(' ')
       + (det.km ? (' — ' + det.km + ' km') : '') + (det.valor ? (' — pretende ' + det.valor) : '')
       + (det.fotos ? (' — ' + det.fotos + ' foto(s) enviadas') : '')) : null,
     (!compra && carroInteresse) ? ('Veículo de interesse: ' + carroInteresse
@@ -310,7 +317,7 @@ async function enviarEmailsLead(lead, soAceima) {
   const telBonito = tel.length >= 10
     ? '(' + tel.slice(-11, -9) + ') ' + tel.slice(-9, -4) + '-' + tel.slice(-4)
     : (lead.cliente_telefone || '—');
-  const carroCliente = det ? [det.marca, det.modelo, det.ano].filter(Boolean).join(' ') : null;
+  const carroCliente = det ? [det.marca, det.modelo, det.versao, det.ano].filter(Boolean).join(' ') : null;
 
   const tabela = [
     linhaInfo('Cliente', esc(lead.cliente_nome), true),
@@ -320,7 +327,7 @@ async function enviarEmailsLead(lead, soAceima) {
       ? linhaInfo('Veículo do cliente', esc(carroCliente || '—'))
       : linhaInfo('Veículo de interesse', esc(carroInteresse || '—')),
     compra ? linhaInfo('Quilometragem', det && det.km ? esc(det.km) + ' km' : '') : '',
-    compra ? linhaInfo('Valor pretendido', det && det.valor ? 'R$ ' + esc(det.valor) : '') : '',
+    compra ? linhaInfo('Valor pretendido', det && det.valor ? esc(/^R\$/.test(String(det.valor)) ? String(det.valor) : 'R$ ' + det.valor) : '') : '',
     compra ? linhaInfo('Fotos enviadas', det && det.fotos ? esc(det.fotos) + ' foto(s)' : '') : '',
     !compra ? linhaInfo('Anunciado por', esc(moeda(precoAnuncio))) : '',
     !compra ? linhaInfo('Quilometragem', esc(kms(kmAnuncio))) : '',
@@ -533,12 +540,18 @@ function colherCards($, ctx) {
     const modelo = modelos.find(x => R.startsWith(x)) || resto.split(' ')[0].toUpperCase();
     const versao = resto.slice(modelo.length).trim();
     const sl = parseSlug(m[1]);
-    // km: "Km 19.000" (um template) ou "19000 km" (outro)
-    const km = intDe(ctxt.match(/Km\s*([\d.]+)/i)) || intDe(ctxt.match(/([\d.]{3,})\s*km/i));
     // ano: do slug, "Ano 2021" ou "2021/2021"
     const ano = sl.ano || intDe(ctxt.match(/Ano\s*(\d{4})/i)) || (() => {
       const p = ctxt.match(/\b(\d{4})\/(\d{4})\b/); return p ? parseInt(p[2], 10) : null;
     })();
+    // km: "Km 19.000" (um template) ou "19.000 km" / "0 km" (outro).
+    // Cuidado com dois detalhes que já causaram erro:
+    //  - zero é um valor legítimo, então não dá para usar "||" (0 é falso em JS);
+    //  - se o anúncio é 0 km, o número que aparece antes de "Km" é o ANO. Nunca aceitar isso.
+    const kmRotulado = intDe(ctxt.match(/Km[:\s]*([\d.]+)/i));
+    const kmSolto = intDe(ctxt.match(/(?:^|[^\d.,/])(\d[\d.]*)\s*km\b/i));
+    let km = (kmRotulado != null) ? kmRotulado : kmSolto;
+    if (km != null && ano && km === ano) km = null;   // pegou o ano, não a quilometragem
     const item = {
       anuncioId: id, slug: m[1], img,
       marca, modelo, versao,
