@@ -216,6 +216,22 @@
   @media(max-width:560px){.lgrid{grid-template-columns:1fr}}
   .lcard{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;transition:.2s;display:flex;flex-direction:column}
   .lcard:hover{transform:translateY(-4px)}
+  /* ===== SERVIÇOS / PARCEIROS ===== */
+  .svgrupo{margin-bottom:34px}
+  .svgrupo h3{font-family:var(--font-h);font-size:1.12rem;margin-bottom:4px}
+  .svgrupo .sub{color:var(--muted);font-size:.88rem;margin-bottom:16px}
+  .svgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+  .svcard{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;display:flex;flex-direction:column;gap:12px}
+  .svcard .topo{display:flex;align-items:center;gap:14px}
+  .svcard .lg{width:76px;height:52px;border-radius:12px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:7px;flex-shrink:0;font-family:var(--font-h);font-weight:800;color:var(--red);font-size:.9rem}
+  .svcard .lg img{max-width:100%;max-height:100%;object-fit:contain}
+  .svcard h4{font-size:1.02rem;line-height:1.25}
+  .svcard .cat{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+  .svcard p{color:#5c4f4b;font-size:.92rem;line-height:1.65}
+  .svcard .benef{background:#fff8ea;border:1px solid #f4e3c2;color:#8a6420;border-radius:12px;padding:9px 12px;font-size:.86rem;font-weight:600}
+  .svcard .info{color:var(--muted);font-size:.85rem;display:flex;flex-direction:column;gap:3px}
+  .svcard .acoes{display:flex;gap:8px;margin-top:auto;padding-top:6px}
+  .svcard .acoes .btn{flex:1;padding:11px 10px;font-size:.88rem}
   .lcard .lg{width:100px;height:58px;border-radius:12px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:7px;margin-bottom:14px}
   .lcard .lg img{max-width:100%;max-height:100%;object-fit:contain;transition:transform .2s}
   .lcard .lg.mono{background:linear-gradient(135deg,var(--red),var(--red-deep));color:#fff;font-family:var(--font-h);font-weight:800;font-size:1.2rem;border:none;letter-spacing:.5px}
@@ -439,6 +455,7 @@
       <a class="on" onclick="go('home')">Início</a>
       <a onclick="go('busca')">Estoque</a>
       <a onclick="go('lojas')">Lojas</a>
+      <a onclick="go('servicos')">Serviços</a>
       <a onclick="go('aceima')">A ACEIMA</a>
       <a onclick="go('contato')">Contato</a>
       <a class="cta" onclick="go('vender')">Venda seu veículo</a>
@@ -740,6 +757,22 @@
   </div>
 </div>
 
+
+<!-- ================= SERVIÇOS / PARCEIROS ================= -->
+<div class="view" id="v-servicos">
+  <div class="wrap">
+    <div class="bc"><a onclick="go('home')">Início</a> › Serviços</div>
+    <section style="padding-top:18px">
+      <div class="sec-head"><div><div class="kicker">Parceiros do polo</div><h2>Serviços</h2></div></div>
+      <p style="color:var(--muted);max-width:680px;margin:-8px 0 26px;line-height:1.7">
+        Empresas credenciadas pela ACEIMA que atendem quem vem comprar e quem trabalha na
+        Estrada Intendente Magalhães — da vistoria antes de fechar negócio ao almoço no meio do dia.
+      </p>
+      <div id="servicosLista"></div>
+    </section>
+  </div>
+</div>
+
 <!-- ================= A ACEIMA ================= -->
 <div class="view" id="v-aceima">
   <div class="wrap">
@@ -827,7 +860,7 @@
         <h5>Nova Intendente Shopping Car</h5>
         <p class="fdesc">Tradição e confiança para realizar seu sonho. Desde 1998, a ACEIMA reúne as lojas da Estrada Intendente Magalhães com selo de qualidade e as melhores taxas de financiamento do mercado.</p>
       </div>
-      <div><h5>Navegue</h5><a onclick="go('busca')">Estoque</a><a onclick="go('lojas')">Lojas</a><a onclick="go('aceima')">A ACEIMA</a><a onclick="go('vender')">Venda seu veículo</a></div>
+      <div><h5>Navegue</h5><a onclick="go('busca')">Estoque</a><a onclick="go('lojas')">Lojas</a><a onclick="go('servicos')">Serviços</a><a onclick="go('aceima')">A ACEIMA</a><a onclick="go('vender')">Venda seu veículo</a></div>
       <div><h5>Atendimento</h5><a onclick="go('contato')">Fale conosco</a><a href="tel:2132836600">(21) 3283-6600</a><a href="https://wa.me/5521991041424" target="_blank">WhatsApp</a></div>
       <div><h5>Institucional</h5><a onclick="openM('mPriv')">Política de privacidade</a><a onclick="openM('mTermos')">Termos de uso</a><a onclick="go('contato')">Para lojistas</a></div>
     </div>
@@ -1383,13 +1416,62 @@ function enviarContato(){
   ok.classList.add('on');
 }
 
+
+/* ==================== SERVIÇOS / PARCEIROS DO POLO ==================== */
+const GRUPOS=[
+  ['vistoria','Antes de fechar negócio','Vistoria, laudo e inspeção — para você comprar com segurança.'],
+  ['manutencao','Depois da compra','Quem cuida do carro que saiu daqui.'],
+  ['alimentacao','Enquanto você procura','Para quem passa o dia no polo e para quem trabalha aqui.'],
+  ['servico','Outros parceiros','']
+];
+let parceiros=[];
+function svcard(p){
+  const tel=String(p.whatsapp||'').replace(/\D/g,'');
+  const wa=tel?`https://wa.me/${tel.length>11?tel:'55'+tel}?text=${encodeURIComponent('Olá! Vim pelo site do Intendente Shopping Car.')}`:null;
+  const inicial=(p.nome||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase();
+  return `<div class="svcard">
+    <div class="topo">
+      <div class="lg">${p.logo_url?`<img src="${p.logo_url}" alt="${p.nome}" ${p.cor?`data-cor="${p.cor}"`:''} onload="fundoDaLogo(this)" onerror="this.parentNode.textContent='${inicial}'">`:inicial}</div>
+      <div><h4>${p.nome}</h4><div class="cat">${(GRUPOS.find(g=>g[0]===(p.categoria||'servico'))||['','Parceiro'])[1]||'Parceiro'}</div></div>
+    </div>
+    ${p.descricao?`<p>${p.descricao}</p>`:''}
+    ${p.beneficio?`<div class="benef">★ ${p.beneficio}</div>`:''}
+    <div class="info">
+      ${p.endereco?`<span>📍 ${p.endereco}</span>`:''}
+      ${p.telefone?`<span>📞 ${p.telefone}</span>`:''}
+    </div>
+    <div class="acoes">
+      ${wa?`<a class="btn green" href="${wa}" target="_blank" rel="noopener">WhatsApp</a>`:''}
+      ${p.site?`<a class="btn ghost" href="${/^https?:/.test(p.site)?p.site:'https://'+p.site}" target="_blank" rel="noopener">Site</a>`:''}
+    </div>
+  </div>`;
+}
+function renderServicos(){
+  const box=document.getElementById('servicosLista'); if(!box) return;
+  if(!parceiros.length){ box.innerHTML='<div class="nores">Em breve os parceiros da associação aparecem aqui.</div>'; return; }
+  box.innerHTML=GRUPOS.map(([cat,titulo,sub])=>{
+    const lista=parceiros.filter(p=>(p.categoria||'servico')===cat);
+    if(!lista.length) return '';
+    return `<div class="svgrupo"><h3>${titulo}</h3>${sub?`<div class="sub">${sub}</div>`:''}
+      <div class="svgrid">${lista.map(svcard).join('')}</div></div>`;
+  }).join('');
+}
+async function carregarParceiros(){
+  try{
+    const r=await fetch('/api/parceiros?path=parceiros',{cache:'no-store'});
+    const j=await r.json();
+    if(Array.isArray(j)){ parceiros=j; renderServicos(); }
+  }catch(e){ /* silencioso: a página mostra o aviso de "em breve" */ }
+}
+
 /* ==================== NAV + ENDEREÇO PRÓPRIO DE CADA PÁGINA ==================== */
-const ROTAS={home:'/',busca:'/estoque',lojas:'/lojas',vender:'/vender',aceima:'/aceima',contato:'/contato'};
+const ROTAS={home:'/',busca:'/estoque',lojas:'/lojas',servicos:'/servicos',vender:'/vender',aceima:'/aceima',contato:'/contato'};
 const MARCA_SITE='Nova Intendente Shopping Car';
 const TITULOS={
   home:MARCA_SITE+' — O maior polo automotivo da América Latina',
   busca:'Estoque de veículos — '+MARCA_SITE,
   lojas:'Lojas associadas — '+MARCA_SITE,
+  servicos:'Serviços e parceiros do polo — '+MARCA_SITE,
   vender:'Venda seu veículo — '+MARCA_SITE,
   aceima:'A ACEIMA — '+MARCA_SITE,
   contato:'Contato — '+MARCA_SITE
@@ -1491,6 +1573,7 @@ async function carregarDados(){
 atualizaHomeTotal();renderResultados();
 try{if(localStorage.getItem('visualEstoque')==='menor')setVisual('menor');}catch(e){}
 atualizaHomeTotal();
+carregarParceiros();
 aplicarRota();   // abre a página certa conforme o endereço digitado/compartilhado
 carregarDados();
 </script>
