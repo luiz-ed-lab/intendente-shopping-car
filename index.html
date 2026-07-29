@@ -216,7 +216,35 @@
   @media(max-width:560px){.lgrid{grid-template-columns:1fr}}
   .lcard{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;transition:.2s;display:flex;flex-direction:column}
   .lcard:hover{transform:translateY(-4px)}
-  /* ===== SERVIÇOS / PARCEIROS ===== */
+  /* ===== PÁGINA SERVIÇOS (parceiros) ===== */
+  .svhero{background:radial-gradient(700px 380px at 12% 0%,rgba(246,162,29,.16),transparent 60%),linear-gradient(160deg,var(--red-ink) 0%,#3d0a04 55%,var(--red-dark) 100%);color:#fff;border-radius:24px;padding:46px 42px;margin-bottom:14px}
+  .svhero h2{font-size:clamp(1.7rem,3.2vw,2.4rem);letter-spacing:-.6px;line-height:1.14;max-width:620px}
+  .svhero p{color:#ffd9d0;margin-top:12px;max-width:640px;line-height:1.7}
+  .svhero .rua{display:inline-flex;align-items:center;gap:9px;margin-top:20px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:10px 16px;border-radius:99px;font-size:.9rem;font-weight:600}
+  .svindex{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 30px}
+  .svindex a{background:#fff;border:1px solid var(--line);border-radius:99px;padding:9px 16px;font-weight:700;font-size:.88rem;color:#5c4f4b;cursor:pointer;transition:.15s}
+  .svindex a:hover{border-color:var(--red);color:var(--red)}
+  .pcard{background:var(--card);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-columns:1.25fr .75fr;margin-bottom:22px}
+  @media(max-width:900px){.pcard{grid-template-columns:1fr}}
+  .pinfo{padding:34px 34px 30px}
+  .ptop{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+  .plogo{width:92px;height:62px;border-radius:14px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:8px;flex-shrink:0;font-family:var(--font-h);font-weight:800;color:var(--red)}
+  .plogo img{max-width:100%;max-height:100%;object-fit:contain}
+  .ptop h3{font-family:var(--font-h);font-size:1.4rem;letter-spacing:-.3px;line-height:1.1}
+  .ptag{color:var(--red);font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px}
+  .plead{color:#5c4f4b;line-height:1.75;font-size:.98rem}
+  .plista{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0 4px}
+  .plista span{background:#faf5f3;border:1px solid #f1e4e0;border-radius:99px;padding:7px 13px;font-size:.83rem;color:#5c4f4b;font-weight:600}
+  .pfaixa{background:#fff8ea;border:1px solid #f4e3c2;color:#7d5a17;border-radius:14px;padding:13px 16px;font-size:.9rem;line-height:1.6;margin-top:16px}
+  .pmeta{color:var(--muted);font-size:.88rem;line-height:1.9;margin-top:16px}
+  .pacoes{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+  .pacoes .btn{padding:12px 20px;font-size:.9rem}
+  .pvisual{background:linear-gradient(160deg,#2b0703,#5e1009);color:#fff;padding:34px 30px;display:flex;flex-direction:column;justify-content:center;gap:16px}
+  .pnum{display:flex;align-items:baseline;gap:10px}
+  .pnum b{font-family:var(--font-h);font-size:1.9rem;line-height:1;color:var(--orange)}
+  .pnum span{color:#ffd9d0;font-size:.88rem;line-height:1.45}
+  .pvisual .sep{height:1px;background:rgba(255,255,255,.14)}
+  /* ===== SERVIÇOS / PARCEIROS (cartões simples, parceiros extras) ===== */
   .svgrupo{margin-bottom:34px}
   .svgrupo h3{font-family:var(--font-h);font-size:1.12rem;margin-bottom:4px}
   .svgrupo .sub{color:var(--muted);font-size:.88rem;margin-bottom:16px}
@@ -763,12 +791,169 @@
   <div class="wrap">
     <div class="bc"><a onclick="go('home')">Início</a> › Serviços</div>
     <section style="padding-top:18px">
-      <div class="sec-head"><div><div class="kicker">Parceiros do polo</div><h2>Serviços</h2></div></div>
-      <p style="color:var(--muted);max-width:680px;margin:-8px 0 26px;line-height:1.7">
-        Empresas credenciadas pela ACEIMA que atendem quem vem comprar e quem trabalha na
-        Estrada Intendente Magalhães — da vistoria antes de fechar negócio ao almoço no meio do dia.
-      </p>
+      <div class="svhero">
+        <div class="kicker" style="color:var(--orange)">Parceiros credenciados</div>
+        <h2>Tudo que o seu carro precisa, na mesma rua</h2>
+        <p>A ACEIMA credencia empresas que atendem quem vem comprar e quem trabalha no polo.
+           Vistoria antes de fechar negócio, inspeção obrigatória, ar-condicionado e até o almoço —
+           todos a poucos metros das lojas.</p>
+        <div class="rua">📍 Estrada Intendente Magalhães, Vila Valqueire</div>
+      </div>
+
+      <div class="svindex">
+        <a onclick="irPara('p-laudocar')">Vistoria cautelar</a>
+        <a onclick="irPara('p-sisv')">Inspeção veicular</a>
+        <a onclick="irPara('p-frioline')">Ar-condicionado</a>
+        <a onclick="irPara('p-r21')">Bar &amp; restaurante</a>
+      </div>
+
+      <!-- LAUDOCAR -->
+      <article class="pcard" id="p-laudocar">
+        <div class="pinfo">
+          <div class="ptop">
+            <div class="plogo"><img src="https://laudocarrj.com.br/wp-content/uploads/2022/07/logo-oficial-laudocarrj-nova.png" alt="LaudoCar" onerror="this.parentNode.textContent='LC'"></div>
+            <div><div class="ptag">Antes de fechar negócio</div><h3>LaudoCar</h3></div>
+          </div>
+          <p class="plead">Vistoria cautelar de alto padrão, com <b>laudo assinado por engenheiro mecânico</b>.
+            Confere a parte estrutural, a autenticidade das numerações pelos dados do Denatran e o histórico
+            completo do veículo — leilão, sinistro, recall, roubo, alienação e restrições. Pronto no mesmo dia.</p>
+          <div class="plista">
+            <span>Longarinas e colunas</span><span>Chassi e motor</span><span>Etiquetas ETA</span>
+            <span>Vidros e painéis</span><span>Repintura</span><span>Histórico completo</span><span>Motos e pesados</span>
+          </div>
+          <div class="pfaixa">Três níveis de vistoria — Básica, Premium e Premium Completa — a partir de R$&nbsp;270.
+            Agendamento online e atendimento em todo o Rio.</div>
+          <div class="pmeta">
+            📍 Intendente Magalhães, 503 — Vila Valqueire<br>
+            🕐 Seg a sex 9h–18h · sáb 9h–14h<br>
+            ✉️ contato@laudocarrj.com.br
+          </div>
+          <div class="pacoes">
+            <a class="btn green" target="_blank" rel="noopener" href="https://wa.me/5521988932124?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Intendente%20Shopping%20Car%20e%20quero%20fazer%20uma%20vistoria.">WhatsApp (21) 98893-2124</a>
+            <a class="btn ghost" target="_blank" rel="noopener" href="https://laudocarrj.com.br/">Ver o site</a>
+          </div>
+        </div>
+        <div class="pvisual">
+          <div class="pnum"><b>Mesmo dia</b><span>a vistoria sai no dia do agendamento</span></div>
+          <div class="sep"></div>
+          <div class="pnum"><b>Eng.</b><span>laudo com assinatura de engenheiro mecânico</span></div>
+          <div class="sep"></div>
+          <div class="pnum"><b>2017</b><span>no mercado de laudos veiculares desde então</span></div>
+        </div>
+      </article>
+
+      <!-- SISV -->
+      <article class="pcard" id="p-sisv">
+        <div class="pinfo">
+          <div class="ptop">
+            <div class="plogo">SISV</div>
+            <div><div class="ptag">Inspeção obrigatória</div><h3>SISV Inspeção Veicular</h3></div>
+          </div>
+          <p class="plead">Organismo de inspeção <b>acreditado pelo Inmetro</b> (CGCRE, norma ISO/IEC 17020) e
+            licenciado pelo SENATRAN como Instituição Técnica Licenciada. É a vistoria que o Detran exige
+            quando o carro tem GNV, passou por sinistro, é blindado ou teve característica alterada.</p>
+          <div class="plista">
+            <span>GNV inicial</span><span>GNV periódico</span><span>Veículos sinistrados</span>
+            <span>Alteração de características</span><span>Blindados</span><span>Sinistrados de SP</span>
+          </div>
+          <div class="pfaixa">Equipamentos automatizados e equipe treinada — resultado objetivo, sem achismo.
+            Faz parte do Grupo Vialog, com 18 unidades credenciadas.</div>
+          <div class="pmeta">
+            📍 Rua Mataura, 68 — esquina com a Intendente Magalhães<br>
+            📞 (21) 2454-9926<br>
+            ✉️ contato@sisvinspecao.com.br
+          </div>
+          <div class="pacoes">
+            <a class="btn green" target="_blank" rel="noopener" href="https://wa.me/5521970193793?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Intendente%20Shopping%20Car%20e%20quero%20agendar%20uma%20inspe%C3%A7%C3%A3o.">WhatsApp (21) 97019-3793</a>
+            <a class="btn ghost" target="_blank" rel="noopener" href="https://grupovialog.com.br/sisv-vila-valqueire-rj/">Ver a unidade</a>
+          </div>
+        </div>
+        <div class="pvisual">
+          <div class="pnum"><b>Inmetro</b><span>acreditada pela CGCRE sob ISO/IEC 17020</span></div>
+          <div class="sep"></div>
+          <div class="pnum"><b>ITL</b><span>licenciada pelo SENATRAN</span></div>
+          <div class="sep"></div>
+          <div class="pnum"><b>Aqui</b><span>na esquina da rua do polo</span></div>
+        </div>
+      </article>
+
+      <!-- FRIOLINE -->
+      <article class="pcard" id="p-frioline">
+        <div class="pinfo">
+          <div class="ptop">
+            <div class="plogo">FL</div>
+            <div><div class="ptag">Depois da compra</div><h3>Frioline</h3></div>
+          </div>
+          <p class="plead">Ar-condicionado automotivo desde <b>1989</b> — uma das pioneiras do segmento no Rio.
+            Instalação e manutenção em linha nacional e importada, sempre com componentes originais.
+            É a parada certa quando o ar do carro novo não gela como devia.</p>
+          <div class="plista">
+            <span>Instalação completa</span><span>Carga de gás</span><span>Higienização</span>
+            <span>Reparo de compressor</span><span>Nacionais e importados</span><span>Peças originais</span>
+          </div>
+          <div class="pfaixa">Mais de 30 anos na mesma rua do polo — o carro sai da loja e já resolve o ar
+            sem precisar atravessar a cidade.</div>
+          <div class="pmeta">
+            📍 Estrada Intendente Magalhães, 413 — Vila Valqueire<br>
+            🕐 Seg a sex 8h–18h · sáb 8h–12h<br>
+            📞 (21) 3359-8354 · (21) 3350-7909
+          </div>
+          <div class="pacoes">
+            <a class="btn green" target="_blank" rel="noopener" href="https://wa.me/5521964677676?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Intendente%20Shopping%20Car%20e%20quero%20um%20or%C3%A7amento%20de%20ar-condicionado.">WhatsApp (21) 96467-7676</a>
+            <a class="btn ghost" target="_blank" rel="noopener" href="https://www.frioline.com.br/">Ver o site</a>
+          </div>
+        </div>
+        <div class="pvisual">
+          <div class="pnum"><b>1989</b><span>fundada em abril — pioneira no ar automotivo</span></div>
+          <div class="sep"></div>
+          <div class="pnum"><b>+30</b><span>anos atendendo o polo</span></div>
+          <div class="sep"></div>
+          <div class="pnum"><b>413</b><span>número dela na Intendente Magalhães</span></div>
+        </div>
+      </article>
+
+      <!-- R21 -->
+      <article class="pcard" id="p-r21">
+        <div class="pinfo">
+          <div class="ptop">
+            <div class="plogo"><img src="https://r21.com.br/wp-content/uploads/2025/05/LogoR21-scaled.png" alt="R21" onerror="this.parentNode.textContent='R21'"></div>
+            <div><div class="ptag">Enquanto você procura</div><h3>R21 Bar &amp; Restaurante</h3></div>
+          </div>
+          <p class="plead">A unidade Vila Valqueire fica na própria Intendente Magalhães, a poucos metros das lojas.
+            Música ao vivo, cozinha para todos os gostos e espaço kids — dá para fazer a pausa do almoço no meio
+            da procura, levar a família enquanto decide, ou fechar o negócio com um brinde.</p>
+          <div class="plista">
+            <span>Almoço e jantar</span><span>Música ao vivo</span><span>Espaço kids</span>
+            <span>Delivery</span><span>Reserva online</span><span>6 unidades no Rio</span>
+          </div>
+          <div class="pfaixa">Comprar carro leva tempo. Aqui a família espera sentada, come bem e você volta
+            para a negociação com a cabeça no lugar.</div>
+          <div class="pmeta">
+            📍 Estrada Intendente Magalhães, 799 — Vila Valqueire<br>
+            📱 Instagram @r21barerestaurante
+          </div>
+          <div class="pacoes">
+            <a class="btn green" target="_blank" rel="noopener" href="https://wa.me/552123914010?text=Ol%C3%A1!%20Vim%20pelo%20site%20do%20Intendente%20Shopping%20Car.">WhatsApp</a>
+            <a class="btn ghost" target="_blank" rel="noopener" href="https://nxp.digital/reserva/r21-vila-valqueire">Reservar mesa</a>
+            <a class="btn ghost" target="_blank" rel="noopener" href="https://app.jotaja.com/r21valqueire">Delivery</a>
+          </div>
+        </div>
+        <div class="pvisual">
+          <div class="pnum"><b>799</b><span>número dele na Intendente Magalhães</span></div>
+          <div class="sep"></div>
+          <div class="pnum"><b>Ao vivo</b><span>música e espaço kids</span></div>
+          <div class="sep"></div>
+          <div class="pnum"><b>6</b><span>unidades no Rio de Janeiro</span></div>
+        </div>
+      </article>
+
       <div id="servicosLista"></div>
+
+      <div class="panel" style="text-align:center;margin-top:26px">
+        <h3 style="font-size:1.05rem;margin-bottom:8px">Sua empresa atende o polo?</h3>
+        <p style="color:var(--muted);font-size:.92rem;margin-bottom:14px">Fale com a associação para entrar nesta página.</p>
+        <button class="btn" onclick="go('contato')">Falar com a ACEIMA</button>
+      </div>
     </section>
   </div>
 </div>
@@ -1418,6 +1603,7 @@ function enviarContato(){
 
 
 /* ==================== SERVIÇOS / PARCEIROS DO POLO ==================== */
+function irPara(id){const e=document.getElementById(id);if(e)e.scrollIntoView({behavior:'smooth',block:'start'});}
 const GRUPOS=[
   ['vistoria','Antes de fechar negócio','Vistoria, laudo e inspeção — para você comprar com segurança.'],
   ['manutencao','Depois da compra','Quem cuida do carro que saiu daqui.'],
@@ -1448,7 +1634,7 @@ function svcard(p){
 }
 function renderServicos(){
   const box=document.getElementById('servicosLista'); if(!box) return;
-  if(!parceiros.length){ box.innerHTML='<div class="nores">Em breve os parceiros da associação aparecem aqui.</div>'; return; }
+  if(!parceiros.length){ box.innerHTML=''; return; }
   box.innerHTML=GRUPOS.map(([cat,titulo,sub])=>{
     const lista=parceiros.filter(p=>(p.categoria||'servico')===cat);
     if(!lista.length) return '';
