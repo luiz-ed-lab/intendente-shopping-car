@@ -832,10 +832,16 @@ function renderLeads(){
   <td><span class="tag" style="background:${t[1]};color:${t[2]}">${t[0]}</span></td>
   <td><b>${l[1]}</b></td><td>${l[2]}</td>
   <td>${l[3]||'—'}</td><td>${l[4]||(l[7]==='compra'?'Todas as lojas':'—')}</td>
-  <td><select onchange="mudarStatus(${l[8]},this.value)">
+  <td><div style="display:flex;align-items:center;gap:6px"><select style="flex:1" onchange="mudarStatus(${l[8]},this.value)">
     ${Object.keys(ST_LEAD).map(k=>`<option value="${k}"${k===l[6]?' selected':''}>${ST_LEAD[k]}</option>`).join('')}
-  </select></td></tr>`;}).join(''):'<tr><td colspan="7" style="color:var(--muted);padding:22px 16px">Nenhum lead ainda.</td></tr>';
+  </select><button class="btn ghost sm" title="Excluir lead" onclick="excluirLead(${l[8]})">${icTrash}</button></div></td></tr>`;}).join(''):'<tr><td colspan="7" style="color:var(--muted);padding:22px 16px">Nenhum lead ainda.</td></tr>';
  document.querySelectorAll('#leadsTb select').forEach(s=>aprimorarSelect(s, ST_COR));
+}
+async function excluirLead(id){
+ if(!confirm('Excluir este lead? Nao tem como desfazer.')) return;
+ try{ await api('/api/leads?path=leads&id='+id,{method:'DELETE'});
+   leads=leads.filter(l=>l[8]!==id); renderLeads(); renderDash(); renderNotif(); toast('Lead excluido'); }
+ catch(e){ toast('Nao deu pra excluir'); }
 }
 async function mudarStatus(id,status){
  const l=leads.find(x=>x[8]===id); if(l)l[6]=status;
