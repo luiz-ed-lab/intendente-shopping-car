@@ -238,7 +238,8 @@
   @media(max-width:900px){.pcard.inv{grid-template-columns:1fr}.pcard.inv .pinfo{order:1}.pcard.inv .pvisual{order:2}}
   .pcard{background:var(--card);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-columns:1.3fr .7fr;margin-bottom:22px;scroll-margin-top:120px}
   @media(max-width:900px){.pcard{grid-template-columns:1fr}}
-  .pinfo{padding:34px 34px 30px;display:flex;flex-direction:column}
+  /* com o texto enxuto o lado claro fica mais curto: centraliza pra não sobrar branco embaixo */
+  .pinfo{padding:34px;display:flex;flex-direction:column;justify-content:center}
   .ptop{display:flex;align-items:center;gap:16px;margin-bottom:16px}
   .plogo{width:92px;height:62px;border-radius:14px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:8px;flex-shrink:0;font-family:var(--font-h);font-weight:800;color:var(--red)}
   .plogo img{max-width:100%;max-height:100%;object-fit:contain}
