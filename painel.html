@@ -157,7 +157,7 @@
   .fv .tiras div{aspect-ratio:4/3;border-radius:8px;background:#e8dedb center/cover no-repeat;cursor:pointer;border:2px solid transparent}
   .fv .tiras div.sel{border-color:var(--red)}
   .fv h4{font-size:1.15rem;line-height:1.25;font-family:var(--fh);font-weight:800;letter-spacing:-.5px}
-  .fv .preco{font-family:var(--fh);font-weight:800;font-size:1.8rem;color:var(--red);margin:6px 0 14px;letter-spacing:-1px}
+  .fv .preco{font-family:var(--fh);font-weight:800;font-size:1.9rem;color:var(--red);margin:0 0 14px;letter-spacing:-1px}
   .fv .opc{grid-column:1/-1;border-top:1px solid var(--line2);padding-top:16px}
   .fv .opc small{color:var(--muted);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
   .fv .opc .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
@@ -817,6 +817,7 @@ function abrirVeic(id){
   const oc=v.oculto===true;
   const km=(v.km==null)?'Não informado':(Number(v.km)===0?'Zero km':Number(v.km).toLocaleString('pt-BR')+' km');
   const ano=[v.ano_fabricacao,v.ano_modelo].filter(Boolean).join('/')||'—';
+  const opcionais=[...new Set((v.opcionais||[]).map(o=>String(o).trim()).filter(Boolean))];
   const url='/veiculo/'+v.id+'-'+slugify([v.marca,v.modelo,v.versao,v.ano_modelo].filter(Boolean).join(' '));
   document.getElementById('mvTitulo').textContent=nome||'Anúncio';
   document.getElementById('mvCorpo').innerHTML=`<div class="fv">
@@ -827,7 +828,6 @@ function abrirVeic(id){
       ${!mvFotos.length?'<p style="color:var(--muted);font-size:.85rem;margin-top:10px">Este anúncio ainda não tem foto publicada pela loja.</p>':''}
     </div>
     <div>
-      <h4>${esc(nome)}</h4>
       <div class="preco">${(v.preco&&+v.preco>0)?money(v.preco):'Preço sob consulta'}</div>
       <div class="linhas">
         <div><small>Ano</small><b>${esc(ano)}</b></div>
@@ -850,8 +850,8 @@ function abrirVeic(id){
         ${mvFotos.length?`<a class="btn ghost" href="${url}" target="_blank" rel="noopener">Ver no site</a>`:''}
       </div>
     </div>
-    ${v.opcionais&&v.opcionais.length?`<div class="opc"><small>Opcionais</small>
-      <div class="chips">${v.opcionais.map(o=>`<span>${esc(o)}</span>`).join('')}</div></div>`:''}
+    ${opcionais.length?`<div class="opc"><small>Opcionais</small>
+      <div class="chips">${opcionais.map(o=>`<span>${esc(o)}</span>`).join('')}</div></div>`:''}
   </div>`;
   openM('mVeic');
 }
