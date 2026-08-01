@@ -153,7 +153,13 @@
   .fv{display:grid;grid-template-columns:1.05fr .95fr;gap:22px}
   @media(max-width:760px){.fv{grid-template-columns:1fr}}
   .fv .foto{aspect-ratio:4/3;border-radius:14px;background:#e8dedb center/cover no-repeat;border:1px solid var(--line)}
-  .fv .tiras{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
+  .fv .tirasbox{display:flex;align-items:stretch;gap:8px;margin-top:8px}
+  .fv .tiras{flex:1;display:grid;grid-template-columns:repeat(5,1fr);grid-auto-rows:1fr;gap:6px}
+  .fv .seta{width:30px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--muted);
+    cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:.15s}
+  .fv .seta:hover:not(:disabled){border-color:var(--red);color:var(--red)}
+  .fv .seta:disabled{opacity:.3;cursor:default}
+  .fv .pag{color:var(--muted);font-size:.75rem;text-align:center;margin-top:7px;font-weight:600}
   .fv .tiras div{aspect-ratio:4/3;border-radius:8px;background:#e8dedb center/cover no-repeat;cursor:pointer;border:2px solid transparent}
   .fv .tiras div.sel{border-color:var(--red)}
   .fv h4{font-size:1.15rem;line-height:1.25;font-family:var(--fh);font-weight:800;letter-spacing:-.5px}
@@ -804,15 +810,33 @@ async function toggleVeic(id,el){
 /* ---------- POP-UP: ANÚNCIO COMPLETO ---------- */
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const slugify=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
-let mvFotos=[];
+let mvFotos=[], mvPag=0, mvAtual=0;
+const MV_POR_PAG=10;   // 2 linhas de 5: nunca cria uma terceira linha
 function mvTrocar(i){
+  mvAtual=i;
   document.getElementById('mvPrincipal').style.backgroundImage=`url('${mvFotos[i]}')`;
-  document.querySelectorAll('#mvCorpo .tiras div').forEach((d,k)=>d.classList.toggle('sel',k===i));
+  mvTiras();
+}
+function mvVirar(d){
+  const paginas=Math.ceil(mvFotos.length/MV_POR_PAG);
+  mvPag=Math.min(Math.max(0,mvPag+d),paginas-1);
+  mvTiras();
+}
+function mvTiras(){
+  const box=document.getElementById('mvTiras'); if(!box) return;
+  const paginas=Math.ceil(mvFotos.length/MV_POR_PAG);
+  const inicio=mvPag*MV_POR_PAG;
+  box.innerHTML=mvFotos.slice(inicio,inicio+MV_POR_PAG).map((f,k)=>
+    `<div class="${inicio+k===mvAtual?'sel':''}" style="background-image:url('${f}')" onclick="mvTrocar(${inicio+k})"></div>`).join('');
+  const ant=document.getElementById('mvAnt'), pro=document.getElementById('mvProx'), leg=document.getElementById('mvPagTxt');
+  if(ant) ant.disabled = mvPag===0;
+  if(pro) pro.disabled = mvPag>=paginas-1;
+  if(leg) leg.textContent = paginas>1 ? `fotos ${inicio+1}-${Math.min(inicio+MV_POR_PAG,mvFotos.length)} de ${mvFotos.length}` : '';
 }
 function abrirVeic(id){
   const v=veicAll.find(x=>x.id===id); if(!v) return;
   const loja=lojasApi.find(l=>l.id===v.loja_id)||{};
-  mvFotos=(v.fotos&&v.fotos.length)?v.fotos:[];
+  mvFotos=(v.fotos&&v.fotos.length)?v.fotos:[]; mvPag=0; mvAtual=0;
   const nome=[v.marca,v.modelo,v.versao].filter(Boolean).join(' ');
   const oc=v.oculto===true;
   const km=(v.km==null)?'Não informado':(Number(v.km)===0?'Zero km':Number(v.km).toLocaleString('pt-BR')+' km');
@@ -823,8 +847,11 @@ function abrirVeic(id){
   document.getElementById('mvCorpo').innerHTML=`<div class="fv">
     <div>
       <div class="foto" id="mvPrincipal" style="background-image:url('${mvFotos[0]||''}')"></div>
-      ${mvFotos.length>1?`<div class="tiras">${mvFotos.slice(0,10).map((f,i)=>
-        `<div class="${i===0?'sel':''}" style="background-image:url('${f}')" onclick="mvTrocar(${i})"></div>`).join('')}</div>`:''}
+      ${mvFotos.length>1?`<div class="tirasbox">
+        ${mvFotos.length>MV_POR_PAG?'<button class="seta" id="mvAnt" onclick="mvVirar(-1)">\u2039</button>':''}
+        <div class="tiras" id="mvTiras"></div>
+        ${mvFotos.length>MV_POR_PAG?'<button class="seta" id="mvProx" onclick="mvVirar(1)">\u203a</button>':''}
+      </div><div class="pag" id="mvPagTxt"></div>`:''}
       ${!mvFotos.length?'<p style="color:var(--muted);font-size:.85rem;margin-top:10px">Este anúncio ainda não tem foto publicada pela loja.</p>':''}
     </div>
     <div>
@@ -853,6 +880,7 @@ function abrirVeic(id){
     ${opcionais.length?`<div class="opc"><small>Opcionais</small>
       <div class="chips">${opcionais.map(o=>`<span>${esc(o)}</span>`).join('')}</div></div>`:''}
   </div>`;
+  mvTiras();
   openM('mVeic');
 }
 function mvEstado(id){
