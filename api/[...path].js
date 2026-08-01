@@ -76,6 +76,11 @@ async function migra() {
   // quilometragem absurda digitada pela loja (9.999.999) some da vitrine.
   // O que a loja publicou vale, inclusive 0 km — quem decide é o anúncio, não a gente.
   try { await query('update veiculos set km = null where km > 1500000'); } catch (_) {}
+  // "0 km" em carro antigo é campo em branco na origem, não um zero de verdade
+  try {
+    await query('update veiculos set km = null where km = 0 and (ano_modelo is null or ano_modelo < $1)',
+      [ANO_ZERO_KM()]);
+  } catch (_) {}
   // por que o anúncio está oculto: null = nunca mexido, 'sem_foto' = o robô escondeu, 'manual' = a ACEIMA decidiu
   try { await query('alter table veiculos add column if not exists oculto_motivo text'); } catch (_) {}
   // cor de fundo da logo definida à mão pela ACEIMA (vence a detecção automática)
@@ -245,7 +250,7 @@ function tabelaDados(colunas, linhas, vazio) {
 
 // envio de e-mail dos leads — pronto para quando a chave do Resend estiver configurada.
 // Enquanto não houver RESEND_API_KEY (ou e-mail nas lojas), não faz nada.
-async function enviarEmailsLead(lead, soAceima) {
+async function enviarEmailsLead(lead, soAceima, anexos) {
   const key = process.env.RESEND_API_KEY;
   if (!key || !lead) return;
   // lead de "quero vender": vai para a ACEIMA e, em cópia oculta, para TODAS as lojas
@@ -327,7 +332,7 @@ async function enviarEmailsLead(lead, soAceima) {
       : linhaInfo('Veículo de interesse', esc(carroInteresse || '—')),
     compra ? linhaInfo('Quilometragem', det && det.km ? esc(det.km) + ' km' : '') : '',
     compra ? linhaInfo('Valor pretendido', det && det.valor ? esc(/^R\$/.test(String(det.valor)) ? String(det.valor) : 'R$ ' + det.valor) : '') : '',
-    compra ? linhaInfo('Fotos enviadas', det && det.fotos ? esc(det.fotos) + ' foto(s)' : '') : '',
+    compra ? linhaInfo('Fotos enviadas', det && det.fotos ? esc(det.fotos) + ' foto(s) em anexo neste e-mail' : '') : '',
     !compra ? linhaInfo('Anunciado por', esc(moeda(precoAnuncio))) : '',
     !compra ? linhaInfo('Quilometragem', esc(kms(kmAnuncio))) : '',
     !compra ? linhaInfo('Forma de compra', esc(formaTxt)) : '',
@@ -347,6 +352,16 @@ async function enviarEmailsLead(lead, soAceima) {
 
   const envelope = { to: emails, reply_to: ACEIMA_MAIL, subject: assunto, text: linhas.join('\n'), html };
   if (ocultos.length) envelope.bcc = ocultos;
+  // fotos que o cliente anexou no formulário "Venda seu veículo"
+  const arquivos = (Array.isArray(anexos) ? anexos : [])
+    .map((f, i) => {
+      const conteudo = String(f && f.base64 || '').replace(/^data:[^,]+,/, '');
+      if (!conteudo) return null;
+      const nome = (f && f.nome) ? String(f.nome).replace(/[^\w.\-]+/g, '_').slice(-40) : ('foto-' + (i + 1) + '.jpg');
+      return { filename: nome, content: conteudo };
+    })
+    .filter(Boolean);
+  if (arquivos.length) envelope.attachments = arquivos;
   await enviarResend(key, envelope);
 }
 
@@ -380,6 +395,21 @@ async function getComSessao(url) {
 }
 function precoDe(txt) { const m = (txt || '').match(/R\$\s*([\d.]+),/); return m ? parseInt(m[1].replace(/\D/g, '')) : null; }
 function intDe(m) { return m ? parseInt(String(m[1]).replace(/\D/g, '')) : null; }
+
+// Ano a partir do qual "0 km" é um valor plausível (seminovo de pátio / zero de verdade).
+const ANO_ZERO_KM = () => new Date().getFullYear() - 2;
+// Quilometragem final do anúncio.
+//  - 0 é um valor legítimo em carro novo (Geely e BYD da Auto Barra são 0 km de fábrica);
+//    por isso não dá para usar "||", que trata 0 como vazio.
+//  - mas várias lojas publicam "0 km" em carro velho quando simplesmente não preencheram
+//    o campo (a Bragança tem Cobalt 2012/2013 anunciado com 0 km). Nesse caso vira "não informado".
+function kmDoAnuncio(it, extra) {
+  extra = extra || {};
+  let km = (it.km != null) ? it.km : (extra.km != null ? extra.km : null);
+  if (km !== 0) return km;
+  const ano = it.ano || extra.ano_modelo || null;
+  return (ano && ano >= ANO_ZERO_KM()) ? 0 : null;
+}
 function uniqTexts($, sel) { return [...new Set($(sel).map((_, e) => $(e).text().trim()).get().filter(Boolean))]; }
 
 function parseSlug(slug) {
@@ -769,7 +799,9 @@ async function rotaLeads(req, res) {
      values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning *`,
     [b.loja_id || null, b.veiculo_id || null, b.cliente_nome, b.cliente_telefone, b.cliente_email,
      b.forma_compra, b.entrada, b.canal || 'formulario', b.tipo || 'venda', b.detalhes ? JSON.stringify(b.detalhes) : null]);
-  enviarEmailsLead(lead).catch(() => {});
+  // as fotos vão só para o e-mail (anexo). Não entram no banco: virariam megabytes de base64.
+  const anexos = Array.isArray(b.fotos) ? b.fotos.slice(0, 8) : [];
+  enviarEmailsLead(lead, false, anexos).catch(() => {});
   res.status(201).json({ ok: true, lead });
 }
 
@@ -865,8 +897,7 @@ async function importarLoja(loja) {
            it.versao || null,
            extra.ano_fabricacao || null,
            it.ano || extra.ano_modelo || null,
-           // "|| null" aqui transformava 0 km em "não informado" (0 é falso em JS)
-           (it.km != null ? it.km : (extra.km != null ? extra.km : null)),
+           kmDoAnuncio(it, extra),
            it.preco != null ? it.preco : null,
            it.cambio || extra.cambio || null,
            it.combustivel || extra.combustivel || null,
