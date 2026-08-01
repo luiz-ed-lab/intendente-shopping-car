@@ -1823,9 +1823,10 @@ function intercalarLojas(lista){
   }
   return saida;
 }
+let totalLojas=0;
 function atualizarNumeros(){
   if(!dadosCarregados) return;
-  const nLojas=lojasList.length||new Set(veiculos.map(v=>v.loja).filter(Boolean)).size;
+  const nLojas=totalLojas||lojasList.length;
   const nVeic=veiculos.length, nMarcas=marcas.length, nAnos=new Date().getFullYear()-1998;
   const põe=(id,valor,prefixo)=>{
     const el=document.getElementById(id); if(!el) return;
@@ -1851,6 +1852,7 @@ async function carregarDados(){
       const elL=document.getElementById('lojas'); if(elL) elL.innerHTML=reais.map(lcard).join('');
       const elH=document.getElementById('lojasHome'); if(elH) elH.innerHTML=reais.slice(0,6).map(lcard).join('');
       const nL=document.getElementById('nLojas'); if(nL) nL.textContent=reais.length;
+      totalLojas=reais.length; atualizarNumeros();
     }
     const rv = await fetch('/api/veiculos?path=veiculos').then(r=>r.json());
     if(Array.isArray(rv) && rv.length){
