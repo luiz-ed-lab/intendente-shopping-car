@@ -864,7 +864,8 @@ async function importarLoja(loja) {
            it.versao || null,
            extra.ano_fabricacao || null,
            it.ano || extra.ano_modelo || null,
-           (it.km != null ? it.km : extra.km) || null,
+           // "|| null" aqui transformava 0 km em "não informado" (0 é falso em JS)
+           (it.km != null ? it.km : (extra.km != null ? extra.km : null)),
            it.preco != null ? it.preco : null,
            it.cambio || extra.cambio || null,
            it.combustivel || extra.combustivel || null,
