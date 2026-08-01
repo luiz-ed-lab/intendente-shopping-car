@@ -1831,12 +1831,9 @@ function atualizarNumeros(){
   const põe=(id,valor,prefixo)=>{
     const el=document.getElementById(id); if(!el) return;
     el.dataset.count=valor; el.dataset.prefix=prefixo||'';
-    if(el.dataset.count!=null&&el.closest('.stats')){
-      // se a contagem já estava rodando com o número velho, refaz com o certo
-      animCount(el);
-    }else{
-      el.textContent=(prefixo||'')+Number(valor).toLocaleString('pt-BR');
-    }
+    // grava o número já (aba em segundo plano congela a animação) e refaz a contagem
+    el.textContent=(prefixo||'')+Number(valor).toLocaleString('pt-BR');
+    if(el.closest('.stats')&&el.closest('.reveal.in')) animCount(el);
   };
   põe('stLojas',nLojas);põe('stVeic',nVeic);põe('stMarcas',nMarcas);põe('stAnos',nAnos);
   põe('acLojas',nLojas);põe('acVeic',nVeic);põe('acMarcas',nMarcas);
