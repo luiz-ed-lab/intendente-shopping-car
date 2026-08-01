@@ -1635,6 +1635,8 @@ hcalc();
 /* contadores */
 // cada animação carrega um "selo"; se o número real chegar no meio dela, a antiga é descartada
 function animCount(el){const alvo=parseInt(el.dataset.count)||0,pre=el.dataset.prefix||'',t0=performance.now(),dur=1400;
+  // aba em segundo plano congela o requestAnimationFrame: escreve o número e sai
+  if(document.hidden||!alvo){el.textContent=pre+alvo.toLocaleString('pt-BR');return;}
   const selo=(el.__anim=(el.__anim||0)+1);
   (function tick(t){if(el.__anim!==selo)return;const k=Math.min((t-t0)/dur,1),v=Math.round(alvo*(1-Math.pow(1-k,3)));el.textContent=pre+v.toLocaleString('pt-BR');if(k<1)requestAnimationFrame(tick);})(t0);}
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');e.target.querySelectorAll('[data-count]').forEach(animCount);io.unobserve(e.target);}}),{threshold:.15});
