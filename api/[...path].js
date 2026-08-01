@@ -73,14 +73,8 @@ async function migra() {
       [MARCAS_CAMINHAO, RX_CAMINHAO, RX_UTILITARIO]);
   } catch (_) {}
   try { await query("update veiculos set tipo='carro' where tipo is null"); } catch (_) {}
-  // limpa a quilometragem que na verdade era o ANO do anúncio (0 km lido errado pelo robô).
-  // fica nulo até a próxima leitura, que agora entende "0 Km" corretamente.
-  try {
-    await query(`update veiculos set km = null
-                  where km is not null and km > 1900
-                    and (km = ano_modelo or km = ano_fabricacao)`);
-  } catch (_) {}
-  // quilometragem absurda digitada pela loja (9.999.999) some da vitrine
+  // quilometragem absurda digitada pela loja (9.999.999) some da vitrine.
+  // O que a loja publicou vale, inclusive 0 km — quem decide é o anúncio, não a gente.
   try { await query('update veiculos set km = null where km > 1500000'); } catch (_) {}
   // por que o anúncio está oculto: null = nunca mexido, 'sem_foto' = o robô escondeu, 'manual' = a ACEIMA decidiu
   try { await query('alter table veiculos add column if not exists oculto_motivo text'); } catch (_) {}
@@ -254,17 +248,20 @@ function tabelaDados(colunas, linhas, vazio) {
 async function enviarEmailsLead(lead, soAceima) {
   const key = process.env.RESEND_API_KEY;
   if (!key || !lead) return;
-  let emails = [];
+  // lead de "quero vender": vai para a ACEIMA e, em cópia oculta, para TODAS as lojas
+  // associadas com e-mail cadastrado (uma loja não enxerga o e-mail da outra).
+  let emails = [], ocultos = [];
   if (soAceima) { /* teste de layout: nunca vai para a loja */ }
   else if (lead.tipo === 'compra') {
     const { rows } = await query("select email from lojas where ativa=true and email is not null and email<>''");
-    emails = rows.map(r => r.email);
+    ocultos = rows.map(r => r.email);
   } else if (lead.loja_id) {
     const { rows } = await query("select email from lojas where id=$1 and email is not null and email<>''", [lead.loja_id]);
     emails = rows.map(r => r.email);
   }
   emails.push(ACEIMA_MAIL);
   emails = [...new Set(emails.filter(Boolean))];
+  ocultos = [...new Set(ocultos.filter(Boolean))].filter(e => !emails.includes(e));
   if (!emails.length) return;
   const det = lead.detalhes ? (typeof lead.detalhes === 'string' ? JSON.parse(lead.detalhes) : lead.detalhes) : null;
 
@@ -348,7 +345,9 @@ async function enviarEmailsLead(lead, soAceima) {
     rodape: 'Contato gerado pelo site da Intendente Shopping Car e repassado pela ACEIMA.'
   });
 
-  await enviarResend(key, { to: emails, reply_to: ACEIMA_MAIL, subject: assunto, text: linhas.join('\n'), html });
+  const envelope = { to: emails, reply_to: ACEIMA_MAIL, subject: assunto, text: linhas.join('\n'), html };
+  if (ocultos.length) envelope.bcc = ocultos;
+  await enviarResend(key, envelope);
 }
 
 // ---------------- utilidades ----------------
@@ -553,8 +552,9 @@ function colherCards($, ctx) {
     const kmRotulado = intDe(ctxt.match(/Km[:\s]*([\d.]+)/i));
     const kmSolto = intDe(ctxt.match(/(?:^|[^\d.,/])(\d[\d.]*)\s*km\b/i));
     let km = (kmRotulado != null) ? kmRotulado : kmSolto;
-    if (km != null && ano && km === ano) km = null;   // pegou o ano, não a quilometragem
-    if (km != null && km > 1500000) km = null;        // "9.999.999 km" é lixo digitado pela loja
+    // Zero km é um valor legítimo (Geely da Auto Barra, BYD...) e vale o que a loja publicou.
+    // Só descartamos o que é claramente lixo digitado: "9.999.999 km".
+    if (km != null && km > 1500000) km = null;
     const item = {
       anuncioId: id, slug: m[1], img,
       marca, modelo, versao,
