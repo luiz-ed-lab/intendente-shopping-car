@@ -578,7 +578,8 @@ async function detalheSite(base, slug, id) {
   const $ = cheerio.load(html);
   const fotos = [...new Set($(`img[src*="/fotos/"][src*="/${id}/"]`).map((_, e) => $(e).attr('src')).get())].filter(u => u && !/embreve/i.test(u));
   if (!fotos.length) return {}; // provavelmente redirecionou (carro vendido) -> mantém dados da lista
-  const opcionais = $('.add-features-list li').map((_, e) => $(e).text().trim()).get().filter(Boolean);
+  // o template repete alguns itens no fim da lista
+  const opcionais = [...new Set($('.add-features-list li').map((_, e) => $(e).text().trim()).get().filter(Boolean))];
   return { fotos, opcionais };
 }
 
@@ -611,7 +612,7 @@ async function detalhePortal(base, slug, id) {
     ano_modelo: anos ? parseInt(anos[2]) : null,
     cambio: (ficha.match(/C[aâ]mbio\s*([A-Za-zÁ-ÿ]+)/i) || [])[1] || null,
     combustivel: (ficha.match(/Combust[ií]vel\s*([A-Za-zÁ-ÿ]+)/i) || [])[1] || null,
-    opcionais: $('.add-features-list li').map((_, e) => $(e).text().trim()).get().filter(Boolean),
+    opcionais: [...new Set($('.add-features-list li').map((_, e) => $(e).text().trim()).get().filter(Boolean))],
     fotos
   };
 }
