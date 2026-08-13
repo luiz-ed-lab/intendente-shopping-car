@@ -73,6 +73,8 @@ async function migra() {
       [MARCAS_CAMINHAO, RX_CAMINHAO, RX_UTILITARIO]);
   } catch (_) {}
   try { await query("update veiculos set tipo='carro' where tipo is null"); } catch (_) {}
+  // quando a galeria de fotos foi lida pela última vez (para reler de tempos em tempos)
+  try { await query('alter table veiculos add column if not exists galeria_em timestamptz'); } catch (_) {}
   // quilometragem absurda digitada pela loja (9.999.999) some da vitrine.
   // O que a loja publicou vale, inclusive 0 km — quem decide é o anúncio, não a gente.
   try { await query('update veiculos set km = null where km > 1500000'); } catch (_) {}
@@ -835,20 +837,29 @@ async function importarLoja(loja) {
       // quem já tem galeria salva não precisa da página de detalhes de novo.
       // Em loja grande (600 anúncios) buscar tudo estouraria o tempo da função:
       // a lista já traz preço/km/ano/foto principal, e as galerias entram aos poucos.
-      let jaTemGaleria = new Set();
+      const salvos = new Map();
       try {
         const { rows } = await query(
-          `select autocerto_id from veiculos
-            where loja_id = $1 and coalesce(array_length(fotos,1),0) > 1`, [loja.id]);
-        jaTemGaleria = new Set(rows.map(r => String(r.autocerto_id)));
+          `select autocerto_id, coalesce(array_length(fotos,1),0) as n, fotos[1] as capa, galeria_em
+             from veiculos where loja_id = $1`, [loja.id]);
+        rows.forEach(r => salvos.set(String(r.autocerto_id), r));
       } catch (_) {}
+      const DIAS_RELEITURA = 7;
       const t0 = Date.now();
       const ORCAMENTO_MS = 20000;   // tempo máximo gasto abrindo páginas de detalhe
       let detalhesLidos = 0, detalhesPendentes = 0;
 
       for (const it of itens) {
         let extra = {};
-        const precisaDetalhe = !jaTemGaleria.has(String(it.anuncioId));
+        // Reabre a página de detalhes quando: é anúncio novo, ainda não tem galeria,
+        // a FOTO DE CAPA mudou (sinal de que a loja trocou as imagens) ou a galeria
+        // já está velha. Antes só entrava quem nunca teve galeria, então anúncio com
+        // fotos trocadas ficava eternamente com as imagens antigas no nosso site.
+        const antes = salvos.get(String(it.anuncioId));
+        const capaMudou = !!(antes && it.img && antes.capa && antes.capa !== it.img);
+        const galeriaVelha = !!(antes && (!antes.galeria_em ||
+          (Date.now() - new Date(antes.galeria_em).getTime()) > DIAS_RELEITURA * 864e5));
+        const precisaDetalhe = !antes || antes.n <= 1 || capaMudou || galeriaVelha;
         let abriuDetalhe = false;   // só quem teve a galeria conferida pode ser julgado
         if (precisaDetalhe && (Date.now() - t0) < ORCAMENTO_MS) {
           try {
@@ -861,11 +872,11 @@ async function importarLoja(loja) {
         } else if (precisaDetalhe) { detalhesPendentes++; }
         const fotos = (extra.fotos && extra.fotos.length) ? extra.fotos : (it.img ? [it.img] : []);
         await query(
-          `insert into veiculos (loja_id, autocerto_id, marca, modelo, versao, ano_fabricacao, ano_modelo, km, preco, cambio, combustivel, opcionais, fotos, tipo, oculto, oculto_motivo, ativo, sincronizado_em)
+          `insert into veiculos (loja_id, autocerto_id, marca, modelo, versao, ano_fabricacao, ano_modelo, km, preco, cambio, combustivel, opcionais, fotos, tipo, oculto, oculto_motivo, ativo, sincronizado_em, galeria_em)
            values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,
                    coalesce(array_length($13::text[],1),0) <= 1,
                    case when coalesce(array_length($13::text[],1),0) <= 1 then 'sem_foto' else null end,
-                   true, now())
+                   true, now(), case when $15::boolean then now() else null end)
            on conflict (loja_id, autocerto_id) do update set
              marca=excluded.marca, modelo=excluded.modelo, versao=excluded.versao,
              ano_fabricacao=excluded.ano_fabricacao, ano_modelo=excluded.ano_modelo,
@@ -874,8 +885,12 @@ async function importarLoja(loja) {
              -- não apaga galeria/opcionais já salvos quando a rodada não abriu o detalhe
              opcionais = case when coalesce(array_length(excluded.opcionais,1),0) > 0
                               then excluded.opcionais else veiculos.opcionais end,
-             fotos = case when coalesce(array_length(excluded.fotos,1),0) >= coalesce(array_length(veiculos.fotos,1),0)
-                          then excluded.fotos else veiculos.fotos end,
+             -- leitura de verdade manda, mesmo se a loja tiver reduzido o número de fotos
+             fotos = case
+                 when $15::boolean and coalesce(array_length(excluded.fotos,1),0) > 0 then excluded.fotos
+                 when coalesce(array_length(excluded.fotos,1),0) >= coalesce(array_length(veiculos.fotos,1),0)
+                      then excluded.fotos else veiculos.fotos end,
+             galeria_em = case when $15::boolean then now() else veiculos.galeria_em end,
              tipo=excluded.tipo, ativo=true, sincronizado_em=now(),
              -- escondido por falta de foto volta sozinho quando a loja publica a imagem;
              -- decisão manual da ACEIMA ('manual') o robô nunca desfaz
