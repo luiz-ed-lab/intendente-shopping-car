@@ -375,6 +375,33 @@
   .sellerbox2 .lgbox img{max-width:100%;max-height:100%;object-fit:contain}
   .sellerbox2 b{font-size:1rem}
   .sellerbox2 small{color:var(--muted);display:block;font-size:.8rem;line-height:1.45}
+  /* selo de confiança da loja (anúncio e página de lojas) */
+  .selo{border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:18px;background:#fff}
+  .selo .topo{display:flex;gap:13px;align-items:center}
+  .selo .lg{width:56px;height:56px;border-radius:13px;background:#fff;border:1px solid var(--line);display:flex;
+    align-items:center;justify-content:center;overflow:hidden;padding:7px;flex-shrink:0;font-family:var(--font-h);font-weight:800;color:var(--red)}
+  .selo .lg img{max-width:100%;max-height:100%;object-fit:contain}
+  .selo .verif{display:inline-flex;align-items:center;gap:5px;background:#e4f7ec;color:#158043;font-weight:800;
+    font-size:.68rem;padding:3px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.5px}
+  .selo .verif svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.6}
+  .selo .nome{display:block;font-size:1.02rem;font-weight:700;margin-top:5px;line-height:1.25}
+  .selo .sub{color:var(--muted);font-size:.78rem;display:block;margin-top:2px}
+  .selo .nivel{margin-top:15px}
+  .selo .nivel .rot{display:flex;justify-content:space-between;align-items:center;font-size:.76rem;font-weight:700;color:#5c4f4b}
+  .selo .nivel .rot b{color:var(--green)}
+  .selo .barra{display:flex;gap:4px;margin-top:6px}
+  .selo .barra i{flex:1;height:6px;border-radius:99px;background:#efe6e3}
+  .selo .barra i.on{background:var(--green)}
+  .selo .linhas{margin-top:14px;display:flex;flex-direction:column;gap:8px;font-size:.85rem;color:#5c4f4b;line-height:1.4}
+  .selo .linhas div{display:flex;gap:8px;align-items:flex-start}
+  .selo .linhas i{font-style:normal;opacity:.7}
+  .selo .checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px;padding-top:14px;border-top:1px solid #f4edeb}
+  .selo .checks span{display:flex;align-items:center;gap:6px;font-size:.82rem;color:#5c4f4b}
+  .selo .checks span svg{width:15px;height:15px;flex-shrink:0}
+  .selo .checks .no{color:var(--muted);opacity:.6}
+  .selo .btn{width:100%;margin-top:16px;justify-content:center}
+  .selo.mini{margin-top:14px;padding:14px}
+  .selo.mini .checks{grid-template-columns:1fr 1fr;margin-top:12px;padding-top:12px}
   .badge-ac{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;background:#e4f7ec;color:#158043;font-weight:700;font-size:.78rem;padding:8px 10px;border-radius:10px;margin-top:12px}
   .badge-ac svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2}
   .specs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
@@ -727,11 +754,7 @@
           <div class="vtitle" id="dTitle">Chevrolet Onix 2015</div>
           <div class="vspecs" id="dSpecs">MPFI LS - Flex - Câmbio Manual</div>
           <div class="vprice" id="dPrice">R$ 43.900</div>
-          <div class="sellerbox2">
-            <div class="lgbox" id="dLojaLogo"><img src="https://static.autocerto.com/LogoClientesPortais/lumacar.png" alt="Luma Car" onerror="this.parentNode.textContent='LC'"></div>
-            <div><b id="dLojaNome">Luma Car</b><small id="dLojaAddr">Est. Intendente Magalhães · Vila Valqueire</small></div>
-          </div>
-          <span class="badge-ac"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> Loja associada ACEIMA</span>
+          <div id="dLojaSelo"></div>
         </div>
         <div class="panel" id="propform">
           <div class="ititle">Tem interesse?</div>
@@ -1562,11 +1585,59 @@ function aplicar(cx,img,r,manual){
   if(cor){ cx.style.background=cor; cx.style.borderColor='rgba(0,0,0,.10)'; }
   if(r&&r.escala>1.02){ img.style.transform='scale('+r.escala.toFixed(2)+')'; img.style.transformOrigin='center'; }
 }
+/* ==================== SELO DE CONFIANÇA DA LOJA ==================== */
+const icOk='<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#158043"/><path d="m8 12 2.5 2.5L16 9" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const icNao='<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#d7ccc8"/><path d="m9 9 6 6M15 9l-6 6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>';
+const NIVEIS=['Cadastro inicial','Cadastro bom','Cadastro avançado','Cadastro completo'];
+function quandoTexto(iso){
+  if(!iso) return '';
+  const d=new Date(iso); if(isNaN(d)) return '';
+  const min=Math.round((Date.now()-d.getTime())/60000);
+  if(min<60) return 'há '+Math.max(1,min)+' min';
+  const h=Math.floor(min/60); if(h<24) return 'há '+h+'h';
+  const dias=Math.floor(h/24); return dias===1?'ontem':'há '+dias+' dias';
+}
+function seloLoja(nome,opc){
+  opc=opc||{};
+  const lj=lojaMap[nome]||{};
+  const anuncios=veiculos.filter(v=>v.loja===nome).length;
+  const itens=[['Endereço',!!lj.addr],['Telefone',!!(lj.tel||lj.wa)],['WhatsApp',!!lj.wa],['E-mail',!!lj.email]];
+  const marcados=itens.filter(i=>i[1]).length;
+  const nivel=Math.max(1,Math.min(4,marcados));
+  const logoUrl=(lj.logo&&/^(data:|https?:)/.test(String(lj.logo)))?lj.logo:(lj.logo?L+lj.logo:(lj.id?L+lj.id+'_logo.png':''));
+  const atualizado=quandoTexto(lj.sync);
+  const escapado=String(nome).replace(/'/g,"\\'");
+  return `<div class="selo${opc.mini?' mini':''}">
+    <div class="topo">
+      <div class="lg">${logoUrl?`<img src="${logoUrl}" alt="${nome}" ${lj.cor?`data-cor="${lj.cor}"`:''} onload="fundoDaLogo(this)" onerror="this.parentNode.textContent='${initials(nome)}'">`:initials(nome)}</div>
+      <div>
+        <span class="verif"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> Loja associada ACEIMA</span>
+        <span class="nome">${nome}</span>
+        ${atualizado?`<span class="sub">Estoque atualizado ${atualizado}</span>`:''}
+      </div>
+    </div>
+    ${opc.mini?'':`<div class="nivel">
+      <div class="rot"><span>Cadastro na associação</span><b>${NIVEIS[nivel-1]}</b></div>
+      <div class="barra">${[1,2,3,4].map(n=>`<i class="${n<=nivel?'on':''}"></i>`).join('')}</div>
+    </div>
+    <div class="linhas">
+      ${lj.addr?`<div><i>📍</i><span>${lj.addr}</span></div>`:''}
+      <div><i>🚗</i><span>${anuncios} ${anuncios===1?'anúncio publicado':'anúncios publicados'} no site</span></div>
+      ${lj.tel?`<div><i>📞</i><span>${lj.tel}</span></div>`:''}
+    </div>`}
+    <div class="checks">
+      ${itens.map(([r,ok])=>`<span class="${ok?'':'no'}">${ok?icOk:icNao}${r}</span>`).join('')}
+    </div>
+    ${opc.mini?'':`<button class="btn ghost" onclick="verLoja('${escapado}')">Ver todos os anúncios da loja</button>`}
+  </div>`;
+}
+
 const lcard=l=>`<div class="lcard">
   <div class="lg"><img src="${(l[6]&&/^(data:|https?:)/.test(String(l[6])))?l[6]:L+(l[6]||l[5]+'_logo.png')}" alt="${l[0]}" ${l[7]?`data-cor="${l[7]}"`:''} onload="fundoDaLogo(this)" onerror="this.parentNode.classList.add('mono');this.parentNode.textContent='${initials(l[0])}'"></div>
   <h3>${l[0]}</h3>
-  <p>${l[1]}<br>${l[2]}<br>📞 ${l[3]}</p>
-  <div class="row"><button class="btn" onclick="verLoja('${l[0].replace(/'/g,"\\'")}')">Ver estoque</button>
+  <p>${l[1]}${l[3]?'<br>📞 '+l[3]:''}</p>
+  ${seloLoja(l[0],{mini:true})}
+  <div class="row" style="margin-top:14px"><button class="btn" onclick="verLoja('${l[0].replace(/'/g,"\\'")}')">Ver estoque</button>
   <button class="btn green" onclick="waLoja('${l[4]}')">WhatsApp</button></div></div>`;
 document.getElementById('lojas').innerHTML=lojasCards.map(lcard).join('');
 document.getElementById('lojasHome').innerHTML=lojasCards.slice(0,6).map(lcard).join('');
@@ -1595,15 +1666,7 @@ function abrirVeiculo(i,url){
   document.getElementById('dKm').textContent=kmT(v.km);
   document.getElementById('dCambio').textContent=v.cambio;
   document.getElementById('dComb').textContent=v.comb;
-  document.getElementById('dLojaNome').textContent=v.loja;
-  document.getElementById('dLojaAddr').textContent=(lj.addr||'Estrada Intendente Magalhães')+' · Vila Valqueire';
-  const logoUrl=(lj.logo&&/^(data:|https?:)/.test(String(lj.logo)))?lj.logo:L+(lj.logo||lj.id+'_logo.png');
-  const lb=document.getElementById('dLojaLogo');lb.innerHTML='';lb.style.background='';lb.style.borderColor='';
-  const im=new Image();im.src=logoUrl;im.alt=v.loja;
-  if(lj.cor)im.setAttribute('data-cor',lj.cor);
-  im.onload=()=>fundoDaLogo(im);
-  im.onerror=()=>{lb.textContent=initials(v.loja);};
-  lb.appendChild(im);
+  document.getElementById('dLojaSelo').innerHTML=seloLoja(v.loja);
   setFotos((v.fotos&&v.fotos.length)?v.fotos:[v.img]);
   // dados do lead p/ este anúncio
   lojaLead.nome=v.loja;lojaLead.whatsapp=lj.wa||'5521991041424';
@@ -1863,7 +1926,7 @@ async function carregarDados(){
   try{
     const rl = await fetch('/api/lojas?path=lojas').then(r=>r.json()).catch(()=>[]);
     if(Array.isArray(rl) && rl.length){
-      rl.forEach(l=>{ const c=lojaMap[l.nome]||(lojaMap[l.nome]={}); c.cor=l.cor||null; c.id=l.id; if(l.logo_url) c.logo=l.logo_url; if(l.endereco) c.addr=l.endereco; if(l.whatsapp) c.wa=l.whatsapp; if(l.telefone) c.tel=l.telefone; });
+      rl.forEach(l=>{ const c=lojaMap[l.nome]||(lojaMap[l.nome]={}); c.cor=l.cor||null; c.id=l.id; if(l.logo_url) c.logo=l.logo_url; if(l.endereco) c.addr=l.endereco; if(l.whatsapp) c.wa=l.whatsapp; if(l.telefone) c.tel=l.telefone; c.email=l.email||null; c.sync=l.ultima_sync||null; });
       // página Lojas passa a mostrar as lojas REAIS cadastradas no painel
       const reais=rl.map(l=>[l.nome, l.endereco||'Estrada Intendente Magalhães', 'Loja associada ACEIMA', l.telefone||'', l.whatsapp||'', l.id, l.logo_url||null, l.cor||null]);
       const elL=document.getElementById('lojas'); if(elL) elL.innerHTML=reais.map(lcard).join('');
