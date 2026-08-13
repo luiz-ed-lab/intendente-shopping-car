@@ -114,6 +114,11 @@
   .kpi .spark{position:absolute;right:16px;bottom:14px;opacity:.5}
 
   .panel{background:var(--card);border-radius:18px;box-shadow:var(--sh);margin-bottom:20px;overflow:hidden}
+  /* em tela estreita a tabela rola dentro do painel; antes ela era cortada na borda */
+  .panel .pb{overflow-x:auto}
+  .panel .pb table{min-width:720px}
+  .panel .pb::-webkit-scrollbar{height:8px}
+  .panel .pb::-webkit-scrollbar-thumb{background:#ddd0cb;border-radius:99px}
   .panel .ph{padding:18px 22px;border-bottom:1px solid var(--line2);display:flex;align-items:center;justify-content:space-between;gap:12px}
   .panel .ph h3{font-size:1.02rem}
   .panel .ph .psub{color:var(--muted);font-size:.8rem;margin-top:2px}
@@ -264,6 +269,8 @@
   .dd-o{padding:10px 12px;border-radius:10px;font-size:.85rem;cursor:pointer;white-space:nowrap;transition:.1s}
   .dd-o:hover{background:#faf7f6}
   .dd-o.sel{background:#fdeeec;color:var(--red);font-weight:700}
+  #leadsTb td:last-child{min-width:190px}
+  #leadsTb td:nth-child(4){white-space:nowrap}
   .dd-p::-webkit-scrollbar{width:10px}
   .dd-p::-webkit-scrollbar-thumb{background:#ddd0cb;border-radius:99px;border:3px solid #fff}
 
@@ -462,7 +469,7 @@
           </div>
         </div>
         <div class="panel flush"><div class="pb"><table>
-          <thead><tr><th>Data</th><th>Tipo</th><th>Cliente</th><th>Contato</th><th>Veículo</th><th>Loja</th><th>Canal</th></tr></thead>
+          <thead><tr><th>Data</th><th>Tipo</th><th>Cliente</th><th>Contato</th><th>Veículo</th><th>Loja</th><th>Atendimento</th></tr></thead>
           <tbody id="leadsTb"></tbody>
         </table></div></div>
       </div>
@@ -1056,7 +1063,16 @@ function nav(el){
  document.getElementById('ttl').textContent=titulos[el.dataset.v];
  if(el.dataset.v==='leads'){ leadsVistos=true; atualizaLeadBadge(); renderNotif(); }
  closeAside();
+ // a seção fica no endereço: atualizar a página não joga mais o usuário no Dashboard
+ try{ history.replaceState(null,'','#'+el.dataset.v); }catch(e){}
  document.querySelector('.content').scrollTo?.(0,0);window.scrollTo(0,0);
+}
+// volta para a seção que estava aberta antes do F5
+function abrirSecaoDoEndereco(){
+  const alvo=(location.hash||'').replace('#','');
+  if(!alvo || alvo==='dash') return;
+  const link=document.querySelector('aside a[data-v="'+alvo.replace(/[^a-z]/g,'')+'"]');
+  if(link) nav(link);
 }
 function toggleAside(){const a=document.querySelector('aside'),bk=document.getElementById('pnavback');const o=a.classList.toggle('open');if(bk)bk.classList.toggle('on',o);}
 function closeAside(){const a=document.querySelector('aside'),bk=document.getElementById('pnavback');if(a)a.classList.remove('open');if(bk)bk.classList.remove('on');}
@@ -1089,6 +1105,7 @@ function abrirPainel(token){
   PAINEL_TOKEN = token;
   document.getElementById('login').style.display='none';
   document.getElementById('app').classList.add('on');
+  abrirSecaoDoEndereco();
   carregarPainel();
   const s=lerSessao();
   if(s){ setTimeout(()=>{ alert('Sessão expirada. Entre novamente.'); sair(); }, Math.max(1000, s.exp - Date.now())); }
