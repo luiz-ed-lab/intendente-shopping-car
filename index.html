@@ -385,25 +385,23 @@
     font-size:.68rem;padding:3px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.5px}
   .selo .verif svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.6}
   .selo .nome{display:block;font-size:1.02rem;font-weight:700;margin-top:5px;line-height:1.25}
-  .selo .sub{color:var(--muted);font-size:.78rem;display:block;margin-top:2px}
-  .selo .nivel{margin-top:15px}
-  .selo .nivel .rot{display:flex;justify-content:space-between;align-items:center;font-size:.76rem;font-weight:700;color:#5c4f4b}
-  .selo .nivel .rot b{color:var(--green)}
-  .selo .barra{display:flex;gap:4px;margin-top:6px}
-  .selo .barra i{flex:1;height:6px;border-radius:99px;background:#efe6e3}
-  .selo .barra i.on{background:var(--green)}
-  .selo .linhas{margin-top:14px;display:flex;flex-direction:column;gap:8px;font-size:.85rem;color:#5c4f4b;line-height:1.4}
-  .selo .linhas div{display:flex;gap:8px;align-items:flex-start}
-  .selo .linhas i{font-style:normal;opacity:.7}
-  .selo .checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px;padding-top:14px;border-top:1px solid #f4edeb}
-  .selo .checks span{display:flex;align-items:center;gap:6px;font-size:.82rem;color:#5c4f4b}
-  .selo .checks span svg{width:15px;height:15px;flex-shrink:0}
-  .selo .checks .no{color:var(--muted);opacity:.6}
-  .selo .btn{width:100%;margin-top:16px;justify-content:center}
+  .selo .linhas{margin-top:15px;padding-top:14px;border-top:1px solid #f4edeb;display:flex;flex-direction:column;gap:10px;font-size:.86rem;color:#5c4f4b}
+  /* coluna fixa para o ícone: os textos alinham sempre, não importa o tamanho */
+  .selo .linhas div{display:grid;grid-template-columns:20px 1fr;gap:9px;align-items:start;line-height:1.45}
+  .selo .linhas i{font-style:normal;opacity:.75}
+  .selo .acoes{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+  .selo .acoes a,.selo .acoes button{display:flex;align-items:center;justify-content:center;gap:7px;
+    padding:12px;border-radius:12px;font-size:.87rem;font-weight:700;cursor:pointer;transition:.15s;text-align:center}
+  .selo .acoes .google{background:#fff;border:1.5px solid var(--line);color:var(--txt)}
+  .selo .acoes .google:hover{border-color:#f4b400;background:#fffbf0}
+  .selo .acoes .google b{color:#e0821a}
+  .selo .acoes .estoque{background:var(--red);color:#fff;border:0}
+  .selo .acoes .estoque:hover{background:var(--red-deep)}
   .selo.mini{margin-top:14px;padding:14px}
   /* no card da loja o nome e a logo já aparecem em cima: o selo mostra só o que acrescenta */
   .selo.mini .lg,.selo.mini .nome{display:none}
   .selo.mini .topo{gap:0}
+  .selo.mini .linhas{margin-top:12px;padding-top:12px;font-size:.83rem}
   .lcard .row{margin-top:auto}
   .selo.mini .checks{grid-template-columns:1fr 1fr;margin-top:12px;padding-top:12px}
   .badge-ac{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;background:#e4f7ec;color:#158043;font-weight:700;font-size:.78rem;padding:8px 10px;border-radius:10px;margin-top:12px}
@@ -1590,49 +1588,39 @@ function aplicar(cx,img,r,manual){
   if(r&&r.escala>1.02){ img.style.transform='scale('+r.escala.toFixed(2)+')'; img.style.transformOrigin='center'; }
 }
 /* ==================== SELO DE CONFIANÇA DA LOJA ==================== */
-const icOk='<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#158043"/><path d="m8 12 2.5 2.5L16 9" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const icNao='<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#d7ccc8"/><path d="m9 9 6 6M15 9l-6 6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>';
-const NIVEIS=['Cadastro inicial','Cadastro bom','Cadastro avançado','Cadastro completo'];
-function quandoTexto(iso){
-  if(!iso) return '';
-  const d=new Date(iso); if(isNaN(d)) return '';
-  const min=Math.round((Date.now()-d.getTime())/60000);
-  if(min<60) return 'há '+Math.max(1,min)+' min';
-  const h=Math.floor(min/60); if(h<24) return 'há '+h+'h';
-  const dias=Math.floor(h/24); return dias===1?'ontem':'há '+dias+' dias';
-}
 function seloLoja(nome,opc){
   opc=opc||{};
   const lj=lojaMap[nome]||{};
-  const anuncios=veiculos.filter(v=>v.loja===nome).length;
-  const itens=[['Endereço',!!lj.addr],['Telefone',!!(lj.tel||lj.wa)],['WhatsApp',!!lj.wa],['E-mail',!!lj.email]];
-  const marcados=itens.filter(i=>i[1]).length;
-  const nivel=Math.max(1,Math.min(4,marcados));
+  const doLoja=veiculos.filter(v=>v.loja===nome);
+  const precos=doLoja.map(v=>v.preco).filter(p=>p>0);
+  const faixa=precos.length?(money(Math.min(...precos))+' a '+money(Math.max(...precos))):'';
+  const cont={}; doLoja.forEach(v=>{ if(v.b) cont[v.b]=(cont[v.b]||0)+1; });
+  const marcas3=Object.keys(cont).sort((a,b)=>cont[b]-cont[a]).slice(0,3)
+    .map(m=>m.charAt(0)+m.slice(1).toLowerCase());
+  const especialidade=marcas3.length>1?(marcas3.slice(0,-1).join(', ')+' e '+marcas3[marcas3.length-1]):(marcas3[0]||'');
   const logoUrl=(lj.logo&&/^(data:|https?:)/.test(String(lj.logo)))?lj.logo:(lj.logo?L+lj.logo:(lj.id?L+lj.id+'_logo.png':''));
-  const atualizado=quandoTexto(lj.sync);
+  const google='https://www.google.com/search?q='+encodeURIComponent(nome+' '+(lj.addr||'Estrada Intendente Magalhães')+' Rio de Janeiro');
   const escapado=String(nome).replace(/'/g,"\\'");
+  const linha=(ic,txt)=>txt?`<div><i>${ic}</i><span>${txt}</span></div>`:'';
   return `<div class="selo${opc.mini?' mini':''}">
     <div class="topo">
       <div class="lg">${logoUrl?`<img src="${logoUrl}" alt="${nome}" ${lj.cor?`data-cor="${lj.cor}"`:''} onload="fundoDaLogo(this)" onerror="this.parentNode.textContent='${initials(nome)}'">`:initials(nome)}</div>
       <div>
         <span class="verif"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> Loja associada ACEIMA</span>
         <span class="nome">${nome}</span>
-        ${atualizado?`<span class="sub">Estoque atualizado ${atualizado}</span>`:''}
       </div>
     </div>
-    ${opc.mini?'':`<div class="nivel">
-      <div class="rot"><span>Cadastro na associação</span><b>${NIVEIS[nivel-1]}</b></div>
-      <div class="barra">${[1,2,3,4].map(n=>`<i class="${n<=nivel?'on':''}"></i>`).join('')}</div>
-    </div>
     <div class="linhas">
-      ${lj.addr?`<div><i>📍</i><span>${lj.addr}</span></div>`:''}
-      <div><i>🚗</i><span>${anuncios} ${anuncios===1?'anúncio publicado':'anúncios publicados'} no site</span></div>
-      ${lj.tel?`<div><i>📞</i><span>${lj.tel}</span></div>`:''}
-    </div>`}
-    <div class="checks">
-      ${itens.map(([r,ok])=>`<span class="${ok?'':'no'}">${ok?icOk:icNao}${r}</span>`).join('')}
+      ${opc.mini?'':linha('📍', lj.addr)}
+      ${linha('🚗', doLoja.length+(doLoja.length===1?' anúncio publicado':' anúncios publicados'))}
+      ${linha('🏷️', especialidade?('Mais anuncia '+especialidade):'')}
+      ${linha('💰', faixa?('Estoque de '+faixa):'')}
+      ${opc.mini?'':linha('📞', lj.tel)}
     </div>
-    ${opc.mini?'':`<button class="btn ghost" onclick="verLoja('${escapado}')">Ver todos os anúncios da loja</button>`}
+    ${opc.mini?'':`<div class="acoes">
+      <a class="google" href="${google}" target="_blank" rel="noopener"><b>★</b> Ver avaliações no Google</a>
+      <button class="estoque" type="button" onclick="verLoja('${escapado}')">Ver todos os anúncios</button>
+    </div>`}
   </div>`;
 }
 
