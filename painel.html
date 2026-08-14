@@ -113,6 +113,20 @@
   .kpi .delta{font-size:.75rem;color:var(--green);font-weight:700;margin-top:8px;display:flex;align-items:center;gap:4px}
   .kpi .spark{position:absolute;right:16px;bottom:14px;opacity:.5}
 
+  /* lojas em cards: cabem em qualquer largura, sem rolagem lateral */
+  .ljgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+  .ljcard{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh);
+    padding:18px;display:flex;flex-direction:column;transition:.18s}
+  .ljcard:hover{box-shadow:var(--sh-lg);transform:translateY(-2px)}
+  .ljcard .topo{display:flex;gap:12px;align-items:center}
+  .ljcard .topo b{font-size:1rem;line-height:1.25;display:block}
+  .ljcard .topo a{color:var(--muted);font-size:.8rem;text-decoration:none}
+  .ljcard .topo a:hover{color:var(--red)}
+  .ljcard .dados{margin-top:14px;padding-top:14px;border-top:1px solid var(--line2);display:flex;flex-direction:column;gap:9px}
+  .ljcard .dados div{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:center;font-size:.85rem}
+  .ljcard .dados small{color:var(--muted);font-weight:600}
+  .ljcard .dados span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ljcard .pe{display:flex;gap:7px;margin-top:16px;justify-content:flex-end}
   .panel{background:var(--card);border-radius:18px;box-shadow:var(--sh);margin-bottom:20px;overflow:hidden}
   /* em tela estreita a tabela rola dentro do painel; antes ela era cortada na borda */
   .panel .pb{overflow-x:auto}
@@ -428,10 +442,7 @@
           <p style="color:var(--muted)"><b id="lojasCount" style="color:var(--txt)">0</b> lojas cadastradas</p>
           <button class="btn" onclick="openAdd()"><svg class="ic sm" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Adicionar loja</button>
         </div>
-        <div class="panel flush"><div class="pb"><table>
-          <thead><tr><th>Loja</th><th>Site</th><th>E-mail</th><th>WhatsApp</th><th>Veículos</th><th>Última sincronização</th><th>No site</th><th></th></tr></thead>
-          <tbody id="lojasTb"></tbody>
-        </table></div></div>
+        <div class="ljgrid" id="lojasGrid"></div>
       </div>
 
       <!-- ===== VEÍCULOS ===== -->
@@ -724,21 +735,26 @@ const fmIco='<svg class="ic sm" viewBox="0 0 24 24" style="color:#3ba0d6"><path 
 
 function renderLojas(){
  const c=document.getElementById('lojasCount'); if(c) c.textContent=lojas.length;
- document.getElementById('lojasTb').innerHTML=lojas.map((l,i)=>`<tr>
-  <td><div style="display:flex;align-items:center;gap:11px"><div class="lg">${lgHtml(l[2],l[3],l[0],l[9])}</div><b>${l[0]}</b></div></td>
-  <td><span style="color:var(--muted)">${l[7]}</span></td>
-  <td>${l[10]?`<span title="${l[10]}" style="color:#1f7a3d;font-weight:600">✓ ${String(l[10]).slice(0,22)}</span>`
-             :'<span class="tag" style="background:#fdeaea;color:#b3261e">sem e-mail</span>'}</td>
-  <td>${l[1]}</td>
-  <td><b>${l[4]}</b></td>
-  <td>${l[5]}</td>
-  <td><span class="switch on" onclick="this.classList.toggle('on')"></span></td>
-  <td><div style="display:flex;gap:6px;justify-content:flex-end">
+ document.getElementById('lojasGrid').innerHTML=lojas.map((l,i)=>`<div class="ljcard">
+  <div class="topo">
+    <div class="lg" style="width:62px;height:44px">${lgHtml(l[2],l[3],l[0],l[9])}</div>
+    <div style="min-width:0"><b>${l[0]}</b>
+      ${l[7]&&l[7]!=='—'?`<a href="https://${String(l[7]).replace(/^https?:\/\//,'')}" target="_blank" rel="noopener" title="${l[7]}">${l[7]}</a>`:'<a style="pointer-events:none">sem site</a>'}
+    </div>
+  </div>
+  <div class="dados">
+    <div><small>Veículos</small><span><b>${l[4]}</b></span></div>
+    <div><small>E-mail</small><span>${l[10]?`<span title="${l[10]}" style="color:#1f7a3d;font-weight:600">✓ ${l[10]}</span>`
+             :'<span class="tag" style="background:#fdeaea;color:#b3261e">sem e-mail</span>'}</span></div>
+    <div><small>WhatsApp</small><span>${l[1]&&l[1]!=='—'?l[1]:'<span style="color:var(--muted)">não informado</span>'}</span></div>
+    <div><small>Sincronizado</small><span>${l[8]?`<span class="tag" style="background:#fdeaea;color:#b3261e" title="${String(l[8]).replace(/"/g,'')}">falhou</span>`:l[5]}</span></div>
+  </div>
+  <div class="pe">
     <button class="btn ghost sm" title="Importar agora" onclick="runImport(${i})"><svg class="ic sm" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></button>
     <button class="btn ghost sm" title="Editar" onclick="openEdit(${i})">${icPen}</button>
     <button class="btn ghost sm" title="Excluir" onclick="excluirLoja(${i})">${icTrash}</button>
-  </div></td>
- </tr>`).join('');
+  </div>
+ </div>`).join('');
 }
 function renderDash(){
  document.getElementById('impRecent').innerHTML=lojas.slice(0,6).map(l=>`<tr>
