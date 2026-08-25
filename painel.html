@@ -500,6 +500,11 @@
       <input id="fUrl" placeholder="Ex: https://autobarra.com.br">
       <label>E-mail da loja</label>
       <input id="fEmail" placeholder="contato@loja.com.br">
+      <label>Avaliação no Google <span style="font-weight:400;color:var(--soft)">(aparece no site da loja)</span></label>
+      <div style="display:flex;gap:10px">
+        <input id="fGNota" inputmode="decimal" placeholder="Nota: 4.9" style="flex:1">
+        <input id="fGAval" inputmode="numeric" placeholder="Nº de avaliações: 128" style="flex:1">
+      </div>
       <label>Logo da loja</label>
       <div style="display:flex;gap:12px;align-items:center;margin-bottom:4px">
         <div id="fLogoPrev" class="lg" style="width:78px;height:50px;flex-shrink:0"></div>
@@ -600,7 +605,7 @@ async function carregarPainel(){
     const lds  = Array.isArray(le)?le:[];
     leadsRaw = lds;
     const cont={}; veicAll.forEach(v=>{cont[v.loja_id]=(cont[v.loja_id]||0)+1;});
-    lojas = lojasApi.map(l=>[l.nome, l.whatsapp||l.telefone||'—', l.autocerto_id||l.autocerto_url||'', l.logo_url||null, cont[l.id]||0, quando(l.ultima_sync), l.id, origemLabel(l.autocerto_id||l.autocerto_url), l.ultimo_erro||null, l.cor||null, l.email||null]);
+    lojas = lojasApi.map(l=>[l.nome, l.whatsapp||l.telefone||'—', l.autocerto_id||l.autocerto_url||'', l.logo_url||null, cont[l.id]||0, quando(l.ultima_sync), l.id, origemLabel(l.autocerto_id||l.autocerto_url), l.ultimo_erro||null, l.cor||null, l.email||null, l.google_nota||null, l.google_avaliacoes||null]);
     const smap={novo:'new',enviado:'sent',atendido:'done'};
     leads = lds.map(l=>{
       const d=new Date(l.criado_em);
@@ -747,6 +752,7 @@ function renderLojas(){
     <div><small>E-mail</small><span>${l[10]?`<span title="${l[10]}" style="color:#1f7a3d;font-weight:600">✓ ${l[10]}</span>`
              :'<span class="tag" style="background:#fdeaea;color:#b3261e">sem e-mail</span>'}</span></div>
     <div><small>WhatsApp</small><span>${l[1]&&l[1]!=='—'?l[1]:'<span style="color:var(--muted)">não informado</span>'}</span></div>
+    <div><small>Google</small><span>${l[11]?`<b>${String(l[11]).replace('.',',')}</b> ★${l[12]?` · ${l[12]} avaliações`:''}`:'<span style="color:var(--muted)">sem nota</span>'}</span></div>
     <div><small>Sincronizado</small><span>${l[8]?`<span class="tag" style="background:#fdeaea;color:#b3261e" title="${String(l[8]).replace(/"/g,'')}">falhou</span>`:l[5]}</span></div>
   </div>
   <div class="pe">
@@ -1145,8 +1151,10 @@ function lerLogo(input){
 }
 function limparLogo(){ logoData=null; document.getElementById('fLogo').value='';
  document.getElementById('fLogoPrev').innerHTML=''; document.getElementById('fLogoPrev').style.background=''; }
-function openAdd(){editId=null;document.getElementById('mAddTitle').textContent='Adicionar loja';['fNome','fUrl','fEmail','fCorTxt'].forEach(id=>document.getElementById(id).value='');document.getElementById('fCor').value='#ffffff';limparLogo();document.getElementById('mAdd').classList.add('on');}
+function openAdd(){editId=null;document.getElementById('mAddTitle').textContent='Adicionar loja';['fNome','fUrl','fEmail','fCorTxt','fGNota','fGAval'].forEach(id=>document.getElementById(id).value='');document.getElementById('fCor').value='#ffffff';limparLogo();document.getElementById('mAdd').classList.add('on');}
 function openEdit(i){const l=lojas[i];editId=l[6];const raw=lojasApi.find(x=>x.id===editId)||{};document.getElementById('mAddTitle').textContent='Editar loja';document.getElementById('fNome').value=l[0];document.getElementById('fUrl').value=raw.autocerto_id||raw.autocerto_url||l[2]||'';document.getElementById('fEmail').value=raw.email||'';
+ document.getElementById('fGNota').value=raw.google_nota||'';
+ document.getElementById('fGAval').value=raw.google_avaliacoes||'';
  document.getElementById('fCorTxt').value=raw.cor||'';
  document.getElementById('fCor').value=/^#[0-9a-f]{6}$/i.test(raw.cor||'')?raw.cor:'#ffffff';
  limparLogo();
@@ -1191,6 +1199,8 @@ async function addLoja(){
  const url=document.getElementById('fUrl').value.trim();   // site próprio da loja (ou ID do portal)
  const email=document.getElementById('fEmail').value.trim()||null;
  const cor=document.getElementById('fCorTxt').value.trim();
+ const gnota=parseFloat(String(document.getElementById('fGNota').value).replace(',','.'))||null;
+ const gaval=parseInt(String(document.getElementById('fGAval').value).replace(/\D/g,''))||null;
  const logo=logoData;
  if(!nome || !url){ toast('Preencha o nome e o site da loja'); return; }
  closeM('mAdd');
@@ -1199,7 +1209,7 @@ async function addLoja(){
    toast('Salvando '+nome+'…');
    try{
      await api('/api/lojas?path=lojas',{method:'PATCH',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({id, nome, autocerto_id:url, email, cor, logo_url:logo})});
+       body:JSON.stringify({id, nome, autocerto_id:url, email, cor, logo_url:logo, google_nota:gnota, google_avaliacoes:gaval})});
      await carregarPainel(); toast(nome+' atualizada');
    }catch(e){ toast('Erro ao salvar: '+e.message); }
    return;
@@ -1207,7 +1217,7 @@ async function addLoja(){
  toast('Cadastrando '+nome+'…');
  try{
    const r=await api('/api/lojas?path=lojas',{method:'POST',headers:{'Content-Type':'application/json'},
-     body:JSON.stringify({nome, autocerto_id:url, email, logo_url:logo})});
+     body:JSON.stringify({nome, autocerto_id:url, email, logo_url:logo, google_nota:gnota, google_avaliacoes:gaval})});
    const loja=await r.json();
    await carregarPainel();
    runImport(-1, loja.id, nome, url);   // já roda o robô na loja nova
