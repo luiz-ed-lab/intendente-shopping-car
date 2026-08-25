@@ -116,7 +116,8 @@
   /* lojas em cards: cabem em qualquer largura, sem rolagem lateral */
   .ljgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
   .ljcard{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh);
-    padding:18px;display:flex;flex-direction:column;transition:.18s}
+    padding:18px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;transition:.18s}
+  .ljcard .conteudo{min-width:0}
   .ljcard:hover{box-shadow:var(--sh-lg);transform:translateY(-2px)}
   .ljcard .topo{display:flex;gap:12px;align-items:center}
   .ljcard .topo b{font-size:1rem;line-height:1.25;display:block}
@@ -126,7 +127,9 @@
   .ljcard .dados div{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:center;font-size:.85rem}
   .ljcard .dados small{color:var(--muted);font-weight:600}
   .ljcard .dados span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .ljcard .pe{display:flex;gap:7px;margin-top:16px;justify-content:flex-end}
+  /* ações empilhadas na lateral: sobra espaço vertical no card */
+  .ljcard .pe{display:flex;flex-direction:column;gap:7px}
+  .ljcard .pe .btn{padding:9px 10px}
   .panel{background:var(--card);border-radius:18px;box-shadow:var(--sh);margin-bottom:20px;overflow:hidden}
   /* em tela estreita a tabela rola dentro do painel; antes ela era cortada na borda */
   .panel .pb{overflow-x:auto}
@@ -283,8 +286,14 @@
   .dd-o{padding:10px 12px;border-radius:10px;font-size:.85rem;cursor:pointer;white-space:nowrap;transition:.1s}
   .dd-o:hover{background:#faf7f6}
   .dd-o.sel{background:#fdeeec;color:var(--red);font-weight:700}
-  #leadsTb td:last-child{min-width:190px}
+  #leadsTb td:last-child{min-width:180px}
   #leadsTb td:nth-child(4){white-space:nowrap}
+  /* Em tela estreita as colunas menos importantes somem em vez de a informação ser cortada.
+     Nada se perde: clicar na linha abre o lead completo. */
+  @media(max-width:1400px){ #v-leads th:nth-child(6),#leadsTb td:nth-child(6){display:none} }
+  @media(max-width:1200px){ #v-leads th:nth-child(5),#leadsTb td:nth-child(5){display:none} }
+  @media(max-width:1050px){ #v-leads th:nth-child(1),#leadsTb td:nth-child(1){display:none} }
+  @media(max-width:1400px){ .panel .pb table{min-width:0} }
   .dd-p::-webkit-scrollbar{width:10px}
   .dd-p::-webkit-scrollbar-thumb{background:#ddd0cb;border-radius:99px;border:3px solid #fff}
 
@@ -741,6 +750,7 @@ const fmIco='<svg class="ic sm" viewBox="0 0 24 24" style="color:#3ba0d6"><path 
 function renderLojas(){
  const c=document.getElementById('lojasCount'); if(c) c.textContent=lojas.length;
  document.getElementById('lojasGrid').innerHTML=lojas.map((l,i)=>`<div class="ljcard">
+ <div class="conteudo">
   <div class="topo">
     <div class="lg" style="width:62px;height:44px">${lgHtml(l[2],l[3],l[0],l[9])}</div>
     <div style="min-width:0"><b>${l[0]}</b>
@@ -755,6 +765,7 @@ function renderLojas(){
     <div><small>Google</small><span>${l[11]?`<b>${String(l[11]).replace('.',',')}</b> ★${l[12]?` · ${l[12]} avaliações`:''}`:'<span style="color:var(--muted)">sem nota</span>'}</span></div>
     <div><small>Sincronizado</small><span>${l[8]?`<span class="tag" style="background:#fdeaea;color:#b3261e" title="${String(l[8]).replace(/"/g,'')}">falhou</span>`:l[5]}</span></div>
   </div>
+ </div>
   <div class="pe">
     <button class="btn ghost sm" title="Importar agora" onclick="runImport(${i})"><svg class="ic sm" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></button>
     <button class="btn ghost sm" title="Editar" onclick="openEdit(${i})">${icPen}</button>
