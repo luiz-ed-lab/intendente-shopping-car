@@ -81,6 +81,14 @@ async function migra() {
   // quilometragem absurda digitada pela loja (9.999.999) some da vitrine.
   // O que a loja publicou vale, inclusive 0 km — quem decide é o anúncio, não a gente.
   try { await query('update veiculos set km = null where km > 1500000'); } catch (_) {}
+  // conserta o que a regra antiga quebrou: marca cortada no meio ("MERCEDES" + modelo "-BENZ")
+  try {
+    await query(`update veiculos set
+        marca  = upper(marca) || upper(modelo),
+        modelo = upper(split_part(coalesce(versao,''),' ',1)),
+        versao = ltrim(substr(coalesce(versao,''), length(split_part(coalesce(versao,''),' ',1)) + 1))
+      where modelo like '-%'`);
+  } catch (_) {}
   // "0 km" em carro antigo é campo em branco na origem, não um zero de verdade
   try {
     await query('update veiculos set km = null where km = 0 and (ano_modelo is null or ano_modelo < $1)',
@@ -515,7 +523,8 @@ async function pegarEmail(base) {
 async function lerSite(base) {
   const inicial = await getComSessao(base + '/Veiculos');
   const $ = cheerio.load(inicial.html);
-  const marcas = uniqTexts($, 'a[href*="marca="]').map(t => t.toUpperCase());
+  // maior primeiro: sem isso "MERCEDES" casava antes de "MERCEDES-BENZ" e o modelo virava "-BENZ"
+  const marcas = uniqTexts($, 'a[href*="marca="]').map(t => t.toUpperCase()).sort((a, b) => b.length - a.length);
   const modelos = uniqTexts($, 'a[href*="modelo="]').map(t => t.toUpperCase()).sort((a, b) => b.length - a.length);
   const vistos = new Set();
   const itens = [], ignorados = [];
