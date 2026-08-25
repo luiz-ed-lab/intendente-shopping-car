@@ -389,22 +389,22 @@
   /* coluna fixa para o ícone: os textos alinham sempre, não importa o tamanho */
   .selo .linhas div{display:grid;grid-template-columns:20px 1fr;gap:9px;align-items:start;line-height:1.45}
   .selo .linhas i{font-style:normal;opacity:.75}
-  /* nota do Google */
-  .gbox{display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff}
-  .gbox .g{font-family:var(--font-h);font-weight:800;font-size:1.05rem;letter-spacing:-.3px}
+  /* nota do Google: só aparece quando a ACEIMA cadastra a nota no painel */
+  .gbox{display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border:1px solid var(--line);
+    border-radius:14px;background:#fff;text-decoration:none;color:inherit;transition:.15s}
+  .gbox:hover{border-color:#dcd0cc;box-shadow:0 6px 16px rgba(94,16,9,.07)}
+  .gbox .g{font-family:var(--font-h);font-weight:800;font-size:.95rem;letter-spacing:-.3px;flex-shrink:0}
   .gbox .g b:nth-child(1){color:#4285F4}.gbox .g b:nth-child(2){color:#EA4335}.gbox .g b:nth-child(3){color:#FBBC05}
   .gbox .g b:nth-child(4){color:#4285F4}.gbox .g b:nth-child(5){color:#34A853}.gbox .g b:nth-child(6){color:#EA4335}
-  .gbox .nota{font-family:var(--font-h);font-weight:800;font-size:1.5rem;line-height:1;color:var(--ink)}
-  .gbox .est{color:#f0a500;font-size:.85rem;letter-spacing:1px;line-height:1}
-  .gbox .qtd{color:var(--muted);font-size:.74rem;margin-top:3px}
-  .gbox .ver{margin-left:auto;color:var(--red);font-size:.78rem;font-weight:700;text-decoration:none;white-space:nowrap}
-  .gbox .ver:hover{text-decoration:underline}
-  /* faixa de preço do estoque da loja */
-  .ebox{margin-top:12px;padding:14px;border-radius:14px;background:linear-gradient(135deg,#fdf3f1,#faeae6);border:1px solid #f4ddd6}
-  .ebox small{display:block;color:#9a7b73;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px}
-  .ebox .val{display:flex;align-items:baseline;gap:8px;margin-top:6px;flex-wrap:wrap}
-  .ebox .val b{font-family:var(--font-h);font-weight:800;font-size:1.05rem;color:var(--red-deep);letter-spacing:-.4px}
-  .ebox .val span{color:#9a7b73;font-size:.8rem}
+  .gbox .div{width:1px;align-self:stretch;background:var(--line)}
+  .gbox .nota{font-family:var(--font-h);font-weight:800;font-size:1.35rem;line-height:1;color:var(--ink)}
+  .gbox .est{color:#f0a500;font-size:.82rem;letter-spacing:1.5px;line-height:1;margin-top:4px}
+  .gbox .qtd{color:var(--muted);font-size:.73rem;margin-top:4px}
+  /* estoque da loja */
+  .ebox{margin-top:12px;padding:13px 15px;border-radius:13px;background:#faf7f6;border:1px solid var(--line)}
+  .ebox .n{font-family:var(--font-h);font-weight:800;font-size:1rem;color:var(--ink);letter-spacing:-.3px}
+  .ebox .p{color:#5c4f4b;font-size:.85rem;margin-top:4px}
+  .ebox .p b{color:var(--red-deep);font-weight:800}
   .selo .acoes{display:flex;flex-direction:column;gap:8px;margin-top:14px}
   .selo .acoes button{display:flex;align-items:center;justify-content:center;padding:12px;border-radius:12px;
     font-size:.88rem;font-weight:700;cursor:pointer;background:var(--red);color:#fff;border:0;transition:.15s}
@@ -730,9 +730,9 @@
       </aside>
       <div>
         <div class="grid" id="resultados"></div>
-        <div class="paginacao" id="paginacao"></div>
       </div>
     </div>
+    <div class="paginacao" id="paginacao"></div>
   </div>
 </div>
 
@@ -1289,6 +1289,7 @@ class CSelect{
   open(){
     document.querySelectorAll('.csel.open').forEach(c=>c.classList.remove('open'));
     this.mount.classList.add('open');
+    CSelect.aberto=this;
     this.flutuar();   // sai de dentro de blocos com rolagem/overflow
     if(this.search){this.si.value='';this.fill('');this.si.focus();}
   }
@@ -1302,13 +1303,16 @@ class CSelect{
     if(cabeEmbaixo){p.top=(r.bottom+6)+'px';p.bottom='auto';}
     else{p.top='auto';p.bottom=(window.innerHeight-r.top+6)+'px';p.maxHeight=Math.min(264,r.top-16)+'px';}
   }
-  close(){this.mount.classList.remove('open');}
+  close(){this.mount.classList.remove('open');if(CSelect.aberto===this)CSelect.aberto=null;}
 }
-document.addEventListener('click',()=>document.querySelectorAll('.csel.open').forEach(c=>c.classList.remove('open')));
-// rolar ou redimensionar fecha a lista (ela está presa à tela, não ao bloco)
+CSelect.aberto=null;
+document.addEventListener('click',()=>{document.querySelectorAll('.csel.open').forEach(c=>c.classList.remove('open'));CSelect.aberto=null;});
+// Rolar ou redimensionar só REPOSICIONA a lista. Fechar aqui quebrava o celular:
+// o teclado virtual dispara resize ao focar a busca e a lista sumia no mesmo toque.
 ['scroll','resize'].forEach(ev=>window.addEventListener(ev,e=>{
-  if(e.target&&e.target.closest&&e.target.closest('.csel-pop'))return;   // rolagem dentro da própria lista
-  document.querySelectorAll('.csel.open').forEach(c=>c.classList.remove('open'));
+  if(!CSelect.aberto)return;
+  if(e.target&&e.target.closest&&e.target.closest('.csel-pop'))return;
+  CSelect.aberto.flutuar();
 },true));
 
 /* instâncias */
@@ -1609,26 +1613,25 @@ function seloLoja(nome,opc){
   const google='https://www.google.com/search?q='+encodeURIComponent(nome+' '+(lj.addr||'Estrada Intendente Magalhães')+' Rio de Janeiro');
   const escapado=String(nome).replace(/'/g,"\\'");
   const linha=(ic,txt)=>txt?`<div><i>${ic}</i><span>${txt}</span></div>`:'';
-  // nota do Google: só aparece quando a ACEIMA cadastra no painel (nada é inventado aqui)
+  // A nota é a que a ACEIMA cadastrou no painel. Sem nota cadastrada, o bloco não aparece
+  // (não invento avaliação e não deixo um link solto no lugar dela).
   const nota=Number(lj.gnota)||0;
   const estrelas=nota?[1,2,3,4,5].map(n=>n<=Math.round(nota)?'★':'☆').join(''):'';
   const bloco_google = nota
-    ? `<div class="gbox">
+    ? `<a class="gbox" href="${google}" target="_blank" rel="noopener" title="Ver as avaliações no Google">
+         <div class="g"><b>G</b><b>o</b><b>o</b><b>g</b><b>l</b><b>e</b></div>
+         <div class="div"></div>
          <div>
-           <div class="g"><b>G</b><b>o</b><b>o</b><b>g</b><b>l</b><b>e</b></div>
-           <div style="display:flex;align-items:center;gap:7px;margin-top:5px">
-             <span class="nota">${nota.toFixed(1).replace('.',',')}</span><span class="est">${estrelas}</span>
-           </div>
+           <span class="nota">${nota.toFixed(1).replace('.',',')}</span>
+           <div class="est">${estrelas}</div>
            ${lj.gav?`<div class="qtd">${lj.gav} avaliações</div>`:''}
          </div>
-         <a class="ver" href="${google}" target="_blank" rel="noopener">Ver avaliações</a>
-       </div>`
-    : `<div class="gbox"><div class="g"><b>G</b><b>o</b><b>o</b><b>g</b><b>l</b><b>e</b></div>
-         <a class="ver" href="${google}" target="_blank" rel="noopener">Ver avaliações</a></div>`;
+       </a>`
+    : '';
   const bloco_estoque = doLoja.length
-    ? `<div class="ebox"><small>Estoque desta loja</small>
-         <div class="val"><b>${doLoja.length}</b><span>${doLoja.length===1?'anúncio':'anúncios'}</span>
-         ${precos.length?`<span>·</span><b>${money(Math.min(...precos))}</b><span>até</span><b>${money(Math.max(...precos))}</b>`:''}</div>
+    ? `<div class="ebox">
+         <div class="n">${doLoja.length} ${doLoja.length===1?'anúncio publicado':'anúncios publicados'}</div>
+         ${precos.length?`<div class="p">de <b>${money(Math.min(...precos))}</b> a <b>${money(Math.max(...precos))}</b></div>`:''}
        </div>`
     : '';
   return `<div class="selo${opc.mini?' mini':''}">
