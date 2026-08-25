@@ -370,6 +370,9 @@
   .vtitle{font-family:var(--font-h);font-weight:800;font-size:1.55rem;line-height:1.1;letter-spacing:-.3px;color:var(--red-ink)}
   .vspecs{color:var(--muted);font-size:.85rem;margin-top:10px;font-weight:600;line-height:1.25}
   .vprice{font-family:var(--font-h);font-weight:800;font-size:2.4rem;color:var(--red);margin:10px 0 0;letter-spacing:-1px;line-height:1}
+  /* sem preço publicado o texto é longo: cabe numa linha só, sem gritar */
+  .vprice.consulta{font-size:1.3rem;letter-spacing:-.3px;line-height:1.25;color:#5c4f4b}
+  .vprice.consulta small{display:block;font-family:var(--font-b);font-weight:600;font-size:.8rem;color:var(--muted);margin-top:4px}
   .sellerbox2{display:flex;align-items:center;gap:13px;border-top:1px solid #f4edeb;margin-top:18px;padding-top:16px}
   .sellerbox2 .lgbox{width:58px;height:58px;border-radius:13px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:7px;flex-shrink:0;font-family:var(--font-h);font-weight:800;color:var(--red)}
   .sellerbox2 .lgbox img{max-width:100%;max-height:100%;object-fit:contain}
@@ -1687,7 +1690,10 @@ function abrirVeiculo(i,url){
   document.getElementById('dBc').textContent=v.b+' '+v.mod;
   document.getElementById('dTitle').textContent=v.b+' '+v.mod+' '+v.anoN;
   document.getElementById('dSpecs').textContent=(v.ver&&v.ver.trim())?v.ver:[v.comb,v.cambio?'Câmbio '+v.cambio:''].filter(Boolean).join(' · ');
-  document.getElementById('dPrice').textContent=preco(v.preco);
+  const elPreco=document.getElementById('dPrice');
+  const temPreco=!!(v.preco&&v.preco>0);
+  elPreco.classList.toggle('consulta',!temPreco);
+  elPreco.innerHTML=temPreco?money(v.preco):'Preço sob consulta<small>A loja informa o valor pelo WhatsApp</small>';
   document.getElementById('dAno').textContent=v.ano;
   document.getElementById('dKm').textContent=kmT(v.km);
   document.getElementById('dCambio').textContent=v.cambio;
