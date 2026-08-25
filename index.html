@@ -389,14 +389,26 @@
   /* coluna fixa para o ícone: os textos alinham sempre, não importa o tamanho */
   .selo .linhas div{display:grid;grid-template-columns:20px 1fr;gap:9px;align-items:start;line-height:1.45}
   .selo .linhas i{font-style:normal;opacity:.75}
-  .selo .acoes{display:flex;flex-direction:column;gap:8px;margin-top:16px}
-  .selo .acoes a,.selo .acoes button{display:flex;align-items:center;justify-content:center;gap:7px;
-    padding:12px;border-radius:12px;font-size:.87rem;font-weight:700;cursor:pointer;transition:.15s;text-align:center}
-  .selo .acoes .google{background:#fff;border:1.5px solid var(--line);color:var(--txt)}
-  .selo .acoes .google:hover{border-color:#f4b400;background:#fffbf0}
-  .selo .acoes .google b{color:#e0821a}
-  .selo .acoes .estoque{background:var(--red);color:#fff;border:0}
-  .selo .acoes .estoque:hover{background:var(--red-deep)}
+  /* nota do Google */
+  .gbox{display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff}
+  .gbox .g{font-family:var(--font-h);font-weight:800;font-size:1.05rem;letter-spacing:-.3px}
+  .gbox .g b:nth-child(1){color:#4285F4}.gbox .g b:nth-child(2){color:#EA4335}.gbox .g b:nth-child(3){color:#FBBC05}
+  .gbox .g b:nth-child(4){color:#4285F4}.gbox .g b:nth-child(5){color:#34A853}.gbox .g b:nth-child(6){color:#EA4335}
+  .gbox .nota{font-family:var(--font-h);font-weight:800;font-size:1.5rem;line-height:1;color:var(--ink)}
+  .gbox .est{color:#f0a500;font-size:.85rem;letter-spacing:1px;line-height:1}
+  .gbox .qtd{color:var(--muted);font-size:.74rem;margin-top:3px}
+  .gbox .ver{margin-left:auto;color:var(--red);font-size:.78rem;font-weight:700;text-decoration:none;white-space:nowrap}
+  .gbox .ver:hover{text-decoration:underline}
+  /* faixa de preço do estoque da loja */
+  .ebox{margin-top:12px;padding:14px;border-radius:14px;background:linear-gradient(135deg,#fdf3f1,#faeae6);border:1px solid #f4ddd6}
+  .ebox small{display:block;color:#9a7b73;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px}
+  .ebox .val{display:flex;align-items:baseline;gap:8px;margin-top:6px;flex-wrap:wrap}
+  .ebox .val b{font-family:var(--font-h);font-weight:800;font-size:1.05rem;color:var(--red-deep);letter-spacing:-.4px}
+  .ebox .val span{color:#9a7b73;font-size:.8rem}
+  .selo .acoes{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+  .selo .acoes button{display:flex;align-items:center;justify-content:center;padding:12px;border-radius:12px;
+    font-size:.88rem;font-weight:700;cursor:pointer;background:var(--red);color:#fff;border:0;transition:.15s}
+  .selo .acoes button:hover{background:var(--red-deep)}
   .selo.mini{margin-top:14px;padding:14px}
   /* no card da loja o nome e a logo já aparecem em cima: o selo mostra só o que acrescenta */
   .selo.mini .lg,.selo.mini .nome{display:none}
@@ -546,7 +558,7 @@
     <button class="burger" onclick="toggleMenu()">☰</button>
     <nav>
       <a class="on" onclick="go('home')">Início</a>
-      <a onclick="go('busca')">Estoque</a>
+      <a onclick="irEstoque()">Estoque</a>
       <a onclick="go('lojas')">Lojas</a>
       <a onclick="go('servicos')">Serviços</a>
       <a onclick="go('aceima')">A ACEIMA</a>
@@ -606,7 +618,7 @@
     <section>
       <div class="sec-head reveal">
         <div><div class="kicker">Acabaram de chegar</div><h2>Ofertas em destaque</h2></div>
-        <span class="link" onclick="go('busca')">Ver todo o estoque →</span>
+        <span class="link" onclick="irEstoque()">Ver todo o estoque →</span>
       </div>
       <div class="rail-wrap reveal">
         <button class="rnav l" onclick="rail(-1)">‹</button>
@@ -637,7 +649,7 @@
         <div class="kicker" style="color:var(--orange)">Vantagem exclusiva ACEIMA</div>
         <h2>As <em>menores taxas</em> de financiamento do Rio de Janeiro</h2>
         <p>Desde 1998 a associação negocia direto com todas as financeiras. Simule agora e veja quanto fica a parcela do seu próximo carro.</p>
-        <button class="btn" onclick="go('busca')">Quero aproveitar</button>
+        <button class="btn" onclick="irEstoque()">Quero aproveitar</button>
       </div>
       <div class="fincalc">
         <label>Valor do veículo</label><input id="hcValor" value="R$ 50.000" oninput="hcalc()">
@@ -1118,7 +1130,7 @@
         <h5>Nova Intendente Shopping Car</h5>
         <p class="fdesc">Tradição e confiança para realizar seu sonho. Desde 1998, a ACEIMA reúne as lojas da Estrada Intendente Magalhães com selo de qualidade e as melhores taxas de financiamento do mercado.</p>
       </div>
-      <div><h5>Navegue</h5><a onclick="go('busca')">Estoque</a><a onclick="go('lojas')">Lojas</a><a onclick="go('servicos')">Serviços</a><a onclick="go('aceima')">A ACEIMA</a><a onclick="go('vender')">Venda seu veículo</a></div>
+      <div><h5>Navegue</h5><a onclick="irEstoque()">Estoque</a><a onclick="go('lojas')">Lojas</a><a onclick="go('servicos')">Serviços</a><a onclick="go('aceima')">A ACEIMA</a><a onclick="go('vender')">Venda seu veículo</a></div>
       <div><h5>Atendimento</h5><a onclick="go('contato')">Fale conosco</a><a href="tel:2132836600">(21) 3283-6600</a><a href="https://wa.me/5521991041424" target="_blank">WhatsApp</a></div>
       <div><h5>Institucional</h5><a onclick="openM('mPriv')">Política de privacidade</a><a onclick="openM('mTermos')">Termos de uso</a><a onclick="go('contato')">Para lojistas</a></div>
     </div>
@@ -1593,37 +1605,54 @@ function seloLoja(nome,opc){
   const lj=lojaMap[nome]||{};
   const doLoja=veiculos.filter(v=>v.loja===nome);
   const precos=doLoja.map(v=>v.preco).filter(p=>p>0);
-  const faixa=precos.length?(money(Math.min(...precos))+' a '+money(Math.max(...precos))):'';
-  const cont={}; doLoja.forEach(v=>{ if(v.b) cont[v.b]=(cont[v.b]||0)+1; });
-  const marcas3=Object.keys(cont).sort((a,b)=>cont[b]-cont[a]).slice(0,3)
-    .map(m=>m.charAt(0)+m.slice(1).toLowerCase());
-  const especialidade=marcas3.length>1?(marcas3.slice(0,-1).join(', ')+' e '+marcas3[marcas3.length-1]):(marcas3[0]||'');
   const logoUrl=(lj.logo&&/^(data:|https?:)/.test(String(lj.logo)))?lj.logo:(lj.logo?L+lj.logo:(lj.id?L+lj.id+'_logo.png':''));
   const google='https://www.google.com/search?q='+encodeURIComponent(nome+' '+(lj.addr||'Estrada Intendente Magalhães')+' Rio de Janeiro');
   const escapado=String(nome).replace(/'/g,"\\'");
   const linha=(ic,txt)=>txt?`<div><i>${ic}</i><span>${txt}</span></div>`:'';
+  // nota do Google: só aparece quando a ACEIMA cadastra no painel (nada é inventado aqui)
+  const nota=Number(lj.gnota)||0;
+  const estrelas=nota?[1,2,3,4,5].map(n=>n<=Math.round(nota)?'★':'☆').join(''):'';
+  const bloco_google = nota
+    ? `<div class="gbox">
+         <div>
+           <div class="g"><b>G</b><b>o</b><b>o</b><b>g</b><b>l</b><b>e</b></div>
+           <div style="display:flex;align-items:center;gap:7px;margin-top:5px">
+             <span class="nota">${nota.toFixed(1).replace('.',',')}</span><span class="est">${estrelas}</span>
+           </div>
+           ${lj.gav?`<div class="qtd">${lj.gav} avaliações</div>`:''}
+         </div>
+         <a class="ver" href="${google}" target="_blank" rel="noopener">Ver avaliações</a>
+       </div>`
+    : `<div class="gbox"><div class="g"><b>G</b><b>o</b><b>o</b><b>g</b><b>l</b><b>e</b></div>
+         <a class="ver" href="${google}" target="_blank" rel="noopener">Ver avaliações</a></div>`;
+  const bloco_estoque = doLoja.length
+    ? `<div class="ebox"><small>Estoque desta loja</small>
+         <div class="val"><b>${doLoja.length}</b><span>${doLoja.length===1?'anúncio':'anúncios'}</span>
+         ${precos.length?`<span>·</span><b>${money(Math.min(...precos))}</b><span>até</span><b>${money(Math.max(...precos))}</b>`:''}</div>
+       </div>`
+    : '';
   return `<div class="selo${opc.mini?' mini':''}">
     <div class="topo">
       <div class="lg">${logoUrl?`<img src="${logoUrl}" alt="${nome}" ${lj.cor?`data-cor="${lj.cor}"`:''} onload="fundoDaLogo(this)" onerror="this.parentNode.textContent='${initials(nome)}'">`:initials(nome)}</div>
       <div>
-        <span class="verif"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> Loja associada ACEIMA</span>
+        <span class="verif"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> Associado ACEIMA</span>
         <span class="nome">${nome}</span>
       </div>
     </div>
-    <div class="linhas">
-      ${opc.mini?'':linha('📍', lj.addr)}
-      ${linha('🚗', doLoja.length+(doLoja.length===1?' anúncio publicado':' anúncios publicados'))}
-      ${linha('🏷️', especialidade?('Mais anuncia '+especialidade):'')}
-      ${linha('💰', faixa?('Estoque de '+faixa):'')}
-      ${opc.mini?'':linha('📞', lj.tel)}
-    </div>
-    ${opc.mini?'':`<div class="acoes">
-      <a class="google" href="${google}" target="_blank" rel="noopener"><b>★</b> Ver avaliações no Google</a>
-      <button class="estoque" type="button" onclick="verLoja('${escapado}')">Ver todos os anúncios</button>
-    </div>`}
+    ${opc.mini?'':`<div class="linhas">${linha('📍', lj.addr)}${linha('📞', lj.tel)}</div>`}
+    ${bloco_google}
+    ${bloco_estoque}
+    ${opc.mini?'':`<div class="acoes"><button type="button" onclick="verLoja('${escapado}')">Ver todos os anúncios</button></div>`}
   </div>`;
 }
 
+let lojasReais=[];
+// o card da loja mostra quantos anúncios ela tem: só dá para pintar depois que os carros chegam
+function pintarLojas(){
+  if(!lojasReais.length) return;
+  const elL=document.getElementById('lojas'); if(elL) elL.innerHTML=lojasReais.map(lcard).join('');
+  const elH=document.getElementById('lojasHome'); if(elH) elH.innerHTML=lojasReais.slice(0,6).map(lcard).join('');
+}
 const lcard=l=>`<div class="lcard">
   <div class="lg"><img src="${(l[6]&&/^(data:|https?:)/.test(String(l[6])))?l[6]:L+(l[6]||l[5]+'_logo.png')}" alt="${l[0]}" ${l[7]?`data-cor="${l[7]}"`:''} onload="fundoDaLogo(this)" onerror="this.parentNode.classList.add('mono');this.parentNode.textContent='${initials(l[0])}'"></div>
   <h3>${l[0]}</h3>
@@ -1633,6 +1662,8 @@ const lcard=l=>`<div class="lcard">
   <button class="btn green" onclick="waLoja('${l[4]}')">WhatsApp</button></div></div>`;
 document.getElementById('lojas').innerHTML=lojasCards.map(lcard).join('');
 document.getElementById('lojasHome').innerHTML=lojasCards.slice(0,6).map(lcard).join('');
+// abrir o estoque pelo menu começa do zero: filtro antigo não fica preso
+function irEstoque(){limparFiltros();go('busca',ROTAS.busca);renderResultados();}
 function verLoja(n){limparFiltros();filtro.loja=n;cs.eLoja.set(n,true);go('busca');renderResultados();}
 function waLoja(wa){window.open('https://wa.me/'+wa+'?text='+encodeURIComponent('Olá! Vim pelo site do Intendente Shopping Car e gostaria de mais informações sobre os veículos disponíveis.'),'_blank');}
 
@@ -1918,11 +1949,11 @@ async function carregarDados(){
   try{
     const rl = await fetch('/api/lojas?path=lojas').then(r=>r.json()).catch(()=>[]);
     if(Array.isArray(rl) && rl.length){
-      rl.forEach(l=>{ const c=lojaMap[l.nome]||(lojaMap[l.nome]={}); c.cor=l.cor||null; c.id=l.id; if(l.logo_url) c.logo=l.logo_url; if(l.endereco) c.addr=l.endereco; if(l.whatsapp) c.wa=l.whatsapp; if(l.telefone) c.tel=l.telefone; c.email=l.email||null; c.sync=l.ultima_sync||null; });
+      rl.forEach(l=>{ const c=lojaMap[l.nome]||(lojaMap[l.nome]={}); c.cor=l.cor||null; c.id=l.id; if(l.logo_url) c.logo=l.logo_url; if(l.endereco) c.addr=l.endereco; if(l.whatsapp) c.wa=l.whatsapp; if(l.telefone) c.tel=l.telefone; c.email=l.email||null; c.sync=l.ultima_sync||null; c.gnota=l.google_nota||null; c.gav=l.google_avaliacoes||null; });
       // página Lojas passa a mostrar as lojas REAIS cadastradas no painel
-      const reais=rl.map(l=>[l.nome, l.endereco||'Estrada Intendente Magalhães', 'Loja associada ACEIMA', l.telefone||'', l.whatsapp||'', l.id, l.logo_url||null, l.cor||null]);
-      const elL=document.getElementById('lojas'); if(elL) elL.innerHTML=reais.map(lcard).join('');
-      const elH=document.getElementById('lojasHome'); if(elH) elH.innerHTML=reais.slice(0,6).map(lcard).join('');
+      lojasReais=rl.map(l=>[l.nome, l.endereco||'Estrada Intendente Magalhães', 'Loja associada ACEIMA', l.telefone||'', l.whatsapp||'', l.id, l.logo_url||null, l.cor||null]);
+      const reais=lojasReais;
+      pintarLojas();
       const nL=document.getElementById('nLojas'); if(nL) nL.textContent=reais.length;
       totalLojas=reais.length; atualizarNumeros();
     }
@@ -1943,6 +1974,7 @@ async function carregarDados(){
       renderResultados();
       atualizaHomeTotal();
       atualizarNumeros();
+      pintarLojas();   // agora com o número real de anúncios de cada loja
       cs.vdMarca.setOptions(marcas);
       cs.vdModelo.setOptions(modelosDe(cs.vdMarca.value||''));
     }
