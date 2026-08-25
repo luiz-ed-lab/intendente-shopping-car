@@ -73,6 +73,9 @@ async function migra() {
       [MARCAS_CAMINHAO, RX_CAMINHAO, RX_UTILITARIO]);
   } catch (_) {}
   try { await query("update veiculos set tipo='carro' where tipo is null"); } catch (_) {}
+  // nota do Google da loja, digitada pela ACEIMA no painel (o site só mostra o que está aqui)
+  try { await query('alter table lojas add column if not exists google_nota numeric(2,1)'); } catch (_) {}
+  try { await query('alter table lojas add column if not exists google_avaliacoes integer'); } catch (_) {}
   // quando a galeria de fotos foi lida pela última vez (para reler de tempos em tempos)
   try { await query('alter table veiculos add column if not exists galeria_em timestamptz'); } catch (_) {}
   // quilometragem absurda digitada pela loja (9.999.999) some da vitrine.
@@ -651,6 +654,7 @@ async function detalhePortal(base, slug, id) {
 
 // ---------------- ROTAS ----------------
 async function rotaLojas(req, res) {
+  await migra();
   if (req.method !== 'GET' && !autorizado(req)) return negar(res);
   if (req.method === 'GET') {
     const { rows } = await query('select * from lojas where ativa = true order by nome');
@@ -660,9 +664,10 @@ async function rotaLojas(req, res) {
     const b = req.body || {};
     if (!b.nome) return res.status(400).json({ erro: 'nome é obrigatório' });
     const { rows: [loja] } = await query(
-      `insert into lojas (nome, endereco, telefone, whatsapp, email, autocerto_id, autocerto_url, logo_url)
-       values ($1,$2,$3,$4,$5,$6,$7,$8) returning *`,
-      [b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id, b.autocerto_url, b.logo_url || null]);
+      `insert into lojas (nome, endereco, telefone, whatsapp, email, autocerto_id, autocerto_url, logo_url, google_nota, google_avaliacoes)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning *`,
+      [b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id, b.autocerto_url, b.logo_url || null,
+       b.google_nota == null ? null : Number(b.google_nota), b.google_avaliacoes == null ? null : parseInt(b.google_avaliacoes)]);
     return res.status(201).json(loja);
   }
   if (req.method === 'PATCH') {
@@ -673,10 +678,13 @@ async function rotaLojas(req, res) {
          telefone=coalesce($4,telefone), whatsapp=coalesce($5,whatsapp),
          email=coalesce($6,email), autocerto_id=coalesce($7,autocerto_id),
          logo_url=coalesce($8,logo_url),
-         cor = case when $9::text is null then cor when $9 = '' then null else $9 end
+         cor = case when $9::text is null then cor when $9 = '' then null else $9 end,
+         google_nota = $10, google_avaliacoes = $11
        where id=$1 returning *`,
       [b.id, b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id, b.logo_url || null,
-       (b.cor === undefined ? null : String(b.cor))]);
+       (b.cor === undefined ? null : String(b.cor)),
+       b.google_nota == null ? null : Number(b.google_nota),
+       b.google_avaliacoes == null ? null : parseInt(b.google_avaliacoes)]);
     return res.json(loja || { erro: 'loja não encontrada' });
   }
   if (req.method === 'DELETE') {
