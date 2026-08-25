@@ -133,7 +133,7 @@
   .panel{background:var(--card);border-radius:18px;box-shadow:var(--sh);margin-bottom:20px;overflow:hidden}
   /* em tela estreita a tabela rola dentro do painel; antes ela era cortada na borda */
   .panel .pb{overflow-x:auto}
-  .panel .pb table{min-width:720px}
+  .panel .pb table{min-width:0}
   .panel .pb::-webkit-scrollbar{height:8px}
   .panel .pb::-webkit-scrollbar-thumb{background:#ddd0cb;border-radius:99px}
   .panel .ph{padding:18px 22px;border-bottom:1px solid var(--line2);display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -142,9 +142,10 @@
   .panel .pb{padding:8px 10px}
   .panel.flush .pb{padding:0}
   .grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:20px}
-  @media(max-width:1050px){.grid2{grid-template-columns:1fr}}
+  @media(max-width:1450px){.grid2{grid-template-columns:1fr}}
 
-  table{width:100%;border-collapse:collapse}
+  table{width:100%;border-collapse:collapse;table-layout:auto}
+  #impRecent td,#leadRecent td{word-break:break-word}
   th{text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:.7px;color:var(--soft);padding:14px 16px;font-weight:700}
   td{padding:14px 16px;border-top:1px solid var(--line2);font-size:.86rem;vertical-align:middle}
   .panel.flush th:first-child,.panel.flush td:first-child{padding-left:24px}
