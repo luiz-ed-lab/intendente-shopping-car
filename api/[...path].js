@@ -81,6 +81,25 @@ async function migra() {
   // quilometragem absurda digitada pela loja (9.999.999) some da vitrine.
   // O que a loja publicou vale, inclusive 0 km — quem decide é o anúncio, não a gente.
   try { await query('update veiculos set km = null where km > 1500000'); } catch (_) {}
+  try { await query('alter table lojas add column if not exists google_em timestamptz'); } catch (_) {}
+  // primeira carga das notas do Google (levantadas uma a uma em 25/08/2026).
+  // Só preenche o que está vazio: o que a ACEIMA digitar no painel nunca é sobrescrito aqui.
+  try {
+    const semente = [
+      ['AG Rio Car',4.7,270],['Apollo Automóveis',4.5,952],['Astral Pickups',4.3,56],
+      ['Auto Barra',4.8,469],['BitCar Automóveis',4.7,585],['Bragança Automóveis',4.4,96],
+      ['FLX Multimarcas',4.7,266],['GTS IndyCar',4.8,75],['Garra Vip 4x4',4.4,251],
+      ['Grande Estilo Veículos',4.3,21],['HiperCar',4.7,117],['Jay Motors',4.0,180],
+      ['Jazz Veículos',4.5,5347],['Lazari',4.7,1227],['Lions Seminovos',4.8,7084],
+      ['Luma Car',4.6,987],['Maiorano Veículos',4.8,36],['Perfil Multimarcas',3.5,113],
+      ['Riomix Motos',4.6,168],['Robmar Automóveis',4.2,2492],['T.F.A. Motors',5.0,36],
+      ['TurboMix Veículos',4.9,812]
+    ];
+    for (const [nome, nota, total] of semente) {
+      await query('update lojas set google_nota=$2, google_avaliacoes=$3 where nome=$1 and google_nota is null',
+        [nome, nota, total]);
+    }
+  } catch (_) {}
   // conserta o que a regra antiga quebrou: marca cortada no meio ("MERCEDES" + modelo "-BENZ")
   try {
     await query(`update veiculos set
@@ -627,6 +646,30 @@ async function detalheSite(base, slug, id) {
   return { fotos, opcionais };
 }
 
+// Nota do Google da loja. Lê a ficha pública do Google e guarda nota + total de avaliações.
+// Se o Google mudar o formato ou barrar a leitura, devolve null e o valor atual é mantido:
+// nunca inventa nota e nunca apaga o que a ACEIMA digitou no painel.
+async function notaGoogle(nome) {
+  const url = 'https://www.google.com/search?hl=pt-BR&gl=br&q='
+    + encodeURIComponent('"' + nome + '" Intendente Magalhães Rio de Janeiro');
+  let html;
+  try {
+    const r = await fetch(url, { headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36',
+      'Accept-Language': 'pt-BR,pt;q=0.9'
+    } });
+    if (!r.ok) return null;
+    html = await r.text();
+  } catch (_) { return null; }
+  const texto = html.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ');
+  const m = texto.match(/(\d[.,]\d)\s*\(?\s*([\d.]{1,7})\s*\)?\s*avalia/i);
+  if (!m) return null;
+  const nota = parseFloat(m[1].replace(',', '.'));
+  const total = parseInt(m[2].replace(/\./g, ''), 10);
+  if (!(nota > 0 && nota <= 5) || !(total > 0)) return null;
+  return { nota, total };
+}
+
 // ---------------- ROBÔ: portal Intendente (por ID) ----------------
 async function lerPortal(base, portalId) {
   const $ = cheerio.load(await get(`${base}/Loja/x/${portalId}/info`));
@@ -846,6 +889,16 @@ async function importarLoja(loja) {
             email    = coalesce($5, email)
           where id = $6`,
           [logoSite, contato && contato.endereco, contato && contato.telefone, contato && contato.whatsapp, emailSite, loja.id]);
+      } catch (_) {}
+      // nota do Google: relê no máximo uma vez por semana para não pesar a importação
+      try {
+        const velha = !loja.google_em || (Date.now() - new Date(loja.google_em).getTime()) > 7 * 864e5;
+        if (velha) {
+          const g = await notaGoogle(loja.nome);
+          if (g) await query('update lojas set google_nota=$2, google_avaliacoes=$3, google_em=now() where id=$1',
+            [loja.id, g.nota, g.total]);
+          else await query('update lojas set google_em=now() where id=$1', [loja.id]);
+        }
       } catch (_) {}
       // ATENÇÃO: NÃO desativar tudo aqui. Se a função morrer no meio (loja grande),
       // o estoque inteiro ficaria fora do ar. A baixa acontece só no fim, e apenas
