@@ -384,29 +384,31 @@
   .selo .lg{width:56px;height:56px;border-radius:13px;background:#fff;border:1px solid var(--line);display:flex;
     align-items:center;justify-content:center;overflow:hidden;padding:7px;flex-shrink:0;font-family:var(--font-h);font-weight:800;color:var(--red)}
   .selo .lg img{max-width:100%;max-height:100%;object-fit:contain}
+  .selo .nome{display:block;font-size:1.02rem;font-weight:700;line-height:1.25}
+  /* corpo menor e sem quebra: "Associado ACEIMA" cabe numa linha só */
   .selo .verif{display:inline-flex;align-items:center;gap:5px;background:#e4f7ec;color:#158043;font-weight:800;
-    font-size:.68rem;padding:3px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.5px}
-  .selo .verif svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.6}
-  .selo .nome{display:block;font-size:1.02rem;font-weight:700;margin-top:5px;line-height:1.25}
+    font-size:.6rem;padding:3px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:.4px;
+    white-space:nowrap;margin-top:5px}
+  .selo .verif svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.6}
   .selo .linhas{margin-top:15px;padding-top:14px;border-top:1px solid #f4edeb;display:flex;flex-direction:column;gap:10px;font-size:.86rem;color:#5c4f4b}
   /* coluna fixa para o ícone: os textos alinham sempre, não importa o tamanho */
   .selo .linhas div{display:grid;grid-template-columns:20px 1fr;gap:9px;align-items:start;line-height:1.45}
   .selo .linhas i{font-style:normal;opacity:.75}
-  /* nota do Google: só aparece quando a ACEIMA cadastra a nota no painel */
-  .gbox{display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border:1px solid var(--line);
-    border-radius:14px;background:#fff;text-decoration:none;color:inherit;transition:.15s}
-  .gbox:hover{border-color:#dcd0cc;box-shadow:0 6px 16px rgba(94,16,9,.07)}
-  .gbox .g{font-family:var(--font-h);font-weight:800;font-size:.95rem;letter-spacing:-.3px;flex-shrink:0}
+  /* nota do Google: só aparece quando a loja tem ficha com avaliações */
+  .gbox{display:flex;align-items:center;gap:11px;margin-top:13px;padding:9px 12px;border:1px solid var(--line);
+    border-radius:12px;background:#fff;text-decoration:none;color:inherit;transition:.15s}
+  .gbox:hover{border-color:#dcd0cc}
+  .gbox .g{font-family:var(--font-h);font-weight:800;font-size:.85rem;letter-spacing:-.3px;flex-shrink:0}
   .gbox .g b:nth-child(1){color:#4285F4}.gbox .g b:nth-child(2){color:#EA4335}.gbox .g b:nth-child(3){color:#FBBC05}
   .gbox .g b:nth-child(4){color:#4285F4}.gbox .g b:nth-child(5){color:#34A853}.gbox .g b:nth-child(6){color:#EA4335}
   .gbox .div{width:1px;align-self:stretch;background:var(--line)}
-  .gbox .nota{font-family:var(--font-h);font-weight:800;font-size:1.35rem;line-height:1;color:var(--ink)}
-  .gbox .est{color:#f0a500;font-size:.82rem;letter-spacing:1.5px;line-height:1;margin-top:4px}
-  .gbox .qtd{color:var(--muted);font-size:.73rem;margin-top:4px}
-  /* estoque da loja */
-  .ebox{margin-top:12px;padding:13px 15px;border-radius:13px;background:#faf7f6;border:1px solid var(--line)}
-  .ebox .n{font-family:var(--font-h);font-weight:800;font-size:1rem;color:var(--ink);letter-spacing:-.3px}
-  .ebox .p{color:#5c4f4b;font-size:.85rem;margin-top:4px}
+  .gbox .nota{font-family:var(--font-h);font-weight:800;font-size:1.05rem;line-height:1;color:var(--ink)}
+  .gbox .est{color:#f0a500;font-size:.9rem;line-height:1}
+  .gbox .qtd{color:var(--muted);font-size:.73rem;margin-top:3px}
+  /* estoque da loja: sem caixa, só texto */
+  .ebox{margin-top:14px;padding-top:13px;border-top:1px solid #f4edeb}
+  .ebox .n{font-family:var(--font-h);font-weight:800;font-size:.98rem;color:var(--ink);letter-spacing:-.3px}
+  .ebox .p{color:#5c4f4b;font-size:.86rem;margin-top:3px}
   .ebox .p b{color:var(--red-deep);font-weight:800}
   .selo .acoes{display:flex;flex-direction:column;gap:8px;margin-top:14px}
   .selo .acoes button{display:flex;align-items:center;justify-content:center;padding:12px;border-radius:12px;
@@ -1619,14 +1621,14 @@ function seloLoja(nome,opc){
   // A nota é a que a ACEIMA cadastrou no painel. Sem nota cadastrada, o bloco não aparece
   // (não invento avaliação e não deixo um link solto no lugar dela).
   const nota=Number(lj.gnota)||0;
-  const estrelas=nota?[1,2,3,4,5].map(n=>n<=Math.round(nota)?'★':'☆').join(''):'';
   const bloco_google = nota
     ? `<a class="gbox" href="${google}" target="_blank" rel="noopener" title="Ver as avaliações no Google">
          <div class="g"><b>G</b><b>o</b><b>o</b><b>g</b><b>l</b><b>e</b></div>
          <div class="div"></div>
          <div>
-           <span class="nota">${nota.toFixed(1).replace('.',',')}</span>
-           <div class="est">${estrelas}</div>
+           <div style="display:flex;align-items:center;gap:5px">
+             <span class="nota">${nota.toFixed(1).replace('.',',')}</span><span class="est">★</span>
+           </div>
            ${lj.gav?`<div class="qtd">${lj.gav} avaliações</div>`:''}
          </div>
        </a>`
@@ -1634,18 +1636,19 @@ function seloLoja(nome,opc){
   const bloco_estoque = doLoja.length
     ? `<div class="ebox">
          <div class="n">${doLoja.length} ${doLoja.length===1?'anúncio publicado':'anúncios publicados'}</div>
-         ${precos.length?`<div class="p">de <b>${money(Math.min(...precos))}</b> a <b>${money(Math.max(...precos))}</b></div>`:''}
+         ${precos.length?`<div class="p">de <b>${money(Math.min(...precos))}</b></div>
+         <div class="p">a <b>${money(Math.max(...precos))}</b></div>`:''}
        </div>`
     : '';
   return `<div class="selo${opc.mini?' mini':''}">
     <div class="topo">
       <div class="lg">${logoUrl?`<img src="${logoUrl}" alt="${nome}" ${lj.cor?`data-cor="${lj.cor}"`:''} onload="fundoDaLogo(this)" onerror="this.parentNode.textContent='${initials(nome)}'">`:initials(nome)}</div>
       <div>
-        <span class="verif"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> Associado ACEIMA</span>
         <span class="nome">${nome}</span>
+        <span class="verif"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> Associado ACEIMA</span>
       </div>
     </div>
-    ${opc.mini?'':`<div class="linhas">${linha('📍', lj.addr)}${linha('📞', lj.tel)}</div>`}
+    ${opc.mini?'':`<div class="linhas">${linha('📞', lj.tel)}${linha('📍', lj.addr)}</div>`}
     ${bloco_google}
     ${bloco_estoque}
     ${opc.mini?'':`<div class="acoes"><button type="button" onclick="verLoja('${escapado}')">Ver todos os anúncios</button></div>`}
@@ -1662,7 +1665,7 @@ function pintarLojas(){
 const lcard=l=>`<div class="lcard">
   <div class="lg"><img src="${(l[6]&&/^(data:|https?:)/.test(String(l[6])))?l[6]:L+(l[6]||l[5]+'_logo.png')}" alt="${l[0]}" ${l[7]?`data-cor="${l[7]}"`:''} onload="fundoDaLogo(this)" onerror="this.parentNode.classList.add('mono');this.parentNode.textContent='${initials(l[0])}'"></div>
   <h3>${l[0]}</h3>
-  <p>${l[1]}${l[3]?'<br>📞 '+l[3]:''}</p>
+  <p>${l[3]?'📞 '+l[3]+'<br>':''}📍 ${l[1]}</p>
   ${seloLoja(l[0],{mini:true})}
   <div class="row" style="margin-top:14px"><button class="btn" onclick="verLoja('${l[0].replace(/'/g,"\\'")}')">Ver estoque</button>
   <button class="btn green" onclick="waLoja('${l[4]}')">WhatsApp</button></div></div>`;
