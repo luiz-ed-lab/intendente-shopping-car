@@ -406,7 +406,7 @@
   .gbox .est{color:#f0a500;font-size:.9rem;line-height:1}
   .gbox .qtd{color:var(--muted);font-size:.73rem;margin-top:3px}
   /* estoque da loja: sem caixa, só texto */
-  .ebox{margin-top:14px;padding-top:13px;border-top:1px solid #f4edeb}
+  .ebox{margin-top:12px}
   .ebox .n{font-family:var(--font-h);font-weight:800;font-size:.98rem;color:var(--ink);letter-spacing:-.3px}
   .ebox .p{color:#5c4f4b;font-size:.86rem;margin-top:3px}
   .ebox .p b{color:var(--red-deep);font-weight:800}
@@ -1636,8 +1636,7 @@ function seloLoja(nome,opc){
   const bloco_estoque = doLoja.length
     ? `<div class="ebox">
          <div class="n">${doLoja.length} ${doLoja.length===1?'anúncio publicado':'anúncios publicados'}</div>
-         ${precos.length?`<div class="p">de <b>${money(Math.min(...precos))}</b></div>
-         <div class="p">a <b>${money(Math.max(...precos))}</b></div>`:''}
+         ${precos.length?`<div class="p">de <b>${money(Math.min(...precos))}</b> a <b>${money(Math.max(...precos))}</b></div>`:''}
        </div>`
     : '';
   return `<div class="selo${opc.mini?' mini':''}">
