@@ -230,7 +230,7 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
   .vti h3,.vti.on h3{font-size:4.85vw;font-weight:700;letter-spacing:0}
   .vti h3{color:#7C8CA5}
   .vti.on h3{color:#fff}
-  .vti.on .d{height:auto}
+  .vti.on .d{height:calc(3.61vw*1.45*3 + 1.41vw)}   /* três linhas fixas: a troca automática não empurra a página */
   .vti .d p{padding-top:1.41vw;max-width:none;font-size:3.61vw!important;color:#93A3B9;line-height:1.45}
   .hs{min-height:0!important;display:block!important;padding:5.63vw 0 6.34vw!important;margin-top:6.34vw;border-radius:4.93vw 4.93vw 0 0}
   .hs-grid{display:flex!important;flex-direction:column;align-items:stretch!important;gap:0!important;padding:0 5.63vw!important}
@@ -498,7 +498,11 @@ function home(){
  </div>
 </div>${rodape()}`;}
 // só troca as classes: redesenhar a página reiniciaria o vídeo do fundo
-function destacar(i){abaHome=i;['.vti','.himg'].forEach(s=>document.querySelectorAll(s).forEach((e,j)=>e.classList.toggle('on',j===i)));}
+function destacar(i){abaHome=i;['.vti','.himg'].forEach(s=>document.querySelectorAll(s).forEach((e,j)=>e.classList.toggle('on',j===i)));girar();}
+// as categorias passam sozinhas a cada 6s; com o mouse em cima da lista, param
+let giro;
+function girar(){clearTimeout(giro);if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  giro=setTimeout(()=>{if(pagAtual!=='home')return;if(document.querySelector('.vtl:hover'))girar();else destacar((abaHome+1)%document.querySelectorAll('.vti').length);},6000);}
 
 /* ==================== ESTOQUE ==================== */
 const F={marca:'',modelo:'',ano:'',preco:'',loja:'',cambio:'',comb:'',q:'',ord:'Mais recentes'};
@@ -872,6 +876,7 @@ function render(topo){
   fecharDrop();
   document.getElementById('app').innerHTML=VIEWS[pagAtual]();
   if(pagAtual==='estoque')depoisEstoque();
+  if(pagAtual==='home')girar();
   document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});v.play().catch(()=>{});});
   if(topo)scrollTo(0,0);
   if(TITULOS[pagAtual])document.title=TITULOS[pagAtual];
