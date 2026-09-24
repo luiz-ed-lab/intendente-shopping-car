@@ -918,7 +918,7 @@ const lerTexto=el=>[...el.childNodes].map(n=>n.nodeType===3?n.data:n.nodeName===
 function sessao(){try{const s=JSON.parse(localStorage.getItem('aceima_sessao')||'null');return s&&s.exp>Date.now()?s.t:null}catch(e){return null}}
 async function entrar(senha){
   const r=senha&&await fetch('/api/conteudo?path=conteudo',{headers:{'x-painel-token':senha}}).catch(()=>null);
-  if(!r||!r.ok)return pintarBarra(senha?'Senha errada.':'');
+  if(!r||!r.ok)return pintarBarra(!senha?'':r&&r.status===401?'Senha errada.':'Não deu para conferir a senha'+(r?` (erro ${r.status})`:'')+'.');
   try{localStorage.setItem('aceima_sessao',JSON.stringify({t:senha,exp:Date.now()+36e5}))}catch(e){}
   const j=await r.json().catch(()=>({}));
   EDIT=senha;document.body.classList.add('editando');clearTimeout(giro);
