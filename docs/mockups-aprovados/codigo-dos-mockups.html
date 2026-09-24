@@ -1,0 +1,314 @@
+<!doctype html><meta charset="utf-8"><body><script>
+/* ---- 12864 ---- */
+window.__imgInt = '../../marca-nova/aceima-nova.png';
+window.__VIDRO = `
+  repeating-linear-gradient(133deg,
+    rgba(0,0,0,0) 0px, rgba(0,0,0,0) 90px,
+    rgba(28,74,140,.9) 150px, rgba(108,162,228,.95) 205px, rgba(232,160,72,.85) 245px, rgba(120,80,30,.5) 280px,
+    rgba(0,0,0,0) 330px, rgba(0,0,0,0) 520px),
+  repeating-linear-gradient(133deg,
+    rgba(0,0,0,0) 0px, rgba(0,0,0,0) 330px,
+    rgba(16,48,98,.85) 400px, rgba(64,120,196,.8) 470px,
+    rgba(0,0,0,0) 540px, rgba(0,0,0,0) 900px),
+  repeating-linear-gradient(133deg,
+    rgba(0,0,0,0) 0px, rgba(0,0,0,0) 620px,
+    rgba(196,132,46,.6) 700px, rgba(246,196,124,.45) 760px,
+    rgba(0,0,0,0) 840px, rgba(0,0,0,0) 1400px)`;
+window.__css = `
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#00091A;--gold:#C8862E;--gold2:#E8A048;--gold3:#F4B05C;--cl:#F6F4F1;--ink:#0B1A33;--mut:#5A6B85;--line:#E3DFDA}
+body{background:var(--cl);color:var(--ink);font-family:Archivo,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+.wrap{width:100%;max-width:1780px;margin:0 auto;padding:0 60px}
+.gl{position:relative;background:var(--navy);overflow:hidden}
+.gl>.luz{position:absolute;inset:-25%;pointer-events:none;filter:blur(42px) saturate(1.15);opacity:.30;mix-blend-mode:screen;
+ background:${window.__VIDRO};animation:vidro 26s ease-in-out infinite}
+@keyframes vidro{0%{transform:translate3d(-4%,-3%,0)}50%{transform:translate3d(4%,3%,0)}100%{transform:translate3d(-4%,-3%,0)}}
+.gl>*:not(.luz){position:relative;z-index:2}
+.glc{position:relative;background:var(--cl);overflow:hidden}
+.glc>.luz{position:absolute;inset:-25%;pointer-events:none;filter:blur(46px) saturate(.9);opacity:.10;
+ background:${window.__VIDRO}}
+.glc>*:not(.luz){position:relative;z-index:2}
+header{display:flex;align-items:center;justify-content:space-between;padding:20px 0}
+.mbtn{width:50px;height:50px;border-radius:99px;border:1px solid rgba(244,176,92,.4);background:rgba(255,255,255,.05);display:grid;place-items:center;color:var(--gold3)}
+.btn{font-family:Poppins,sans-serif;font-weight:600;font-size:.85rem;padding:12px 24px;border-radius:8px;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;border:0;white-space:nowrap}
+.btn.d{background:#04142E;color:#fff}
+.btn.o{background:transparent;color:var(--ink);border:1px solid #CFC8C0}
+.kick{font-family:Poppins,sans-serif;font-size:.7rem;font-weight:600;letter-spacing:2.6px;color:var(--gold);text-transform:uppercase}
+.kick.c{color:var(--gold2)}
+h1{font-size:3.9rem;font-weight:800;line-height:1.03;letter-spacing:-1.7px}
+h2{font-size:2.5rem;font-weight:800;letter-spacing:-1px;line-height:1.08}
+h3{font-size:1.1rem;font-weight:700}
+p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.62;font-size:.95rem}
+.gl p,.dark p{color:#b9c6da}
+.num b{font-size:2.1rem;font-weight:900;letter-spacing:-1.3px;display:block;line-height:1}
+.num small{font-family:Poppins,sans-serif;font-size:.72rem;color:var(--mut);font-weight:300}
+.gl .num small,.dark .num small{color:#93a3bd}
+.fbar{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+.fp{display:inline-flex;align-items:center;gap:9px;font-family:Poppins,sans-serif;font-size:.83rem;padding:10px 16px;border-radius:99px;white-space:nowrap}
+.fp.lite{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.fp.drk{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);color:#cfd9e8}
+.fp.on{background:linear-gradient(135deg,#C8862E,#F0AD57);border-color:transparent;color:#001128;font-weight:600}
+.tile{position:relative;border-radius:14px;overflow:hidden}
+.tile.lt{background:#fff;border:1px solid var(--line)}
+.tile.dk{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)}
+.tile .ph{width:100%;overflow:hidden;position:relative}
+.tile .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.13)}
+.pill{position:absolute;left:12px;bottom:12px;display:inline-flex;align-items:center;border-radius:99px;background:rgba(6,16,32,.86);padding:5px 5px 5px 14px;font-family:Poppins,sans-serif;font-size:.78rem;color:#fff;white-space:nowrap}
+.pill i{font-style:normal;margin-right:10px;font-weight:500}
+.pill b{background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;font-weight:700;padding:5px 12px;border-radius:99px;font-size:.78rem}
+.mosg{display:grid;gap:14px;align-items:start}
+.mosc{display:flex;flex-direction:column;gap:14px}
+.vtl{border-left:2px solid rgba(255,255,255,.14)}
+.vti{padding:19px 0 19px 34px;border-bottom:1px solid rgba(255,255,255,.09);position:relative}
+.vti:last-child{border-bottom:0}
+.vti .n{font-family:Poppins,sans-serif;font-size:.66rem;color:#6d7e99;letter-spacing:1px;position:absolute;left:34px;top:27px}
+.vti h3{font-size:1.95rem;font-weight:800;letter-spacing:-.8px;color:#445773;margin-left:38px;line-height:1.1}
+.vti.on h3{color:#fff}
+.vti.on{border-left:2px solid var(--gold2);margin-left:-2px;padding-left:36px}
+.vti .d{margin-left:38px;margin-top:8px;max-width:520px}
+.fone{width:352px;height:720px;border-radius:38px;background:#0B1A33;padding:9px;flex:none}
+.fone .tela{width:100%;height:100%;border-radius:30px;overflow:hidden;position:relative;background:var(--cl)}
+.fone .notch{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:92px;height:22px;border-radius:99px;background:#0B1A33;z-index:99}
+.mh{padding:30px 16px 14px;display:flex;align-items:center;justify-content:space-between}
+.mbt{width:36px;height:36px;border-radius:99px;border:1px solid rgba(244,176,92,.4);display:grid;place-items:center;color:#F4B05C}
+.fone .pill{font-size:.62rem;padding:3px 3px 3px 9px;left:8px;bottom:8px}
+.fone .pill i{margin-right:6px}
+.fone .pill b{font-size:.62rem;padding:3px 7px}
+.fone .tile{border-radius:11px}
+.stag{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.stag .col2{margin-top:46px}
+.stag .c{border-radius:16px;overflow:hidden;box-shadow:0 16px 36px rgba(11,26,51,.13);background:#fff;border:1px solid var(--line);position:relative;margin-bottom:18px}
+.stag .c .ph{width:100%;overflow:hidden;position:relative}
+.stag .c img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.13)}
+.stag .lb{position:absolute;left:10px;bottom:10px;background:rgba(6,16,32,.86);color:#fff;font-family:Poppins,sans-serif;font-size:.72rem;padding:5px 11px;border-radius:99px;display:flex;gap:8px;align-items:center}
+.stag .lb b{color:#F4B05C;font-weight:700}
+`;
+window.__mostrar = function(b){ document.open(); document.write('<!doctype html><meta charset="utf-8"><style>'+window.__css+'</style><body>'+b+'</body>'); document.close(); };
+window.__luz = '<div class="luz"></div>';
+window.__ic = function(p,s){ return '<svg width="'+(s||20)+'" height="'+(s||20)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'; };
+window.__hd = function(a){ return '<div class="wrap"><header><img src="'+window.__imgInt+'" style="height:44px;width:auto"><div style="display:flex;align-items:center;gap:18px"><span style="font-family:Poppins,sans-serif;font-size:.85rem;color:#93a3bd">'+a+'</span><div class="mbtn">'+window.__ic('<path d="M4 7h16M4 12h16M4 17h16"/>',23)+'</div></div></header></div>'; };
+window.__mhd = function(){return '<div class="mh"><img src="'+window.__imgInt+'" style="height:26px"><div class="mbt">'+window.__ic('<path d="M4 7h16M4 12h16M4 17h16"/>',18)+'</div></div>';};
+window.__CARROS=[
+ ['Jeep Compass',2021,'104.900','https://www.autocerto.com/fotos/4038/4736940/1_044416.jpg'],
+ ['Porsche Cayenne',2012,'160.000','https://www.autocerto.com/fotos/381/5484630/1_031440.jpg'],
+ ['Nissan Kicks',2024,'120.900','https://www.autocerto.com/fotos/1719/4869492/16_063031.jpg'],
+ ['Honda HR-V',2018,'94.900','https://www.autocerto.com/fotos/4038/5061081/1_034324.jpg'],
+ ['Fiat Uno',2014,'40.900','https://www.autocerto.com/fotos/4038/5347907/1_023008.jpg'],
+ ['Toyota Yaris',2019,'79.900','https://www.autocerto.com/fotos/1719/5474203/23_022342.jpg'],
+ ['Audi Q3',2015,'78.900','https://www.autocerto.com/fotos/551/5340565/1_033307.jpg'],
+ ['Chevrolet S10',2013,'84.900','https://www.autocerto.com/fotos/4038/5061282/1_033928.jpg'],
+ ['Renault Kardian',2025,'101.900','https://www.autocerto.com/fotos/4038/4721989/1_014621.jpg'],
+ ['Mercedes GLA 200',2019,'118.000','https://www.autocerto.com/fotos/381/5281862/1_052151.jpg'],
+ ['Ford Ka',2018,'45.900','https://www.autocerto.com/fotos/4038/5483556/1_022642.jpg'],
+ ['Citroën C4 Cactus',2021,'73.900','https://www.autocerto.com/fotos/1719/5444495/16_021544.jpg']];
+window.__tile=function(c,dk,asp){ return '<div class="tile '+(dk?'dk':'lt')+'"><div class="ph" style="aspect-ratio:'+asp+'"><img src="'+c[3]+'"></div><div class="pill"><i>'+c[0]+' '+c[1]+'</i><b>R$ '+c[2]+'</b></div></div>'; };
+window.__cs=function(c,asp){return '<div class="c"><div class="ph" style="aspect-ratio:'+asp+'"><img src="'+c[3]+'"></div><div class="lb">'+c[0]+' <b>R$ '+c[2]+'</b></div></div>';};
+'base v8 vidro real';
+/* ---- 13013 ---- */
+
+window.__VURL='../../fundo-vidro.mp4';
+window.__luz='<video class="luz" src="'+window.__VURL+'" muted loop playsinline preload="auto"></video>';
+window.__css += `
+.gl>video.luz,.glc>video.luz{position:absolute!important;inset:0!important;left:0;top:0;width:100%;height:100%;
+  object-fit:cover;pointer-events:none;animation:none!important;filter:none;border:0;display:block}
+.gl>video.luz{opacity:.32;mix-blend-mode:screen}
+.glc>video.luz{opacity:.13;mix-blend-mode:multiply;filter:saturate(.65)}
+`;
+window.__seek=async function(t){
+  var vs=[...document.querySelectorAll('video.luz')];
+  await Promise.all(vs.map(v=>new Promise(res=>{
+    var go=function(){ v.currentTime=t; v.addEventListener('seeked',()=>res(1),{once:true}); setTimeout(()=>res(2),3000); };
+    if(v.readyState>=2) go(); else v.addEventListener('loadeddata',go,{once:true});
+    setTimeout(()=>res(3),6000);
+  })));
+  return vs.map(v=>v.readyState+':'+v.currentTime.toFixed(1)).join(' | ');
+};
+'ok';
+/* ---- 13091 ---- */
+window.__tileF=function(c,f){
+ return '<figure class="tilef" style="flex:'+f+'">'+
+  '<img src="'+c[3]+'" alt="">'+
+  '<figcaption><span class="nm">'+c[0]+' '+c[1]+'</span><span class="pr">R$ '+c[2]+'</span></figcaption>'+
+ '</figure>';
+};
+window.__mosaico=function(){
+ var L=window.__CARROS;
+ var cols=[
+  {w:'1.5fr', it:[[L[0],.58],[L[5],.42]]},
+  {w:'1fr',   it:[[L[1],.45],[L[6],.55]]},
+  {w:'1.25fr',it:[[L[2],.6],[L[7],.4]]},
+  {w:'1.05fr',it:[[L[3],.4],[L[4],.6]]}
+ ];
+ return '<div class="mosg" style="display:grid;gap:16px;height:500px;grid-template-columns:'+cols.map(c=>c.w).join(' ')+'">'+
+  cols.map(c=>'<div class="mosc" style="display:flex;flex-direction:column;gap:16px;min-height:0">'+
+    c.it.map(p=>window.__tileF(p[0],p[1])).join('')+'</div>').join('')+'</div>';
+};
+var st=document.createElement('style');
+st.textContent=`
+.tilef{position:relative;margin:0;min-height:0;border-radius:14px;overflow:hidden;background:#0A1A33;
+  box-shadow:0 14px 34px rgba(0,0,0,.34)}
+.tilef img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.14)}
+.tilef figcaption{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 12px;
+  display:flex;align-items:center;gap:10px;
+  background:linear-gradient(to top,rgba(0,8,22,.9),rgba(0,8,22,0))}
+.tilef .nm{color:#fff;font-weight:700;font-size:.9rem;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.tilef .pr{margin-left:auto;font-family:Poppins,sans-serif;font-weight:800;font-size:.84rem;
+  color:#00112C;background:linear-gradient(135deg,#C8862E,#F0AD57);padding:5px 11px;border-radius:7px;white-space:nowrap}
+`;
+window.__cssExtra=(window.__cssExtra||'')+st.textContent;
+window.__css+=st.textContent;
+'ok';
+/* ---- 13109 ---- */
+var add=`
+.mosg{align-items:stretch!important}
+.mosc{min-height:0!important;overflow:hidden}
+.tilef{min-height:0!important;overflow:hidden}
+.tilef img{transform:scale(1.26)!important;transform-origin:center 48%}
+`;
+window.__css+=add;
+
+
+/* ---- 13129 ---- */
+window.__css+=`
+.gl>video.luz{opacity:.17!important;filter:brightness(.78) saturate(.9)!important}
+.glc>video.luz{opacity:.07!important}
+`;'ok'
+/* ---- 13351 ---- */
+window.__mosaico=function(){
+ var L=window.__CARROS;
+ var cols=[
+  {w:'1.22fr', it:[[L[0],.594],[L[5],.406]]},
+  {w:'1fr',    it:[[L[1],.47],[L[6],.53]]},
+  {w:'1.05fr', it:[[L[2],.554],[L[7],.446]]},
+  {w:'1fr',    it:[[L[3],.46],[L[4],.54]]}
+ ];
+ return '<div class="mosg" style="display:grid;gap:16px;height:420px;grid-template-columns:'+cols.map(c=>c.w).join(' ')+'">'+
+  cols.map(c=>'<div class="mosc" style="display:flex;flex-direction:column;gap:16px;min-height:0">'+
+    c.it.map(p=>window.__tileF(p[0],p[1])).join('')+'</div>').join('')+'</div>';
+};
+window.__css+='.tilef img{transform:scale(1.5)!important;transform-origin:center 50%}';
+
+
+
+/* ---- 12871 ---- */
+window.__home1=function(){
+ var tabs=[['01','Comprar um veículo','Mil quatrocentos e um anúncios das 23 lojas associadas, cada uma com selo e avaliação real no Google.'],
+           ['02','Ser um associado','O que a ACEIMA entrega ao lojista da Intendente e o caminho para entrar.'],
+           ['03','Conhecer a ACEIMA','Vinte e oito anos representando o comércio da Intendente Magalhães.'],
+           ['04','Serviços do polo','Vistoria, inspeção e comércio credenciado na mesma rua.']];
+ return `<div class="gl" style="min-height:100vh;display:flex;flex-direction:column">${window.__luz}
+ ${window.__hd('Início')}
+ <div class="wrap" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:44px;padding-bottom:30px">
+  <div>
+    <div class="kick c">ACEIMA · desde 1998</div>
+    <h1 style="margin:18px 0 18px;color:#fff;max-width:1080px">Somos o maior polo automotivo<br><span style="background:linear-gradient(100deg,#F6C078,#C8862E);-webkit-background-clip:text;color:transparent">da América Latina.</span></h1>
+    <p style="font-size:1.05rem;max-width:660px">Vinte e três lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.</p>
+  </div>
+  <div class="vtl">
+   ${tabs.map(function(t,i){return '<div class="vti'+(i===0?' on':'')+'"><span class="n">/'+t[0]+'</span><h3>'+t[1]+'</h3>'+(i===0?'<div class="d"><p style="font-size:.95rem">'+t[2]+'</p></div>':'')+'</div>';}).join('')}
+  </div>
+ </div>
+</div>`;};
+
+/* ---- 12884 ---- */
+window.__secEstoque=function(){
+ var C=window.__CARROS;
+ return `<div class="glc" style="min-height:100vh;display:flex;align-items:center;padding:40px 0">${window.__luz}
+  <div class="wrap" style="display:grid;grid-template-columns:1fr 1.02fr;gap:64px;align-items:center">
+   <div>
+     <div class="kick">Estoque dos associados</div>
+     <h2 style="margin:14px 0 16px;font-size:2.7rem">Mil e quatrocentos veículos,<br>vinte e três lojas,<br>uma vitrine só.</h2>
+     <p style="font-size:1rem;max-width:470px">Cada anúncio publicado direto pela loja associada, com selo da ACEIMA, avaliação real no Google e contato que cai no WhatsApp de quem vende.</p>
+     <div style="display:flex;gap:12px;margin-top:26px">
+       <button class="btn d">Ver o estoque completo</button>
+       <button class="btn o">Buscar por marca</button>
+     </div>
+   </div>
+   <div class="stag">
+     <div>${window.__cs(C[0],1.5)}${window.__cs(C[7],1.35)}</div>
+     <div class="col2">${window.__cs(C[2],1.35)}${window.__cs(C[1],1.55)}</div>
+   </div>
+  </div>
+ </div>`;
+};
+
+/* ---- 12899 ---- */
+window.__filtroLinha=function(dk){
+ var cls=dk?'drk':'lite';
+ var it=[['Todos os veículos',1],['Marca',0],['Modelo',0],['Ano',0],['Preço',0],['Loja associada',0],['Câmbio',0],['Combustível',0]];
+ return '<div class="fbar">'+it.map(function(f){return '<span class="fp '+(f[1]?'on':cls)+'">'+f[0]+(f[1]?'':window.__ic('<path d="m6 9 6 6 6-6"/>',13))+'</span>';}).join('')+
+ '<span style="flex:1"></span><span class="fp '+cls+'">'+window.__ic('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',14)+'Buscar</span></div>';
+};
+window.__estoque=function(){
+ return `<div class="gl dark" style="min-height:100vh;display:flex;flex-direction:column">${window.__luz}
+ ${window.__hd('Estoque')}
+ <div class="wrap" style="padding-top:26px;padding-bottom:28px">
+   <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px">
+     <div><div class="kick c">Estoque dos associados</div>
+     <h2 style="margin-top:9px;color:#fff;font-size:2rem">1.401 veículos, sempre intercalados entre as 23 lojas</h2></div>
+     <span class="fp drk">Ordenar: mais recentes${window.__ic('<path d="m6 9 6 6 6-6"/>',13)}</span>
+   </div>
+   <div style="margin-bottom:18px">${window.__filtroLinha(true)}</div>
+   ${window.__mosaico(true)}
+ </div>
+</div>`;};
+
+/* ---- 12943 ---- */
+window.__LOJAS=[['Jazz Veículos','4,5',555],['Jay Motors','4,0',135],['Lazari','4,7',107],['Robmar Automóveis','4,2',60],['Astral Pickups','4,3',57],['FLX Multimarcas','4,7',45],['Auto Barra','4,8',41],['Garra Vip 4x4','4,4',38],['Luma Car','4,6',34],['Alfa Car Veículos','',34],['Maiorano Veículos','4,8',32],['GTS IndyCar','4,8',32],['Riomix Motos','4,6',31],['Bragança Automóveis','4,4',27],['AG Rio Car','4,7',27],['BitCar Automóveis','4,7',26],['TurboMix Veículos','4,9',24],['Perfil Multimarcas','3,5',24],['Grande Estilo','4,3',23],['Apollo Automóveis','4,5',22],['HiperCar','4,7',15],['T.F.A. Motors','5,0',13],['Lions Seminovos','4,8',0]];
+/* ---- 13182 ---- */
+window.__associados=function(){
+ var marcos=[['205','Astral Pickups'],['341','FLX Multimarcas'],['503','LaudoCar'],['640','Alfa Car'],['731','AG Rio Car'],['799','R21'],['830','Auto Barra'],['940','Bragança']];
+ var linha=function(l,i){
+  var on = l[0]==='Auto Barra';
+  return '<div style="display:flex;align-items:center;gap:10px;padding:5px 11px;border-radius:8px;height:34px;box-sizing:border-box;'+(on?'background:#fff;border:1px solid var(--line);box-shadow:0 5px 16px rgba(11,26,51,.07)':'')+'">'+
+   '<span style="font-family:Poppins,sans-serif;font-size:.64rem;color:#A9A198;width:18px;flex:none">'+String(i+1).padStart(2,'0')+'</span>'+
+   '<span style="font-weight:'+(on?800:600)+';font-size:.87rem;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+l[0]+'</span>'+
+   (l[1]?'<span style="font-family:Poppins,sans-serif;font-size:.74rem;font-weight:600;flex:none">'+l[1]+'<span style="color:#C8862E"> ★</span></span>':'<span style="font-family:Poppins,sans-serif;font-size:.7rem;color:#A9A198;flex:none">sem nota</span>')+
+   '<span style="font-family:Poppins,sans-serif;font-size:.72rem;color:var(--mut);width:82px;flex:none;text-align:right;white-space:nowrap">'+l[2]+' anúncios</span></div>';
+ };
+ return `<div class="glc" style="height:100vh;overflow:hidden;display:flex;flex-direction:column">${window.__luz}
+ <div class="gl" style="padding:0;flex:none">${window.__luz}${window.__hd('Associados')}</div>
+ <div class="wrap" style="padding-top:20px;flex:1;min-height:0;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:30px">
+    <div><div class="kick">Quem faz o polo</div>
+    <h2 style="margin-top:8px;font-size:2.1rem">Vinte e três associados numa rua só.</h2></div>
+    <div style="display:flex;gap:9px;flex-shrink:0"><span class="fp on">Todos · 23</span><span class="fp lite">Veículos · 22</span><span class="fp lite">Serviços · 3</span><span class="fp lite">Comércio · 1</span></div>
+  </div>
+  <div style="margin:18px 0 6px;position:relative;height:70px;flex:none">
+    <div style="position:absolute;left:0;right:0;top:30px;height:6px;border-radius:99px;background:#E0DAD2"></div>
+    <div style="position:absolute;left:0;right:0;top:32px;height:2px;background:repeating-linear-gradient(90deg,#fff 0 14px,transparent 14px 28px)"></div>
+    ${marcos.map(function(m,i){var x=(i/(marcos.length-1))*100;var on=m[1]==='Auto Barra';
+      return '<div style="position:absolute;left:'+x+'%;top:0;transform:translateX(-50%);text-align:center;width:120px">'+
+      '<div style="font-family:Poppins,sans-serif;font-size:.68rem;color:'+(on?'#0B1A33':'#8A8178')+';font-weight:'+(on?700:400)+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+m[1]+'</div>'+
+      '<div style="width:'+(on?16:10)+'px;height:'+(on?16:10)+'px;border-radius:99px;margin:6px auto 0;background:'+(on?'linear-gradient(135deg,#C8862E,#F0AD57)':'#0B1A33')+';border:3px solid var(--cl)"></div>'+
+      '<div style="font-family:Poppins,sans-serif;font-size:.66rem;color:#A9A198;margin-top:4px">nº '+m[0]+'</div></div>';}).join('')}
+  </div>
+  <div style="font-family:Poppins,sans-serif;font-size:.75rem;color:var(--mut);margin-bottom:14px;flex:none">Estrada Intendente Magalhães, de Madureira a Bento Ribeiro.</div>
+  <div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.5fr);gap:36px;align-items:start;flex:1;min-height:0">
+    <div style="display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:column;grid-template-rows:repeat(12,34px);gap:3px 22px">${window.__LOJAS.map(linha).join('')}</div>
+    <div style="border-radius:15px;overflow:hidden;background:#fff;border:1px solid var(--line);box-shadow:0 14px 40px rgba(11,26,51,.08)">
+      <div style="background:linear-gradient(150deg,#02245A,#00112C);padding:20px 18px;display:flex;align-items:center;gap:13px">
+        <div style="width:50px;height:50px;border-radius:11px;background:rgba(244,176,92,.16);border:1px solid rgba(244,176,92,.4);display:grid;place-items:center;font-weight:900;color:#F4B05C;font-size:.95rem">AB</div>
+        <div><div style="color:#fff;font-weight:800;font-size:1.12rem">Auto Barra</div>
+        <div style="display:inline-flex;align-items:center;gap:5px;margin-top:5px;font-family:Poppins,sans-serif;font-size:.56rem;letter-spacing:.5px;font-weight:700;color:#7fe0a5;background:rgba(31,168,85,.15);border:1px solid rgba(31,168,85,.35);padding:3px 8px;border-radius:5px">ASSOCIADO ACEIMA</div></div>
+      </div>
+      <div style="padding:16px 18px 18px">
+        <p style="font-size:.82rem">Est. Intendente Magalhães, nº 830<br>Vila Valqueire</p>
+        <div style="display:flex;gap:18px;margin:12px 0;padding:11px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+          <div class="num"><b style="font-size:1.24rem">4,8<span style="color:#C8862E">★</span></b><small>469 avaliações</small></div>
+          <div class="num"><b style="font-size:1.24rem">41</b><small>anúncios no ar</small></div>
+        </div>
+        <div style="display:flex;gap:8px"><button class="btn d" style="flex:1;font-size:.76rem;padding:9px 0">Ver estoque</button><button class="btn o" style="flex:1;font-size:.76rem;padding:9px 0">WhatsApp</button></div>
+      </div>
+    </div>
+  </div>
+ </div>
+</div>`;};
+
+window.__ir=function(h){window.__mostrar(h);document.body.style.overflow='hidden';[...document.querySelectorAll('video.luz')].forEach(v=>{v.muted=true;v.loop=true;v.play().catch(()=>{});});};
+
+window.__ver=function(n){window.__ir(window["__"+n]());};
+// abrir com #home1, #secEstoque, #estoque ou #associados no fim do endereço
+window.__ver((location.hash.slice(1))||'home1');
+</script></body>
