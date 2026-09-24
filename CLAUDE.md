@@ -16,6 +16,7 @@ Sem build. Tudo roda na Vercel.
 | Arquivo | O que é |
 |---|---|
 | `index.html` | O site público inteiro, em um arquivo só: CSS, HTML gerado por funções JS e roteador. JS puro, sem framework. |
+| `conteudo.js` | Textos e estilos que o Luiz edita no próprio site (modo de edição, `/?editar`). O site salva direto no GitHub, no ramo da publicação. **Vale por cima do texto padrão do `index.html`.** |
 | `painel.html` | Painel administrativo da ACEIMA (lojas, estoque, leads). **Ainda está com a identidade antiga.** |
 | `api/[...path].js` | Função serverless única da Vercel (Node, ESM). Atende todas as rotas `/api/*`. |
 | `vercel.json` | Cron diário do importador e rewrite de tudo que não é `/api/` para `index.html`. |
@@ -29,9 +30,9 @@ Sem build. Tudo roda na Vercel.
 
 - Banco: Postgres no Neon, via `@neondatabase/serverless`. A própria API cria as colunas que faltam (`migra()`). O schema original está em `docs/referencia/schema.sql`.
 - Robô importador: lê o site de cada loja (com `cheerio`) e grava os anúncios. Plano completo em `docs/referencia/importador-plano-tecnico.md`.
-- Rotas (o front chama `/api/<rota>?path=<rota>`): `lojas`, `parceiros`, `veiculos`, `leads`, `importar`, `refresh`, `auth`. Protegidas por `PAINEL_TOKEN`: `resumo`, `testeemail`.
+- Rotas (o front chama `/api/<rota>?path=<rota>`): `lojas`, `parceiros`, `veiculos`, `leads`, `importar`, `refresh`, `auth`. Protegidas por `PAINEL_TOKEN`: `resumo`, `testeemail`, `conteudo`.
 - E-mails de lead: Resend.
-- Variáveis de ambiente (nomes em `.env.example`, valores só na Vercel): `DATABASE_URL`, `PAINEL_TOKEN`, `RESEND_API_KEY`, `RESEND_FROM`, `ACEIMA_EMAIL`, `SITE_URL`.
+- Variáveis de ambiente (nomes em `.env.example`, valores só na Vercel): `DATABASE_URL`, `PAINEL_TOKEN`, `RESEND_API_KEY`, `RESEND_FROM`, `ACEIMA_EMAIL`, `SITE_URL`, `GITHUB_TOKEN`.
 
 ### Front (`index.html`)
 
@@ -40,6 +41,8 @@ Sem build. Tudo roda na Vercel.
 - Dados: `carregar()` busca `/api/lojas` e `/api/veiculos`. Sem API (aberto do disco), usa a amostra `AMOSTRA_V` / `AMOSTRA_L`, que são os mesmos carros dos mockups.
 - Os anúncios aparecem intercalados entre as lojas, e nenhuma loja domina a vitrine (`intercalar()`). Não trocar isso por ordenação simples.
 - Celular (até 760px): as medidas foram tiradas das telas de celular aprovadas, com 284px de largura útil, e convertidas em `vw`. Para mudar um tamanho no celular, mantenha essa conversão (px ÷ 2,84 = vw).
+- Textos: todo texto institucional passa por `T(id, padrão)`. O que o Luiz edita fica em `conteudo.js` com o mesmo id e vence o padrão. Números que mudam com os dados entram como `{veículos}`, `{lojas}`, `{associados}`, `{anos}` e `{veículos arredondados}` (com "por extenso" saem em palavras). Ao mudar um texto no código, confira se ele não está sobrescrito em `conteudo.js`. Não troque um id que já tem edição, senão a edição se perde.
+- Modo de edição: `/?editar`, com a senha do painel. Cores, fontes e pesos ficam limitados às listas `CORES`, `FONTES` e `PESOS`. Salvar faz um commit no ramo pela rota `/api/conteudo`, que precisa da variável `GITHUB_TOKEN`. **Como o Luiz faz commits pelo site, rode `git pull` antes de mexer e antes de cada push.** Teste da rota: `node testes/conteudo.mjs`.
 - Menu: o botão redondo se abre numa lista, seguindo o componente "List Item / Filter Interaction" de uselayouts (21st.dev). Itens com ícone, nome e círculo de marcação; entrada em cascata.
 
 ## Rodar

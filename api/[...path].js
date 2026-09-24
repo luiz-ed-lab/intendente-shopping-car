@@ -1187,6 +1187,46 @@ async function rotaTesteEmail(req, res) {
   res.json({ ok: true, tipo, enviadoPara: ACEIMA_MAIL, loja: v ? v.loja_nome : null, veiculo: exemplo.veiculo_nome || null });
 }
 
+// ---------------- CONTEÚDO (modo de edição do site) ----------------
+// O modo de edição (/?editar) grava textos e estilos em conteudo.js, direto no GitHub,
+// no mesmo ramo desta publicação: editar na prévia não mexe no site no ar.
+// Precisa da variável GITHUB_TOKEN na Vercel (token do GitHub com escrita em Contents deste repositório).
+const CAMPOS_CONTEUDO = ['texto', 'tam', 'cor', 'fonte', 'peso'];
+async function rotaConteudo(req, res) {
+  const token = process.env.GITHUB_TOKEN, ramo = process.env.VERCEL_GIT_COMMIT_REF;
+  if (req.method === 'GET') return res.json({ ok: true, ramo: ramo || null, pronto: !!(token && ramo) });
+  if (req.method !== 'POST') return res.status(405).json({ erro: 'método não permitido' });
+  if (!token || !ramo) return res.status(500).json({ erro: 'falta configurar o GITHUB_TOKEN na Vercel' });
+  const repo = `${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}`;
+  const url = `https://api.github.com/repos/${repo}/contents/conteudo.js`;
+  const h = { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'User-Agent': 'aceima-site' };
+  // lê a versão atual do ramo e aplica só o que mudou (outra aba pode ter salvo antes)
+  const g = await fetch(`${url}?ref=${encodeURIComponent(ramo)}`, { headers: h });
+  if (!g.ok && g.status !== 404) return res.status(502).json({ erro: `o GitHub respondeu ${g.status} ao ler` });
+  let atual = {}, sha;
+  if (g.ok) {
+    const j = await g.json(); sha = j.sha;
+    const txt = Buffer.from(j.content, 'base64').toString('utf8');
+    atual = JSON.parse(txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1));
+  }
+  const ids = [];
+  for (const [id, v] of Object.entries((req.body && req.body.mudancas) || {})) {
+    if (!/^[\w.-]+$/.test(id)) continue;
+    ids.push(id);
+    if (v && typeof v === 'object') atual[id] = Object.fromEntries(Object.entries(v).filter(([k]) => CAMPOS_CONTEUDO.includes(k)));
+    else delete atual[id];
+  }
+  if (!ids.length) return res.json({ ok: true, ramo });
+  const corpo = '// Textos e estilos do site, editados no modo de edição (/?editar).\n' +
+    '// Cada chave é um texto do index.html. O que não está aqui usa o texto padrão.\n' +
+    'window.CONTEUDO = ' + JSON.stringify(atual, null, 2) + ';\n';
+  const p = await fetch(url, { method: 'PUT', headers: h, body: JSON.stringify({
+    message: ('Modo de edição: ' + ids.join(', ')).slice(0, 200),
+    content: Buffer.from(corpo).toString('base64'), sha, branch: ramo }) });
+  if (!p.ok) return res.status(502).json({ erro: `o GitHub respondeu ${p.status} ao gravar` });
+  res.json({ ok: true, ramo });
+}
+
 // ---------------- ROTEADOR ----------------
 export default async function handler(req, res) {
   let rota;
@@ -1205,6 +1245,7 @@ export default async function handler(req, res) {
     if (rota === 'resumo') return autorizado(req) ? await rotaResumo(req, res) : negar(res);
     if (rota === 'refresh') return await rotaRefresh(req, res);
     if (rota === 'testeemail') return autorizado(req) ? await rotaTesteEmail(req, res) : negar(res);
+    if (rota === 'conteudo') return autorizado(req) ? await rotaConteudo(req, res) : negar(res);
     // login do painel: confere a senha sem nunca devolvê-la
     if (rota === 'auth') {
       const b = req.body || {};

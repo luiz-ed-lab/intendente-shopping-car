@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- endereços como /veiculo/123 não podem quebrar os caminhos relativos (logo, vídeo, fotos); do disco, fica como está -->
+<script>if(location.protocol!=='file:'){const b=document.createElement('base');b.href='/';document.head.prepend(b)}</script>
 <title>ACEIMA | O maior polo automotivo da América Latina</title>
 <meta name="description" content="A ACEIMA reúne as lojas da Estrada Intendente Magalhães desde 1998. Estoque dos associados, serviços do polo e como se associar.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -196,6 +198,27 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
 .vazio{padding:60px 0;text-align:center;font-family:Poppins,sans-serif;color:#93a3bd}
 .vazio a{color:var(--gold3);cursor:pointer}
 
+/* modo de edição (/?editar) */
+.editando{background:var(--navy);padding-bottom:150px}
+.editando #app [data-t]{outline:1px dashed rgba(244,176,92,.5);outline-offset:3px;cursor:text}
+.editando #app [data-t]:hover{outline-color:#F4B05C}
+.editando #app [data-t].sel{outline:2px solid #F4B05C}
+.editando #app [data-t]:empty::before{content:'(vazio)';opacity:.5}
+.editando .vti .d{height:auto!important;opacity:1;transform:none}
+#edBarra{position:fixed;z-index:400;left:50%;bottom:14px;transform:translateX(-50%);width:min(1240px,calc(100% - 20px));display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;
+  padding:12px 14px;border-radius:14px;background:#0A1A33;border:1px solid rgba(244,176,92,.4);box-shadow:0 20px 50px rgba(0,0,0,.5);font-family:Poppins,sans-serif;font-size:.8rem;color:#cfd9e8}
+#edBarra>div,#edBarra form,#edBarra .edG{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+#edBarra .edG{gap:6px}
+#edBarra button:not(.btn),#edBarra select,#edBarra input{height:30px;padding:0 10px;border-radius:7px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font:inherit}
+#edBarra select option{color:#0B1A33}
+#edBarra .edC{width:20px;height:20px;padding:0;border-radius:99px}
+#edBarra .edC.on{outline:2px solid #F4B05C;outline-offset:2px}
+#edBarra .edId{color:#F4B05C;font-weight:600}
+#edBarra .btn{padding:8px 16px}
+#edBarra .btn.o{color:#fff;border-color:rgba(255,255,255,.28)}
+#edBarra .btn[disabled]{opacity:.4;cursor:default}
+#edMsg{color:#F4B05C}
+
 /* ============ CELULAR: cópia das telas de celular aprovadas ============ */
 @media (max-width:1100px){
   .wrap{padding:0 28px}
@@ -299,6 +322,7 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
 <body class="semvideo">
 <div id="app"></div>
 
+<script src="conteudo.js"></script>
 <script>
 /* ==================== CONSTANTES ==================== */
 // vídeo do fundo: o mesmo do template aprovado (21st/payload), agora dentro da pasta do site.
@@ -329,6 +353,30 @@ function ate999(n){if(n<20)return EU[n];if(n<100)return ED[Math.floor(n/10)]+(n%
 function extenso(n,fem){n=Math.floor(n);let s;if(n<1000)s=ate999(n);else{const m=Math.floor(n/1000),r=n%1000;s=(m===1?'mil':ate999(m)+' mil')+(r?((r<=100||r%100===0)?' e ':' ')+ate999(r):'');}
   if(fem)s=s.replace(/\bum$/,'uma').replace(/\bdois$/,'duas');return s;}
 const Cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+/* ==================== TEXTOS EDITÁVEIS ==================== */
+// Todo texto institucional passa por T(id, padrão). O que o Luiz muda no modo de edição (/?editar)
+// fica em conteudo.js e vale por cima do padrão. "\n" no texto vira quebra de linha.
+const CONTEUDO=window.CONTEUDO||{},PADRAO={};
+let PEND={};   // mudanças ainda não salvas
+const valor=id=>id in PEND?PEND[id]:CONTEUDO[id];
+const CORES=['#FFFFFF','#F6F4F1','#F4B05C','#E8A048','#C8862E','#B9C6DA','#5A6B85','#0B1A33','#00091A'];
+const FONTES={Archivo:'Archivo,sans-serif',Poppins:'Poppins,sans-serif'};
+const PESOS=[[300,'Leve'],[400,'Normal'],[500,'Médio'],[600,'Seminegrito'],[700,'Negrito'],[800,'Extranegrito'],[900,'Black']];
+// só entra no style o que está nas listas: um conteudo.js mexido à mão nunca quebra a página
+function estiloCss(o){o=o||{};let s='';
+  if(o.tam>=.5&&o.tam<=3)s+=`font-size:${o.tam}em;`;
+  if(CORES.includes(o.cor))s+=`color:${o.cor};`;
+  if(FONTES[o.fonte])s+=`font-family:${FONTES[o.fonte]};`;
+  if(PESOS.some(p=>p[0]===o.peso))s+=`font-weight:${o.peso};`;
+  return s;}
+// números automáticos: {veículos}, {veículos arredondados}, {lojas}, {associados}, {anos}.
+// Com "por extenso" saem em palavras; com inicial maiúscula, começam maiúsculos.
+function comValores(s){return esc(s).replace(/\{([^}]+)\}/g,(m,k)=>{
+  const n=norm(k).trim(),ext=n.endsWith(' por extenso'),b=n.replace(/ por extenso$/,'');
+  const q={'veiculos':nVeic(),'veiculos arredondados':Math.floor(nVeic()/100)*100||nVeic(),'lojas':nLojas(),'associados':nLojas(),'anos':new Date().getFullYear()-1998}[b];
+  if(q==null)return m;const r=ext?extenso(q,b==='lojas'):fmt(q);return k[0]!==k[0].toLowerCase()?Cap(r):r;}).replace(/\n/g,'<br>');}
+function T(id,padrao){PADRAO[id]=padrao;const o=valor(id)||{};return `<span data-t="${id}" style="${estiloCss(o)}">${comValores(o.texto!=null?o.texto:padrao)}</span>`;}
 
 /* ==================== DADOS ==================== */
 // amostra usada quando o site é aberto direto do computador (sem API): as mesmas fotos dos mockups
@@ -448,31 +496,29 @@ function escolherMenu(pg,el){
 const rodape=()=>`<footer class="rod"><div class="wrap">
   <img src="${LOGO}" alt="ACEIMA">
   <nav>${PAGINAS.slice(1).map(p=>`<a onclick="go('${p[0]}')">${p[1]}</a>`).join('')}<a onclick="go('servicos')">Serviços do polo</a></nav>
-  <div>Estrada Intendente Magalhães, 830 · Vila Valqueire · Rio de Janeiro<br>(21) 3283-6600 · <a href="https://wa.me/${WA_ACEIMA}" target="_blank" style="color:#B9C6DA">WhatsApp (21) 99104-1424</a> · © ${new Date().getFullYear()} ACEIMA · aceima.com.br</div>
+  <div>${T('rodape.endereco','Estrada Intendente Magalhães, 830 · Vila Valqueire · Rio de Janeiro')}<br>${T('rodape.telefone','(21) 3283-6600')} · <a href="https://wa.me/${WA_ACEIMA}" target="_blank" style="color:#B9C6DA">WhatsApp (21) 99104-1424</a> · © ${new Date().getFullYear()} ACEIMA · aceima.com.br</div>
 </div></footer>`;
 
 /* ==================== INÍCIO ==================== */
 let abaHome=0;
 function home(){
-  const anos=new Date().getFullYear()-1998;
   // [título, texto, página, imagem ao fundo]
   const tabs=[
-    ['Comprar um veículo',`${Cap(extenso(nVeic()))} anúncios das ${nLojas()} lojas associadas, cada uma com selo e avaliação real no Google.`,'estoque','fotos-home/comprar.jpg'],
-    ['Ser um associado','O que a ACEIMA entrega ao lojista da Intendente e o caminho para entrar.','associar',''],
-    ['Conhecer a ACEIMA',`${Cap(extenso(anos))} anos representando o comércio da Intendente Magalhães.`,'aceima',''],
-    ['Serviços do polo','Vistoria, inspeção e comércio credenciado na mesma rua.','servicos','']];
+    [T('inicio.caminho1','Comprar um veículo'),T('inicio.caminho1-texto','{Veículos por extenso} anúncios das {lojas} lojas associadas, cada uma com selo e avaliação real no Google.'),'estoque','fotos-home/comprar.jpg'],
+    [T('inicio.caminho2','Ser um associado'),T('inicio.caminho2-texto','O que a ACEIMA entrega ao lojista da Intendente e o caminho para entrar.'),'associar',''],
+    [T('inicio.caminho3','Conhecer a ACEIMA'),T('inicio.caminho3-texto','{Anos por extenso} anos representando o comércio da Intendente Magalhães.'),'aceima',''],
+    [T('inicio.caminho4','Serviços do polo'),T('inicio.caminho4-texto','Vistoria, inspeção e comércio credenciado na mesma rua.'),'servicos','']];
   const C=V.filter(foto).slice(0,4);
   const cs=(c,asp)=>c?`<div class="c" onclick="abrirVeiculo(${c.id})"><div class="ph" style="aspect-ratio:${asp}"><img src="${esc(foto(c))}" alt="${esc(nomeV(c))}" loading="lazy"></div><div class="lb">${esc(nomeV(c))} <b>${precoT(c.preco)}</b></div></div>`:'';
-  const cem=Math.floor(nVeic()/100)*100||nVeic();
   return `<div style="background:var(--navy)">
  <div class="gl hero" style="min-height:100vh;display:flex;flex-direction:column">${LUZ}
   ${tabs.map((t,i)=>`<div class="himg${i===abaHome?' on':''}"${t[3]?` style="background-image:url('${t[3]}')"`:''}></div>`).join('')}
   ${hd('Início')}
   <div class="wrap inn" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:44px;padding-bottom:30px">
    <div>
-     <div class="kick c">ACEIMA · desde 1998</div>
-     <h1 style="margin:18px 0 18px;color:#fff;max-width:1080px">Somos o maior polo automotivo <br><span style="background:linear-gradient(100deg,#F6C078,#C8862E);-webkit-background-clip:text;background-clip:text;color:transparent">da América Latina.</span></h1>
-     <p class="sub" style="font-size:1.05rem;max-width:660px">${Cap(extenso(nLojas(),true))} lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.</p>
+     <div class="kick c">${T('inicio.chamada','ACEIMA · desde 1998')}</div>
+     <h1 style="margin:18px 0 18px;color:#fff;max-width:1080px">${T('inicio.titulo','Somos o maior polo automotivo')} <br><span style="background:linear-gradient(100deg,#F6C078,#C8862E);-webkit-background-clip:text;background-clip:text;color:transparent">${T('inicio.titulo-dourado','da América Latina.')}</span></h1>
+     <p class="sub" style="font-size:1.05rem;max-width:660px">${T('inicio.subtitulo','{Lojas por extenso} lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.')}</p>
    </div>
    <div class="vtl">
     ${tabs.map((t,i)=>`<div class="vti${i===abaHome?' on':''}" onmouseenter="destacar(${i})" onclick="go('${t[2]}')"><h3>${t[0]}</h3><div class="d"><p>${t[1]}</p></div></div>`).join('')}
@@ -482,12 +528,12 @@ function home(){
  <div class="glc hs" style="min-height:100vh;display:flex;align-items:center;padding:40px 0">${LUZ}
   <div class="wrap hs-grid" style="display:grid;grid-template-columns:1fr 1.02fr;gap:64px;align-items:center">
    <div>
-     <div class="kick">Estoque dos associados</div>
-     <h2 style="margin:14px 0 16px;font-size:2.7rem">${Cap(extenso(cem))} veículos,<br>${extenso(nLojas(),true)} lojas,<br>uma vitrine só.</h2>
-     <p style="font-size:1rem;max-width:470px">Cada anúncio publicado direto pela loja associada, com selo da ACEIMA, avaliação real no Google e contato que cai no WhatsApp de quem vende.</p>
+     <div class="kick">${T('inicio.estoque-chamada','Estoque dos associados')}</div>
+     <h2 style="margin:14px 0 16px;font-size:2.7rem">${T('inicio.estoque-titulo','{Veículos arredondados por extenso} veículos,\n{lojas por extenso} lojas,\numa vitrine só.')}</h2>
+     <p style="font-size:1rem;max-width:470px">${T('inicio.estoque-texto','Cada anúncio publicado direto pela loja associada, com selo da ACEIMA, avaliação real no Google e contato que cai no WhatsApp de quem vende.')}</p>
      <div class="btns" style="display:flex;gap:12px;margin-top:26px">
-       <button class="btn d" onclick="go('estoque')">Ver o estoque completo</button>
-       <button class="btn o" onclick="go('estoque');setTimeout(()=>abrirFiltro('marca'),60)">Buscar por marca</button>
+       <button class="btn d" onclick="go('estoque')">${T('inicio.estoque-botao1','Ver o estoque completo')}</button>
+       <button class="btn o" onclick="go('estoque');setTimeout(()=>abrirFiltro('marca'),60)">${T('inicio.estoque-botao2','Buscar por marca')}</button>
      </div>
    </div>
    <div class="stag">
@@ -498,10 +544,10 @@ function home(){
  </div>
 </div>${rodape()}`;}
 // só troca as classes: redesenhar a página reiniciaria o vídeo do fundo
-function destacar(i){abaHome=i;['.vti','.himg'].forEach(s=>document.querySelectorAll(s).forEach((e,j)=>e.classList.toggle('on',j===i)));girar();}
+function destacar(i){if(EDIT)return;abaHome=i;['.vti','.himg'].forEach(s=>document.querySelectorAll(s).forEach((e,j)=>e.classList.toggle('on',j===i)));girar();}
 // as categorias passam sozinhas a cada 6s; com o mouse em cima da lista, param
 let giro;
-function girar(){clearTimeout(giro);if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+function girar(){clearTimeout(giro);if(EDIT||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
   giro=setTimeout(()=>{if(pagAtual!=='home')return;if(document.querySelector('.vtl:hover'))girar();else destacar((abaHome+1)%document.querySelectorAll('.vti').length);},6000);}
 
 /* ==================== ESTOQUE ==================== */
@@ -579,9 +625,9 @@ function estoque(){
   return `<div class="gl dark fix" style="min-height:100vh;display:flex;flex-direction:column">${LUZ}
  ${hd('Estoque')}
  <div class="wrap est-wrap" style="padding-top:26px;padding-bottom:28px">
-   <div class="so-cel est-cel"><h2 class="tt" id="estNc">${fmt(nVeic())} veículos</h2><p class="tts">Intercalados entre as ${nLojas()} lojas</p></div>
+   <div class="so-cel est-cel"><h2 class="tt" id="estNc">${fmt(nVeic())} veículos</h2><p class="tts">${T('estoque.subtitulo-celular','Intercalados entre as {lojas} lojas')}</p></div>
    <div class="est-top so-desk" style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px">
-     <div><div class="kick c">Estoque dos associados</div>
+     <div><div class="kick c">${T('estoque.chamada','Estoque dos associados')}</div>
      <h2 id="estN" style="margin-top:9px;color:#fff;font-size:2rem">${fmt(nVeic())} veículos, sempre intercalados entre as ${nLojas()} lojas</h2></div>
      <span class="fp drk" id="fp-ord" onclick="abrirFiltro('ord')">Ordenar: ${esc(F.ord.toLowerCase())}${ic(I_DOWN,13)}</span>
    </div>
@@ -653,17 +699,17 @@ function associados(){
   return `<div class="glc pg-assoc" style="min-height:100vh;display:flex;flex-direction:column">${LUZ}
  <div class="gl" style="padding:0;flex:none">${LUZ}${hd('Associados')}</div>
  <div class="wrap assoc-wrap" style="padding-top:20px;padding-bottom:40px;flex:1;display:flex;flex-direction:column">
-  <div class="so-cel assoc-cel"><h2 class="tt">${nLojas()} associados</h2><p class="tts">Estrada Intendente Magalhães</p></div>
+  <div class="so-cel assoc-cel"><h2 class="tt">${T('associados.titulo-celular','{associados} associados')}</h2><p class="tts">${T('associados.subtitulo-celular','Estrada Intendente Magalhães')}</p></div>
   <div class="assoc-topo" style="display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap">
-    <div><div class="kick">Quem faz o polo</div>
-    <h2 style="margin-top:8px;font-size:2.1rem">${Cap(extenso(nLojas()))} associados numa rua só.</h2></div>
+    <div><div class="kick">${T('associados.chamada','Quem faz o polo')}</div>
+    <h2 style="margin-top:8px;font-size:2.1rem">${T('associados.titulo','{Associados por extenso} associados numa rua só.')}</h2></div>
     <div class="assoc-pills" style="display:flex;gap:9px;flex-shrink:0">
       <span class="fp ${catAssoc==='Todos'?'on':'lite'}" onclick="catA('Todos')">Todos · ${nLojas()}</span>
       ${cats.map(c=>`<span class="fp ${catAssoc===c?'on':'lite'}" onclick="catA('${c}')">${c} · ${E.filter(e=>e.cat===c).length}</span>`).join('')}
     </div>
   </div>
   <div class="eixo"><div class="tr"></div><div class="tr2"></div>${eixo}</div>
-  <div class="assoc-rua" style="font-family:Poppins,sans-serif;font-size:.75rem;color:var(--mut);margin-bottom:14px">Estrada Intendente Magalhães, de Madureira a Bento Ribeiro.</div>
+  <div class="assoc-rua" style="font-family:Poppins,sans-serif;font-size:.75rem;color:var(--mut);margin-bottom:14px">${T('associados.rua','Estrada Intendente Magalhães, de Madureira a Bento Ribeiro.')}</div>
   <div class="assoc-grid" style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.5fr);gap:36px;align-items:start">
     <div class="lista" style="grid-template-rows:repeat(${rows},34px)">${vis.map(linha).join('')}</div>
     ${card}
@@ -689,12 +735,12 @@ function veiculo(){
   return `<div class="gl" style="flex:none">${LUZ}${hd('Estoque')}</div>
  <div class="glc" style="padding:26px 0 60px">${LUZ}
   <div class="wrap">
-   <div class="kick" style="margin-bottom:16px;cursor:pointer" onclick="go('estoque')">← Estoque dos associados</div>
+   <div class="kick" style="margin-bottom:16px;cursor:pointer" onclick="go('estoque')">${T('veiculo.voltar','← Estoque dos associados')}</div>
    <div class="dup" style="display:grid;grid-template-columns:1.35fr .65fr;gap:46px;align-items:start">
     <div class="vgal">
       <div class="main">${fotos[0]?`<img id="fotoP" src="${esc(fotos[0])}" alt="${esc(nomeV(v))}">`:''}</div>
       ${fotos.length>1?`<div class="th">${fotos.map((f,i)=>`<img src="${esc(f)}" class="${i?'':'on'}" loading="lazy" onclick="document.getElementById('fotoP').src=this.src;this.parentNode.querySelectorAll('img').forEach(x=>x.classList.toggle('on',x===this))">`).join('')}</div>`:''}
-      ${v.opc&&v.opc.length?`<div style="margin-top:28px"><div class="kick" style="margin-bottom:12px">Opcionais</div><div style="display:flex;flex-wrap:wrap;gap:8px">${v.opc.map(o=>`<span class="fp lite" style="cursor:default;font-size:.76rem;padding:7px 13px">${esc(titulo(o))}</span>`).join('')}</div></div>`:''}
+      ${v.opc&&v.opc.length?`<div style="margin-top:28px"><div class="kick" style="margin-bottom:12px">${T('veiculo.opcionais','Opcionais')}</div><div style="display:flex;flex-wrap:wrap;gap:8px">${v.opc.map(o=>`<span class="fp lite" style="cursor:default;font-size:.76rem;padding:7px 13px">${esc(titulo(o))}</span>`).join('')}</div></div>`:''}
     </div>
     <div>
       <h2 style="font-size:2.1rem">${esc(nomeV(v))}</h2>
@@ -706,12 +752,12 @@ function veiculo(){
         <div class="bd" style="background:#04142E">
           ${nota?`<p style="font-size:.82rem;color:#b9c6da">${nota.toFixed(1).replace('.',',')} <span style="color:#C8862E">★</span> · ${fmt(L.google_avaliacoes)} avaliações no Google</p>`:''}
           <div style="display:grid;gap:10px;margin-top:14px" class="campo">
-            <div><label>Seu nome</label><input id="ldNome" placeholder="Como quer ser chamado"></div>
-            <div><label>Seu WhatsApp</label><input id="ldTel" inputmode="tel" placeholder="(21) 90000-0000"></div>
-            <div><label>Forma de compra</label><div class="seg"><button class="${formaCompra==='À vista'?'on':''}" onclick="formaCompra='À vista';this.nextElementSibling.classList.remove('on');this.classList.add('on')">À vista</button><button class="${formaCompra==='Financiamento'?'on':''}" onclick="formaCompra='Financiamento';this.previousElementSibling.classList.remove('on');this.classList.add('on')">Financiamento</button></div></div>
+            <div><label>${T('veiculo.campo-nome','Seu nome')}</label><input id="ldNome" placeholder="Como quer ser chamado"></div>
+            <div><label>${T('veiculo.campo-whatsapp','Seu WhatsApp')}</label><input id="ldTel" inputmode="tel" placeholder="(21) 90000-0000"></div>
+            <div><label>${T('veiculo.campo-forma','Forma de compra')}</label><div class="seg"><button class="${formaCompra==='À vista'?'on':''}" onclick="formaCompra='À vista';this.nextElementSibling.classList.remove('on');this.classList.add('on')">À vista</button><button class="${formaCompra==='Financiamento'?'on':''}" onclick="formaCompra='Financiamento';this.previousElementSibling.classList.remove('on');this.classList.add('on')">Financiamento</button></div></div>
           </div>
-          <button class="btn" style="width:100%;margin-top:14px;padding:14px 0" onclick="chamarLoja()">Chamar a loja no WhatsApp</button>
-          <p style="font-size:.72rem;margin-top:10px;color:#93a3bd">A conversa é direto com a loja. A ACEIMA recebe uma cópia do contato.</p>
+          <button class="btn" style="width:100%;margin-top:14px;padding:14px 0" onclick="chamarLoja()">${T('veiculo.botao','Chamar a loja no WhatsApp')}</button>
+          <p style="font-size:.72rem;margin-top:10px;color:#93a3bd">${T('veiculo.aviso','A conversa é direto com a loja. A ACEIMA recebe uma cópia do contato.')}</p>
         </div>
       </div>
     </div>
@@ -733,36 +779,36 @@ function chamarLoja(){
 function aceima(){
   return `<div class="gl" style="padding-bottom:70px">${LUZ}${hd('A ACEIMA')}
   <div class="wrap" style="padding-top:40px">
-    <div class="kick c">Desde 1998</div>
-    <h2 style="margin:14px 0 16px;font-size:3rem;max-width:1000px">A associação que faz o maior polo automotivo da América Latina funcionar.</h2>
-    <p style="font-size:1.02rem;max-width:640px">Tradição, credibilidade e as melhores taxas do mercado, reunindo as lojas da Estrada Intendente Magalhães em um só lugar.</p>
+    <div class="kick c">${T('aceima.chamada','Desde 1998')}</div>
+    <h2 style="margin:14px 0 16px;font-size:3rem;max-width:1000px">${T('aceima.titulo','A associação que faz o maior polo automotivo da América Latina funcionar.')}</h2>
+    <p style="font-size:1.02rem;max-width:640px">${T('aceima.subtitulo','Tradição, credibilidade e as melhores taxas do mercado, reunindo as lojas da Estrada Intendente Magalhães em um só lugar.')}</p>
     <div style="display:flex;gap:56px;margin-top:40px;flex-wrap:wrap">
-      <div class="num"><b>1998</b><small>fundação</small></div>
-      <div class="num"><b>${nLojas()}</b><small>lojas associadas</small></div>
-      <div class="num"><b>${fmt(nVeic())}</b><small>veículos no ar</small></div>
-      <div class="num"><b>${uniq(V.map(v=>v.b)).length}</b><small>marcas</small></div>
+      <div class="num"><b>1998</b><small>${T('aceima.numero1','fundação')}</small></div>
+      <div class="num"><b>${nLojas()}</b><small>${T('aceima.numero2','lojas associadas')}</small></div>
+      <div class="num"><b>${fmt(nVeic())}</b><small>${T('aceima.numero3','veículos no ar')}</small></div>
+      <div class="num"><b>${uniq(V.map(v=>v.b)).length}</b><small>${T('aceima.numero4','marcas')}</small></div>
     </div>
   </div></div>
  <div class="glc" style="padding:60px 0">${LUZ}
   <div class="wrap dup" style="display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:start">
     <div>
-      <div class="kick">Nossa história</div>
-      <p style="margin-top:14px;font-size:1rem;max-width:640px">A A.C.E.I.M.A. nasceu em 1998 da união de comerciantes e lojistas da Estrada Intendente Magalhães, com um objetivo claro: manter um padrão de qualidade e negociar acordos com as financeiras para oferecer as melhores taxas de juros do setor aos clientes das lojas associadas.</p>
-      <p style="margin-top:14px;font-size:1rem;max-width:640px">Hoje, o Autoshopping Intendente é o maior polo automobilístico do Rio de Janeiro e da América Latina. As lojas credenciadas oferecem as melhores taxas do mercado, segurança e certificado de compra.</p>
+      <div class="kick">${T('aceima.historia-chamada','Nossa história')}</div>
+      <p style="margin-top:14px;font-size:1rem;max-width:640px">${T('aceima.historia1','A A.C.E.I.M.A. nasceu em 1998 da união de comerciantes e lojistas da Estrada Intendente Magalhães, com um objetivo claro: manter um padrão de qualidade e negociar acordos com as financeiras para oferecer as melhores taxas de juros do setor aos clientes das lojas associadas.')}</p>
+      <p style="margin-top:14px;font-size:1rem;max-width:640px">${T('aceima.historia2','Hoje, o Autoshopping Intendente é o maior polo automobilístico do Rio de Janeiro e da América Latina. As lojas credenciadas oferecem as melhores taxas do mercado, segurança e certificado de compra.')}</p>
       <div class="bene" style="margin-top:32px">
-        <div><h3>Menores taxas do mercado</h3><p>Negociadas com as financeiras em nome de todas as lojas.</p></div>
-        <div><h3>Selo de qualidade</h3><p>Procedência conferida em todos os veículos.</p></div>
-        <div><h3>SAC da associação</h3><p>Segunda a sexta, das 9h às 17h.</p></div>
-        <div><h3>Serviços na mesma rua</h3><p>Vistoria, inspeção e comércio credenciado.</p></div>
+        <div><h3>${T('aceima.beneficio1','Menores taxas do mercado')}</h3><p>${T('aceima.beneficio1-texto','Negociadas com as financeiras em nome de todas as lojas.')}</p></div>
+        <div><h3>${T('aceima.beneficio2','Selo de qualidade')}</h3><p>${T('aceima.beneficio2-texto','Procedência conferida em todos os veículos.')}</p></div>
+        <div><h3>${T('aceima.beneficio3','SAC da associação')}</h3><p>${T('aceima.beneficio3-texto','Segunda a sexta, das 9h às 17h.')}</p></div>
+        <div><h3>${T('aceima.beneficio4','Serviços na mesma rua')}</h3><p>${T('aceima.beneficio4-texto','Vistoria, inspeção e comércio credenciado.')}</p></div>
       </div>
     </div>
     <div class="cardA">
-      <div class="top"><div class="ini">A</div><div><div class="nome">Fale com a ACEIMA</div><div class="selo">SAC DA ASSOCIAÇÃO</div></div></div>
+      <div class="top"><div class="ini">A</div><div><div class="nome">${T('aceima.contato-titulo','Fale com a ACEIMA')}</div><div class="selo">${T('aceima.contato-selo','SAC DA ASSOCIAÇÃO')}</div></div></div>
       <div class="bd">
-        <p style="font-size:.86rem;line-height:1.9"><b style="font-weight:600;color:var(--ink)">Endereço</b><br>Estrada Intendente Magalhães, 830 · Vila Valqueire, RJ</p>
-        <p style="font-size:.86rem;line-height:1.9;margin-top:8px"><b style="font-weight:600;color:var(--ink)">Telefones</b><br>(21) 3283-6600 · (21) 99104-1424</p>
-        <p style="font-size:.86rem;line-height:1.9;margin-top:8px"><b style="font-weight:600;color:var(--ink)">Atendimento</b><br>Segunda a sexta, das 9h às 18h</p>
-        <div class="acts" style="margin-top:16px"><a class="btn" href="https://wa.me/${WA_ACEIMA}?text=${encodeURIComponent('Olá! Vim pelo site da ACEIMA.')}" target="_blank">WhatsApp</a><button class="btn o" onclick="go('associar')">Seja um associado</button></div>
+        <p style="font-size:.86rem;line-height:1.9"><b style="font-weight:600;color:var(--ink)">${T('aceima.endereco-rotulo','Endereço')}</b><br>${T('aceima.endereco','Estrada Intendente Magalhães, 830 · Vila Valqueire, RJ')}</p>
+        <p style="font-size:.86rem;line-height:1.9;margin-top:8px"><b style="font-weight:600;color:var(--ink)">${T('aceima.telefones-rotulo','Telefones')}</b><br>${T('aceima.telefones','(21) 3283-6600 · (21) 99104-1424')}</p>
+        <p style="font-size:.86rem;line-height:1.9;margin-top:8px"><b style="font-weight:600;color:var(--ink)">${T('aceima.atendimento-rotulo','Atendimento')}</b><br>${T('aceima.atendimento','Segunda a sexta, das 9h às 18h')}</p>
+        <div class="acts" style="margin-top:16px"><a class="btn" href="https://wa.me/${WA_ACEIMA}?text=${encodeURIComponent('Olá! Vim pelo site da ACEIMA.')}" target="_blank">${T('aceima.botao-whatsapp','WhatsApp')}</a><button class="btn o" onclick="go('associar')">${T('aceima.botao-associar','Seja um associado')}</button></div>
       </div>
     </div>
   </div>
@@ -770,7 +816,7 @@ function aceima(){
 
 /* ==================== SEJA UM ASSOCIADO ==================== */
 function associar(){
-  const b=[['Taxas negociadas em bloco',`Nenhuma loja consegue sozinha o que ${nLojas()} conseguem juntas.`],
+  const b=[['Taxas negociadas em bloco','Nenhuma loja consegue sozinha o que {lojas} conseguem juntas.'],
            ['Estoque publicado sozinho','O robô lê o site da sua loja e publica os anúncios aqui.'],
            ['O cliente cai no seu WhatsApp','Com cópia por e-mail. A venda continua sendo sua.'],
            ['Selo e rede credenciada','Vistoria, inspeção e serviços na mesma rua, com condição de associado.']];
@@ -779,35 +825,35 @@ function associar(){
  <div class="wrap" style="padding-top:34px;padding-bottom:40px">
    <div class="dup" style="display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center">
      <div>
-       <div class="kick">Para lojistas e comerciantes do polo</div>
-       <h2 style="margin:14px 0 16px;font-size:2.75rem">O que a sua loja ganha<br>ao se associar à ACEIMA.</h2>
-       <p style="max-width:600px;font-size:1rem">A associação não é um selo na parede. É acordo de taxa fechado em bloco, cliente chegando pelo site e a sua loja dentro de um padrão que o comprador reconhece na rua.</p>
-       <div class="bene" style="margin-top:28px">${b.map(x=>`<div><h3>${x[0]}</h3><p>${x[1]}</p></div>`).join('')}</div>
+       <div class="kick">${T('associar.chamada','Para lojistas e comerciantes do polo')}</div>
+       <h2 style="margin:14px 0 16px;font-size:2.75rem">${T('associar.titulo','O que a sua loja ganha\nao se associar à ACEIMA.')}</h2>
+       <p style="max-width:600px;font-size:1rem">${T('associar.texto','A associação não é um selo na parede. É acordo de taxa fechado em bloco, cliente chegando pelo site e a sua loja dentro de um padrão que o comprador reconhece na rua.')}</p>
+       <div class="bene" style="margin-top:28px">${b.map((x,i)=>`<div><h3>${T(`associar.beneficio${i+1}`,x[0])}</h3><p>${T(`associar.beneficio${i+1}-texto`,x[1])}</p></div>`).join('')}</div>
      </div>
      <div class="gl" style="border-radius:18px;padding:44px 40px;min-height:420px;display:flex;flex-direction:column;justify-content:flex-end;gap:30px">${LUZ}
-       <div class="num"><b style="font-size:3.4rem">${nLojas()}</b><small>lojas associadas</small></div>
-       <div class="num"><b style="font-size:3.4rem">${fmt(nVeic())}</b><small>veículos no ar pelo site</small></div>
-       <div class="num"><b style="font-size:3.4rem">${new Date().getFullYear()-1998} anos</b><small>de associação na Intendente Magalhães</small></div>
+       <div class="num"><b style="font-size:3.4rem">${nLojas()}</b><small>${T('associar.numero1','lojas associadas')}</small></div>
+       <div class="num"><b style="font-size:3.4rem">${fmt(nVeic())}</b><small>${T('associar.numero2','veículos no ar pelo site')}</small></div>
+       <div class="num"><b style="font-size:3.4rem">${new Date().getFullYear()-1998} anos</b><small>${T('associar.numero3','de associação na Intendente Magalhães')}</small></div>
      </div>
    </div>
  </div>
  <div class="dark gl" style="margin-top:auto">${LUZ}
   <div class="wrap dup" style="padding-top:32px;padding-bottom:36px;display:grid;grid-template-columns:1fr 1.05fr;gap:60px;align-items:center">
     <div>
-      <div class="kick c">Como entrar</div>
-      <h2 style="color:#fff;margin-top:12px;font-size:1.9rem">Três passos e a sua loja<br>está no ar.</h2>
+      <div class="kick c">${T('associar.passos-chamada','Como entrar')}</div>
+      <h2 style="color:#fff;margin-top:12px;font-size:1.9rem">${T('associar.passos-titulo','Três passos e a sua loja\nestá no ar.')}</h2>
       <div style="display:flex;gap:30px;margin-top:22px">
-        ${[['01','Você fala com a associação'],['02','A diretoria avalia e aprova'],['03','Sua loja entra no ar']].map(p=>`<div style="flex:1"><b style="font-size:1.4rem;font-weight:900;color:rgba(244,176,92,.55)">${p[0]}</b><p style="font-size:.86rem;margin-top:6px;color:#b9c6da">${p[1]}</p></div>`).join('')}
+        ${['Você fala com a associação','A diretoria avalia e aprova','Sua loja entra no ar'].map((p,i)=>`<div style="flex:1"><b style="font-size:1.4rem;font-weight:900;color:rgba(244,176,92,.55)">0${i+1}</b><p style="font-size:.86rem;margin-top:6px;color:#b9c6da">${T(`associar.passo${i+1}`,p)}</p></div>`).join('')}
       </div>
     </div>
     <div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-        <div class="campo"><label>Seu nome</label><input id="asNome" placeholder="Como quer ser chamado"></div>
-        <div class="campo"><label>Nome da empresa</label><input id="asEmp" placeholder="Razão social ou nome fantasia"></div>
-        <div class="campo"><label>WhatsApp</label><input id="asTel" inputmode="tel" placeholder="(21) 90000-0000"></div>
-        <div class="campo"><label>Ramo</label><select id="asRamo"><option>Loja de veículos</option><option>Motos</option><option>Serviço automotivo</option><option>Comércio</option></select></div>
+        <div class="campo"><label>${T('associar.campo-nome','Seu nome')}</label><input id="asNome" placeholder="Como quer ser chamado"></div>
+        <div class="campo"><label>${T('associar.campo-empresa','Nome da empresa')}</label><input id="asEmp" placeholder="Razão social ou nome fantasia"></div>
+        <div class="campo"><label>${T('associar.campo-whatsapp','WhatsApp')}</label><input id="asTel" inputmode="tel" placeholder="(21) 90000-0000"></div>
+        <div class="campo"><label>${T('associar.campo-ramo','Ramo')}</label><select id="asRamo"><option>Loja de veículos</option><option>Motos</option><option>Serviço automotivo</option><option>Comércio</option></select></div>
       </div>
-      <button class="btn" style="width:100%;margin-top:14px;padding:14px 0" onclick="enviarAssoc()">Falar com a associação</button>
+      <button class="btn" style="width:100%;margin-top:14px;padding:14px 0" onclick="enviarAssoc()">${T('associar.botao','Falar com a associação')}</button>
     </div>
   </div>
  </div>
@@ -825,20 +871,20 @@ function publicacoes(){
   return `<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--cl)">
  <div class="gl" style="flex:none">${LUZ}${hd('Publicações')}</div>
  <div class="wrap" style="padding-top:28px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap">
-   <div><div class="kick">Nosso trabalho</div><h2 style="margin-top:10px;font-size:2.3rem">O que a ACEIMA faz pelo polo.</h2></div>
-   <div class="fbar" style="flex-wrap:wrap"><span class="fp on">Tudo</span><span class="fp lite">Ações no polo</span><span class="fp lite">Conquistas</span><span class="fp lite">Comunicados</span><span class="fp lite">Imprensa</span></div>
+   <div><div class="kick">${T('publicacoes.chamada','Nosso trabalho')}</div><h2 style="margin-top:10px;font-size:2.3rem">${T('publicacoes.titulo','O que a ACEIMA faz pelo polo.')}</h2></div>
+   <div class="fbar" style="flex-wrap:wrap">${['Tudo','Ações no polo','Conquistas','Comunicados','Imprensa'].map((f,i)=>`<span class="fp ${i?'lite':'on'}">${T(`publicacoes.filtro${i+1}`,f)}</span>`).join('')}</div>
  </div>
  <div class="wrap dup" style="padding-top:24px;flex:1;display:grid;grid-template-columns:1.32fr .68fr;gap:46px;align-items:start">
    <div>
      <div class="foto" style="height:300px;border-radius:16px">Foto da ação</div>
-     <div style="display:flex;align-items:center;gap:12px;margin-top:18px"><span class="fp on" style="padding:5px 13px;font-size:.72rem;cursor:default">Destaque</span><span style="font-family:Poppins,sans-serif;font-size:.78rem;color:var(--mut)">18 de março de 2026</span></div>
-     <h2 style="font-size:1.85rem;margin-top:12px;max-width:760px">Título da matéria em destaque da associação</h2>
-     <p style="margin-top:10px;max-width:760px;font-size:.96rem">Espaço para a ACEIMA contar o que fez: negociação com as financeiras, ação junto ao poder público, mutirão de vistoria, campanha do polo.</p>
+     <div style="display:flex;align-items:center;gap:12px;margin-top:18px"><span class="fp on" style="padding:5px 13px;font-size:.72rem;cursor:default">${T('publicacoes.destaque-selo','Destaque')}</span><span style="font-family:Poppins,sans-serif;font-size:.78rem;color:var(--mut)">${T('publicacoes.destaque-data','18 de março de 2026')}</span></div>
+     <h2 style="font-size:1.85rem;margin-top:12px;max-width:760px">${T('publicacoes.destaque-titulo','Título da matéria em destaque da associação')}</h2>
+     <p style="margin-top:10px;max-width:760px;font-size:.96rem">${T('publicacoes.destaque-texto','Espaço para a ACEIMA contar o que fez: negociação com as financeiras, ação junto ao poder público, mutirão de vistoria, campanha do polo.')}</p>
    </div>
    <div>
-     <div style="font-family:Poppins,sans-serif;font-size:.68rem;letter-spacing:2px;color:var(--mut);padding-bottom:12px;border-bottom:2px solid #0B1A33">MAIS RECENTES</div>
-     ${lista.map(l=>`<div style="display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--line);align-items:flex-start"><div class="foto" style="width:84px;height:64px;border-radius:9px;flex:none;font-size:.55rem">Foto</div>
-       <div><div style="font-family:Poppins,sans-serif;font-size:.68rem;color:#C8862E;font-weight:600;letter-spacing:.6px">${l[0].toUpperCase()}</div><h3 style="font-size:.97rem;margin-top:5px;line-height:1.35">${l[1]}</h3><div style="font-family:Poppins,sans-serif;font-size:.74rem;color:var(--mut);margin-top:5px">${l[2]}</div></div></div>`).join('')}
+     <div style="font-family:Poppins,sans-serif;font-size:.68rem;letter-spacing:2px;color:var(--mut);padding-bottom:12px;border-bottom:2px solid #0B1A33">${T('publicacoes.recentes','MAIS RECENTES')}</div>
+     ${lista.map((l,i)=>`<div style="display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--line);align-items:flex-start"><div class="foto" style="width:84px;height:64px;border-radius:9px;flex:none;font-size:.55rem">Foto</div>
+       <div><div style="font-family:Poppins,sans-serif;font-size:.68rem;color:#C8862E;font-weight:600;letter-spacing:.6px;text-transform:uppercase">${T(`publicacoes.item${i+1}-categoria`,l[0])}</div><h3 style="font-size:.97rem;margin-top:5px;line-height:1.35">${T(`publicacoes.item${i+1}-titulo`,l[1])}</h3><div style="font-family:Poppins,sans-serif;font-size:.74rem;color:var(--mut);margin-top:5px">${T(`publicacoes.item${i+1}-data`,l[2])}</div></div></div>`).join('')}
    </div>
  </div>
  <div class="wrap" style="padding-top:18px;padding-bottom:40px"><div class="aviso"><b>Conteúdo ilustrativo.</b> Textos, fotos e datas serão levantados com a diretoria.</div></div>
@@ -849,19 +895,89 @@ function servicos(){
   return `<div style="min-height:100vh;background:var(--cl)">
  <div class="gl">${LUZ}${hd('Serviços do polo')}
   <div class="wrap" style="padding-top:30px;padding-bottom:50px">
-   <div class="kick c">Credenciados ACEIMA</div>
-   <h2 style="margin:12px 0 14px;font-size:2.6rem">Tudo que o carro precisa, na mesma rua.</h2>
-   <p style="font-size:1rem;max-width:620px">Vistoria, inspeção, ar-condicionado e até o almoço a poucos metros das lojas.</p>
+   <div class="kick c">${T('servicos.chamada','Credenciados ACEIMA')}</div>
+   <h2 style="margin:12px 0 14px;font-size:2.6rem">${T('servicos.titulo','Tudo que o carro precisa, na mesma rua.')}</h2>
+   <p style="font-size:1rem;max-width:620px">${T('servicos.subtitulo','Vistoria, inspeção, ar-condicionado e até o almoço a poucos metros das lojas.')}</p>
   </div></div>
  <div class="wrap" style="padding-top:10px;padding-bottom:50px">
-  ${PARCEIROS.map(p=>`<div class="parc">
-    <div><div class="kick">${esc(p.tag)}</div><h2 style="font-size:1.9rem;margin:8px 0 10px">${esc(p.nome)}</h2><p style="max-width:640px">${esc(p.txt)}</p>
-      <div class="chips">${p.chips.map(c=>`<span class="fp lite">${esc(c)}</span>`).join('')}</div></div>
-    <div><div class="inf">${p.inf.map(i=>`<b>${esc(i[0])}</b><br>${esc(i[1])}<br>`).join('')}</div>
-      <div style="display:flex;gap:8px;margin-top:14px">${p.wa?`<a class="btn" href="https://wa.me/${p.wa}?text=${encodeURIComponent('Olá! Vim pelo site da ACEIMA e '+p.waTxt+'.')}" target="_blank">WhatsApp</a>`:''}<a class="btn o" href="${p.site}" target="_blank" rel="noopener">${p.siteTxt||'Ver o site'}</a></div></div>
-  </div>`).join('')}
+  ${PARCEIROS.map(p=>{const s='servicos.'+slug(p.nome);return `<div class="parc">
+    <div><div class="kick">${T(s+'.chamada',p.tag)}</div><h2 style="font-size:1.9rem;margin:8px 0 10px">${esc(p.nome)}</h2><p style="max-width:640px">${T(s+'.texto',p.txt)}</p>
+      <div class="chips">${p.chips.map((c,i)=>`<span class="fp lite">${T(`${s}.item${i+1}`,c)}</span>`).join('')}</div></div>
+    <div><div class="inf">${p.inf.map((r,i)=>`<b>${T(`${s}.info${i+1}-rotulo`,r[0])}</b><br>${T(`${s}.info${i+1}`,r[1])}<br>`).join('')}</div>
+      <div style="display:flex;gap:8px;margin-top:14px">${p.wa?`<a class="btn" href="https://wa.me/${p.wa}?text=${encodeURIComponent('Olá! Vim pelo site da ACEIMA e '+p.waTxt+'.')}" target="_blank">${T(s+'.botao-whatsapp','WhatsApp')}</a>`:''}<a class="btn o" href="${p.site}" target="_blank" rel="noopener">${T(s+'.botao-site',p.siteTxt||'Ver o site')}</a></div></div>
+  </div>`;}).join('')}
  </div>
 </div>${rodape()}`;}
+
+/* ==================== MODO DE EDIÇÃO (/?editar) ==================== */
+// Entra com a senha do painel (a sessão é a mesma do painel.html). Salvar grava conteudo.js no GitHub.
+let EDIT=null,sel=null;   // EDIT: senha, quando o modo está ligado; sel: texto selecionado
+const mudancas=()=>Object.fromEntries(Object.entries(PEND).filter(([k,v])=>JSON.stringify(v||null)!==JSON.stringify(CONTEUDO[k]||null)));
+const bruto=id=>{const o=valor(id);return esc(o&&o.texto!=null?o.texto:PADRAO[id]).replace(/\n/g,'<br>');};
+const lerTexto=el=>[...el.childNodes].map(n=>n.nodeType===3?n.data:n.nodeName==='BR'?'\n':(n.nodeName==='DIV'?'\n':'')+lerTexto(n)).join('');
+function sessao(){try{const s=JSON.parse(localStorage.getItem('aceima_sessao')||'null');return s&&s.exp>Date.now()?s.t:null}catch(e){return null}}
+async function entrar(senha){
+  const r=senha&&await fetch('/api/conteudo?path=conteudo',{headers:{'x-painel-token':senha}}).catch(()=>null);
+  if(!r||!r.ok)return pintarBarra(senha?'Senha errada.':'');
+  try{localStorage.setItem('aceima_sessao',JSON.stringify({t:senha,exp:Date.now()+36e5}))}catch(e){}
+  const j=await r.json().catch(()=>({}));
+  EDIT=senha;document.body.classList.add('editando');clearTimeout(giro);
+  pintarBarra(j.pronto?'':'Falta a chave do GitHub na Vercel: dá para editar, mas ainda não para salvar.');
+}
+function pintarBarra(msg){
+  let b=document.getElementById('edBarra');
+  if(!b){b=document.createElement('div');b.id='edBarra';document.body.appendChild(b);}
+  const n=Object.keys(mudancas()).length,o=sel&&(valor(sel.dataset.t)||{});
+  const aviso=`<span id="edMsg">${msg||''}</span>`;
+  b.innerHTML=!EDIT?`<form onsubmit="event.preventDefault();entrar(this.s.value)"><b>Modo de edição</b><input name="s" type="password" placeholder="Senha do painel"><button class="btn">Entrar</button>${aviso}</form>`
+   :`<div>${o?`<span class="edId">${sel.dataset.t}</span>
+      <span class="edG">Tamanho <button onclick="tamanho(-1)">−</button><b>${Math.round((o.tam||1)*100)}%</b><button onclick="tamanho(1)">+</button></span>
+      <span class="edG">Cor ${CORES.map(c=>`<button class="edC${o.cor===c?' on':''}" style="background:${c}" title="${c}" onclick="mudar({cor:'${c}'})"></button>`).join('')}<button onclick="mudar({cor:''})">Original</button></span>
+      <select onchange="mudar({fonte:this.value})"><option value="">Fonte original</option>${Object.keys(FONTES).map(f=>`<option${o.fonte===f?' selected':''}>${f}</option>`).join('')}</select>
+      <select onchange="mudar({peso:+this.value||''})"><option value="">Peso original</option>${PESOS.map(p=>`<option value="${p[0]}"${o.peso===p[0]?' selected':''}>${p[1]}</option>`).join('')}</select>
+      <button onclick="restaurar()">Voltar ao original</button>`
+     :'Clique num texto para editar. Números automáticos: {veículos}, {lojas}, {anos}. Com “por extenso”, saem em palavras.'}</div>
+    <div>${aviso}<button class="btn" onclick="salvar()"${n?'':' disabled'}>Salvar${n?` (${n})`:''}</button><button class="btn o" onclick="sairEdicao()">Sair</button></div>`;
+}
+// clique num texto, no modo de edição, edita em vez de navegar
+document.addEventListener('click',e=>{const el=EDIT&&e.target.closest('#app [data-t]');if(!el)return;e.preventDefault();e.stopPropagation();if(el!==sel)selecionar(el);},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sel)soltar();});
+addEventListener('beforeunload',e=>{if(Object.keys(mudancas()).length)e.preventDefault();});
+function selecionar(el){
+  soltar();sel=el;el.classList.add('sel');
+  el.innerHTML=bruto(el.dataset.t);   // mostra os {números automáticos} em vez dos valores
+  try{el.contentEditable='plaintext-only'}catch(e){el.contentEditable='true'}
+  el.oninput=()=>mudar({texto:lerTexto(el).replace(/ /g,' ').replace(/\n+$/,'')});
+  el.focus();getSelection().selectAllChildren(el);getSelection().collapseToEnd();
+  pintarBarra();
+}
+function soltar(){
+  if(!sel)return;const el=sel;sel=null;
+  el.classList.remove('sel');el.removeAttribute('contenteditable');el.oninput=null;
+  const o=valor(el.dataset.t);el.innerHTML=comValores(o&&o.texto!=null?o.texto:PADRAO[el.dataset.t]);
+  pintarBarra();
+}
+function mudar(p){
+  const id=sel.dataset.t,o=Object.assign({},valor(id),p);
+  for(const k in o)if(o[k]==null||(o[k]===''&&k!=='texto')||(k==='tam'&&o[k]===1))delete o[k];
+  if(o.texto===PADRAO[id])delete o.texto;
+  PEND[id]=Object.keys(o).length?o:null;
+  sel.setAttribute('style',estiloCss(o));pintarBarra();
+}
+function tamanho(d){const o=valor(sel.dataset.t)||{};mudar({tam:Math.min(2.5,Math.max(.5,Math.round((o.tam||1)*10+d)/10))});}
+function restaurar(){PEND[sel.dataset.t]=null;sel.removeAttribute('style');sel.innerHTML=bruto(sel.dataset.t);pintarBarra();}
+async function salvar(){
+  soltar();const m=mudancas();pintarBarra('Salvando…');
+  const r=await fetch('/api/conteudo?path=conteudo',{method:'POST',headers:{'Content-Type':'application/json','x-painel-token':EDIT},body:JSON.stringify({mudancas:m})}).catch(()=>null);
+  const j=r?await r.json().catch(()=>({})):{};
+  if(r&&r.ok){for(const k in m){if(m[k])CONTEUDO[k]=m[k];else delete CONTEUDO[k];}PEND={};pintarBarra('Salvo. A prévia se atualiza em cerca de 30 segundos.');}
+  else if(r&&r.status===401){EDIT=null;pintarBarra('A sessão expirou. Entre de novo e salve: nada foi perdido.');}
+  else pintarBarra('Não salvou: '+(j.erro||'sem conexão')+'.');
+}
+function sairEdicao(){
+  if(Object.keys(mudancas()).length&&!confirm('Sair sem salvar as alterações?'))return;
+  EDIT=null;sel=null;PEND={};document.body.classList.remove('editando');document.getElementById('edBarra').remove();render(false);
+}
 
 /* ==================== ROTAS ==================== */
 const VIEWS={home,estoque,associados,veiculo,aceima,associar,publicacoes,servicos};
@@ -877,6 +993,7 @@ function render(topo){
   document.getElementById('app').innerHTML=VIEWS[pagAtual]();
   if(pagAtual==='estoque')depoisEstoque();
   if(pagAtual==='home')girar();
+  if(EDIT){sel=null;pintarBarra();}
   document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});v.play().catch(()=>{});});
   if(topo)scrollTo(0,0);
   if(TITULOS[pagAtual])document.title=TITULOS[pagAtual];
@@ -905,6 +1022,7 @@ addEventListener('resize',()=>{const m=matchMedia('(max-width:760px)').matches;i
 
 rota();
 carregar();
+if(/[?&]editar\b/.test(location.search))entrar(sessao());
 // vídeo bloqueado ou lento: troca pelo quadro parado para o fundo não ficar liso
 
 </script>
