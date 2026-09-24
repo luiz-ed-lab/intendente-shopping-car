@@ -11,7 +11,7 @@
 <style>
 /* ============ BASE: cópia do CSS dos mockups aprovados ============ */
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--navy:#00091A;--gold:#C8862E;--gold2:#E8A048;--gold3:#F4B05C;--cl:#F6F4F1;--ink:#0B1A33;--mut:#5A6B85;--line:#E3DFDA}
+:root{--navy:#00091A;--gold:#C8862E;--gold2:#E8A048;--gold3:#F4B05C;--cl:#F6F4F1;--ink:#0B1A33;--mut:#5A6B85;--line:#E3DFDA;--ease:cubic-bezier(.2,.8,.2,1)}
 body{background:var(--cl);color:var(--ink);font-family:Archivo,sans-serif;-webkit-font-smoothing:antialiased}
 img{display:block;max-width:100%}
 button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
@@ -35,11 +35,12 @@ video.luz{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;poin
 @keyframes vidro{from{background-position:0% 0%}to{background-position:100% 100%}}
 @media(prefers-reduced-motion:reduce){.semvideo .gl{animation:none}}
 
-header{display:flex;align-items:center;justify-content:space-between;padding:20px 0}
-header .lg{height:44px;width:auto;cursor:pointer}
-.hdr{display:flex;align-items:center;gap:18px}
+/* logo e menu no canto: mesma distância do topo e da lateral */
+header{display:flex;align-items:center;justify-content:space-between;padding:24px 24px 20px}
+header .lg{height:44px;width:auto;margin:-5px 0;cursor:pointer}   /* o png tem 5px transparentes em cima e embaixo */
+.hdr{display:flex;align-items:center;gap:14px}
 .hdr .pg{font-family:Poppins,sans-serif;font-size:.85rem;color:#93a3bd}
-.mbtn{width:50px;height:50px;border-radius:99px;border:1px solid rgba(244,176,92,.4);background:rgba(255,255,255,.05);display:grid;place-items:center;color:var(--gold3)}
+.mbtn{width:34px;height:34px;border-radius:99px;border:1px solid rgba(244,176,92,.4);background:rgba(255,255,255,.05);display:grid;place-items:center;color:var(--gold3)}
 .btn{font-family:Poppins,sans-serif;font-weight:600;font-size:.85rem;padding:12px 24px;border-radius:8px;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;border:0;white-space:nowrap}
 a.btn{display:inline-block;text-align:center;line-height:normal}
 .btn.d{background:#04142E;color:#fff}
@@ -82,17 +83,21 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
 .tilef img{transition:transform .5s}
 
 /* caminhos da home */
-.vtl{border-left:2px solid rgba(255,255,255,.14)}
-.vti{padding:19px 0 19px 34px;border-bottom:1px solid rgba(255,255,255,.09);position:relative;cursor:pointer}
-.vti:last-child{border-bottom:0}
-.vti .n{font-family:Poppins,sans-serif;font-size:.66rem;color:#6d7e99;letter-spacing:1px;position:absolute;left:34px;top:27px}
-.vti h3{font-size:1.95rem;font-weight:800;letter-spacing:-.8px;color:#445773;margin-left:38px;line-height:1.1;transition:color .2s}
-.vti:hover h3{color:#7C8CA5}
-.vti.on h3{color:#fff}
-.vti.on{border-left:2px solid var(--gold2);margin-left:-2px;padding-left:36px}
-.vti.on .n{left:36px}
-.vti .d{margin-left:38px;margin-top:8px;max-width:520px}
+/* o mouse destaca, o clique leva para a página; a altura total não muda, então nada acima se mexe */
+.vti{padding:18px 0 18px 30px;position:relative;cursor:pointer}
+.vti+.vti{background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent) top/100% 1px no-repeat}
+.vti::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:2px;background:var(--gold2);transform:scaleY(0);transition:transform .45s var(--ease)}
+.vti.on::before{transform:none}
+.vti h3{font-size:1.7rem;font-weight:800;letter-spacing:-.6px;color:#445773;line-height:1.1;transition:font-size .45s var(--ease),color .3s}
+.vti.on h3{font-size:2.4rem;color:#fff}
+.vti .d{height:0;overflow:hidden;opacity:0;transform:translateY(10px);transition:height .45s var(--ease),opacity .35s,transform .45s var(--ease)}
+.vti.on .d{height:calc(3.08rem + 10px);opacity:1;transform:none}   /* cabe duas linhas de descrição */
+.vti .d p{padding-top:10px;max-width:520px;font-size:.95rem}
 .vti.on:hover h3::after{content:' →';color:var(--gold2)}
+/* imagem de cada caminho, misturada ao fundo animado */
+.gl>.himg{position:absolute;inset:0;z-index:1;background:right center/cover no-repeat;mix-blend-mode:screen;opacity:0;transform:scale(1.06);pointer-events:none;
+  -webkit-mask-image:linear-gradient(90deg,transparent 15%,#000 65%);mask-image:linear-gradient(90deg,transparent 15%,#000 65%);transition:opacity .7s,transform 1.2s var(--ease)}
+.gl>.himg.on{opacity:.38;transform:none}
 
 /* vitrine da home: cards flutuantes em duas colunas */
 .stag{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
@@ -167,11 +172,11 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
 
 /* menu: o botão vira lista */
 .mcard{position:fixed;z-index:300;overflow:hidden;background:#0A1A33;border:1px solid rgba(244,176,92,.4);padding:4px;
-  transition:width .85s cubic-bezier(.34,1.35,.5,1),height .85s cubic-bezier(.34,1.35,.5,1),left .85s cubic-bezier(.34,1.35,.5,1),border-radius .85s cubic-bezier(.34,1.35,.5,1),border-color .4s;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+  transition:width .3s var(--ease),height .3s var(--ease),left .3s var(--ease),border-radius .3s var(--ease),border-color .2s;box-shadow:0 24px 60px rgba(0,0,0,.45)}
 .mcard.on{border-color:rgba(255,255,255,.13)}
 .mcard .lst{display:flex;flex-direction:column;gap:4px;width:278px}
 .mi{display:flex;align-items:center;justify-content:space-between;width:100%;padding:8px 12px;border-radius:16px;color:#E7EDF6;font-family:Archivo,sans-serif;font-size:1.25rem;font-weight:600;text-align:left;
-  opacity:0;transform:translateY(40px);transition:opacity .25s cubic-bezier(.215,.61,.355,1),transform .25s cubic-bezier(.215,.61,.355,1),background .15s}
+  opacity:0;transform:translateY(8px);transition:opacity .2s var(--ease),transform .2s var(--ease),background .15s}
 .mcard.on .mi{opacity:1;transform:none}
 .mi:hover{background:rgba(244,176,92,.1)}
 .mi .l{display:flex;align-items:center;gap:12px}
@@ -195,7 +200,8 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
 @media (max-width:1100px){
   .wrap{padding:0 28px}
   h1{font-size:3rem}
-  .vti h3{font-size:1.6rem}
+  .vti h3{font-size:1.5rem}
+  .vti.on h3{font-size:2rem}
   .hs-grid,.dup{grid-template-columns:1fr!important;gap:36px!important}
   .fbar{overflow-x:auto;padding-bottom:4px}
   .assoc-grid{grid-template-columns:1fr!important}
@@ -204,11 +210,12 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
   /* medidas tiradas das telas de celular aprovadas (tela útil de 284px), convertidas em vw */
   .so-desk{display:none!important}
   .wrap{padding:0 5.63vw}
-  header{padding:5.63vw 0 0}
-  header .lg{height:7.04vw}
+  /* logo visível (5,44vw) centralizado no botão (7,04vw) desce 0,8vw: logo a 4,93vw do topo e da esquerda, botão a 4,13vw do topo e da direita */
+  header{padding:4.13vw 4.13vw 0 4.93vw}
+  header .lg{height:7.04vw;margin:-.8vw 0}
   .hdr .pg{display:none}
-  .mbtn{width:9.15vw;height:9.15vw;border-color:rgba(244,176,92,.45);background:none}
-  .mbtn svg{width:4.2vw;height:4.2vw}
+  .mbtn{width:7.04vw;height:7.04vw;border-color:rgba(244,176,92,.45);background:none}
+  .mbtn svg{width:3.5vw;height:3.5vw}
   p{font-size:4.06vw}
   /* início */
   .hero{min-height:0!important}
@@ -217,15 +224,14 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
   .hero h1{font-size:8vw;line-height:1.14;letter-spacing:-.14vw;margin:3.17vw 0 0!important;max-width:none!important}
   .hero h1 br{display:none}
   .hero .sub{font-size:4.06vw!important;line-height:1.5;margin-top:3.17vw}
-  .vtl{border-left:0;margin-top:5.63vw}
-  .vti{padding:3.87vw 0 3.87vw 4.23vw;border-bottom:0;border-top:1px solid rgba(255,255,255,.09)}
-  .vti.on{margin-left:0;border-left:2px solid #F0AD57;padding-left:3.52vw}
-  .vti .n{position:static;display:inline;font-size:2.82vw;color:#6C7C95;letter-spacing:0;margin-right:3.17vw}
-  .vti.on .n{left:auto}
-  .vti h3{display:inline;margin-left:0;font-size:4.85vw;font-weight:700;letter-spacing:0;color:#7C8CA5}
+  .vtl{margin-top:5.63vw}
+  .vti{padding:3.87vw 0 3.87vw 4.23vw}
+  .vti::before{top:3.17vw;bottom:3.17vw}
+  .vti h3,.vti.on h3{font-size:4.85vw;font-weight:700;letter-spacing:0}
+  .vti h3{color:#7C8CA5}
   .vti.on h3{color:#fff}
-  .vti .d{margin:1.41vw 0 0 0;max-width:none}
-  .vti .d p{font-size:3.61vw!important;color:#93A3B9;line-height:1.45}
+  .vti.on .d{height:auto}
+  .vti .d p{padding-top:1.41vw;max-width:none;font-size:3.61vw!important;color:#93A3B9;line-height:1.45}
   .hs{min-height:0!important;display:block!important;padding:5.63vw 0 6.34vw!important;margin-top:6.34vw;border-radius:4.93vw 4.93vw 0 0}
   .hs-grid{display:flex!important;flex-direction:column;align-items:stretch!important;gap:0!important;padding:0 5.63vw!important}
   .hs-grid>div:first-child{display:contents}
@@ -304,7 +310,7 @@ const WA_ACEIMA='5521991041424';
 const API=location.protocol==='file:'?null:'';   // aberto do computador não tem API: usa a amostra
 const ic=(p,s)=>`<svg width="${s||20}" height="${s||20}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 const I_MENU='<path d="M4 7h16M4 12h16M4 17h16"/>',I_X='<path d="M6 6l12 12M18 6 6 18"/>',I_DOWN='<path d="m6 9 6 6 6-6"/>',I_BUSCA='<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>';
-const hd=pg=>`<div class="wrap"><header><img class="lg" src="${LOGO}" alt="ACEIMA" onclick="go('home')"><div class="hdr"><span class="pg">${pg}</span><button class="mbtn" onclick="abrirMenu()" aria-label="Abrir menu">${ic(I_MENU,23)}</button></div></header></div>`;
+const hd=pg=>`<header><img class="lg" src="${LOGO}" alt="ACEIMA" onclick="go('home')"><div class="hdr"><span class="pg">${pg}</span><button class="mbtn" onclick="abrirMenu()" aria-label="Abrir menu">${ic(I_MENU,16)}</button></div></header>`;
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>Number(n||0).toLocaleString('pt-BR');
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
@@ -413,7 +419,7 @@ function abrirMenu(){
   const btn=document.querySelector('.mbtn'),r=btn.getBoundingClientRect(),W=288;
   const card=document.createElement('div');card.className='mcard';
   const atual=pagAtual==='veiculo'?'estoque':pagAtual;
-  card.innerHTML=`<div class="lst">${PAGINAS.map((p,i)=>`<button class="mi" style="transition-delay:${((i+8)*0.025).toFixed(3)}s" onclick="escolherMenu('${p[0]}',this)">
+  card.innerHTML=`<div class="lst">${PAGINAS.map((p,i)=>`<button class="mi" style="transition-delay:${(0.06+i*0.025).toFixed(3)}s" onclick="escolherMenu('${p[0]}',this)">
     <span class="l"><span class="ico">${ic(ICONES[p[0]],24)}</span><span>${p[1]}</span></span>
     <span class="ck${p[0]===atual?' on':''}">${p[0]===atual?ic(TICK,16):''}</span></button>`).join('')}</div>`;
   Object.assign(card.style,{top:r.top+'px',left:r.left+'px',width:r.width+'px',height:r.height+'px',borderRadius:'40px'});
@@ -430,12 +436,12 @@ function fecharMenu(depois){
   if(!menuAberto)return;const {card,btn,r}=menuAberto;menuAberto=null;document.removeEventListener('click',fora);
   card.classList.remove('on');card.querySelectorAll('.mi').forEach(m=>m.style.transitionDelay='0s');
   Object.assign(card.style,{width:r.width+'px',height:r.height+'px',left:r.left+'px',borderRadius:'40px'});
-  setTimeout(()=>{card.remove();btn.classList.remove('aberto');if(depois)depois();},450);
+  setTimeout(()=>{card.remove();btn.classList.remove('aberto');if(depois)depois();},300);
 }
 function escolherMenu(pg,el){
   const c=el.closest('.lst');c.querySelectorAll('.ck').forEach(k=>{k.classList.remove('on');k.innerHTML='';});
   const k=el.querySelector('.ck');k.classList.add('on');k.innerHTML=ic(TICK,16);
-  setTimeout(()=>fecharMenu(()=>go(pg)),150);
+  setTimeout(()=>fecharMenu(()=>go(pg)),100);
 }
 
 /* ==================== RODAPÉ ==================== */
@@ -449,16 +455,18 @@ const rodape=()=>`<footer class="rod"><div class="wrap">
 let abaHome=0;
 function home(){
   const anos=new Date().getFullYear()-1998;
+  // [título, texto, página, imagem ao fundo]
   const tabs=[
-    ['01','Comprar um veículo',`${Cap(extenso(nVeic()))} anúncios das ${nLojas()} lojas associadas, cada uma com selo e avaliação real no Google.`,'estoque'],
-    ['02','Ser um associado','O que a ACEIMA entrega ao lojista da Intendente e o caminho para entrar.','associar'],
-    ['03','Conhecer a ACEIMA',`${Cap(extenso(anos))} anos representando o comércio da Intendente Magalhães.`,'aceima'],
-    ['04','Serviços do polo','Vistoria, inspeção e comércio credenciado na mesma rua.','servicos']];
+    ['Comprar um veículo',`${Cap(extenso(nVeic()))} anúncios das ${nLojas()} lojas associadas, cada uma com selo e avaliação real no Google.`,'estoque','fotos-home/comprar.jpg'],
+    ['Ser um associado','O que a ACEIMA entrega ao lojista da Intendente e o caminho para entrar.','associar',''],
+    ['Conhecer a ACEIMA',`${Cap(extenso(anos))} anos representando o comércio da Intendente Magalhães.`,'aceima',''],
+    ['Serviços do polo','Vistoria, inspeção e comércio credenciado na mesma rua.','servicos','']];
   const C=V.filter(foto).slice(0,4);
   const cs=(c,asp)=>c?`<div class="c" onclick="abrirVeiculo(${c.id})"><div class="ph" style="aspect-ratio:${asp}"><img src="${esc(foto(c))}" alt="${esc(nomeV(c))}" loading="lazy"></div><div class="lb">${esc(nomeV(c))} <b>${precoT(c.preco)}</b></div></div>`:'';
   const cem=Math.floor(nVeic()/100)*100||nVeic();
   return `<div style="background:var(--navy)">
  <div class="gl hero" style="min-height:100vh;display:flex;flex-direction:column">${LUZ}
+  ${tabs.map((t,i)=>`<div class="himg${i===abaHome?' on':''}"${t[3]?` style="background-image:url('${t[3]}')"`:''}></div>`).join('')}
   ${hd('Início')}
   <div class="wrap inn" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:44px;padding-bottom:30px">
    <div>
@@ -467,7 +475,7 @@ function home(){
      <p class="sub" style="font-size:1.05rem;max-width:660px">${Cap(extenso(nLojas(),true))} lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.</p>
    </div>
    <div class="vtl">
-    ${tabs.map((t,i)=>`<div class="vti${i===abaHome?' on':''}" onclick="aba(${i},'${t[3]}')"><span class="n">/${t[0]}</span><h3>${t[1]}</h3>${i===abaHome?`<div class="d"><p style="font-size:.95rem">${t[2]}</p></div>`:''}</div>`).join('')}
+    ${tabs.map((t,i)=>`<div class="vti${i===abaHome?' on':''}" onmouseenter="destacar(${i})" onclick="go('${t[2]}')"><h3>${t[0]}</h3><div class="d"><p>${t[1]}</p></div></div>`).join('')}
    </div>
   </div>
  </div>
@@ -489,8 +497,8 @@ function home(){
   </div>
  </div>
 </div>${rodape()}`;}
-// primeiro clique abre o caminho; clique no caminho aberto leva para a página
-function aba(i,destino){if(i===abaHome){go(destino);return;}abaHome=i;render(false);}
+// só troca as classes: redesenhar a página reiniciaria o vídeo do fundo
+function destacar(i){abaHome=i;['.vti','.himg'].forEach(s=>document.querySelectorAll(s).forEach((e,j)=>e.classList.toggle('on',j===i)));}
 
 /* ==================== ESTOQUE ==================== */
 const F={marca:'',modelo:'',ano:'',preco:'',loja:'',cambio:'',comb:'',q:'',ord:'Mais recentes'};
