@@ -9,11 +9,11 @@
 <meta name="description" content="A ACEIMA reúne as lojas da Estrada Intendente Magalhães desde 1998. Estoque dos associados, serviços do polo e como se associar.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ============ BASE: cópia do CSS dos mockups aprovados ============ */
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--f1:Archivo,sans-serif;--f2:Poppins,sans-serif;--navy:#00091A;--gold:#C8862E;--gold2:#E8A048;--gold3:#F4B05C;--cl:#F6F4F1;--ink:#0B1A33;--mut:#5A6B85;--line:#E3DFDA;--ease:cubic-bezier(.2,.8,.2,1)}
+:root{--f1:Outfit,sans-serif;--f2:Figtree,sans-serif;--navy:#00091A;--gold:#C8862E;--gold2:#E8A048;--gold3:#F4B05C;--cl:#F6F4F1;--ink:#0B1A33;--mut:#5A6B85;--line:#E3DFDA;--ease:cubic-bezier(.2,.8,.2,1)}
 body{background:var(--cl);color:var(--ink);font-family:var(--f1);-webkit-font-smoothing:antialiased}
 img{display:block;max-width:100%}
 button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
@@ -95,8 +95,9 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vti.on::before{transform:none}
 .vti h3{font-size:1.95rem;font-weight:800;letter-spacing:-.6px;color:#445773;line-height:1.1;transition:font-size .45s var(--ease),color .3s}
 .vti.on h3{font-size:2.75rem;color:#fff}
-.vti .d{height:0;overflow:hidden;opacity:0;transform:translateY(10px);transition:height .45s var(--ease),opacity .35s,transform .45s var(--ease)}
-.vti.on .d{height:calc(3.5rem + 10px);opacity:1;transform:none}   /* cabe duas linhas de descrição */
+.vti .d{display:grid;grid-template-rows:0fr;opacity:0;transform:translateY(10px);transition:grid-template-rows .45s var(--ease),opacity .35s,transform .45s var(--ease)}
+.vti .d>div{overflow:hidden;min-height:0}
+.vti.on .d{grid-template-rows:1fr;opacity:1;transform:none}
 .vti .d p{padding-top:10px;max-width:600px;font-size:1.08rem}
 /* imagem de cada caminho, misturada ao fundo animado */
 .gl>.himg{position:absolute;inset:0;z-index:1;background:right center/cover no-repeat;mix-blend-mode:screen;opacity:0;transform:scale(1.06);pointer-events:none;
@@ -228,7 +229,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .editando #app [data-t]:hover{outline-color:#F4B05C}
 .editando #app [data-t].sel{outline:2px solid #F4B05C}
 .editando #app [data-t]:empty::before{content:'(vazio)';opacity:.5}
-.editando .vti .d{height:auto!important;opacity:1;transform:none}
+.editando .vti .d{grid-template-rows:1fr;opacity:1;transform:none}
 #edBarra{position:fixed;z-index:400;left:50%;bottom:14px;transform:translateX(-50%);width:min(1240px,calc(100% - 20px));display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;
   padding:12px 14px;border-radius:14px;background:#0A1A33;border:1px solid rgba(244,176,92,.4);box-shadow:0 20px 50px rgba(0,0,0,.5);font-family:var(--f2);font-size:.8rem;color:#cfd9e8}
 #edBarra>div,#edBarra form,#edBarra .edG{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
@@ -242,12 +243,6 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 #edBarra .btn.o{color:#fff;border-color:rgba(255,255,255,.28)}
 #edBarra .btn[disabled]{opacity:.4;cursor:default}
 #edMsg{color:#F4B05C}
-/* teste de fontes (/?fontes): temporário, sai quando o Luiz escolher */
-#fontes{position:fixed;z-index:450;left:12px;bottom:12px;max-width:calc(100% - 24px);display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px;border-radius:12px;background:#0A1A33;border:1px solid rgba(244,176,92,.4);box-shadow:0 20px 50px rgba(0,0,0,.5);font:500 12px/1.2 Arial,sans-serif;color:#cfd9e8}
-#fontes b{color:#F4B05C;margin-right:4px}
-#fontes button{padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font:inherit}
-#fontes button.on{background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;border-color:transparent}
-@media(max-width:760px){#fontes{left:8px;right:8px;max-width:none;flex-wrap:nowrap;overflow-x:auto}#fontes button{flex:none}}
 
 /* ============ CELULAR: cópia das telas de celular aprovadas ============ */
 @media (max-width:1100px){
@@ -285,7 +280,6 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .vti h3,.vti.on h3{font-size:4.27vw;font-weight:700;letter-spacing:0}
   .vti h3{color:#7C8CA5}
   .vti.on h3{color:#fff}
-  .vti.on .d{height:calc(3.33vw*1.45*4 + 1.41vw)}   /* quatro linhas fixas: a troca automática não empurra a página */
   .vti .d p{padding-top:1.41vw;max-width:60.14vw;font-size:3.33vw!important;color:#93A3B9;line-height:1.45}
   .meio{padding-bottom:0}
   .av{padding:6.34vw 0 9.15vw}
@@ -379,7 +373,6 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .vti::before{top:calc(10*var(--px));bottom:calc(10*var(--px))}
   .vti h3{font-size:calc(31.2*var(--px));letter-spacing:calc(-.6*var(--px))}
   .vti.on h3{font-size:calc(44*var(--px))}
-  .vti.on .d{height:calc(var(--fd)*3.24 + 10*var(--px))}   /* duas linhas */
   .vti .d p{padding-top:calc(10*var(--px));max-width:calc(600*var(--px));font-size:var(--fd)}
   .av{padding:calc(8*var(--px)) 0 calc(56*var(--px))}
   .av .kick{font-size:max(10px,calc(11.2*var(--px)));letter-spacing:calc(2.6*var(--px));margin-bottom:calc(10*var(--px))}
@@ -600,7 +593,7 @@ function home(){
      <p class="sub">${T('inicio.subtitulo','{Lojas por extenso} lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.')}</p>
    </div>
    <div class="vtl">
-    ${tabs.map((t,i)=>`<div class="vti${i===abaHome?' on':''}" onmouseenter="destacar(${i})" onclick="go('${t[2]}')"><h3>${t[0]}</h3><div class="d"><p>${t[1]}</p></div></div>`).join('')}
+    ${tabs.map((t,i)=>`<div class="vti${i===abaHome?' on':''}" onmouseenter="destacar(${i})" onclick="go('${t[2]}')"><h3>${t[0]}</h3><div class="d"><div><p>${t[1]}</p></div></div></div>`).join('')}
    </div>
   </div>
   </div>
@@ -636,6 +629,13 @@ function avaliacoes(){
 }
 // só troca as classes: redesenhar a página reiniciaria o vídeo do fundo
 function destacar(i){if(EDIT)return;abaHome=i;['.vti','.himg'].forEach(s=>document.querySelectorAll(s).forEach((e,j)=>e.classList.toggle('on',j===i)));girar();}
+// a lista fica sempre com a altura da maior descrição: a troca não mexe em nada acima nem abaixo, e a sobra fica no fim
+function alturaCategorias(){
+  const l=document.querySelector('.vtl');if(!l)return;l.style.minHeight='';
+  const ds=[...l.querySelectorAll('.vti .d')];
+  const base=l.offsetHeight-ds.reduce((s,d)=>s+d.offsetHeight,0);
+  l.style.minHeight=base+Math.max(...ds.map(d=>d.querySelector('p').offsetHeight))+'px';
+}
 // as categorias passam sozinhas a cada 6s; com o mouse em cima da lista, param
 let giro;
 function girar(){clearTimeout(giro);if(EDIT||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
@@ -1070,30 +1070,6 @@ function sairEdicao(){
   EDIT=null;sel=null;PEND={};document.body.classList.remove('editando');document.getElementById('edBarra').remove();render(false);
 }
 
-/* ==================== TESTE DE FONTES (/?fontes) ==================== */
-// temporário: o Luiz troca as fontes do site inteiro na prévia para escolher; sai depois da escolha
-const PARES=[
-  ['Atual: Archivo + Poppins','Archivo','Poppins',''],
-  ['Manrope + Inter','Manrope','Inter','family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700'],
-  ['Plus Jakarta Sans','Plus Jakarta Sans','Plus Jakarta Sans','family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800'],
-  ['Sora + DM Sans','Sora','DM Sans','family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700'],
-  ['Montserrat + Lato','Montserrat','Lato','family=Montserrat:wght@400;500;600;700;800;900&family=Lato:wght@300;400;700'],
-  ['Barlow Semi Condensed + Barlow','Barlow Semi Condensed','Barlow','family=Barlow+Semi+Condensed:wght@400;500;600;700;800&family=Barlow:wght@300;400;500;600;700'],
-  ['Outfit + Figtree','Outfit','Figtree','family=Outfit:wght@400;500;600;700;800&family=Figtree:wght@300;400;500;600;700']];
-function usarFontes(i){
-  const [,a,b,q]=PARES[i]||PARES[0];
-  if(q){let l=document.getElementById('fontesTeste');if(!l){l=document.createElement('link');l.id='fontesTeste';l.rel='stylesheet';document.head.appendChild(l);}l.href='https://fonts.googleapis.com/css2?'+q+'&display=swap';}
-  document.documentElement.style.setProperty('--f1',`'${a}',sans-serif`);document.documentElement.style.setProperty('--f2',`'${b}',sans-serif`);
-  document.querySelectorAll('#fontes button').forEach((x,j)=>x.classList.toggle('on',j===i));
-  try{localStorage.setItem('fontes',i)}catch(e){}
-}
-if(/[?&]fontes\b/.test(location.search)){
-  const p=document.createElement('div');p.id='fontes';
-  p.innerHTML='<b>Fontes</b>'+PARES.map((x,i)=>`<button onclick="usarFontes(${i})">${x[0]}</button>`).join('');
-  document.body.appendChild(p);
-  let i=0;try{i=+localStorage.getItem('fontes')||0}catch(e){}usarFontes(i);
-}
-
 /* ==================== ROTAS ==================== */
 const VIEWS={home,estoque,associados,veiculo,aceima,associar,publicacoes,servicos};
 const ROTAS={home:'/',estoque:'/estoque',associados:'/associados',aceima:'/a-aceima',associar:'/seja-um-associado',publicacoes:'/publicacoes',servicos:'/servicos'};
@@ -1107,7 +1083,7 @@ function render(topo){
   fecharDrop();
   document.getElementById('app').innerHTML=VIEWS[pagAtual]();
   if(pagAtual==='estoque')depoisEstoque();
-  if(pagAtual==='home')girar();
+  if(pagAtual==='home'){girar();alturaCategorias();document.fonts.ready.then(()=>{if(pagAtual==='home')alturaCategorias();});}
   if(EDIT){sel=null;pintarBarra();}
   document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});v.play().catch(()=>{});});
   if(topo)scrollTo(0,0);
@@ -1133,7 +1109,7 @@ addEventListener('popstate',()=>rota());
 // aba volta a ficar visível: o navegador pode ter pausado o vídeo do fundo
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)document.querySelectorAll('video.luz').forEach(v=>v.play().catch(()=>{}));});
 let largAnt=matchMedia('(max-width:760px)').matches;
-addEventListener('resize',()=>{const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;if(pagAtual==='estoque')pintarMosaico();}});
+addEventListener('resize',()=>{if(pagAtual==='home')alturaCategorias();const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;if(pagAtual==='estoque')pintarMosaico();}});
 
 rota();
 carregar();
