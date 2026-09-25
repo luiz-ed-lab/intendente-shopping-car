@@ -1227,6 +1227,56 @@ async function rotaConteudo(req, res) {
   res.json({ ok: true, ramo });
 }
 
+// ---------------- AVALIAÇÕES DO GOOGLE (faixa da home) ----------------
+// Avaliações reais de cada loja, pela API oficial do Google (Places API New): até 5 por loja.
+// Ficam guardadas 7 dias em config (o Google permite até 30): uma consulta por loja por semana.
+// A mesma consulta atualiza a nota e o total de avaliações da loja.
+// Precisa da variável GOOGLE_PLACES_KEY na Vercel. Sem ela, a faixa não aparece.
+const semAcento = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+const NOMES_GENERICOS = ['auto', 'car', 'veiculos', 'automoveis', 'motors', 'motos', 'multimarcas', 'seminovos'];
+// confere se o Google achou a loja certa: a palavra principal do nome tem que aparecer no nome do Google
+function mesmaLoja(nosso, google) {
+  const chave = semAcento(nosso).replace(/[^a-z0-9 ]/g, '').split(' ').find(w => w.length > 2 && !NOMES_GENERICOS.includes(w));
+  return !!chave && semAcento(google).replace(/[^a-z0-9]/g, '').includes(chave);
+}
+// devolve as avaliações da loja, [] se ela não tem, ou null se a consulta falhou
+async function avaliacoesDaLoja(loja, chave) {
+  try {
+    const r = await fetch('https://places.googleapis.com/v1/places:searchText', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': chave,
+        'X-Goog-FieldMask': 'places.displayName,places.rating,places.userRatingCount,places.reviews' },
+      body: JSON.stringify({ textQuery: `${loja.nome}, Estrada Intendente Magalhães, Rio de Janeiro`,
+        languageCode: 'pt-BR', regionCode: 'BR', pageSize: 1,
+        locationBias: { circle: { center: { latitude: -22.8775, longitude: -43.3505 }, radius: 4000 } } })
+    });
+    if (!r.ok) return null;
+    const p = ((await r.json()).places || [])[0];
+    if (!p || !mesmaLoja(loja.nome, p.displayName && p.displayName.text)) return [];
+    if (p.rating) await query('update lojas set google_nota=$2, google_avaliacoes=$3, google_em=now() where id=$1',
+      [loja.id, p.rating, p.userRatingCount || null]);
+    // só as boas (4 e 5 estrelas) e com texto
+    return (p.reviews || []).filter(v => v.rating >= 4 && v.text && v.text.text && v.authorAttribution)
+      .map(v => ({ loja: loja.nome, autor: v.authorAttribution.displayName || '', foto: v.authorAttribution.photoUri || '',
+        texto: v.text.text, link: v.googleMapsUri || v.authorAttribution.uri || '' }));
+  } catch (_) { return null; }
+}
+async function avaliacoesGoogle() {
+  await migra();
+  const { rows: [c] } = await query("select valor, em from config where chave='avaliacoes_google'");
+  const guardadas = c ? JSON.parse(c.valor) : [];
+  const chave = process.env.GOOGLE_PLACES_KEY;
+  if (!chave || (c && Date.now() - new Date(c.em).getTime() < 7 * 864e5)) return guardadas;
+  const { rows: lojas } = await query('select id, nome from lojas where ativa = true');
+  const achadas = await Promise.all(lojas.map(l => avaliacoesDaLoja(l, chave)));
+  // tudo falhou (chave errada, Google fora do ar): mantém as antigas e tenta de novo depois; erro não é cobrado
+  if (achadas.every(x => x === null)) return guardadas;
+  const lista = achadas.flatMap((x, i) => x !== null ? x : guardadas.filter(a => a.loja === lojas[i].nome));
+  await query("insert into config (chave, valor, em) values ('avaliacoes_google', $1, now()) on conflict (chave) do update set valor = $1, em = now()",
+    [JSON.stringify(lista)]);
+  return lista;
+}
+
 // ---------------- ROTEADOR ----------------
 export default async function handler(req, res) {
   let rota;
@@ -1246,6 +1296,11 @@ export default async function handler(req, res) {
     if (rota === 'refresh') return await rotaRefresh(req, res);
     if (rota === 'testeemail') return autorizado(req) ? await rotaTesteEmail(req, res) : negar(res);
     if (rota === 'conteudo') return autorizado(req) ? await rotaConteudo(req, res) : negar(res);
+    if (rota === 'avaliacoes') {
+      const lista = await avaliacoesGoogle();
+      res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
+      return res.json(lista);
+    }
     // login do painel: confere a senha sem nunca devolvê-la
     if (rota === 'auth') {
       const b = req.body || {};
