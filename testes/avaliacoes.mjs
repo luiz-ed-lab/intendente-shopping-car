@@ -3,43 +3,64 @@
 import fs from 'fs';
 const src = fs.readFileSync(new URL('../api/[...path].js', import.meta.url), 'utf8');
 const trecho = src.slice(src.indexOf('const semAcento'), src.indexOf('// ---------------- ROTEADOR'));
-let config = null, updates = [], chamadas = 0, respostas = {};
+let config = null, updates = [], chamadas = [], respostas = {};
+let lojas = [{ id: 1, nome: 'HiperCar' }, { id: 2, nome: 'T.F.A. Motors' }, { id: 3, nome: 'Lazari' }];
 const query = async (sql, p) => {
   if (/select valor, em from config/.test(sql)) return { rows: config ? [config] : [] };
-  if (/select id, nome from lojas/.test(sql)) return { rows: [{ id: 1, nome: 'HiperCar' }, { id: 2, nome: 'T.F.A. Motors' }, { id: 3, nome: 'Lazari' }] };
+  if (/select id, nome from lojas/.test(sql)) return { rows: lojas.slice() };
   if (/insert into config/.test(sql)) { config = { valor: p[0], em: new Date() }; return { rows: [] }; }
   if (/update lojas/.test(sql)) { updates.push(p); return { rows: [] }; }
   throw new Error('sql inesperado: ' + sql);
 };
 globalThis.fetch = async (url, o) => {
-  chamadas++;
   const q = JSON.parse(o.body).textQuery;
+  chamadas.push(q.split(',')[0]);
   const r = Object.entries(respostas).find(([k]) => q.startsWith(k));
-  return r ? r[1] : { ok: false, status: 403 };
+  return r ? r[1] : { ok: false, status: 429 };
 };
 const rev = (rating, texto, autor) => ({ rating, text: { text: texto }, authorAttribution: { displayName: autor, photoUri: 'https://foto/' + autor, uri: 'https://perfil/' + autor }, googleMapsUri: 'https://maps/' + autor });
 const ok = places => ({ ok: true, status: 200, json: async () => ({ places }) });
 const { avaliacoesGoogle, mesmaLoja } = new Function('query', 'migra', trecho + '; return { avaliacoesGoogle, mesmaLoja };')(query, async () => {});
 const assert = (c, m) => { if (!c) { console.log('FALHOU:', m); process.exitCode = 1; } else console.log('ok:', m); };
+const passaUmDia = () => { config.em = new Date(Date.now() - 25 * 36e5); chamadas = []; };
+const autores = l => l.map(a => a.autor).sort().join();
 
 assert(mesmaLoja('HiperCar', 'Hiper Car Veículos') && mesmaLoja('T.F.A. Motors', 'TFA Motors') && !mesmaLoja('Lazari', 'Oficina do Zé'), 'confere o nome da loja no Google');
 delete process.env.GOOGLE_PLACES_KEY;
-assert((await avaliacoesGoogle()).length === 0 && chamadas === 0, 'sem chave: não chama o Google');
+assert((await avaliacoesGoogle()).length === 0 && chamadas.length === 0, 'sem chave: não chama o Google');
 process.env.GOOGLE_PLACES_KEY = 'x';
+
+// primeira vez: todas as lojas; a Lazari falha (cota)
 respostas = {
   'HiperCar': ok([{ displayName: { text: 'Hiper Car' }, rating: 4.7, userRatingCount: 120, reviews: [rev(5, 'Ótimo atendimento', 'Ana'), rev(2, 'Ruim', 'Bia'), rev(5, '', 'Cris')] }]),
-  'T.F.A. Motors': ok([{ displayName: { text: 'TFA Motors' }, rating: 5, userRatingCount: 40, reviews: [rev(4, 'Recomendo', 'Duda')] }]),
-  'Lazari': ok([{ displayName: { text: 'Oficina do Zé' }, reviews: [rev(5, 'Outro lugar', 'Edu')] }])
+  'T.F.A. Motors': ok([{ displayName: { text: 'TFA Motors' }, rating: 5, userRatingCount: 40, reviews: [rev(4, 'Recomendo', 'Duda')] }])
 };
 let l = await avaliacoesGoogle();
-assert(l.map(a => a.autor).join() === 'Ana,Duda', 'só avaliações boas, com texto, da loja certa');
-assert(l[0].loja === 'HiperCar' && l[0].link === 'https://maps/Ana' && l[0].foto === 'https://foto/Ana', 'guarda loja, link e foto');
+assert(chamadas.length === 3 && autores(l) === 'Ana,Duda', 'primeira vez busca todas; só avaliações boas, com texto');
+assert(l.find(a => a.autor === 'Ana').link === 'https://maps/Ana' && l.find(a => a.autor === 'Ana').loja === 'HiperCar', 'guarda loja e link');
 assert(updates.length === 2 && updates[0][1] === 4.7, 'atualiza a nota das lojas achadas');
-assert(JSON.parse(config.valor).length === 2, 'guarda no banco');
-chamadas = 0; await avaliacoesGoogle(); assert(chamadas === 0, 'dentro de 7 dias não chama o Google de novo');
-config.em = new Date(Date.now() - 8 * 864e5); respostas = {}; chamadas = 0;
+
+chamadas = []; await avaliacoesGoogle();
+assert(chamadas.length === 0, 'no mesmo dia não chama o Google de novo');
+
+// dia seguinte: a Lazari nunca foi buscada, então vai ela
+passaUmDia(); respostas.Lazari = ok([{ displayName: { text: 'Lazari Automóveis' }, reviews: [rev(5, 'Muito bom', 'Edu')] }]);
 l = await avaliacoesGoogle();
-assert(chamadas === 3 && l.length === 2 && Date.now() - config.em > 7 * 864e5, 'tudo falhou: mantém as antigas e não marca como atualizado');
-respostas = { 'T.F.A. Motors': ok([{ displayName: { text: 'TFA Motors' }, reviews: [rev(5, 'Nova', 'Fê')] }]) };
+assert(chamadas.join() === 'Lazari' && autores(l) === 'Ana,Duda,Edu', 'loja que falhou entra no dia seguinte');
+
+// depois: uma por dia, sempre a mais antiga
+const g = JSON.parse(config.valor); g.HiperCar.em = '2020-01-01'; config.valor = JSON.stringify(g);
+passaUmDia(); respostas.HiperCar = ok([{ displayName: { text: 'Hiper Car' }, reviews: [rev(5, 'Voltei e comprei de novo', 'Fê')] }]);
 l = await avaliacoesGoogle();
-assert(l.map(a => a.autor).sort().join() === 'Ana,Fê', 'falha parcial: loja que falhou fica com as antigas');
+assert(chamadas.join() === 'HiperCar' && autores(l) === 'Duda,Edu,Fê', 'uma consulta por dia, na loja mais antiga');
+
+// tudo falhou: mantém o que tinha e tenta de novo na próxima visita
+passaUmDia(); respostas = {}; const antes = config.em;
+l = await avaliacoesGoogle();
+assert(chamadas.length === 1 && autores(l) === 'Duda,Edu,Fê' && config.em === antes, 'falha: mantém as avaliações e não marca o dia');
+
+// loja que saiu da associação some da faixa
+lojas = lojas.filter(x => x.nome !== 'Lazari'); config.em = new Date(Date.now() - 25 * 36e5);
+respostas = { 'HiperCar': ok([]), 'T.F.A. Motors': ok([]) };
+l = await avaliacoesGoogle();
+assert(!l.some(a => a.loja === 'Lazari'), 'loja que saiu some da faixa');
