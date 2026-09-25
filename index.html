@@ -38,7 +38,7 @@ video.luz{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;poin
 @media(prefers-reduced-motion:reduce){.semvideo .gl{animation:none}}
 
 /* logo e menu no canto: mesma distância do topo e da lateral */
-header{display:flex;align-items:center;justify-content:space-between;padding:24px 24px 20px}
+header{display:flex;align-items:center;justify-content:space-between;padding:32px 32px 20px}
 header .lg{height:44px;width:auto;margin:-5px 0;cursor:pointer}   /* o png tem 5px transparentes em cima e embaixo */
 .hdr{display:flex;align-items:center;gap:14px}
 .hdr .pg{font-family:Poppins,sans-serif;font-size:.85rem;color:#93a3bd}
@@ -90,11 +90,11 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
 .vti+.vti{background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent) top/100% 1px no-repeat}
 .vti::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:2px;background:var(--gold2);transform:scaleY(0);transition:transform .45s var(--ease)}
 .vti.on::before{transform:none}
-.vti h3{font-size:1.7rem;font-weight:800;letter-spacing:-.6px;color:#445773;line-height:1.1;transition:font-size .45s var(--ease),color .3s}
-.vti.on h3{font-size:2.4rem;color:#fff}
+.vti h3{font-size:1.95rem;font-weight:800;letter-spacing:-.6px;color:#445773;line-height:1.1;transition:font-size .45s var(--ease),color .3s}
+.vti.on h3{font-size:2.75rem;color:#fff}
 .vti .d{height:0;overflow:hidden;opacity:0;transform:translateY(10px);transition:height .45s var(--ease),opacity .35s,transform .45s var(--ease)}
-.vti.on .d{height:calc(3.08rem + 10px);opacity:1;transform:none}   /* cabe duas linhas de descrição */
-.vti .d p{padding-top:10px;max-width:520px;font-size:.95rem}
+.vti.on .d{height:calc(3.5rem + 10px);opacity:1;transform:none}   /* cabe duas linhas de descrição */
+.vti .d p{padding-top:10px;max-width:600px;font-size:1.08rem}
 /* imagem de cada caminho, misturada ao fundo animado */
 .gl>.himg{position:absolute;inset:0;z-index:1;background:right center/cover no-repeat;mix-blend-mode:screen;opacity:0;transform:scale(1.06);pointer-events:none;
   -webkit-mask-image:linear-gradient(90deg,transparent 15%,#000 65%);mask-image:linear-gradient(90deg,transparent 15%,#000 65%);transition:opacity .7s,transform 1.2s var(--ease)}
@@ -102,7 +102,7 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
 
 /* faixa de avaliações da home: passa sozinha e para com o mouse em cima */
 .meio{flex:1;display:flex;flex-direction:column;justify-content:center}
-.av{position:relative;padding:26px 0 18px}
+.av{padding:8px 0 56px}   /* 8px: o mesmo respiro do cabeçalho (20px) menos o da última categoria (12px) */
 .av .kick{text-align:center;margin-bottom:10px}
 .av-janela{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
 .av-trilho{--g:12px;display:flex;gap:var(--g);width:max-content;animation:rolar linear infinite}
@@ -120,7 +120,7 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
 .avq{margin-left:auto;align-self:flex-start;font:900 1.9rem/.8 Archivo,sans-serif;color:#E8A048}
 .avc .avx{margin-top:8px;font-size:.75rem;font-weight:400;line-height:1.45;color:#3B4A63;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 /* o Google exige a atribuição quando os dados aparecem fora de um mapa */
-.av-g{position:absolute;right:60px;bottom:0;font:500 12px/18px Roboto,Arial,sans-serif;color:rgba(255,255,255,.72)}
+.av-g{display:block;text-align:right;padding:0 60px;margin-top:14px;font:500 12px/18px Roboto,Arial,sans-serif;color:rgba(255,255,255,.72)}
 
 /* vitrine da home: cards flutuantes em duas colunas */
 .stag{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
@@ -243,6 +243,7 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
 /* ============ CELULAR: cópia das telas de celular aprovadas ============ */
 @media (max-width:1100px){
   .wrap{padding:0 28px}
+  .av-g{padding:0 28px}
   h1{font-size:3rem}
   .vti h3{font-size:1.5rem}
   .vti.on h3{font-size:2rem}
@@ -254,8 +255,8 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
   /* medidas tiradas das telas de celular aprovadas (tela útil de 284px), convertidas em vw */
   .so-desk{display:none!important}
   .wrap{padding:0 5.63vw}
-  /* logo visível (5,44vw) centralizado no botão (7,04vw) desce 0,8vw: logo a 4,93vw do topo e da esquerda, botão a 4,13vw do topo e da direita */
-  header{padding:4.13vw 4.13vw 0 4.93vw}
+  /* logo visível (5,44vw) centralizado no botão (7,04vw) desce 0,8vw: logo a 5,63vw do topo e da esquerda, botão a 4,83vw do topo e da direita */
+  header{padding:4.83vw 4.83vw 0 5.63vw}
   header .lg{height:7.04vw;margin:-.8vw 0}
   .hdr .pg{display:none}
   .mbtn{width:7.04vw;height:7.04vw;border-color:rgba(244,176,92,.45);background:none}
@@ -287,7 +288,7 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
   .avt small{font-size:3.1vw}
   .avq{font-size:7vw}
   .avc .avx{margin-top:2.46vw;font-size:3.4vw}
-  .av-g{right:5.63vw;font-size:3.2vw;line-height:1.5}
+  .av-g{padding:0 5.63vw;margin-top:3.52vw;font-size:3.2vw;line-height:1.5}
   .hs{min-height:0!important;display:block!important;padding:5.63vw 0 6.34vw!important;margin-top:6.34vw;border-radius:4.93vw 4.93vw 0 0}
   .hs-grid{display:flex!important;flex-direction:column;align-items:stretch!important;gap:0!important;padding:0 5.63vw!important}
   .hs-grid>div:first-child{display:contents}
@@ -349,7 +350,8 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
   .parc{grid-template-columns:1fr;gap:18px}
   .rod .wrap{flex-direction:column;align-items:flex-start}
 }
-@media (min-width:761px){.so-cel{display:none!important}}
+@media (min-width:761px){.so-cel{display:none!important}.inn .kick{font-size:.8rem;letter-spacing:3px}}
+@media (min-width:1101px){.inn h1{font-size:4.4rem}}
 </style>
 </head>
 <body class="semvideo">
@@ -554,14 +556,14 @@ function home(){
    <div>
      <div class="kick c">${T('inicio.chamada','ACEIMA · desde 1998')}</div>
      <h1 style="margin:18px 0 18px;color:#fff;max-width:1080px">${T('inicio.titulo','Somos o maior polo automotivo')} <br><span style="background:linear-gradient(100deg,#F6C078,#C8862E);-webkit-background-clip:text;background-clip:text;color:transparent">${T('inicio.titulo-dourado','da América Latina.')}</span></h1>
-     <p class="sub" style="font-size:1.05rem;max-width:660px">${T('inicio.subtitulo','{Lojas por extenso} lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.')}</p>
+     <p class="sub" style="font-size:1.2rem;max-width:740px">${T('inicio.subtitulo','{Lojas por extenso} lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.')}</p>
    </div>
    <div class="vtl">
     ${tabs.map((t,i)=>`<div class="vti${i===abaHome?' on':''}" onmouseenter="destacar(${i})" onclick="go('${t[2]}')"><h3>${t[0]}</h3><div class="d"><p>${t[1]}</p></div></div>`).join('')}
    </div>
   </div>
-  ${avaliacoes()}
   </div>
+  ${avaliacoes()}
  </div>
  <div class="glc hs" style="min-height:100vh;display:flex;align-items:center;padding:40px 0">${LUZ}
   <div class="wrap hs-grid" style="display:grid;grid-template-columns:1fr 1.02fr;gap:64px;align-items:center">

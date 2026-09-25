@@ -43,24 +43,27 @@ assert(updates.length === 2 && updates[0][1] === 4.7, 'atualiza a nota das lojas
 chamadas = []; await avaliacoesGoogle();
 assert(chamadas.length === 0, 'no mesmo dia não chama o Google de novo');
 
-// dia seguinte: a Lazari nunca foi buscada, então vai ela
+// dia seguinte: atualiza todas de novo (são menos de 30), inclusive a que falhou
 passaUmDia(); respostas.Lazari = ok([{ displayName: { text: 'Lazari Automóveis' }, reviews: [rev(5, 'Muito bom', 'Edu')] }]);
+respostas.HiperCar = ok([{ displayName: { text: 'Hiper Car' }, reviews: [rev(5, 'Voltei e comprei de novo', 'Fê')] }]);
 l = await avaliacoesGoogle();
-assert(chamadas.join() === 'Lazari' && autores(l) === 'Ana,Duda,Edu', 'loja que falhou entra no dia seguinte');
-
-// depois: uma por dia, sempre a mais antiga
-const g = JSON.parse(config.valor); g.HiperCar.em = '2020-01-01'; config.valor = JSON.stringify(g);
-passaUmDia(); respostas.HiperCar = ok([{ displayName: { text: 'Hiper Car' }, reviews: [rev(5, 'Voltei e comprei de novo', 'Fê')] }]);
-l = await avaliacoesGoogle();
-assert(chamadas.join() === 'HiperCar' && autores(l) === 'Duda,Edu,Fê', 'uma consulta por dia, na loja mais antiga');
+assert(chamadas.length === 3 && autores(l) === 'Duda,Edu,Fê', 'uma vez por dia atualiza todas as lojas');
 
 // tudo falhou: mantém o que tinha e tenta de novo na próxima visita
 passaUmDia(); respostas = {}; const antes = config.em;
 l = await avaliacoesGoogle();
-assert(chamadas.length === 1 && autores(l) === 'Duda,Edu,Fê' && config.em === antes, 'falha: mantém as avaliações e não marca o dia');
+assert(chamadas.length === 3 && autores(l) === 'Duda,Edu,Fê' && config.em === antes, 'falha: mantém as avaliações e não marca o dia');
 
 // loja que saiu da associação some da faixa
-lojas = lojas.filter(x => x.nome !== 'Lazari'); config.em = new Date(Date.now() - 25 * 36e5);
+lojas = lojas.filter(x => x.nome !== 'Lazari'); passaUmDia();
 respostas = { 'HiperCar': ok([]), 'T.F.A. Motors': ok([]) };
 l = await avaliacoesGoogle();
 assert(!l.some(a => a.loja === 'Lazari'), 'loja que saiu some da faixa');
+
+// mais de 30 lojas: no máximo 30 consultas por dia, as mais antigas primeiro
+lojas = Array.from({ length: 35 }, (_, i) => ({ id: i + 1, nome: 'Loja' + (i + 1) }));
+config = null; chamadas = []; respostas = { 'Loja': ok([]) };
+await avaliacoesGoogle();
+assert(chamadas.length === 30, 'primeiro dia: 30 consultas');
+passaUmDia(); await avaliacoesGoogle();
+assert(chamadas.length === 30 && ['Loja31', 'Loja35'].every(n => chamadas.includes(n)), 'segundo dia: entram as que ficaram de fora');
