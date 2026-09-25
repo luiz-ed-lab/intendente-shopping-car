@@ -268,12 +268,12 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   /* menu no celular: só o ícone da página, no canto; tocando, o nome aparece em pé e os outros ícones descem: o menu só cresce para baixo */
   #nav{left:auto;right:4.35vw;top:4.35vw;bottom:auto;transform:none;height:auto;flex-direction:column;align-items:center;gap:0;padding:.53vw;animation:none}
   .nb{display:grid;grid-template-rows:0fr;min-width:0;height:auto;padding:0 1.33vw;opacity:0;transition:grid-template-rows .35s var(--ease),padding .35s var(--ease),opacity .25s,background-color .2s,color .2s,transform .4s var(--ease)}
-  .nbi{display:flex;flex-direction:column;align-items:center;min-height:0;overflow:hidden}
-  .nb:first-child,#nav.aberto .nb{grid-template-rows:1fr;padding:1.33vw;opacity:1}
+  .nbi{display:flex;flex-direction:column-reverse;align-items:center;min-height:0;overflow:hidden}   /* lido subindo: primeiro o ícone, depois o nome */
+  .nb.on,#nav.aberto .nb{grid-template-rows:1fr;padding:1.33vw;opacity:1}
   #nav.aberto .nb{transition-delay:calc(var(--i) * 25ms)}
   .nb svg{width:3.73vw;height:3.73vw;transition:transform .26s var(--ease)}
   .nb.nome svg{transform:rotate(-90deg)}   /* o ícone da página aberta deita junto com o nome, que é lido subindo */
-  .nl{writing-mode:vertical-rl;width:auto;height:0;margin:1.6vw 0 0}
+  .nl{writing-mode:vertical-rl;width:auto;height:0;margin:0 0 1.6vw}
   .nl>span{font-size:3.2vw;line-height:1.2;transform:rotate(180deg)}
   /* categorias: o toque só abre; o botão Acessar aparece na que foi tocada */
   .vti.tocada .acessar{display:inline-flex;align-items:center;margin-top:2.82vw;padding:2.11vw 4.23vw;border-radius:2.13vw;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;font:600 3.47vw/1 var(--f2)}
@@ -545,14 +545,15 @@ const ICONES={home:'<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path 
 const cel=()=>matchMedia('(max-width:760px)').matches;
 const menuDe=()=>pagAtual==='veiculo'?'estoque':pagAtual;   // a página do veículo acende o Estoque
 let menuAberto=false,menuTrocando=false;
-// monta a barra; no celular a página atual vem primeiro, porque é o ícone que fica à mostra
+// monta a barra; no celular, fechado, só aparece o ícone da página aberta, e cada ícone tem sempre o seu lugar
 function montarMenu(){
   let n=document.getElementById('nav');
   if(!n){n=document.createElement('nav');n.id='nav';n.setAttribute('aria-label','Menu');document.body.appendChild(n);
     document.addEventListener('click',e=>{if(menuAberto&&!n.contains(e.target))fecharMenu();});}
-  const at=menuDe(),atual=PAGINAS.find(p=>p[0]===at)||['menu','Menu'];
-  const itens=cel()?[atual,...PAGINAS.filter(p=>p[0]!==at)]:PAGINAS;
-  n.innerHTML=itens.map((p,i)=>`<button type="button" class="nb${p[0]===at?' on':''}" data-p="${p[0]}" style="--i:${i}" aria-label="${p[1]}" onclick="clicarMenu('${p[0]}')"><span class="nbi">${ic(ICONES[p[0]],22)}<span class="nl"><span>${p[1]}</span></span></span></button>`).join('');
+  const at=menuDe(),noMenu=PAGINAS.some(p=>p[0]===at),c=cel();
+  const itens=noMenu||!c?PAGINAS:[['menu','Menu'],...PAGINAS];   // Serviços do polo não está no menu: no celular fica o ícone de menu
+  const on=noMenu?at:(c?'menu':'');
+  n.innerHTML=itens.map((p,i)=>`<button type="button" class="nb${p[0]===on?' on':''}" data-p="${p[0]}" style="--i:${i}" aria-label="${p[1]}" onclick="clicarMenu('${p[0]}')"><span class="nbi">${ic(ICONES[p[0]],22)}<span class="nl"><span>${p[1]}</span></span></span></button>`).join('');
   menuAberto=false;n.classList.remove('aberto');
   abrirNomes();
 }
@@ -570,18 +571,10 @@ function clicarMenu(pg){
   if(!cel()){if(pg!==menuDe())go(pg);return;}
   const n=document.getElementById('nav');
   if(!menuAberto){menuAberto=true;n.classList.add('aberto');abrirNomes();return;}
-  if(pg===menuDe()){fecharMenu();return;}
-  // 1) o nome da página atual fecha e o da tocada abre
+  if(pg===menuDe()||pg==='menu'){fecharMenu();return;}
+  // o nome da página atual fecha, o da tocada abre e depois o menu fecha; cada ícone continua no seu lugar
   menuTrocando=true;go(pg);
-  // 2) o menu fecha: o ícone tocado sobe até o topo enquanto os outros recolhem
-  setTimeout(()=>{
-    const b=n.querySelector('.nb[data-p="'+pg+'"]');if(!b){menuTrocando=false;fecharMenu();return;}
-    const y0=b.getBoundingClientRect().top;n.prepend(b);const y1=b.getBoundingClientRect().top;
-    b.style.transition='none';b.style.transform='translateY('+(y0-y1)+'px)';b.offsetWidth;
-    b.style.transition='';b.style.transform='';
-    menuTrocando=false;fecharMenu();
-    setTimeout(()=>{if(!menuAberto)montarMenu();},450);   // volta à ordem normal, sem mudança visível
-  },520);
+  setTimeout(()=>{menuTrocando=false;fecharMenu();},650);
 }
 function fecharMenu(){const n=document.getElementById('nav');menuAberto=false;n.classList.remove('aberto');abrirNomes();}
 
