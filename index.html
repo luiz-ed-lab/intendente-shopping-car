@@ -14,7 +14,7 @@
 /* ============ BASE: cópia do CSS dos mockups aprovados ============ */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--f1:Outfit,sans-serif;--f2:Figtree,sans-serif;--navy:#00091A;--gold:#C8862E;--gold2:#E8A048;--gold3:#F4B05C;--cl:#F6F4F1;--ink:#0B1A33;--mut:#5A6B85;--line:#E3DFDA;--ease:cubic-bezier(.2,.8,.2,1)}
-body{background:#000;color:var(--ink);font-family:var(--f1);-webkit-font-smoothing:antialiased}
+body{background:var(--navy);color:var(--ink);font-family:var(--f1);-webkit-font-smoothing:antialiased}
 img{display:block;max-width:100%}
 button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
 input,select,textarea{font-family:inherit}
@@ -206,7 +206,12 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .nl{display:block;overflow:hidden;width:0;margin-left:16px;opacity:0;transition:width .26s var(--ease),height .26s var(--ease),margin .26s var(--ease),opacity .2s}
 .nl.vis{opacity:1;transition:width .26s var(--ease),height .26s var(--ease),margin .26s var(--ease),opacity .2s .12s}
 .nl>span{display:block;white-space:nowrap;font:500 clamp(.625rem,.5263rem + .5263vw,1rem)/1.9 var(--f2)}
-/* troca de página com fade: o menu fica, o conteúdo some e volta */
+/* troca de página em fusão: a página nova aparece por cima da antiga; o menu fica fora dela, ao vivo */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.45s;animation-timing-function:ease}
+#nav{view-transition-name:nav}
+::view-transition-group(nav),::view-transition-image-pair(nav),::view-transition-new(nav){animation:none}
+::view-transition-old(nav){display:none}
+/* navegador sem fusão: o conteúdo some no azul do fundo e volta */
 #app{transition:opacity .22s ease}
 #app.some{opacity:0}
 .acessar{display:none}
@@ -266,14 +271,14 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   header{justify-content:flex-start;padding:5.63vw 5.63vw 0}
   header .lg{height:7.04vw;margin:-.8vw 0}
   /* menu no celular: só o ícone da página, no canto; tocando, o nome aparece em pé e os outros ícones descem: o menu só cresce para baixo */
-  #nav{left:auto;right:4.35vw;top:4.35vw;bottom:auto;transform:none;height:auto;flex-direction:column;align-items:center;gap:0;padding:.53vw;animation:none}
-  .nb{display:grid;grid-template-rows:0fr;min-width:0;height:auto;padding:0 1.33vw;opacity:0;transition:grid-template-rows .35s var(--ease),padding .35s var(--ease),opacity .25s,background-color .2s,color .2s,transform .4s var(--ease)}
+  #nav{left:auto;right:4.09vw;top:4.09vw;bottom:auto;transform:none;height:auto;flex-direction:column;align-items:center;gap:0;padding:.53vw;animation:none}
+  .nb{display:grid;grid-template-rows:0fr;min-width:0;height:auto;padding:0 1.6vw;opacity:0;transition:grid-template-rows .35s var(--ease),padding .35s var(--ease),opacity .25s,background-color .2s,color .2s,transform .4s var(--ease)}
   .nbi{display:flex;flex-direction:column-reverse;align-items:center;min-height:0;overflow:hidden}   /* lido subindo: primeiro o ícone, depois o nome */
-  .nb.on,#nav.aberto .nb{grid-template-rows:1fr;padding:1.33vw;opacity:1}
+  .nb.on,#nav.aberto .nb{grid-template-rows:1fr;padding:1.6vw;opacity:1}
   #nav.aberto .nb{transition-delay:calc(var(--i) * 25ms)}
   .nb svg{width:3.73vw;height:3.73vw;transition:transform .26s var(--ease)}
   .nb.nome svg{transform:rotate(-90deg)}   /* o ícone da página aberta deita junto com o nome, que é lido subindo */
-  .nl{writing-mode:vertical-rl;width:auto;height:0;margin:0 0 1.6vw}
+  .nl{writing-mode:vertical-rl;width:auto;height:0;margin:1.6vw 0}
   .nl>span{font-size:3.2vw;line-height:1.2;transform:rotate(180deg)}
   /* categorias: o toque só abre; o botão Acessar aparece na que foi tocada */
   .vti.tocada .acessar{display:inline-flex;align-items:center;margin-top:2.82vw;padding:2.11vw 4.23vw;border-radius:2.13vw;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;font:600 3.47vw/1 var(--f2)}
@@ -605,7 +610,7 @@ function home(){
    <div>
      <div class="kick c">${T('inicio.chamada','ACEIMA · desde 1998')}</div>
      <h1>${T('inicio.titulo','Somos o maior polo automotivo')} <br><span style="background:linear-gradient(100deg,#F6C078,#C8862E);-webkit-background-clip:text;background-clip:text;color:transparent">${T('inicio.titulo-dourado','da América Latina.')}</span></h1>
-     <p class="sub">${T('inicio.subtitulo','{Lojas por extenso} lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.')}</p>
+     <p class="sub">${T('inicio.subtitulo','{lojas} lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.')}</p>
    </div>
    <div class="vtl">
     ${tabs.map((t,i)=>`<div class="vti${i===abaHome?' on':''}" onmouseenter="destacar(${i})" onclick="clicarCategoria(${i},'${t[2]}')"><h3>${t[0]}</h3><div class="d"><div><p>${t[1]}</p><a class="acessar" onclick="event.stopPropagation();go('${t[2]}')">${T('inicio.acessar','Acessar')}</a></div></div></div>`).join('')}
@@ -618,7 +623,7 @@ function home(){
   <div class="wrap hs-grid" style="display:grid;grid-template-columns:1fr 1.02fr;gap:64px;align-items:center">
    <div>
      <div class="kick">${T('inicio.estoque-chamada','Estoque dos associados')}</div>
-     <h2 style="margin:14px 0 16px;font-size:2.7rem">${T('inicio.estoque-titulo','{Veículos arredondados por extenso} veículos,\n{lojas por extenso} lojas,\numa vitrine só.')}</h2>
+     <h2 style="margin:14px 0 16px;font-size:2.7rem">${T('inicio.estoque-titulo','{veículos arredondados} veículos,\n{lojas} lojas,\numa vitrine só.')}</h2>
      <p style="font-size:1rem;max-width:470px">${T('inicio.estoque-texto','Cada anúncio publicado direto pela loja associada, com selo da ACEIMA, avaliação real no Google e contato que cai no WhatsApp de quem vende.')}</p>
      <div class="btns" style="display:flex;gap:12px;margin-top:26px">
        <button class="btn d" onclick="go('estoque')">${T('inicio.estoque-botao1','Ver o estoque completo')}</button>
@@ -1119,9 +1124,11 @@ function go(pg,arg){
   }catch(e){}   // alguns ambientes (pré-visualização, iframe) não deixam trocar o endereço
   atualizarMenu();trocarPagina();
 }
-// o conteúdo some, troca e volta; o menu fica na tela
-function trocarPagina(){
-  const a=document.getElementById('app');a.classList.add('some');
+// fusão: a página nova aparece por cima da antiga, e o menu fica na tela
+function trocarPagina(semAnimacao){
+  if(semAnimacao||matchMedia('(prefers-reduced-motion: reduce)').matches){render(true);return;}
+  if(document.startViewTransition){document.startViewTransition(()=>render(true));return;}
+  const a=document.getElementById('app');a.classList.add('some');   // navegador sem fusão: some no azul e volta
   clearTimeout(trocarPagina.t);trocarPagina.t=setTimeout(()=>{render(true);a.classList.remove('some');},220);
 }
 function lerRota(){
@@ -1130,7 +1137,7 @@ function lerRota(){
   else{pagAtual=ANTIGAS[p]||Object.keys(ROTAS).find(k=>ROTAS[k]===p)||'home';}
 }
 function rota(manter){lerRota();render(!manter);}
-addEventListener('popstate',()=>{lerRota();atualizarMenu();trocarPagina();});
+addEventListener('popstate',e=>{lerRota();atualizarMenu();trocarPagina(e.hasUAVisualTransition);});   // o gesto de voltar do celular já anima: não repete
 // aba volta a ficar visível: o navegador pode ter pausado o vídeo do fundo
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)document.querySelectorAll('video.luz').forEach(v=>v.play().catch(()=>{}));});
 let largAnt=matchMedia('(max-width:760px)').matches;
