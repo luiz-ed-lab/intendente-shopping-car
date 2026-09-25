@@ -106,3 +106,4 @@ Deploy: repositório GitHub **luiz-ed-lab/intendente-shopping-car**, ligado ao p
 8. **Faixa branca nas fotos:** hoje é resolvida com zoom no CSS. O ideal é recortar a foto na importação, no robô.
 9. **Textos do backend** ainda mencionam o nome antigo nos e-mails de lead.
 10. **Decisão registrada:** em Associados, "Todos · 23" mostra só as lojas. Serviços e comércio credenciados aparecem no traçado da rua e nos seus próprios filtros.
+11. **Notas do Google paradas:** `notaGoogle()` lê a busca do Google, e o Google devolve uma página que exige JavaScript. Por isso as notas e contagens de avaliações não mudam desde a primeira leitura, e a faixa de avaliações da home mostra esses números parados. O caminho é a API oficial (Places API New), com uma chave criada pelo Luiz, que também traria o texto das avaliações. Aguardando a decisão dele.
