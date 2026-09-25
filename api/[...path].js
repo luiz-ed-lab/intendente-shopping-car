@@ -1230,7 +1230,7 @@ async function rotaConteudo(req, res) {
 // ---------------- AVALIAÇÕES DO GOOGLE (faixa da home) ----------------
 // Avaliações reais de cada loja, pela API oficial do Google (Places API New): até 5 por loja.
 // Uma vez por dia atualiza até 30 lojas, as mais antigas primeiro (uma consulta por loja).
-// Com 23 lojas, todas são atualizadas todo dia. Passando de 30 lojas, subir LIMITE_DIA.
+// Com 23 lojas, todas são atualizadas todo dia. Passando de 30 lojas, as outras entram nos dias seguintes.
 // A mesma consulta atualiza a nota e o total de avaliações da loja.
 // Precisa da variável GOOGLE_PLACES_KEY na Vercel. Sem ela, a faixa não aparece.
 const semAcento = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -1270,7 +1270,7 @@ async function avaliacoesGoogle() {
   const chave = process.env.GOOGLE_PLACES_KEY;
   if (!chave || (c && Date.now() - new Date(c.em).getTime() < 864e5)) return todas();
   const { rows: lojas } = await query('select id, nome from lojas where ativa = true');
-  const LIMITE_DIA = 30;   // consultas por dia ao Google (a cota grátis é de 1.000 por mês)
+  const LIMITE_DIA = 30;   // consultas por dia ao Google. NUNCA subir sem autorização do Luiz.
   const idade = l => guardadas[l.nome] ? new Date(guardadas[l.nome].em).getTime() : 0;
   const vez = lojas.sort((a, b) => idade(a) - idade(b)).slice(0, LIMITE_DIA);
   const achadas = await Promise.all(vez.map(l => avaliacoesDaLoja(l, chave)));
