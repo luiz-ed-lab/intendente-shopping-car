@@ -86,9 +86,9 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
 
 /* caminhos da home */
 /* o mouse destaca, o clique leva para a página; a altura total não muda, então nada acima se mexe */
-.vti{padding:18px 0 18px 30px;position:relative;cursor:pointer}
+.vti{padding:14px 0 14px 30px;position:relative;cursor:pointer}
 .vti+.vti{background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent) top/100% 1px no-repeat}
-.vti::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:2px;background:var(--gold2);transform:scaleY(0);transition:transform .45s var(--ease)}
+.vti::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:2px;background:var(--gold2);transform:scaleY(0);transition:transform .45s var(--ease)}
 .vti.on::before{transform:none}
 .vti h3{font-size:1.7rem;font-weight:800;letter-spacing:-.6px;color:#445773;line-height:1.1;transition:font-size .45s var(--ease),color .3s}
 .vti.on h3{font-size:2.4rem;color:#fff}
@@ -99,6 +99,27 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
 .gl>.himg{position:absolute;inset:0;z-index:1;background:right center/cover no-repeat;mix-blend-mode:screen;opacity:0;transform:scale(1.06);pointer-events:none;
   -webkit-mask-image:linear-gradient(90deg,transparent 15%,#000 65%);mask-image:linear-gradient(90deg,transparent 15%,#000 65%);transition:opacity .7s,transform 1.2s var(--ease)}
 .gl>.himg.on{opacity:.38;transform:none}
+
+/* faixa de avaliações da home: passa sozinha e para com o mouse em cima */
+.av{padding:0 0 22px}
+.av .kick{text-align:center;margin-bottom:10px}
+.av-janela{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.av-trilho{--g:12px;display:flex;gap:var(--g);width:max-content;animation:rolar linear infinite}
+.av-trilho>div{display:contents}
+.av:hover .av-trilho{animation-play-state:paused}
+@keyframes rolar{to{transform:translateX(calc(-50% - var(--g) / 2))}}
+@media(prefers-reduced-motion:reduce){.av-trilho{animation:none}}
+.avc{width:280px;flex:none;padding:12px;border-radius:18px;background:rgba(10,26,51,.9);box-shadow:0 0 0 1px rgba(255,255,255,.08);cursor:pointer}
+.avt{display:flex;align-items:center;gap:10px}
+.avi{width:36px;height:36px;border-radius:99px;flex:none;display:grid;place-items:center;background:rgba(244,176,92,.16);border:1px solid rgba(244,176,92,.4);color:#F4B05C;font-weight:900;font-size:.72rem}
+.avt>div{min-width:0}
+.avt b,.avt small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* nome numa linha: todos os cartões com a mesma altura */
+.avt b{color:#fff;font-size:.82rem;font-weight:600}
+.avt small{font-family:Poppins,sans-serif;font-size:.68rem;color:#6d7e99}
+.avn{margin-left:auto;align-self:flex-start;font-weight:800;font-size:.9rem;color:#F4B05C}
+.avx{margin-top:10px;font-size:.75rem;line-height:1.45;white-space:nowrap}
+.est{position:relative;display:inline-block;margin-right:6px;letter-spacing:1px;color:rgba(255,255,255,.18)}
+.est i{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;font-style:normal;color:#F4B05C}
 
 /* vitrine da home: cards flutuantes em duas colunas */
 .stag{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
@@ -254,6 +275,16 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
   .vti.on h3{color:#fff}
   .vti.on .d{height:calc(3.61vw*1.45*3 + 1.41vw)}   /* três linhas fixas: a troca automática não empurra a página */
   .vti .d p{padding-top:1.41vw;max-width:none;font-size:3.61vw!important;color:#93A3B9;line-height:1.45}
+  .av{padding:6.34vw 0 7.04vw}
+  .av .kick{margin-bottom:3.52vw}
+  .av-trilho{--g:2.82vw}
+  .avc{width:70vw;padding:3.52vw;border-radius:5vw}
+  .avt{gap:2.82vw}
+  .avi{width:10.5vw;height:10.5vw;font-size:3vw}
+  .avt b{font-size:3.9vw}
+  .avt small{font-size:3.1vw}
+  .avn{font-size:4.1vw}
+  .avx{margin-top:2.82vw;font-size:3.4vw}
   .hs{min-height:0!important;display:block!important;padding:5.63vw 0 6.34vw!important;margin-top:6.34vw;border-radius:4.93vw 4.93vw 0 0}
   .hs-grid{display:flex!important;flex-direction:column;align-items:stretch!important;gap:0!important;padding:0 5.63vw!important}
   .hs-grid>div:first-child{display:contents}
@@ -446,6 +477,7 @@ const nLojas=()=>LJ.length||23;
 const foto=v=>(v.fotos&&v.fotos[0])||'';
 const nomeV=v=>[v.b,v.mod].filter(Boolean).join(' ');
 const precoT=n=>n>0?'R$ '+fmt(n):'Consulte';
+const iniciais=s=>String(s||'').replace(/[^A-Za-zÀ-ú ]/g,'').split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 function contagem(nome){const q=V.filter(v=>v.loja===nome).length;if(q)return q;const l=LJ.find(x=>x.nome===nome);return (l&&l._n)||0;}
 function numRua(end){if(!end||!/intendente/i.test(end))return null;const m=String(end).match(/n\s*[º°o.]?\s*([\d.]+)/i);return m?parseInt(m[1].replace(/\./g,''),10):null;}
 
@@ -513,7 +545,7 @@ function home(){
  <div class="gl hero" style="min-height:100vh;display:flex;flex-direction:column">${LUZ}
   ${tabs.map((t,i)=>`<div class="himg${i===abaHome?' on':''}"${t[3]?` style="background-image:url('${t[3]}')"`:''}></div>`).join('')}
   ${hd('Início')}
-  <div class="wrap inn" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:44px;padding-bottom:30px">
+  <div class="wrap inn" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:36px;padding-bottom:8px">
    <div>
      <div class="kick c">${T('inicio.chamada','ACEIMA · desde 1998')}</div>
      <h1 style="margin:18px 0 18px;color:#fff;max-width:1080px">${T('inicio.titulo','Somos o maior polo automotivo')} <br><span style="background:linear-gradient(100deg,#F6C078,#C8862E);-webkit-background-clip:text;background-clip:text;color:transparent">${T('inicio.titulo-dourado','da América Latina.')}</span></h1>
@@ -523,6 +555,7 @@ function home(){
     ${tabs.map((t,i)=>`<div class="vti${i===abaHome?' on':''}" onmouseenter="destacar(${i})" onclick="go('${t[2]}')"><h3>${t[0]}</h3><div class="d"><p>${t[1]}</p></div></div>`).join('')}
    </div>
   </div>
+  ${avaliacoes()}
  </div>
  <div class="glc hs" style="min-height:100vh;display:flex;align-items:center;padding:40px 0">${LUZ}
   <div class="wrap hs-grid" style="display:grid;grid-template-columns:1fr 1.02fr;gap:64px;align-items:center">
@@ -542,6 +575,15 @@ function home(){
   </div>
  </div>
 </div>${rodape()}`;}
+// faixa de avaliações: nota de cada loja no Google, em ordem nova a cada visita; o clique abre o estoque da loja
+function avaliacoes(){
+  const L=baralhar(LJ.filter(l=>Number(l.google_nota)>0&&l.google_avaliacoes>0));if(!L.length)return '';
+  const h=L.map(l=>{const n=Number(l.google_nota);return `<div class="avc" onclick="F.loja='${esc(l.nome).replace(/'/g,"\\'")}';go('estoque')">
+    <div class="avt"><span class="avi">${iniciais(l.nome)}</span><div><b>${esc(l.nome)}</b><small>Associado ACEIMA</small></div><span class="avn">${n.toFixed(1).replace('.',',')}</span></div>
+    <p class="avx"><span class="est" aria-hidden="true">★★★★★<i style="width:${n/5*100}%">★★★★★</i></span>${fmt(l.google_avaliacoes)} avaliações</p></div>`;}).join('');
+  return `<div class="av"><div class="kick c">${T('inicio.avaliacoes','Avaliações das lojas no Google')}</div>
+   <div class="av-janela"><div class="av-trilho" style="animation-duration:${Math.round(L.length*6.6)}s"><div>${h}</div><div aria-hidden="true">${h}</div></div></div></div>`;
+}
 // só troca as classes: redesenhar a página reiniciaria o vídeo do fundo
 function destacar(i){if(EDIT)return;abaHome=i;['.vti','.himg'].forEach(s=>document.querySelectorAll(s).forEach((e,j)=>e.classList.toggle('on',j===i)));girar();}
 // as categorias passam sozinhas a cada 6s; com o mouse em cima da lista, param
@@ -682,7 +724,7 @@ function associados(){
     <span class="i">${String(i+1).padStart(2,'0')}</span><span class="nm">${esc(e.nome)}</span>
     ${e.nota?`<span class="g">${e.nota.toFixed(1).replace('.',',')}<span> ★</span></span>`:`<span class="g sem">${e.parc?'':'<i class="so-desk" style="font-style:normal">sem nota</i><i class="so-cel" style="font-style:normal;color:#C9D5E6">—<span> ★</span></i>'}</span>`}
     <span class="a">${e.parc?esc(e.parc.tipo):`<span class="so-desk">${fmt(e.n)} anúncios</span><span class="so-cel">${fmt(e.n)} an.</span>`}</span></div>`;
-  const ini=(S.nome||'').replace(/[^A-Za-zÀ-ú ]/g,'').split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  const ini=iniciais(S.nome);
   const card=S.nome?`<div class="cardA">
       <div class="top"><div class="ini">${ini}</div><div><div class="nome">${esc(S.nome)}</div><div class="selo">${S.parc?'CREDENCIADO ACEIMA':'ASSOCIADO ACEIMA'}</div></div></div>
       <div class="bd">
@@ -729,7 +771,7 @@ function veiculo(){
   const L=LJ.find(l=>l.nome===v.loja)||{};
   const fotos=(v.fotos||[]).slice(0,14);
   const dados=[v.anoF&&v.ano&&v.anoF!==v.ano?v.anoF+'/'+v.ano:v.ano,v.km!=null?fmt(v.km)+' km':'',v.cambio,titulo(v.comb)].filter(Boolean);
-  const ini=v.loja.replace(/[^A-Za-zÀ-ú ]/g,'').split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  const ini=iniciais(v.loja);
   const nota=Number(L.google_nota)||0;
   return `<div class="gl" style="flex:none">${LUZ}${hd('Estoque')}</div>
  <div class="glc" style="padding:26px 0 60px">${LUZ}
