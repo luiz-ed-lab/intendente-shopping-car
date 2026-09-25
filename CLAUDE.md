@@ -68,7 +68,7 @@ Deploy: repositório GitHub **luiz-ed-lab/intendente-shopping-car**, ligado ao p
 
 ### Regras visuais que o Luiz já definiu
 
-- Paleta: azul profundo `#00091A`, dourado `#C8862E` / `#E8A048` / `#F4B05C`, off-white `#F6F4F1`, tinta `#0B1A33`. Fontes: Archivo (títulos) e Poppins (textos).
+- Paleta: azul profundo `#00091A`, dourado `#C8862E` / `#E8A048` / `#F4B05C`, off-white `#F6F4F1`, tinta `#0B1A33`. Fontes: Outfit (títulos) e Figtree (textos), escolhidas pelo Luiz em 25/09/2026 no lugar de Archivo e Poppins. Ficam nas variáveis `--f1` e `--f2` do `index.html`; para trocar, mude as variáveis e o link do Google Fonts.
 - Fundo: a animação de vidro em diagonal do template payload-marketing (21st.dev), exatamente igual, e não uma aproximação em gradiente. Discreta: opacidade 0,17, `mix-blend-mode: screen`, brilho 0,78. Nunca pode ficar parado.
 - Azul no topo, nos blocos de ação e no estoque. Páginas de leitura têm o corpo em fundo claro.
 - A logo da frente é a da ACEIMA. "INTENDENTE" é o nome do polo e aparece no conteúdo.
