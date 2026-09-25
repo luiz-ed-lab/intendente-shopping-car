@@ -661,10 +661,10 @@ function clicarCategoria(i,destino){
   if(!cel()){go(destino);return;}
   destacar(i);document.querySelectorAll('.vti')[i].classList.add('tocada');
 }
-// as categorias passam sozinhas a cada 6s; com o mouse em cima da lista, param
+// as categorias passam sozinhas a cada 4s; com o mouse em cima da lista, param
 let giro;
 function girar(){clearTimeout(giro);if(EDIT||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  giro=setTimeout(()=>{if(pagAtual!=='home')return;if(document.querySelector('.vtl:hover'))girar();else destacar((abaHome+1)%document.querySelectorAll('.vti').length);},6000);}
+  giro=setTimeout(()=>{if(pagAtual!=='home')return;if(document.querySelector('.vtl:hover'))girar();else destacar((abaHome+1)%document.querySelectorAll('.vti').length);},4000);}
 
 /* ==================== ESTOQUE ==================== */
 const F={marca:'',modelo:'',ano:'',preco:'',loja:'',cambio:'',comb:'',q:'',ord:'Mais recentes'};
