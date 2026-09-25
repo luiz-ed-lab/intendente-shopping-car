@@ -86,6 +86,9 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
 
 /* caminhos da home */
 /* o mouse destaca, o clique leva para a página; a altura total não muda, então nada acima se mexe */
+.inn{display:flex;flex-direction:column;gap:28px}
+.inn h1{margin:18px 0;color:#fff;max-width:1080px}
+.inn .sub{font-size:1.2rem;max-width:740px}
 .vti{padding:12px 0 12px 30px;position:relative;cursor:pointer}
 .vti+.vti{background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent) top/100% 1px no-repeat}
 .vti::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:2px;background:var(--gold2);transform:scaleY(0);transition:transform .45s var(--ease)}
@@ -265,29 +268,29 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
   /* início */
   .hero{min-height:0!important}
   .hero .inn{justify-content:flex-start!important;gap:0!important;padding:6.34vw 5.63vw 0!important}
-  .hero .kick{font-size:2.82vw;letter-spacing:.56vw;font-weight:700;color:#C8862E}
-  .hero h1{font-size:8vw;line-height:1.14;letter-spacing:-.14vw;margin:3.17vw 0 0!important;max-width:none!important}
+  .hero .kick{font-size:2.67vw;letter-spacing:.5vw;font-weight:700;color:#C8862E}
+  .hero h1{font-size:6.93vw;line-height:1.14;letter-spacing:-.14vw;margin:3.17vw 0 0!important;max-width:none!important}
   .hero h1 br{display:none}
-  .hero .sub{font-size:4.06vw!important;line-height:1.5;margin-top:3.17vw}
+  .hero .sub{font-size:3.73vw!important;line-height:1.5;margin-top:3.17vw}
   .vtl{margin-top:5.63vw}
   .vti{padding:3.87vw 0 3.87vw 4.23vw}
   .vti::before{top:3.17vw;bottom:3.17vw}
-  .vti h3,.vti.on h3{font-size:4.85vw;font-weight:700;letter-spacing:0}
+  .vti h3,.vti.on h3{font-size:4.27vw;font-weight:700;letter-spacing:0}
   .vti h3{color:#7C8CA5}
   .vti.on h3{color:#fff}
-  .vti.on .d{height:calc(3.61vw*1.45*3 + 1.41vw)}   /* três linhas fixas: a troca automática não empurra a página */
-  .vti .d p{padding-top:1.41vw;max-width:none;font-size:3.61vw!important;color:#93A3B9;line-height:1.45}
+  .vti.on .d{height:calc(3.33vw*1.45*3 + 1.41vw)}   /* três linhas fixas: a troca automática não empurra a página */
+  .vti .d p{padding-top:1.41vw;max-width:none;font-size:3.33vw!important;color:#93A3B9;line-height:1.45}
   .meio{padding-bottom:0}
   .av{padding:6.34vw 0 9.15vw}
   .av .kick{margin-bottom:3.52vw}
-  .av-trilho{--g:2.82vw}
-  .avc{width:70vw;padding:3.52vw 4.23vw;border-radius:5vw}
-  .avt{gap:2.82vw}
-  .avf{width:10.5vw;height:10.5vw;font-size:3vw}
-  .avt b{font-size:3.9vw}
-  .avt small{font-size:3.1vw}
-  .avq{font-size:7vw}
-  .avc .avx{margin-top:2.46vw;font-size:3.4vw}
+  .av-trilho{--g:2.67vw}
+  .avc{width:56vw;padding:2.93vw 3.2vw;border-radius:4.27vw}
+  .avt{gap:2.4vw}
+  .avf{width:8vw;height:8vw;font-size:2.6vw}
+  .avt b{font-size:3.33vw}
+  .avt small{font-size:2.8vw}
+  .avq{font-size:5.33vw}
+  .avc .avx{margin-top:2.13vw;font-size:3.07vw}
   .av-g{padding:0 5.63vw;margin-top:3.52vw;font-size:3.2vw;line-height:1.5}
   .hs{min-height:0!important;display:block!important;padding:5.63vw 0 6.34vw!important;margin-top:6.34vw;border-radius:4.93vw 4.93vw 0 0}
   .hs-grid{display:flex!important;flex-direction:column;align-items:stretch!important;gap:0!important;padding:0 5.63vw!important}
@@ -351,7 +354,38 @@ p{font-family:Poppins,sans-serif;font-weight:300;color:var(--mut);line-height:1.
   .rod .wrap{flex-direction:column;align-items:flex-start}
 }
 @media (min-width:761px){.so-cel{display:none!important}.inn .kick{font-size:.8rem;letter-spacing:3px}}
-@media (min-width:1101px){.inn h1{font-size:4.4rem}}
+/* computador: cabeçalho, textos do topo e faixa em proporção à tela do Luiz (1912×1021, onde --px vale 1px).
+   Numa tela menor tudo diminui na mesma proporção, e numa maior tudo cresce. Os textos pequenos têm um mínimo para continuar legíveis. */
+@media (min-width:1101px){
+  :root{--px:min(calc(100vh / 1021),calc(100vw / 1912));--fd:max(13px,calc(17.28*var(--px)))}
+  header{padding:calc(32*var(--px)) calc(32*var(--px)) calc(20*var(--px))}
+  header .lg{height:calc(44*var(--px));margin:calc(-5*var(--px)) 0}
+  .hdr{gap:calc(14*var(--px))}
+  .hdr .pg{font-size:max(12px,calc(13.6*var(--px)))}
+  .mbtn{width:calc(34*var(--px));height:calc(34*var(--px))}
+  .mbtn svg{width:calc(16*var(--px));height:calc(16*var(--px))}
+  .inn{gap:calc(28*var(--px))}
+  .inn .kick{font-size:max(10px,calc(12.8*var(--px)));letter-spacing:calc(3*var(--px))}
+  .inn h1{font-size:calc(70.4*var(--px));margin:calc(18*var(--px)) 0;max-width:calc(1080*var(--px));letter-spacing:calc(-1.7*var(--px))}
+  .inn .sub{font-size:max(14px,calc(19.2*var(--px)));max-width:calc(740*var(--px))}
+  .vti{padding:calc(12*var(--px)) 0 calc(12*var(--px)) calc(30*var(--px))}
+  .vti::before{top:calc(10*var(--px));bottom:calc(10*var(--px))}
+  .vti h3{font-size:calc(31.2*var(--px));letter-spacing:calc(-.6*var(--px))}
+  .vti.on h3{font-size:calc(44*var(--px))}
+  .vti.on .d{height:calc(var(--fd)*3.24 + 10*var(--px))}   /* duas linhas */
+  .vti .d p{padding-top:calc(10*var(--px));max-width:calc(600*var(--px));font-size:var(--fd)}
+  .av{padding:calc(8*var(--px)) 0 calc(56*var(--px))}
+  .av .kick{font-size:max(10px,calc(11.2*var(--px)));letter-spacing:calc(2.6*var(--px));margin-bottom:calc(10*var(--px))}
+  .av-trilho{--g:calc(12*var(--px))}
+  .avc{width:calc(280*var(--px));padding:calc(12*var(--px)) calc(14*var(--px));border-radius:calc(18*var(--px))}
+  .avt{gap:calc(10*var(--px))}
+  .avf{width:calc(36*var(--px));height:calc(36*var(--px));font-size:max(10px,calc(11.5*var(--px)))}
+  .avt b{font-size:max(12px,calc(13.1*var(--px)))}
+  .avt small{font-size:max(10px,calc(10.9*var(--px)))}
+  .avq{font-size:calc(30.4*var(--px))}
+  .avc .avx{margin-top:calc(8*var(--px));font-size:max(11px,calc(12*var(--px)))}
+  .av-g{margin-top:calc(14*var(--px));font-size:max(12px,calc(12*var(--px)))}   /* o Google pede no mínimo 12px */
+}
 </style>
 </head>
 <body class="semvideo">
@@ -552,11 +586,11 @@ function home(){
   ${tabs.map((t,i)=>`<div class="himg${i===abaHome?' on':''}"${t[3]?` style="background-image:url('${t[3]}')"`:''}></div>`).join('')}
   ${hd('Início')}
   <div class="meio">
-  <div class="wrap inn" style="display:flex;flex-direction:column;gap:28px">
+  <div class="wrap inn">
    <div>
      <div class="kick c">${T('inicio.chamada','ACEIMA · desde 1998')}</div>
-     <h1 style="margin:18px 0 18px;color:#fff;max-width:1080px">${T('inicio.titulo','Somos o maior polo automotivo')} <br><span style="background:linear-gradient(100deg,#F6C078,#C8862E);-webkit-background-clip:text;background-clip:text;color:transparent">${T('inicio.titulo-dourado','da América Latina.')}</span></h1>
-     <p class="sub" style="font-size:1.2rem;max-width:740px">${T('inicio.subtitulo','{Lojas por extenso} lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.')}</p>
+     <h1>${T('inicio.titulo','Somos o maior polo automotivo')} <br><span style="background:linear-gradient(100deg,#F6C078,#C8862E);-webkit-background-clip:text;background-clip:text;color:transparent">${T('inicio.titulo-dourado','da América Latina.')}</span></h1>
+     <p class="sub">${T('inicio.subtitulo','{Lojas por extenso} lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.')}</p>
    </div>
    <div class="vtl">
     ${tabs.map((t,i)=>`<div class="vti${i===abaHome?' on':''}" onmouseenter="destacar(${i})" onclick="go('${t[2]}')"><h3>${t[0]}</h3><div class="d"><p>${t[1]}</p></div></div>`).join('')}
