@@ -38,11 +38,8 @@ video.luz{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;poin
 @media(prefers-reduced-motion:reduce){.semvideo .gl{animation:none}}
 
 /* logo e menu no canto: mesma distância do topo e da lateral */
-header{display:flex;align-items:center;justify-content:space-between;padding:32px 32px 20px}
+header{display:flex;align-items:center;justify-content:center;padding:32px 32px 20px}   /* computador: logo no centro, o menu fica embaixo */
 header .lg{height:44px;width:auto;margin:-5px 0;cursor:pointer}   /* o png tem 5px transparentes em cima e embaixo */
-.hdr{display:flex;align-items:center;gap:14px}
-.hdr .pg{font-family:var(--f2);font-size:.85rem;color:#93a3bd}
-.mbtn{width:34px;height:34px;border-radius:99px;border:1px solid rgba(244,176,92,.4);background:rgba(255,255,255,.05);display:grid;place-items:center;color:var(--gold3)}
 .btn{font-family:var(--f2);font-weight:600;font-size:.85rem;padding:12px 24px;border-radius:8px;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;border:0;white-space:nowrap}
 a.btn{display:inline-block;text-align:center;line-height:normal}
 .btn.d{background:#04142E;color:#fff}
@@ -106,7 +103,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 
 /* faixa de avaliações da home: passa sozinha e para com o mouse em cima */
 .meio{flex:1;display:flex;flex-direction:column;justify-content:center}
-.av{padding:8px 0 56px}   /* 8px: o mesmo respiro do cabeçalho (20px) menos o da última categoria (12px) */
+.av{padding:8px 0 96px}   /* 8px: o mesmo respiro do cabeçalho (20px) menos o da última categoria (12px) */
 .av .kick{text-align:center;margin-bottom:10px}
 .av-janela{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
 .av-trilho{--g:12px;display:flex;gap:var(--g);width:max-content;animation:rolar linear infinite}
@@ -197,20 +194,25 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .seg button{flex:1;font-family:var(--f2);font-size:.8rem;padding:10px 0;border-radius:8px;border:1px solid rgba(255,255,255,.18);color:#cfd9e8}
 .seg button.on{background:rgba(244,176,92,.16);border-color:rgba(244,176,92,.55);color:var(--gold3)}
 
-/* menu: o botão vira lista */
-.mcard{position:fixed;z-index:300;overflow:hidden;background:#0A1A33;border:1px solid rgba(244,176,92,.4);padding:4px;
-  transition:width .3s var(--ease),height .3s var(--ease),left .3s var(--ease),border-radius .3s var(--ease),border-color .2s;box-shadow:0 24px 60px rgba(0,0,0,.45)}
-.mcard.on{border-color:rgba(255,255,255,.13)}
-.mcard .lst{display:flex;flex-direction:column;gap:4px;width:278px}
-.mi{display:flex;align-items:center;justify-content:space-between;width:100%;padding:8px 12px;border-radius:16px;color:#E7EDF6;font-family:var(--f1);font-size:1.25rem;font-weight:600;text-align:left;
-  opacity:0;transform:translateY(8px);transition:opacity .2s var(--ease),transform .2s var(--ease),background .15s}
-.mcard.on .mi{opacity:1;transform:none}
-.mi:hover{background:rgba(244,176,92,.1)}
-.mi .l{display:flex;align-items:center;gap:12px}
-.mi .ico{color:#93a3bd;display:flex}
-.mi .ck{position:relative;width:24px;height:24px;border-radius:99px;border:2px solid rgba(255,255,255,.18);overflow:hidden;flex:none}
-.mi .ck.on{border:0;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;display:grid;place-items:center}
-.mbtn.aberto{visibility:hidden}
+/* menu: Bottom Nav Bar (21st.dev) com as medidas e as cores do componente, tema claro */
+#nav{position:fixed;z-index:350;left:50%;bottom:24px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;height:52px;padding:8px;border-radius:999px;
+  background:#fff;border:1px solid #E5E5E5;box-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);animation:navEntra .5s var(--ease)}
+@keyframes navEntra{from{opacity:0;transform:translate(-50%,12px)}}
+.nb{display:flex;align-items:center;height:40px;min-width:44px;padding:8px 12px;border-radius:999px;color:#737373;transition:background-color .2s,color .2s}
+.nb:hover{background:#F5F5F5}
+.nb.on{background:rgba(23,23,23,.1);color:#171717}
+.nb svg{flex:none;width:22px;height:22px}
+.nl{display:block;overflow:hidden;width:0;margin-left:16px;opacity:0;transition:width .26s var(--ease),margin-left .26s var(--ease),opacity .2s}
+.nl.vis{opacity:1;transition:width .26s var(--ease),margin-left .26s var(--ease),opacity .2s .12s}
+.nl>span{display:block;white-space:nowrap;font:500 clamp(.625rem,.5263rem + .5263vw,1rem)/1.9 var(--f2)}
+/* troca de página com fade: o menu fica, o conteúdo some e volta */
+#app{transition:opacity .22s ease}
+#app.some{opacity:0}
+.acessar{display:none}
+@media (min-width:761px){
+  .rod .wrap{padding-bottom:100px}   /* o rodapé passa por baixo da barra */
+  #edBarra{bottom:88px}
+}
 
 /* rodapé */
 .rod{position:relative;z-index:3;background:#00091A;border-top:1px solid rgba(255,255,255,.08);color:#7C8CA5;font-family:var(--f2);font-size:.8rem}
@@ -259,12 +261,20 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   /* medidas tiradas das telas de celular aprovadas (tela útil de 284px), convertidas em vw */
   .so-desk{display:none!important}
   .wrap{padding:0 5.63vw}
-  /* logo visível (5,44vw) centralizado no botão (7,04vw) desce 0,8vw: logo a 5,63vw do topo e da esquerda, botão a 4,83vw do topo e da direita */
-  header{padding:4.83vw 4.83vw 0 5.63vw}
+  /* logo à esquerda, a 5,63vw do topo e da lateral; o menu fica no canto direito, centralizado com a logo */
+  header{justify-content:flex-start;padding:5.63vw 5.63vw 0}
   header .lg{height:7.04vw;margin:-.8vw 0}
-  .hdr .pg{display:none}
-  .mbtn{width:7.04vw;height:7.04vw;border-color:rgba(244,176,92,.45);background:none}
-  .mbtn svg{width:3.5vw;height:3.5vw}
+  /* menu no celular: só o ícone da página, no canto; tocando, o nome aparece e os outros ícones descem */
+  #nav{left:auto;right:3.28vw;top:3.28vw;bottom:auto;transform:none;height:auto;flex-direction:column;align-items:flex-end;gap:1.07vw;padding:.8vw;animation:none}
+  #nav:not(.aberto) .nb:not(:first-child){display:none}
+  #nav.aberto .nb:not(:first-child){animation:desce .3s var(--ease) both;animation-delay:calc(var(--i) * 30ms)}
+  @keyframes desce{from{opacity:0;transform:translateY(-2.13vw)}}
+  .nb{height:8.53vw;min-width:8.53vw;padding:0 2.13vw}
+  .nb svg{width:4.8vw;height:4.8vw}
+  .nl{margin-left:2.13vw}
+  .nl>span{font-size:3.47vw}
+  /* categorias: o toque só abre; o botão Acessar aparece na que foi tocada */
+  .vti.tocada .acessar{display:inline-flex;align-items:center;margin-top:2.82vw;padding:2.11vw 4.23vw;border-radius:2.13vw;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;font:600 3.47vw/1 var(--f2)}
   p{font-size:4.06vw}
   /* início */
   .hero{min-height:0!important}
@@ -361,10 +371,6 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   :root{--px:min(calc(100vh / 1021),calc(100vw / 1912));--fd:max(13px,calc(17.28*var(--px)))}
   header{padding:calc(32*var(--px)) calc(32*var(--px)) calc(20*var(--px))}
   header .lg{height:calc(44*var(--px));margin:calc(-5*var(--px)) 0}
-  .hdr{gap:calc(14*var(--px))}
-  .hdr .pg{font-size:max(12px,calc(13.6*var(--px)))}
-  .mbtn{width:calc(34*var(--px));height:calc(34*var(--px))}
-  .mbtn svg{width:calc(16*var(--px));height:calc(16*var(--px))}
   .inn{gap:calc(28*var(--px))}
   .inn .kick{font-size:max(10px,calc(12.8*var(--px)));letter-spacing:calc(3*var(--px))}
   .inn h1{font-size:calc(70.4*var(--px));margin:calc(18*var(--px)) 0;max-width:calc(1080*var(--px));letter-spacing:calc(-1.7*var(--px))}
@@ -374,7 +380,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .vti h3{font-size:calc(31.2*var(--px));letter-spacing:calc(-.6*var(--px))}
   .vti.on h3{font-size:calc(44*var(--px))}
   .vti .d p{padding-top:calc(10*var(--px));max-width:calc(600*var(--px));font-size:var(--fd)}
-  .av{padding:calc(8*var(--px)) 0 calc(56*var(--px))}
+  .av{padding:calc(8*var(--px)) 0 calc(76px + 20*var(--px))}   /* 76px: a barra do menu (24 + 52) */
   .av .kick{font-size:max(10px,calc(11.2*var(--px)));letter-spacing:calc(2.6*var(--px));margin-bottom:calc(10*var(--px))}
   .av-trilho{--g:calc(12*var(--px))}
   .avc{width:calc(280*var(--px));padding:calc(12*var(--px)) calc(14*var(--px));border-radius:calc(18*var(--px))}
@@ -402,8 +408,8 @@ const LOGO='marca-nova/aceima-nova.png';
 const WA_ACEIMA='5521991041424';
 const API=location.protocol==='file:'?null:'';   // aberto do computador não tem API: usa a amostra
 const ic=(p,s)=>`<svg width="${s||20}" height="${s||20}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
-const I_MENU='<path d="M4 7h16M4 12h16M4 17h16"/>',I_X='<path d="M6 6l12 12M18 6 6 18"/>',I_DOWN='<path d="m6 9 6 6 6-6"/>',I_BUSCA='<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>';
-const hd=pg=>`<header><img class="lg" src="${LOGO}" alt="ACEIMA" onclick="go('home')"><div class="hdr"><span class="pg">${pg}</span><button class="mbtn" onclick="abrirMenu()" aria-label="Abrir menu">${ic(I_MENU,16)}</button></div></header>`;
+const I_DOWN='<path d="m6 9 6 6 6-6"/>',I_BUSCA='<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>';
+const hd=()=>`<header><img class="lg" src="${LOGO}" alt="ACEIMA" onclick="go('home')"></header>`;
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>Number(n||0).toLocaleString('pt-BR');
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
@@ -521,46 +527,55 @@ const iniciais=s=>String(s||'').replace(/[^A-Za-zÀ-ú ]/g,'').split(' ').filter
 function contagem(nome){const q=V.filter(v=>v.loja===nome).length;if(q)return q;const l=LJ.find(x=>x.nome===nome);return (l&&l._n)||0;}
 function numRua(end){if(!end||!/intendente/i.test(end))return null;const m=String(end).match(/n\s*[º°o.]?\s*([\d.]+)/i);return m?parseInt(m[1].replace(/\./g,''),10):null;}
 
-/* ==================== MENU ==================== */
-const PAGINAS=[['home','Início'],['aceima','A ACEIMA'],['associados','Associados'],['estoque','Estoque'],['publicacoes','Publicações'],['associar','Seja um associado']];
+/* ==================== MENU (barra de navegação) ==================== */
+// Computador: barra em pílula fixa embaixo, no centro (componente Bottom Nav Bar, 21st.dev); a página ativa mostra o nome.
+// Celular: só o ícone da página no canto de cima; ao tocar, o nome aparece e os outros ícones descem, sem nome.
+const PAGINAS=[['home','Início'],['aceima','A Aceima'],['associados','Associados'],['estoque','Estoque'],['publicacoes','Publicações'],['associar','Seja um associado']];
 let pagAtual='home';
-const ICONES={home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>',
-  aceima:'<path d="M5 21V4"/><path d="M5 4h12l-2.5 4L17 12H5"/>',
-  associados:'<path d="M3 9l1.6-5h14.8L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9h18"/><path d="M9.5 20v-6h5v6"/>',
-  estoque:'<path d="M3 16v-3l2-5.5h14L21 13v3H3z"/><path d="M3 13h18"/><circle cx="7.5" cy="16.5" r="1.8"/><circle cx="16.5" cy="16.5" r="1.8"/>',
-  publicacoes:'<path d="M4 5h13v14H6a2 2 0 0 1-2-2V5z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5"/>',
-  associar:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/>'};
-const TICK='<path d="m5 12.5 4.5 4.5L19 7.5"/>';
-let menuAberto=null;
-// o botão redondo se transforma na lista (mesma mecânica do componente aprovado: morph + itens entrando em cascata)
-function abrirMenu(){
-  if(menuAberto)return;
-  const btn=document.querySelector('.mbtn'),r=btn.getBoundingClientRect(),W=288;
-  const card=document.createElement('div');card.className='mcard';
-  const atual=pagAtual==='veiculo'?'estoque':pagAtual;
-  card.innerHTML=`<div class="lst">${PAGINAS.map((p,i)=>`<button class="mi" style="transition-delay:${(0.06+i*0.025).toFixed(3)}s" onclick="escolherMenu('${p[0]}',this)">
-    <span class="l"><span class="ico">${ic(ICONES[p[0]],24)}</span><span>${p[1]}</span></span>
-    <span class="ck${p[0]===atual?' on':''}">${p[0]===atual?ic(TICK,16):''}</span></button>`).join('')}</div>`;
-  Object.assign(card.style,{top:r.top+'px',left:r.left+'px',width:r.width+'px',height:r.height+'px',borderRadius:'40px'});
-  document.body.appendChild(card);btn.classList.add('aberto');
-  const h=card.querySelector('.lst').scrollHeight+10;
-  const esq=Math.max(12,Math.min(r.right-W,innerWidth-W-12));
-  card.offsetWidth;   // força o layout para a transição sair do tamanho do botão
-  card.classList.add('on');Object.assign(card.style,{width:W+'px',height:h+'px',left:esq+'px',borderRadius:'20px'});
-  menuAberto={card,btn,r};
-  setTimeout(()=>document.addEventListener('click',fora),0);
+// ícones Lucide, os mesmos do componente
+const ICONES={home:'<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  aceima:'<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  associados:'<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/>',
+  estoque:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
+  publicacoes:'<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>',
+  associar:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+  menu:'<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>'};
+const cel=()=>matchMedia('(max-width:760px)').matches;
+const menuDe=()=>pagAtual==='veiculo'?'estoque':pagAtual;   // a página do veículo acende o Estoque
+let menuAberto=false,menuTrocando=false;
+// monta a barra; no celular a página atual vem primeiro, porque é o ícone que fica à mostra
+function montarMenu(){
+  let n=document.getElementById('nav');
+  if(!n){n=document.createElement('nav');n.id='nav';n.setAttribute('aria-label','Menu');document.body.appendChild(n);
+    document.addEventListener('click',e=>{if(menuAberto&&!n.contains(e.target))fecharMenu();});}
+  const at=menuDe(),atual=PAGINAS.find(p=>p[0]===at)||['menu','Menu'];
+  const itens=cel()?[atual,...PAGINAS.filter(p=>p[0]!==at)]:PAGINAS;
+  n.innerHTML=itens.map((p,i)=>`<button type="button" class="nb${p[0]===at?' on':''}" data-p="${p[0]}" style="--i:${i}" aria-label="${p[1]}" onclick="clicarMenu('${p[0]}')">${ic(ICONES[p[0]],22)}<span class="nl"><span>${p[1]}</span></span></button>`).join('');
+  menuAberto=false;n.classList.remove('aberto');
+  abrirNomes();
 }
-function fora(e){if(menuAberto&&!menuAberto.card.contains(e.target))fecharMenu();}
-function fecharMenu(depois){
-  if(!menuAberto)return;const {card,btn,r}=menuAberto;menuAberto=null;document.removeEventListener('click',fora);
-  card.classList.remove('on');card.querySelectorAll('.mi').forEach(m=>m.style.transitionDelay='0s');
-  Object.assign(card.style,{width:r.width+'px',height:r.height+'px',left:r.left+'px',borderRadius:'40px'});
-  setTimeout(()=>{card.remove();btn.classList.remove('aberto');if(depois)depois();},300);
+// o nome da página ativa abre na largura dele; no celular, só com o menu aberto
+function abrirNomes(){
+  document.querySelectorAll('#nav .nb').forEach(b=>{
+    const l=b.querySelector('.nl'),on=b.classList.contains('on')&&(!cel()||menuAberto||menuTrocando);
+    l.style.width=on?l.firstChild.scrollWidth+'px':'0px';l.style.marginLeft=on?'':'0px';l.classList.toggle('vis',on);});
 }
-function escolherMenu(pg,el){
-  const c=el.closest('.lst');c.querySelectorAll('.ck').forEach(k=>{k.classList.remove('on');k.innerHTML='';});
-  const k=el.querySelector('.ck');k.classList.add('on');k.innerHTML=ic(TICK,16);
-  setTimeout(()=>fecharMenu(()=>go(pg)),100);
+function marcar(pg){document.querySelectorAll('#nav .nb').forEach(b=>b.classList.toggle('on',b.dataset.p===pg));abrirNomes();}
+function atualizarMenu(){if(cel()&&!menuAberto&&!menuTrocando)montarMenu();else marcar(menuDe());}
+function clicarMenu(pg){
+  if(cel()){
+    if(!menuAberto){menuAberto=true;document.getElementById('nav').classList.add('aberto');abrirNomes();return;}
+    if(pg===menuDe()){fecharMenu();return;}
+    // fecha o nome da página atual, abre o da tocada e, depois, o menu fecha mostrando o ícone dela
+    menuTrocando=true;go(pg);
+    setTimeout(()=>{menuTrocando=false;fecharMenu();},650);
+    return;
+  }
+  if(pg!==menuDe())go(pg);
+}
+function fecharMenu(){
+  const n=document.getElementById('nav');menuAberto=false;n.classList.remove('aberto');abrirNomes();
+  setTimeout(()=>{if(!menuAberto&&!menuTrocando)montarMenu();},300);
 }
 
 /* ==================== RODAPÉ ==================== */
@@ -584,7 +599,7 @@ function home(){
   return `<div style="background:var(--navy)">
  <div class="gl hero" style="min-height:100vh;display:flex;flex-direction:column">${LUZ}
   ${tabs.map((t,i)=>`<div class="himg${i===abaHome?' on':''}"${t[3]?` style="background-image:url('${t[3]}')"`:''}></div>`).join('')}
-  ${hd('Início')}
+  ${hd()}
   <div class="meio">
   <div class="wrap inn">
    <div>
@@ -593,7 +608,7 @@ function home(){
      <p class="sub">${T('inicio.subtitulo','{Lojas por extenso} lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.')}</p>
    </div>
    <div class="vtl">
-    ${tabs.map((t,i)=>`<div class="vti${i===abaHome?' on':''}" onmouseenter="destacar(${i})" onclick="go('${t[2]}')"><h3>${t[0]}</h3><div class="d"><div><p>${t[1]}</p></div></div></div>`).join('')}
+    ${tabs.map((t,i)=>`<div class="vti${i===abaHome?' on':''}" onmouseenter="destacar(${i})" onclick="clicarCategoria(${i},'${t[2]}')"><h3>${t[0]}</h3><div class="d"><div><p>${t[1]}</p><a class="acessar" onclick="event.stopPropagation();go('${t[2]}')">${T('inicio.acessar','Acessar')}</a></div></div></div>`).join('')}
    </div>
   </div>
   </div>
@@ -636,9 +651,16 @@ function alturaCategorias(){
   const base=l.offsetHeight-ds.reduce((s,d)=>s+d.offsetHeight,0);
   l.style.minHeight=base+Math.max(...ds.map(d=>d.querySelector('p').offsetHeight))+'px';
 }
+// computador: o clique leva à página. Celular: o toque só abre a categoria, mostra o botão Acessar e para a troca automática
+let parado=false;
+function clicarCategoria(i,destino){
+  if(!cel()){go(destino);return;}
+  parado=true;clearTimeout(giro);destacar(i);
+  document.querySelectorAll('.vti').forEach((e,j)=>e.classList.toggle('tocada',j===i));
+}
 // as categorias passam sozinhas a cada 6s; com o mouse em cima da lista, param
 let giro;
-function girar(){clearTimeout(giro);if(EDIT||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+function girar(){clearTimeout(giro);if(EDIT||parado||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
   giro=setTimeout(()=>{if(pagAtual!=='home')return;if(document.querySelector('.vtl:hover'))girar();else destacar((abaHome+1)%document.querySelectorAll('.vti').length);},6000);}
 
 /* ==================== ESTOQUE ==================== */
@@ -714,7 +736,7 @@ function pintarMosaico(){
 }
 function estoque(){
   return `<div class="gl dark fix" style="min-height:100vh;display:flex;flex-direction:column">${LUZ}
- ${hd('Estoque')}
+ ${hd()}
  <div class="wrap est-wrap" style="padding-top:26px;padding-bottom:28px">
    <div class="so-cel est-cel"><h2 class="tt" id="estNc">${fmt(nVeic())} veículos</h2><p class="tts">${T('estoque.subtitulo-celular','Intercalados entre as {lojas} lojas')}</p></div>
    <div class="est-top so-desk" style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px">
@@ -788,7 +810,7 @@ function associados(){
       </div></div>`:'';
   const rows=Math.ceil(vis.length/2);
   return `<div class="glc pg-assoc" style="min-height:100vh;display:flex;flex-direction:column">${LUZ}
- <div class="gl" style="padding:0;flex:none">${LUZ}${hd('Associados')}</div>
+ <div class="gl" style="padding:0;flex:none">${LUZ}${hd()}</div>
  <div class="wrap assoc-wrap" style="padding-top:20px;padding-bottom:40px;flex:1;display:flex;flex-direction:column">
   <div class="so-cel assoc-cel"><h2 class="tt">${T('associados.titulo-celular','{associados} associados')}</h2><p class="tts">${T('associados.subtitulo-celular','Estrada Intendente Magalhães')}</p></div>
   <div class="assoc-topo" style="display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap">
@@ -817,13 +839,13 @@ let vAtual=null,formaCompra='À vista';
 function abrirVeiculo(id){go('veiculo',id);}
 function veiculo(){
   const v=V.find(x=>String(x.id)===String(vAtual));
-  if(!v)return `<div class="gl" style="min-height:100vh">${LUZ}${hd('Estoque')}<div class="wrap vazio">${pronto?'Este anúncio saiu do ar. <a onclick="go(\'estoque\')">Ver o estoque</a>':'Carregando…'}</div></div>`;
+  if(!v)return `<div class="gl" style="min-height:100vh">${LUZ}${hd()}<div class="wrap vazio">${pronto?'Este anúncio saiu do ar. <a onclick="go(\'estoque\')">Ver o estoque</a>':'Carregando…'}</div></div>`;
   const L=LJ.find(l=>l.nome===v.loja)||{};
   const fotos=(v.fotos||[]).slice(0,14);
   const dados=[v.anoF&&v.ano&&v.anoF!==v.ano?v.anoF+'/'+v.ano:v.ano,v.km!=null?fmt(v.km)+' km':'',v.cambio,titulo(v.comb)].filter(Boolean);
   const ini=iniciais(v.loja);
   const nota=Number(L.google_nota)||0;
-  return `<div class="gl" style="flex:none">${LUZ}${hd('Estoque')}</div>
+  return `<div class="gl" style="flex:none">${LUZ}${hd()}</div>
  <div class="glc" style="padding:26px 0 60px">${LUZ}
   <div class="wrap">
    <div class="kick" style="margin-bottom:16px;cursor:pointer" onclick="go('estoque')">${T('veiculo.voltar','← Estoque dos associados')}</div>
@@ -868,7 +890,7 @@ function chamarLoja(){
 
 /* ==================== A ACEIMA ==================== */
 function aceima(){
-  return `<div class="gl" style="padding-bottom:70px">${LUZ}${hd('A ACEIMA')}
+  return `<div class="gl" style="padding-bottom:70px">${LUZ}${hd()}
   <div class="wrap" style="padding-top:40px">
     <div class="kick c">${T('aceima.chamada','Desde 1998')}</div>
     <h2 style="margin:14px 0 16px;font-size:3rem;max-width:1000px">${T('aceima.titulo','A associação que faz o maior polo automotivo da América Latina funcionar.')}</h2>
@@ -912,7 +934,7 @@ function associar(){
            ['O cliente cai no seu WhatsApp','Com cópia por e-mail. A venda continua sendo sua.'],
            ['Selo e rede credenciada','Vistoria, inspeção e serviços na mesma rua, com condição de associado.']];
   return `<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--cl)">
- <div class="gl" style="flex:none">${LUZ}${hd('Seja um associado')}</div>
+ <div class="gl" style="flex:none">${LUZ}${hd()}</div>
  <div class="wrap" style="padding-top:34px;padding-bottom:40px">
    <div class="dup" style="display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center">
      <div>
@@ -960,7 +982,7 @@ function enviarAssoc(){
 function publicacoes(){
   const lista=[['Conquistas','Título de uma conquista da associação','12 mar 2026'],['Comunicados','Comunicado da diretoria aos associados','04 mar 2026'],['Imprensa','O polo na imprensa do Rio de Janeiro','21 fev 2026'],['Ações no polo','Mutirão realizado na Intendente Magalhães','09 fev 2026']];
   return `<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--cl)">
- <div class="gl" style="flex:none">${LUZ}${hd('Publicações')}</div>
+ <div class="gl" style="flex:none">${LUZ}${hd()}</div>
  <div class="wrap" style="padding-top:28px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap">
    <div><div class="kick">${T('publicacoes.chamada','Nosso trabalho')}</div><h2 style="margin-top:10px;font-size:2.3rem">${T('publicacoes.titulo','O que a ACEIMA faz pelo polo.')}</h2></div>
    <div class="fbar" style="flex-wrap:wrap">${['Tudo','Ações no polo','Conquistas','Comunicados','Imprensa'].map((f,i)=>`<span class="fp ${i?'lite':'on'}">${T(`publicacoes.filtro${i+1}`,f)}</span>`).join('')}</div>
@@ -984,7 +1006,7 @@ function publicacoes(){
 /* ==================== SERVIÇOS DO POLO ==================== */
 function servicos(){
   return `<div style="min-height:100vh;background:var(--cl)">
- <div class="gl">${LUZ}${hd('Serviços do polo')}
+ <div class="gl">${LUZ}${hd()}
   <div class="wrap" style="padding-top:30px;padding-bottom:50px">
    <div class="kick c">${T('servicos.chamada','Credenciados ACEIMA')}</div>
    <h2 style="margin:12px 0 14px;font-size:2.6rem">${T('servicos.titulo','Tudo que o carro precisa, na mesma rua.')}</h2>
@@ -1083,7 +1105,7 @@ function render(topo){
   fecharDrop();
   document.getElementById('app').innerHTML=VIEWS[pagAtual]();
   if(pagAtual==='estoque')depoisEstoque();
-  if(pagAtual==='home'){girar();alturaCategorias();document.fonts.ready.then(()=>{if(pagAtual==='home')alturaCategorias();});}
+  if(pagAtual==='home'){parado=false;girar();alturaCategorias();document.fonts.ready.then(()=>{if(pagAtual==='home')alturaCategorias();});}
   if(EDIT){sel=null;pintarBarra();}
   document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});v.play().catch(()=>{});});
   if(topo)scrollTo(0,0);
@@ -1097,21 +1119,27 @@ function go(pg,arg){
     if(HASH){if(location.hash.slice(1)!==u)history.pushState(null,'','#'+u);}
     else if(location.pathname!==u)history.pushState(null,'',u);
   }catch(e){}   // alguns ambientes (pré-visualização, iframe) não deixam trocar o endereço
-  render(true);
+  atualizarMenu();trocarPagina();
 }
-function rota(manter){
+// o conteúdo some, troca e volta; o menu fica na tela
+function trocarPagina(){
+  const a=document.getElementById('app');a.classList.add('some');
+  clearTimeout(trocarPagina.t);trocarPagina.t=setTimeout(()=>{render(true);a.classList.remove('some');},220);
+}
+function lerRota(){
   const p=caminho(),mv=p.match(/^\/veiculo\/(\d+)/);
   if(mv){pagAtual='veiculo';vAtual=mv[1];}
   else{pagAtual=ANTIGAS[p]||Object.keys(ROTAS).find(k=>ROTAS[k]===p)||'home';}
-  render(!manter);
 }
-addEventListener('popstate',()=>rota());
+function rota(manter){lerRota();render(!manter);}
+addEventListener('popstate',()=>{lerRota();atualizarMenu();trocarPagina();});
 // aba volta a ficar visível: o navegador pode ter pausado o vídeo do fundo
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)document.querySelectorAll('video.luz').forEach(v=>v.play().catch(()=>{}));});
 let largAnt=matchMedia('(max-width:760px)').matches;
-addEventListener('resize',()=>{if(pagAtual==='home')alturaCategorias();const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;if(pagAtual==='estoque')pintarMosaico();}});
+addEventListener('resize',()=>{if(pagAtual==='home')alturaCategorias();const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;montarMenu();if(pagAtual==='estoque')pintarMosaico();}});
 
 rota();
+montarMenu();
 carregar();
 if(/[?&]editar\b/.test(location.search))entrar(sessao());
 // vídeo bloqueado ou lento: troca pelo quadro parado para o fundo não ficar liso
