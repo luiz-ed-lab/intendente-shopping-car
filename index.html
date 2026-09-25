@@ -14,7 +14,7 @@
 /* ============ BASE: cópia do CSS dos mockups aprovados ============ */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--f1:Outfit,sans-serif;--f2:Figtree,sans-serif;--navy:#00091A;--gold:#C8862E;--gold2:#E8A048;--gold3:#F4B05C;--cl:#F6F4F1;--ink:#0B1A33;--mut:#5A6B85;--line:#E3DFDA;--ease:cubic-bezier(.2,.8,.2,1)}
-body{background:var(--cl);color:var(--ink);font-family:var(--f1);-webkit-font-smoothing:antialiased}
+body{background:#000;color:var(--ink);font-family:var(--f1);-webkit-font-smoothing:antialiased}
 img{display:block;max-width:100%}
 button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
 input,select,textarea{font-family:inherit}
@@ -202,8 +202,9 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .nb:hover{background:#F5F5F5}
 .nb.on{background:rgba(23,23,23,.1);color:#171717}
 .nb svg{flex:none;width:22px;height:22px}
-.nl{display:block;overflow:hidden;width:0;margin-left:16px;opacity:0;transition:width .26s var(--ease),margin-left .26s var(--ease),opacity .2s}
-.nl.vis{opacity:1;transition:width .26s var(--ease),margin-left .26s var(--ease),opacity .2s .12s}
+.nbi{display:contents}
+.nl{display:block;overflow:hidden;width:0;margin-left:16px;opacity:0;transition:width .26s var(--ease),height .26s var(--ease),margin .26s var(--ease),opacity .2s}
+.nl.vis{opacity:1;transition:width .26s var(--ease),height .26s var(--ease),margin .26s var(--ease),opacity .2s .12s}
 .nl>span{display:block;white-space:nowrap;font:500 clamp(.625rem,.5263rem + .5263vw,1rem)/1.9 var(--f2)}
 /* troca de página com fade: o menu fica, o conteúdo some e volta */
 #app{transition:opacity .22s ease}
@@ -264,15 +265,16 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   /* logo à esquerda, a 5,63vw do topo e da lateral; o menu fica no canto direito, centralizado com a logo */
   header{justify-content:flex-start;padding:5.63vw 5.63vw 0}
   header .lg{height:7.04vw;margin:-.8vw 0}
-  /* menu no celular: só o ícone da página, no canto; tocando, o nome aparece e os outros ícones descem */
-  #nav{left:auto;right:3.28vw;top:3.28vw;bottom:auto;transform:none;height:auto;flex-direction:column;align-items:flex-end;gap:1.07vw;padding:.8vw;animation:none}
-  #nav:not(.aberto) .nb:not(:first-child){display:none}
-  #nav.aberto .nb:not(:first-child){animation:desce .3s var(--ease) both;animation-delay:calc(var(--i) * 30ms)}
-  @keyframes desce{from{opacity:0;transform:translateY(-2.13vw)}}
-  .nb{height:8.53vw;min-width:8.53vw;padding:0 2.13vw}
-  .nb svg{width:4.8vw;height:4.8vw}
-  .nl{margin-left:2.13vw}
-  .nl>span{font-size:3.47vw}
+  /* menu no celular: só o ícone da página, no canto; tocando, o nome aparece em pé e os outros ícones descem: o menu só cresce para baixo */
+  #nav{left:auto;right:4.35vw;top:4.35vw;bottom:auto;transform:none;height:auto;flex-direction:column;align-items:center;gap:0;padding:.53vw;animation:none}
+  .nb{display:grid;grid-template-rows:0fr;min-width:0;height:auto;padding:0 1.33vw;opacity:0;transition:grid-template-rows .35s var(--ease),padding .35s var(--ease),opacity .25s,background-color .2s,color .2s,transform .4s var(--ease)}
+  .nbi{display:flex;flex-direction:column;align-items:center;min-height:0;overflow:hidden}
+  .nb:first-child,#nav.aberto .nb{grid-template-rows:1fr;padding:1.33vw;opacity:1}
+  #nav.aberto .nb{transition-delay:calc(var(--i) * 25ms)}
+  .nb svg{width:3.73vw;height:3.73vw;transition:transform .26s var(--ease)}
+  .nb.nome svg{transform:rotate(-90deg)}   /* o ícone da página aberta deita junto com o nome, que é lido subindo */
+  .nl{writing-mode:vertical-rl;width:auto;height:0;margin:1.6vw 0 0}
+  .nl>span{font-size:3.2vw;line-height:1.2;transform:rotate(180deg)}
   /* categorias: o toque só abre; o botão Acessar aparece na que foi tocada */
   .vti.tocada .acessar{display:inline-flex;align-items:center;margin-top:2.82vw;padding:2.11vw 4.23vw;border-radius:2.13vw;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;font:600 3.47vw/1 var(--f2)}
   p{font-size:4.06vw}
@@ -550,33 +552,38 @@ function montarMenu(){
     document.addEventListener('click',e=>{if(menuAberto&&!n.contains(e.target))fecharMenu();});}
   const at=menuDe(),atual=PAGINAS.find(p=>p[0]===at)||['menu','Menu'];
   const itens=cel()?[atual,...PAGINAS.filter(p=>p[0]!==at)]:PAGINAS;
-  n.innerHTML=itens.map((p,i)=>`<button type="button" class="nb${p[0]===at?' on':''}" data-p="${p[0]}" style="--i:${i}" aria-label="${p[1]}" onclick="clicarMenu('${p[0]}')">${ic(ICONES[p[0]],22)}<span class="nl"><span>${p[1]}</span></span></button>`).join('');
+  n.innerHTML=itens.map((p,i)=>`<button type="button" class="nb${p[0]===at?' on':''}" data-p="${p[0]}" style="--i:${i}" aria-label="${p[1]}" onclick="clicarMenu('${p[0]}')"><span class="nbi">${ic(ICONES[p[0]],22)}<span class="nl"><span>${p[1]}</span></span></span></button>`).join('');
   menuAberto=false;n.classList.remove('aberto');
   abrirNomes();
 }
-// o nome da página ativa abre na largura dele; no celular, só com o menu aberto
+// o nome da página ativa abre no tamanho dele: no computador, deitado (largura); no celular, em pé (altura), só com o menu aberto
 function abrirNomes(){
+  const v=cel();
   document.querySelectorAll('#nav .nb').forEach(b=>{
-    const l=b.querySelector('.nl'),on=b.classList.contains('on')&&(!cel()||menuAberto||menuTrocando);
-    l.style.width=on?l.firstChild.scrollWidth+'px':'0px';l.style.marginLeft=on?'':'0px';l.classList.toggle('vis',on);});
+    const l=b.querySelector('.nl'),on=b.classList.contains('on')&&(!v||menuAberto||menuTrocando);
+    const t=on?(v?l.firstChild.scrollHeight:l.firstChild.scrollWidth)+'px':'0px';
+    l.style.width=v?'':t;l.style.height=v?t:'';l.style.margin=on?'':'0';l.classList.toggle('vis',on);b.classList.toggle('nome',on);});
 }
 function marcar(pg){document.querySelectorAll('#nav .nb').forEach(b=>b.classList.toggle('on',b.dataset.p===pg));abrirNomes();}
 function atualizarMenu(){if(cel()&&!menuAberto&&!menuTrocando)montarMenu();else marcar(menuDe());}
 function clicarMenu(pg){
-  if(cel()){
-    if(!menuAberto){menuAberto=true;document.getElementById('nav').classList.add('aberto');abrirNomes();return;}
-    if(pg===menuDe()){fecharMenu();return;}
-    // fecha o nome da página atual, abre o da tocada e, depois, o menu fecha mostrando o ícone dela
-    menuTrocando=true;go(pg);
-    setTimeout(()=>{menuTrocando=false;fecharMenu();},650);
-    return;
-  }
-  if(pg!==menuDe())go(pg);
+  if(!cel()){if(pg!==menuDe())go(pg);return;}
+  const n=document.getElementById('nav');
+  if(!menuAberto){menuAberto=true;n.classList.add('aberto');abrirNomes();return;}
+  if(pg===menuDe()){fecharMenu();return;}
+  // 1) o nome da página atual fecha e o da tocada abre
+  menuTrocando=true;go(pg);
+  // 2) o menu fecha: o ícone tocado sobe até o topo enquanto os outros recolhem
+  setTimeout(()=>{
+    const b=n.querySelector('.nb[data-p="'+pg+'"]');if(!b){menuTrocando=false;fecharMenu();return;}
+    const y0=b.getBoundingClientRect().top;n.prepend(b);const y1=b.getBoundingClientRect().top;
+    b.style.transition='none';b.style.transform='translateY('+(y0-y1)+'px)';b.offsetWidth;
+    b.style.transition='';b.style.transform='';
+    menuTrocando=false;fecharMenu();
+    setTimeout(()=>{if(!menuAberto)montarMenu();},450);   // volta à ordem normal, sem mudança visível
+  },520);
 }
-function fecharMenu(){
-  const n=document.getElementById('nav');menuAberto=false;n.classList.remove('aberto');abrirNomes();
-  setTimeout(()=>{if(!menuAberto&&!menuTrocando)montarMenu();},300);
-}
+function fecharMenu(){const n=document.getElementById('nav');menuAberto=false;n.classList.remove('aberto');abrirNomes();}
 
 /* ==================== RODAPÉ ==================== */
 const rodape=()=>`<footer class="rod"><div class="wrap">
@@ -590,9 +597,9 @@ let abaHome=0;
 function home(){
   // [título, texto, página, imagem ao fundo]
   const tabs=[
-    [T('inicio.caminho1','Comprar um veículo'),T('inicio.caminho1-texto','{Veículos por extenso} anúncios das {lojas} lojas associadas, cada uma com selo e avaliação real no Google.'),'estoque','fotos-home/comprar.jpg'],
+    [T('inicio.caminho1','Comprar um veículo'),T('inicio.caminho1-texto','{veículos} anúncios das {lojas} lojas associadas, cada uma com selo e avaliação real no Google.'),'estoque','fotos-home/comprar.jpg'],
     [T('inicio.caminho2','Ser um associado'),T('inicio.caminho2-texto','O que a ACEIMA entrega ao lojista da Intendente e o caminho para entrar.'),'associar',''],
-    [T('inicio.caminho3','Conhecer a ACEIMA'),T('inicio.caminho3-texto','{Anos por extenso} anos representando o comércio da Intendente Magalhães.'),'aceima',''],
+    [T('inicio.caminho3','Conhecer a ACEIMA'),T('inicio.caminho3-texto','{anos} anos representando o comércio da Intendente Magalhães.'),'aceima',''],
     [T('inicio.caminho4','Serviços do polo'),T('inicio.caminho4-texto','Vistoria, inspeção e comércio credenciado na mesma rua.'),'servicos','']];
   const C=V.filter(foto).slice(0,4);
   const cs=(c,asp)=>c?`<div class="c" onclick="abrirVeiculo(${c.id})"><div class="ph" style="aspect-ratio:${asp}"><img src="${esc(foto(c))}" alt="${esc(nomeV(c))}" loading="lazy"></div><div class="lb">${esc(nomeV(c))} <b>${precoT(c.preco)}</b></div></div>`:'';
@@ -643,7 +650,7 @@ function avaliacoes(){
    <div class="av-janela"><div class="av-trilho" style="animation-duration:${Math.round(AVAL.length*6.6)}s"><div>${h}</div><div aria-hidden="true">${h.replace(/<a /g,'<a tabindex="-1" ')}</div></div></div><span class="av-g">Google Maps</span></div>`;
 }
 // só troca as classes: redesenhar a página reiniciaria o vídeo do fundo
-function destacar(i){if(EDIT)return;abaHome=i;['.vti','.himg'].forEach(s=>document.querySelectorAll(s).forEach((e,j)=>e.classList.toggle('on',j===i)));girar();}
+function destacar(i){if(EDIT)return;abaHome=i;document.querySelectorAll('.vti.tocada').forEach(e=>e.classList.remove('tocada'));['.vti','.himg'].forEach(s=>document.querySelectorAll(s).forEach((e,j)=>e.classList.toggle('on',j===i)));girar();}
 // a lista fica sempre com a altura da maior descrição: a troca não mexe em nada acima nem abaixo, e a sobra fica no fim
 function alturaCategorias(){
   const l=document.querySelector('.vtl');if(!l)return;l.style.minHeight='';
@@ -651,16 +658,14 @@ function alturaCategorias(){
   const base=l.offsetHeight-ds.reduce((s,d)=>s+d.offsetHeight,0);
   l.style.minHeight=base+Math.max(...ds.map(d=>d.querySelector('p').offsetHeight))+'px';
 }
-// computador: o clique leva à página. Celular: o toque só abre a categoria, mostra o botão Acessar e para a troca automática
-let parado=false;
+// computador: o clique leva à página. Celular: o toque só abre a categoria e mostra o botão Acessar; a troca automática continua
 function clicarCategoria(i,destino){
   if(!cel()){go(destino);return;}
-  parado=true;clearTimeout(giro);destacar(i);
-  document.querySelectorAll('.vti').forEach((e,j)=>e.classList.toggle('tocada',j===i));
+  destacar(i);document.querySelectorAll('.vti')[i].classList.add('tocada');
 }
 // as categorias passam sozinhas a cada 6s; com o mouse em cima da lista, param
 let giro;
-function girar(){clearTimeout(giro);if(EDIT||parado||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+function girar(){clearTimeout(giro);if(EDIT||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
   giro=setTimeout(()=>{if(pagAtual!=='home')return;if(document.querySelector('.vtl:hover'))girar();else destacar((abaHome+1)%document.querySelectorAll('.vti').length);},6000);}
 
 /* ==================== ESTOQUE ==================== */
@@ -1105,7 +1110,7 @@ function render(topo){
   fecharDrop();
   document.getElementById('app').innerHTML=VIEWS[pagAtual]();
   if(pagAtual==='estoque')depoisEstoque();
-  if(pagAtual==='home'){parado=false;girar();alturaCategorias();document.fonts.ready.then(()=>{if(pagAtual==='home')alturaCategorias();});}
+  if(pagAtual==='home'){girar();alturaCategorias();document.fonts.ready.then(()=>{if(pagAtual==='home')alturaCategorias();});}
   if(EDIT){sel=null;pintarBarra();}
   document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});v.play().catch(()=>{});});
   if(topo)scrollTo(0,0);
