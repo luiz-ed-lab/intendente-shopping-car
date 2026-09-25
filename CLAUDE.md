@@ -43,7 +43,8 @@ Sem build. Tudo roda na Vercel.
 - Celular (até 760px): as medidas foram tiradas das telas de celular aprovadas, com 284px de largura útil, e convertidas em `vw`. Para mudar um tamanho no celular, mantenha essa conversão (px ÷ 2,84 = vw).
 - Textos: todo texto institucional passa por `T(id, padrão)`. O que o Luiz edita fica em `conteudo.js` com o mesmo id e vence o padrão. Números que mudam com os dados entram como `{veículos}`, `{lojas}`, `{associados}`, `{anos}` e `{veículos arredondados}` (com "por extenso" saem em palavras). Ao mudar um texto no código, confira se ele não está sobrescrito em `conteudo.js`. Não troque um id que já tem edição, senão a edição se perde.
 - Modo de edição: `/?editar`, com a senha do painel. Cores, fontes e pesos ficam limitados às listas `CORES`, `FONTES` e `PESOS`. Salvar faz um commit no ramo pela rota `/api/conteudo`, que precisa da variável `GITHUB_TOKEN`. **Como o Luiz faz commits pelo site, rode `git pull` antes de mexer e antes de cada push.** Teste da rota: `node testes/conteudo.mjs`.
-- Menu: o botão redondo se abre numa lista, seguindo o componente "List Item / Filter Interaction" de uselayouts (21st.dev). Itens com ícone, nome e círculo de marcação; entrada em cascata.
+- Menu: barra do componente "Bottom Nav Bar" (21st.dev, @arunachalam), com as medidas e as cores do tema claro. No computador ela fica fixa embaixo, no centro, e a logo fica centralizada no topo. No celular, mostra só o ícone da página no canto; ao tocar, o nome aparece e os outros ícones descem. A troca de página é com fade no conteúdo, e o menu continua na tela.
+- Categorias da home: no computador, o mouse destaca e o clique leva à página. No celular, o toque só abre a categoria e mostra o botão "Acessar"; depois de um toque, a troca automática para.
 
 ## Rodar
 
