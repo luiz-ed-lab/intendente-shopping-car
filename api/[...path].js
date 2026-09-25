@@ -1229,7 +1229,8 @@ async function rotaConteudo(req, res) {
 
 // ---------------- AVALIAÇÕES DO GOOGLE (faixa da home) ----------------
 // Avaliações reais de cada loja, pela API oficial do Google (Places API New): até 5 por loja.
-// Ficam guardadas 7 dias em config (o Google permite até 30): uma consulta por loja por semana.
+// Na primeira vez busca todas as lojas; depois, uma consulta por dia, sempre a loja mais antiga.
+// ponytail: com mais de 30 lojas, cada uma passaria de 30 dias guardada (o limite do Google): aí buscar duas por dia.
 // A mesma consulta atualiza a nota e o total de avaliações da loja.
 // Precisa da variável GOOGLE_PLACES_KEY na Vercel. Sem ela, a faixa não aparece.
 const semAcento = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -1264,17 +1265,22 @@ async function avaliacoesDaLoja(loja, chave) {
 async function avaliacoesGoogle() {
   await migra();
   const { rows: [c] } = await query("select valor, em from config where chave='avaliacoes_google'");
-  const guardadas = c ? JSON.parse(c.valor) : [];
+  const guardadas = c ? JSON.parse(c.valor) : {};   // { nome da loja: { em, lista } }
+  const todas = () => Object.values(guardadas).flatMap(g => g.lista);
   const chave = process.env.GOOGLE_PLACES_KEY;
-  if (!chave || (c && Date.now() - new Date(c.em).getTime() < 7 * 864e5)) return guardadas;
+  if (!chave || (c && Date.now() - new Date(c.em).getTime() < 864e5)) return todas();
   const { rows: lojas } = await query('select id, nome from lojas where ativa = true');
-  const achadas = await Promise.all(lojas.map(l => avaliacoesDaLoja(l, chave)));
-  // tudo falhou (chave errada, Google fora do ar): mantém as antigas e tenta de novo depois; erro não é cobrado
-  if (achadas.every(x => x === null)) return guardadas;
-  const lista = achadas.flatMap((x, i) => x !== null ? x : guardadas.filter(a => a.loja === lojas[i].nome));
+  const nunca = lojas.filter(l => !guardadas[l.nome]);
+  const vez = nunca.length ? nunca
+    : [lojas.sort((a, b) => new Date(guardadas[a.nome].em) - new Date(guardadas[b.nome].em))[0]].filter(Boolean);
+  const achadas = await Promise.all(vez.map(l => avaliacoesDaLoja(l, chave)));
+  // tudo falhou (chave errada, cota do dia no fim, Google fora do ar): tenta de novo depois; erro não é cobrado
+  if (achadas.every(x => x === null)) return todas();
+  achadas.forEach((x, i) => { if (x !== null) guardadas[vez[i].nome] = { em: new Date().toISOString(), lista: x }; });
+  for (const nome of Object.keys(guardadas)) if (!lojas.some(l => l.nome === nome)) delete guardadas[nome];   // saiu da associação
   await query("insert into config (chave, valor, em) values ('avaliacoes_google', $1, now()) on conflict (chave) do update set valor = $1, em = now()",
-    [JSON.stringify(lista)]);
-  return lista;
+    [JSON.stringify(guardadas)]);
+  return todas();
 }
 
 // ---------------- ROTEADOR ----------------

@@ -30,7 +30,7 @@ Sem build. Tudo roda na Vercel.
 
 - Banco: Postgres no Neon, via `@neondatabase/serverless`. A própria API cria as colunas que faltam (`migra()`). O schema original está em `docs/referencia/schema.sql`.
 - Robô importador: lê o site de cada loja (com `cheerio`) e grava os anúncios. Plano completo em `docs/referencia/importador-plano-tecnico.md`.
-- Rotas (o front chama `/api/<rota>?path=<rota>`): `lojas`, `parceiros`, `veiculos`, `leads`, `importar`, `refresh`, `auth`. Protegidas por `PAINEL_TOKEN`: `resumo`, `testeemail`, `conteudo`. A rota `avaliacoes` devolve as avaliações reais do Google para a faixa da home (guardadas 7 dias em `config`).
+- Rotas (o front chama `/api/<rota>?path=<rota>`): `lojas`, `parceiros`, `veiculos`, `leads`, `importar`, `refresh`, `auth`. Protegidas por `PAINEL_TOKEN`: `resumo`, `testeemail`, `conteudo`. A rota `avaliacoes` devolve as avaliações reais do Google para a faixa da home (guardadas em `config`, renovando uma loja por dia).
 - E-mails de lead: Resend.
 - Variáveis de ambiente (nomes em `.env.example`, valores só na Vercel): `DATABASE_URL`, `PAINEL_TOKEN`, `RESEND_API_KEY`, `RESEND_FROM`, `ACEIMA_EMAIL`, `SITE_URL`, `GITHUB_TOKEN`, `GOOGLE_PLACES_KEY`.
 
@@ -106,4 +106,4 @@ Deploy: repositório GitHub **luiz-ed-lab/intendente-shopping-car**, ligado ao p
 8. **Faixa branca nas fotos:** hoje é resolvida com zoom no CSS. O ideal é recortar a foto na importação, no robô.
 9. **Textos do backend** ainda mencionam o nome antigo nos e-mails de lead.
 10. **Decisão registrada:** em Associados, "Todos · 23" mostra só as lojas. Serviços e comércio credenciados aparecem no traçado da rua e nos seus próprios filtros.
-11. **Avaliações do Google:** a faixa da home mostra avaliações reais (4 e 5 estrelas, com texto) pela API oficial (Places API New), e aparece só quando existe `GOOGLE_PLACES_KEY` na Vercel. Custa uma consulta por loja por semana, dentro da cota grátis. A mesma consulta atualiza a nota da loja. A leitura antiga (`notaGoogle()`, pela busca do Google) não funciona mais, porque o Google exige JavaScript. Teste: `node testes/avaliacoes.mjs`.
+11. **Avaliações do Google:** a faixa da home mostra avaliações reais (4 e 5 estrelas, com texto) pela API oficial (Places API New), e aparece só quando existe `GOOGLE_PLACES_KEY` na Vercel. Na primeira vez busca todas as lojas; depois, uma consulta por dia, sempre na loja mais antiga (a pedido do Luiz). Com mais de 30 lojas, passar para duas por dia, porque o Google só deixa guardar por 30 dias. A mesma consulta atualiza a nota da loja. A leitura antiga (`notaGoogle()`, pela busca do Google) não funciona mais, porque o Google exige JavaScript. Teste: `node testes/avaliacoes.mjs`.
