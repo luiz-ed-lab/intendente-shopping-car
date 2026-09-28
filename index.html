@@ -100,7 +100,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vti .d{display:grid;grid-template-rows:0fr;opacity:0;transform:translateY(10px);transition:grid-template-rows .45s var(--ease),opacity .35s,transform .45s var(--ease)}
 .vti .d>div{overflow:hidden;min-height:0}
 .vti.on .d{grid-template-rows:1fr;opacity:1;transform:none}
-.vti .d p{padding-top:10px;max-width:600px;font-size:1.08rem}
+.vti .d p{padding-top:10px;font-size:1.08rem}
 /* imagem de cada caminho, misturada ao fundo animado */
 .gl>.himg{position:absolute;inset:0;z-index:1;background:right center/cover no-repeat;mix-blend-mode:screen;opacity:0;transform:scale(1.06);pointer-events:none;
   -webkit-mask-image:linear-gradient(90deg,transparent 15%,#000 65%);mask-image:linear-gradient(90deg,transparent 15%,#000 65%);transition:opacity .7s,transform 1.2s var(--ease)}
@@ -295,16 +295,16 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .hero{min-height:0!important;padding-bottom:11.27vw}   /* a imagem e o vidro do fundo descem até atrás dos cantos do bloco claro, que sobe por cima (6,34vw de respiro + 4,93vw do canto) */
   .hero .inn{justify-content:flex-start!important;gap:0!important;padding:6.34vw 5.63vw 0!important}
   .hero .kick{font-size:2.67vw;letter-spacing:.5vw;font-weight:700;color:#C8862E}
-  /* textos do topo terminam em 70% da tela (menos o título): o subtítulo começa em 5,63vw, as descrições em 9,86vw */
+  /* o subtítulo termina em 70% da tela; o título e as descrições das categorias (que começam em 9,86vw) vão até o fim */
   .hero h1{font-size:6.93vw;line-height:1.14;letter-spacing:-.14vw;margin:.67vw 0 0!important;max-width:none!important}   /* o título pode passar dos 70%: "A Intendente!" cabe numa linha só */
   .hero .sub{font-size:3.73vw!important;line-height:1.5;margin-top:3.17vw;max-width:64.37vw}
   .vtl{margin-top:5.63vw}
   .vti{padding:3.87vw 0 3.87vw 4.23vw}
   .vti::before{top:3.17vw;bottom:3.17vw}
-  .vti h3,.vti.on h3{font-size:4.27vw;font-weight:700;letter-spacing:0}
+  .vti h3,.vti.on h3{font-size:3.87vw;font-weight:700;letter-spacing:0}
   .vti h3{color:#7C8CA5}
   .vti.on h3{color:#fff}
-  .vti .d p{padding-top:1.41vw;max-width:60.14vw;font-size:3.33vw!important;color:#93A3B9;line-height:1.45}
+  .vti .d p{padding-top:1.41vw;font-size:3vw!important;color:#93A3B9;line-height:1.45}
   .meio{padding-bottom:0}
   .av{padding:6.34vw 0 9.15vw}
   .av .kick{margin-bottom:3.52vw}
@@ -393,7 +393,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .vti::before{top:calc(10*var(--px));bottom:calc(10*var(--px))}
   .vti h3{font-size:calc(31.2*var(--px));letter-spacing:calc(-.6*var(--px))}
   .vti.on h3{font-size:calc(44*var(--px))}
-  .vti .d p{padding-top:calc(10*var(--px));max-width:calc(600*var(--px));font-size:var(--fd)}
+  .vti .d p{padding-top:calc(10*var(--px));font-size:var(--fd)}
   .av{padding:calc(8*var(--px)) 0 calc(76px + 20*var(--px))}   /* 76px: a barra do menu (24 + 52) */
   .av .kick{font-size:max(10px,calc(11.2*var(--px)));letter-spacing:calc(2.6*var(--px));margin-bottom:calc(10*var(--px))}
   .av-trilho{--g:calc(12*var(--px))}
@@ -523,7 +523,7 @@ async function carregar(){
     try{
       // as avaliações vêm sozinhas: não esperam as lojas e o estoque, que são bem mais pesados
       fetch('/api/avaliacoes?path=avaliacoes').then(r=>r.json()).catch(()=>[]).then(ra=>{AVAL=Array.isArray(ra)?intercalar(ra).slice(0,30):[];pintarAvaliacoes();});   // no máximo 30, sem uma loja dominar
-      const [rl,rv]=await Promise.all([fetch('/api/lojas?path=lojas').then(r=>r.json()),fetch('/api/veiculos?path=veiculos').then(r=>r.json())]);
+      const [rl,rv]=await Promise.all([fetch('/api/lojas?path=lojas&site=1').then(r=>r.json()),fetch('/api/veiculos?path=veiculos&site=1').then(r=>r.json())]);
       if(Array.isArray(rl)&&rl.length)LJ=rl.filter(l=>l.ativa!==false);
       if(Array.isArray(rv)&&rv.length)V=intercalar(rv.map(mapV));
     }catch(e){}
