@@ -705,7 +705,18 @@ async function detalhePortal(base, slug, id) {
 }
 
 // ---------------- ROTAS ----------------
+// O site pede lojas e estoque com site=1: só as colunas que ele usa, sempre a versão pública
+// (nunca o que está oculto, mesmo com senha) e com cache na Vercel. O painel pede sem site=1
+// e continua recebendo tudo, sem cache. Sem migra(): o site só lê colunas que já existem.
+const doSite = req => !!(req.query && req.query.site === '1');
+const CACHE_SITE = 's-maxage=300, stale-while-revalidate=86400';   // 5 min novo; depois disso, entrega o anterior na hora e atualiza por trás
 async function rotaLojas(req, res) {
+  if (req.method === 'GET' && doSite(req)) {
+    // sem logo_url: os logos (imagens embutidas) eram quase todo o peso e o site não usa
+    const { rows } = await query('select id, nome, endereco, telefone, whatsapp, google_nota, google_avaliacoes from lojas where ativa = true order by nome');
+    res.setHeader('Cache-Control', CACHE_SITE);
+    return res.json(rows);
+  }
   await migra();
   if (req.method !== 'GET' && !autorizado(req)) return negar(res);
   if (req.method === 'GET') {
@@ -794,6 +805,15 @@ async function rotaParceiros(req, res) {
 }
 
 async function rotaVeiculos(req, res) {
+  if (req.method === 'GET' && doSite(req)) {
+    const { rows } = await query(
+      `select v.id, v.loja_id, v.marca, v.modelo, v.versao, v.ano_modelo, v.ano_fabricacao, v.km, v.preco, v.cambio, v.combustivel, v.fotos, v.opcionais,
+              l.nome as loja_nome, l.whatsapp as loja_whatsapp
+         from veiculos v join lojas l on l.id = v.loja_id
+        where v.ativo = true and coalesce(v.oculto,false) = false order by v.sincronizado_em desc limit 3000`);
+    res.setHeader('Cache-Control', CACHE_SITE);
+    return res.json(rows);
+  }
   await migra();
   if (req.method === 'POST' || req.method === 'PATCH') {
     if (!autorizado(req)) return negar(res);
