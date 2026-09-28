@@ -90,7 +90,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .tit>[data-t]{display:block;width:fit-content;line-height:1.05}
 .tit>[data-t]+[data-t]{margin-top:-.1em}
 .tit>[data-t="inicio.titulo-dourado"]{background:linear-gradient(100deg,#F6C078,#C8862E);-webkit-background-clip:text;background-clip:text;color:transparent}
-.inn .tit{margin-top:0}
+.inn .tit{margin:0 0 -.175em}   /* o título fica no meio: a mesma distância até "desde 1998" e até o subtítulo */
 .vti{padding:12px 0 12px 30px;position:relative;cursor:pointer}
 .vti+.vti{background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent) top/100% 1px no-repeat}
 .vti::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:2px;background:var(--gold2);transform:scaleY(0);transition:transform .45s var(--ease)}
@@ -295,10 +295,11 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   /* início */
   .hero{min-height:0!important;padding-bottom:11.27vw}   /* a imagem e o vidro do fundo descem até atrás dos cantos do bloco claro, que sobe por cima (6,34vw de respiro + 4,93vw do canto) */
   .hero .inn{justify-content:flex-start!important;gap:0!important;padding:6.34vw 5.63vw 0!important}
-  .hero .kick{font-size:2.13vw;letter-spacing:.4vw;font-weight:700;color:#C8862E}
+  .hero .kick{font-size:1.87vw;letter-spacing:.35vw;font-weight:700;color:#C8862E}
+  .hero .tit>[data-t="inicio.titulo"]{font-size:5.33vw!important}   /* celular: "Credibilidade que move" maior que o tamanho do modo de edição, e "desde 1998" bem menor */
   /* o subtítulo termina em 70% da tela; o título e as descrições das categorias (que começam em 9,86vw) vão até o fim */
   .hero h1{font-size:6.93vw;line-height:1.14;letter-spacing:-.14vw;margin:.67vw 0 0!important;max-width:none!important}   /* o título pode passar dos 70%: "A Intendente!" cabe numa linha só */
-  .hero .sub{font-size:3.73vw!important;margin-top:3.17vw;max-width:64.37vw}
+  .hero .sub{font-size:3.73vw!important;margin-top:-.77vw;max-width:64.37vw}
   .vtl{margin-top:5.63vw}
   .vti{padding:3.87vw 0 3.87vw 4.23vw}
   .vti::before{top:3.17vw;bottom:3.17vw}
