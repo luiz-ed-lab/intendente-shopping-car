@@ -86,6 +86,11 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .inn{display:flex;flex-direction:column;gap:28px}
 .inn h1{margin:18px 0;color:#fff;max-width:1080px}
 .inn .sub{font-size:1.2rem;max-width:740px}
+/* título da home: cada parte na sua linha e com a sua própria altura, sem o respiro da linha do h1; "desde 1998" fica encostado */
+.tit>[data-t]{display:block;width:fit-content;line-height:1.05}
+.tit>[data-t]+[data-t]{margin-top:-.1em}
+.tit>[data-t="inicio.titulo-dourado"]{background:linear-gradient(100deg,#F6C078,#C8862E);-webkit-background-clip:text;background-clip:text;color:transparent}
+.inn .tit{margin-top:0}
 .vti{padding:12px 0 12px 30px;position:relative;cursor:pointer}
 .vti+.vti{background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent) top/100% 1px no-repeat}
 .vti::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:2px;background:var(--gold2);transform:scaleY(0);transition:transform .45s var(--ease)}
@@ -105,6 +110,9 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .meio{flex:1;display:flex;flex-direction:column;justify-content:center}
 .av{padding:8px 0 96px}   /* 8px: o mesmo respiro do cabeçalho (20px) menos o da última categoria (12px) */
 .av .kick{text-align:center;margin-bottom:10px}
+.av.espera{visibility:hidden}
+.av.chegou{animation:avChega .6s ease}
+@keyframes avChega{from{opacity:0}}
 .av-janela{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
 .av-trilho{--g:12px;display:flex;gap:var(--g);width:max-content;animation:rolar linear infinite}
 .av-trilho>div{display:contents}
@@ -287,9 +295,8 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .hero{min-height:0!important;padding-bottom:11.27vw}   /* a imagem e o vidro do fundo descem até atrás dos cantos do bloco claro, que sobe por cima (6,34vw de respiro + 4,93vw do canto) */
   .hero .inn{justify-content:flex-start!important;gap:0!important;padding:6.34vw 5.63vw 0!important}
   .hero .kick{font-size:2.67vw;letter-spacing:.5vw;font-weight:700;color:#C8862E}
-  /* textos do topo terminam em 70% da tela: o título e o subtítulo começam em 5,63vw, as descrições em 9,86vw */
-  .hero h1{font-size:6.93vw;line-height:1.14;letter-spacing:-.14vw;margin:3.17vw 0 0!important;max-width:64.37vw!important}
-  .hero h1 br{display:none}
+  /* textos do topo terminam em 70% da tela (menos o título): o subtítulo começa em 5,63vw, as descrições em 9,86vw */
+  .hero h1{font-size:6.93vw;line-height:1.14;letter-spacing:-.14vw;margin:.67vw 0 0!important;max-width:none!important}   /* o título pode passar dos 70%: "A Intendente!" cabe numa linha só */
   .hero .sub{font-size:3.73vw!important;line-height:1.5;margin-top:3.17vw;max-width:64.37vw}
   .vtl{margin-top:5.63vw}
   .vti{padding:3.87vw 0 3.87vw 4.23vw}
@@ -504,7 +511,7 @@ const PARCEIROS=[
   wa:null,site:'https://nxp.digital/reserva/r21-vila-valqueire',siteTxt:'Reservar mesa'}
 ];
 
-let V=[],LJ=[],AVAL=[],pronto=false;
+let V=[],LJ=[],AVAL=API===null?[]:null,pronto=false;   // AVAL null: as avaliações ainda estão chegando
 function mapV(v){return{id:v.id,loja:v.loja_nome||'',lojaId:v.loja_id,wa:v.loja_whatsapp||'',b:titulo((v.marca||'').trim()),mod:titulo((v.modelo||'').trim()),ver:titulo((v.versao||'').trim()),
   ano:v.ano_modelo||null,anoF:v.ano_fabricacao||null,km:v.km==null?null:(parseInt(v.km)||0),preco:parseInt(v.preco)||0,cambio:v.cambio||'',comb:v.combustivel||'',fotos:v.fotos||[],opc:v.opcionais||[]};}
 function baralhar(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -514,8 +521,9 @@ function intercalar(lista){const g={};lista.forEach(v=>(g[v.loja]=g[v.loja]||[])
 async function carregar(){
   if(API!==null){
     try{
-      const [rl,rv,ra]=await Promise.all([fetch('/api/lojas?path=lojas').then(r=>r.json()),fetch('/api/veiculos?path=veiculos').then(r=>r.json()),fetch('/api/avaliacoes?path=avaliacoes').then(r=>r.json()).catch(()=>[])]);
-      if(Array.isArray(ra))AVAL=intercalar(ra).slice(0,30);   // no máximo 30, sem uma loja dominar
+      // as avaliações vêm sozinhas: não esperam as lojas e o estoque, que são bem mais pesados
+      fetch('/api/avaliacoes?path=avaliacoes').then(r=>r.json()).catch(()=>[]).then(ra=>{AVAL=Array.isArray(ra)?intercalar(ra).slice(0,30):[];pintarAvaliacoes();});   // no máximo 30, sem uma loja dominar
+      const [rl,rv]=await Promise.all([fetch('/api/lojas?path=lojas').then(r=>r.json()),fetch('/api/veiculos?path=veiculos').then(r=>r.json())]);
       if(Array.isArray(rl)&&rl.length)LJ=rl.filter(l=>l.ativa!==false);
       if(Array.isArray(rv)&&rv.length)V=intercalar(rv.map(mapV));
     }catch(e){}
@@ -595,10 +603,10 @@ let abaHome=0;
 function home(){
   // [título, texto, página, imagem ao fundo]
   const tabs=[
-    [T('inicio.caminho1','Comprar um veículo'),T('inicio.caminho1-texto','{veículos} anúncios das {lojas} lojas associadas, cada uma com selo e avaliação real no Google.'),'estoque','fotos-home/comprar.jpg'],
-    [T('inicio.caminho2','Ser um associado'),T('inicio.caminho2-texto','O que a ACEIMA entrega ao lojista da Intendente e o caminho para entrar.'),'associar',''],
-    [T('inicio.caminho3','Conhecer a ACEIMA'),T('inicio.caminho3-texto','{anos} anos representando o comércio da Intendente Magalhães.'),'aceima',''],
-    [T('inicio.caminho4','Serviços do polo'),T('inicio.caminho4-texto','Vistoria, inspeção e comércio credenciado na mesma rua.'),'servicos','']];
+    [T('inicio.caminho1','Conheça a ACEIMA'),T('inicio.caminho1-texto','Uma associação construída pela união de quem acredita no comércio da Intendente e trabalha para que ele cresça com solidez. Há {anos} anos representando o comércio da Intendente Magalhães.'),'aceima',''],
+    [T('inicio.caminho2','Um polo comercial mais do que completo'),T('inicio.caminho2-texto','Empresas de diferentes segmentos, reunidos em um só endereço e identificados pelo selo ACEIMA.'),'associados',''],
+    [T('inicio.caminho3','Seja um associado'),T('inicio.caminho3-texto','Faça parte de uma rede que fortalece sua marca, amplia sua visibilidade e responde junto com você.'),'associar',''],
+    [T('inicio.caminho4','Estoque Automotivo'),T('inicio.caminho4-texto','{veículos} anúncios das {lojas} lojas associadas, cada uma com selo e avaliação real no Google.'),'estoque','fotos-home/comprar.jpg']];
   const C=V.filter(foto).slice(0,4);
   const cs=(c,asp)=>c?`<div class="c" onclick="abrirVeiculo(${c.id})"><div class="ph" style="aspect-ratio:${asp}"><img src="${esc(foto(c))}" alt="${esc(nomeV(c))}" loading="lazy"></div><div class="lb">${esc(nomeV(c))} <b>${precoT(c.preco)}</b></div></div>`:'';
   return `<div style="background:var(--navy)">
@@ -609,7 +617,7 @@ function home(){
   <div class="wrap inn">
    <div>
      <div class="kick c">${T('inicio.chamada','ACEIMA · desde 1998')}</div>
-     <h1>${T('inicio.titulo','Somos o maior polo automotivo')} <br><span style="background:linear-gradient(100deg,#F6C078,#C8862E);-webkit-background-clip:text;background-clip:text;color:transparent">${T('inicio.titulo-dourado','da América Latina.')}</span></h1>
+     <h1 class="tit">${T('inicio.titulo','Somos o maior polo automotivo')}${T('inicio.titulo-dourado','da América Latina.')}</h1>
      <p class="sub">${T('inicio.subtitulo','{lojas} lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.')}</p>
    </div>
    <div class="vtl">
@@ -638,15 +646,21 @@ function home(){
  </div>
 </div>${rodape()}`;}
 // faixa de avaliações: textos reais das avaliações das lojas no Google (a API renova toda semana); o clique abre a avaliação no Google
+let avT0=0;   // quando a faixa apareceu: ao redesenhar a página, ela continua de onde estava
 function avaliacoes(){
-  if(!AVAL.length)return '';
+  if(AVAL&&!AVAL.length)return '';
+  const lista=AVAL||Array(6).fill({autor:'Cliente',loja:'Loja',texto:'. '.repeat(120)});   // enquanto chegam, cartões invisíveis guardam o lugar: os textos de cima não pulam
+  if(AVAL&&!avT0)avT0=performance.now();
+  const dur=Math.round(lista.length*6.6),atraso=avT0?((performance.now()-avT0)/1000)%dur:0;
   const card=a=>`<a class="avc" ${a.link?`href="${esc(a.link)}" target="_blank" rel="noopener"`:''}>
     <div class="avt">${a.foto?`<img class="avf" src="${esc(a.foto)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:`<span class="avf">${iniciais(a.autor)}</span>`}<div><b>${esc(a.autor)}</b><small>${esc(a.loja)}</small></div><span class="avq">“</span></div>
     <p class="avx">${esc(a.texto)}</p></a>`;
-  const h=AVAL.map(card).join('');
-  return `<div class="av"><div class="kick c">${T('inicio.avaliacoes','Avaliações das lojas no Google')}</div>
-   <div class="av-janela"><div class="av-trilho" style="animation-duration:${Math.round(AVAL.length*6.6)}s"><div>${h}</div><div aria-hidden="true">${h.replace(/<a /g,'<a tabindex="-1" ')}</div></div></div><span class="av-g">Google Maps</span></div>`;
+  const h=lista.map(card).join('');
+  return `<div class="av${AVAL?'':' espera'}"><div class="kick c">${T('inicio.avaliacoes','Avaliações das lojas no Google')}</div>
+   <div class="av-janela"><div class="av-trilho" style="animation-duration:${dur}s;animation-delay:-${atraso.toFixed(2)}s"><div>${h}</div><div aria-hidden="true">${h.replace(/<a /g,'<a tabindex="-1" ')}</div></div></div><span class="av-g">Google Maps</span></div>`;
 }
+// as avaliações chegaram: a faixa entra no lugar guardado (ou o lugar some, se não veio nenhuma)
+function pintarAvaliacoes(){const a=document.querySelector('.av');if(!a)return;a.outerHTML=avaliacoes();const n=document.querySelector('.av');if(n)n.classList.add('chegou');}
 // só troca as classes: redesenhar a página reiniciaria o vídeo do fundo
 function destacar(i){if(EDIT)return;abaHome=i;document.querySelectorAll('.vti.tocada').forEach(e=>e.classList.remove('tocada'));['.vti','.himg'].forEach(s=>document.querySelectorAll(s).forEach((e,j)=>e.classList.toggle('on',j===i)));girar();}
 // a lista fica sempre com a altura da maior descrição: a troca não mexe em nada acima nem abaixo, e a sobra fica no fim
