@@ -9,11 +9,10 @@ from PIL import Image
 
 # Lojas cujas fotos de capa seguem o padrão (conferidas uma a uma em 29/09/2026). Selo colado na foto não dá para
 # achar sozinho com segurança, então a loja é conferida por gente. Ficaram de fora: selo, texto ou logo por cima
-# (Alfa Car, Apollo, Astral, Jay Motors, Jazz, Luma Car, Robmar, T.F.A.), tarja em quase todas (Bragança),
-# carro cortado ou fundo poluído (FLX, Garra Vip, GTS IndyCar, HiperCar) e só motos (Riomix).
-# Loja nova só entra depois de conferida.
-LOJAS = ['AG Rio Car', 'Auto Barra', 'BitCar Automóveis', 'Grande Estilo Veículos', 'Lazari',
-         'Maiorano Veículos', 'Perfil Multimarcas', 'TurboMix Veículos']
+# (Alfa Car, Apollo, Astral, Grande Estilo, Jay Motors, Jazz, Luma Car, Robmar, T.F.A.), tarja em quase todas
+# (Bragança), carro cortado, fundo poluído ou foto de todo jeito (FLX, Garra Vip, GTS IndyCar, HiperCar, Lazari)
+# e só motos (Riomix). Loja nova só entra depois de conferida.
+LOJAS = ['AG Rio Car', 'Auto Barra', 'BitCar Automóveis', 'Maiorano Veículos', 'Perfil Multimarcas', 'TurboMix Veículos']
 
 SITE, SAIDA = sys.argv[1].rstrip('/'), sys.argv[2]
 
@@ -43,17 +42,13 @@ def perfeita(url):
     except Exception:
         return False
 
-def escolhe(v):
-    """posição da foto da vitrine: a capa; se ela tiver tarja, a segunda. None se nenhuma servir"""
-    return next((i for i in range(min(2, len(v['fotos']))) if perfeita(v['fotos'][i])), None)
-
 if os.path.exists(SITE):
     veic = json.load(open(SITE, encoding='utf-8'))
 else:
     veic = json.loads(baixa(SITE + '/api/veiculos?path=veiculos&site=1', {'Cookie': os.environ.get('COOKIE', '')}))
 cands = [v for v in veic if v.get('fotos') and v.get('tipo') == 'carro' and v.get('loja_nome') in LOJAS]
-with ThreadPoolExecutor(16) as ex:
-    res = list(ex.map(escolhe, cands))
-fotos = {str(v['id']): i for v, i in sorted(zip(cands, res), key=lambda x: x[0]['id']) if i is not None}
+with ThreadPoolExecutor(16) as ex:   # só a capa: a segunda foto pode ser o painel ou a traseira
+    res = list(ex.map(lambda v: perfeita(v['fotos'][0]), cands))
+fotos = {str(v['id']): 0 for v, ok in sorted(zip(cands, res), key=lambda x: x[0]['id']) if ok}
 json.dump({'fotos': fotos}, open(SAIDA, 'w', encoding='utf-8'), separators=(',', ':'))
 print(f'{len(fotos)} de {len(cands)} carros na vitrine', file=sys.stderr)
