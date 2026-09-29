@@ -45,7 +45,8 @@ window.CONTEUDO = {
     "texto": "A PALAVRA DE QUEM JÁ ESTEVE AQUI!"
   },
   "inicio.empresario-beneficio2": {
-    "texto": "Uma associação, um Estoque "
+    "texto": "Uma associação, um Estoque ",
+    "peso": 700
   },
   "inicio.empresario-beneficio2-texto": {
     "texto": "Lemos o site da sua loja e publicamos os anúncios aqui, atualizados todos os dias."
@@ -55,5 +56,23 @@ window.CONTEUDO = {
   },
   "inicio.estoque-botao1": {
     "texto": "Ver estoque completo"
+  },
+  "inicio.empresario-beneficio1": {
+    "peso": 700
+  },
+  "inicio.empresario-beneficio3": {
+    "peso": 700
+  },
+  "inicio.empresario-beneficio4": {
+    "peso": 700
+  },
+  "inicio.estoque-chamada": {
+    "texto": "Nosso estoque"
+  },
+  "inicio.estoque-texto": {
+    "texto": "Todo um estoque de automóveis centralizados em um site que entrega segurança, credibilidade e variedade."
+  },
+  "inicio.estoque-titulo": {
+    "texto": "{veículos arredondados} veículos,\n{lojas} lojas, um estoque."
   }
 };
