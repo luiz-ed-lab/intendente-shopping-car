@@ -43,5 +43,17 @@ window.CONTEUDO = {
   },
   "inicio.avaliacoes": {
     "texto": "A PALAVRA DE QUEM JÁ ESTEVE AQUI!"
+  },
+  "inicio.empresario-beneficio2": {
+    "texto": "Uma associação, um Estoque "
+  },
+  "inicio.empresario-beneficio2-texto": {
+    "texto": "Lemos o site da sua loja e publicamos os anúncios aqui, atualizados todos os dias."
+  },
+  "inicio.empresario-beneficio3-texto": {
+    "texto": "O contato cai direto no WhatsApp da loja. A venda no nosso site continua sendo sua."
+  },
+  "inicio.estoque-botao1": {
+    "texto": "Ver estoque completo"
   }
 };
