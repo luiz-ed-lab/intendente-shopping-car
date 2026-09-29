@@ -3,7 +3,7 @@
 import fs from 'fs';
 const src = fs.readFileSync(new URL('../api/[...path].js', import.meta.url), 'utf8');
 const trecho = src.slice(src.indexOf('const semAcento'), src.indexOf('// ---------------- ROTEADOR'));
-let config = null, updates = [], chamadas = [], respostas = {};
+let config = null, updates = [], chamadas = [], respostas = {}, migrou = 0;
 let lojas = [{ id: 1, nome: 'HiperCar' }, { id: 2, nome: 'T.F.A. Motors' }, { id: 3, nome: 'Lazari' }];
 const query = async (sql, p) => {
   if (/select valor, em from config/.test(sql)) return { rows: config ? [config] : [] };
@@ -20,7 +20,7 @@ globalThis.fetch = async (url, o) => {
 };
 const rev = (rating, texto, autor) => ({ rating, text: { text: texto }, authorAttribution: { displayName: autor, photoUri: 'https://foto/' + autor, uri: 'https://perfil/' + autor }, googleMapsUri: 'https://maps/' + autor });
 const ok = places => ({ ok: true, status: 200, json: async () => ({ places }) });
-const { avaliacoesGoogle, mesmaLoja } = new Function('query', 'migra', trecho + '; return { avaliacoesGoogle, mesmaLoja };')(query, async () => {});
+const { avaliacoesGoogle, mesmaLoja } = new Function('query', 'migra', trecho + '; return { avaliacoesGoogle, mesmaLoja };')(query, async () => { migrou++; });
 const assert = (c, m) => { if (!c) { console.log('FALHOU:', m); process.exitCode = 1; } else console.log('ok:', m); };
 const passaUmDia = () => { config.em = new Date(Date.now() - 25 * 36e5); chamadas = []; };
 const autores = l => l.map(a => a.autor).sort().join();
@@ -40,8 +40,9 @@ assert(chamadas.length === 3 && autores(l) === 'Ana,Duda', 'primeira vez busca t
 assert(l.find(a => a.autor === 'Ana').link === 'https://maps/Ana' && l.find(a => a.autor === 'Ana').loja === 'HiperCar', 'guarda loja e link');
 assert(updates.length === 2 && updates[0][1] === 4.7, 'atualiza a nota das lojas achadas');
 
-chamadas = []; await avaliacoesGoogle();
+chamadas = []; migrou = 0; await avaliacoesGoogle();
 assert(chamadas.length === 0, 'no mesmo dia não chama o Google de novo');
+assert(migrou === 0, 'no mesmo dia só lê: não espera as migrações do banco');
 
 // dia seguinte: atualiza todas de novo (são menos de 30), inclusive a que falhou
 passaUmDia(); respostas.Lazari = ok([{ displayName: { text: 'Lazari Automóveis' }, reviews: [rev(5, 'Muito bom', 'Edu')] }]);

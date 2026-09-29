@@ -1283,12 +1283,12 @@ async function avaliacoesDaLoja(loja, chave) {
   } catch (_) { return null; }
 }
 async function avaliacoesGoogle() {
-  await migra();
   const { rows: [c] } = await query("select valor, em from config where chave='avaliacoes_google'");
   const guardadas = c ? JSON.parse(c.valor) : {};   // { nome da loja: { em, lista } }
   const todas = () => Object.values(guardadas).flatMap(g => g.lista);
   const chave = process.env.GOOGLE_PLACES_KEY;
   if (!chave || (c && Date.now() - new Date(c.em).getTime() < 864e5)) return todas();
+  await migra();   // só a atualização do dia precisa das colunas novas: quem só lê as avaliações não espera as migrações (eram 3s na primeira visita)
   const { rows: lojas } = await query('select id, nome from lojas where ativa = true');
   const LIMITE_DIA = 30;   // consultas por dia ao Google. NUNCA subir sem autorização do Luiz.
   const idade = l => guardadas[l.nome] ? new Date(guardadas[l.nome].em).getTime() : 0;
@@ -1324,7 +1324,8 @@ export default async function handler(req, res) {
     if (rota === 'conteudo') return autorizado(req) ? await rotaConteudo(req, res) : negar(res);
     if (rota === 'avaliacoes') {
       const lista = await avaliacoesGoogle();
-      res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
+      // 1h nova; depois, por até 7 dias, a Vercel entrega a anterior na hora e busca a nova por trás
+      res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=604800');
       return res.json(lista);
     }
     // login do painel: confere a senha sem nunca devolvê-la
