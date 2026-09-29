@@ -140,12 +140,16 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 /* início: bloco sobre a ACEIMA e parte do empresário, no estilo do NexStudio (tailgrids), a pedido do Luiz (29/09/2026):
    títulos finos com o fim em itálico, muito respiro, números grandes e o painel escuro de cantos redondos */
 .sob{position:relative;background:var(--cl);padding-top:clamp(72px,7vw,136px);margin-top:calc(-1 * var(--canto));border-radius:var(--canto) var(--canto) 0 0}
-.sob-a{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,120px);align-items:center;padding-bottom:clamp(72px,7vw,136px)}
-.sob h2,.emp h2{font-size:clamp(2.4rem,3.3vw,4rem);font-weight:400;letter-spacing:-.04em;line-height:1.04;margin-top:16px;color:var(--ink)}
+.sob-a{display:grid;grid-template-columns:1fr 1fr;column-gap:clamp(40px,6vw,120px);padding-bottom:clamp(72px,7vw,136px)}
+.sob-a>.kick{grid-column:1/-1;margin-bottom:16px}
+/* as duas colunas começam e terminam na mesma linha: à esquerda, título em cima e texto embaixo; à direita, texto em cima e números embaixo */
+.sob-e{display:flex;flex-direction:column;justify-content:space-between}
+.sob-d{display:flex;flex-direction:column;justify-content:space-between;padding:.21vw 0 .32vw}   /* acerto fino: a tinta do texto na linha da tinta do título, e a base dos rótulos na base da última linha */
+.sob h2,.emp h2{font-size:clamp(2.4rem,3.3vw,4rem);font-weight:400;letter-spacing:-.04em;line-height:1.04;color:var(--ink)}
 .sob h2 em,.emp h2 em{font-style:italic}
 .sob h2 em{color:var(--gold)}
-.sob .lead{font-size:clamp(1.12rem,1.3vw,1.55rem);font-weight:400;color:var(--ink);line-height:1.42}
-.sob .lead+p{margin-top:18px;font-size:clamp(.95rem,1vw,1.15rem);line-height:1.55}
+.sob .lead{margin-top:clamp(20px,1.7vw,32px);font-size:clamp(1.12rem,1.3vw,1.55rem);font-weight:400;color:var(--ink);line-height:1.42}
+.sob-d p{font-size:clamp(.95rem,1vw,1.15rem);line-height:1.55}
 .sob p b{font-weight:500;color:var(--ink)}
 .sob-n{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:clamp(36px,3.4vw,64px)}
 .sob-n b{display:block;font-size:clamp(2.8rem,3.6vw,4.4rem);font-weight:400;letter-spacing:-.04em;line-height:1;color:var(--ink)}
@@ -154,9 +158,11 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .hs{margin-top:calc(-1 * var(--canto));border-radius:var(--canto) var(--canto) 0 0}
 .emp h2{color:#fff}
 .emp h2 em{color:var(--gold3)}
-.emp-t{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,120px);align-items:center}
-.emp-t p{color:#93A3B9;font-size:clamp(.95rem,1vw,1.15rem);line-height:1.55}
-.emp-t .btnp{margin-top:clamp(22px,1.9vw,34px)}
+/* título e texto no centro; o texto vai de ponta a ponta, na largura dos benefícios */
+.emp-t{text-align:center}
+.emp-t p{margin-top:clamp(16px,1.4vw,26px);color:#93A3B9;font-size:clamp(1rem,1.1vw,1.25rem);line-height:1.55;text-wrap:pretty}   /* pretty: sem palavra sozinha na última linha */
+/* botão largo, no centro, embaixo dos benefícios: ocupa as duas colunas do meio */
+.emp-4 .btnp{grid-column:2/4;justify-content:center;margin-top:clamp(12px,1.4vw,28px);padding:clamp(18px,1.3vw,24px) 30px}
 .btnp{display:inline-flex;align-items:center;gap:12px;flex:none;padding:17px 30px;border-radius:99px;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;font:600 .8rem/1 var(--f2);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
 .btnp svg{transition:transform .3s var(--ease)}
 .btnp:hover svg{transform:translate(2px,-2px)}
@@ -307,8 +313,10 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .fbar{overflow-x:auto;padding-bottom:4px}
   .assoc-grid{grid-template-columns:1fr!important}
   .sob-a{grid-template-columns:1fr}
-  .emp-t{grid-template-columns:1fr;gap:24px}
+  .sob-d{margin-top:28px}
+  .sob-n{margin-top:32px}
   .emp-4{grid-template-columns:1fr 1fr}
+  .emp-4 .btnp{grid-column:1/-1}
 }
 @media (max-width:760px){
   /* medidas tiradas das telas de celular aprovadas (tela útil de 284px), convertidas em vw */
@@ -377,22 +385,23 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   :root{--canto:4.93vw}
   .gl>.himg{background-position:var(--cel,center)}   /* celular: cada foto mostra a sua parte (a 1 o lado esquerdo, as outras o centro) */
   .sob{padding-top:8.45vw}
-  .sob-a{gap:5.63vw;padding-bottom:11.27vw}
-  .sob h2,.emp h2{font-size:8.1vw;letter-spacing:-.25vw;margin-top:2.46vw}
-  .sob .lead{font-size:4.37vw;line-height:1.4}
-  .sob .lead+p{margin-top:3.52vw;font-size:3.73vw}
+  .sob-a{padding-bottom:11.27vw}
+  .sob-a>.kick{margin-bottom:2.46vw}
+  .sob h2,.emp h2{font-size:8.1vw;letter-spacing:-.25vw}
+  .sob .lead{margin-top:5.63vw;font-size:4.37vw;line-height:1.4}
+  .sob-d{margin-top:3.52vw}
+  .sob-d p{font-size:3.73vw}
   .sob-n{gap:4.23vw;margin-top:7.04vw}
   .sob-n b{font-size:11.27vw}
   .sob-n span{margin-top:2.11vw;font-size:2.46vw;letter-spacing:.42vw}
   .emp{padding:9.86vw 0 16.2vw}   /* 16,2vw: 11,27vw de respiro + 4,93vw do canto do estoque, que sobe por cima */
-  .emp-t{gap:3.52vw}
-  .emp-t p{font-size:3.73vw}
-  .emp-t .btnp{margin-top:6.34vw}
+  .emp-t p{margin-top:3.52vw;font-size:3.73vw}
   .btnp{gap:2.11vw;padding:3.87vw 5.63vw;font-size:3.1vw}
   .emp-4{gap:8.45vw 5.63vw;margin-top:9.86vw}
   .emp-4{--is:9.86vw}
   .emp-4 h3{margin-top:3.52vw;font-size:4.23vw}
   .emp-4 p{margin-top:1.76vw;font-size:3.38vw;line-height:1.45}
+  .emp-4 .btnp{margin-top:1.41vw;padding:4.23vw 5.63vw}
   /* estoque */
   .est-cel{padding:6.34vw 0 0}
   .est-cel .tt{font-size:5.97vw;color:#fff;font-weight:800;margin:0 0 1.06vw}
@@ -708,7 +717,6 @@ function home(){
      <p style="font-size:1rem;max-width:470px">${T('inicio.estoque-texto','Cada anúncio publicado direto pela loja associada, com selo da ACEIMA, avaliação real no Google e contato que cai no WhatsApp de quem vende.')}</p>
      <div class="btns" style="display:flex;gap:12px;margin-top:26px">
        <button class="btn d" onclick="go('estoque')">${T('inicio.estoque-botao1','Ver o estoque completo')}</button>
-       <button class="btn o" onclick="go('estoque');setTimeout(()=>abrirFiltro('marca'),60)">${T('inicio.estoque-botao2','Buscar por marca')}</button>
      </div>
    </div>
    <div class="stag">
@@ -732,12 +740,12 @@ function sobre(){
            ['Selo e rede credenciada','Vistoria, inspeção e serviços na mesma rua, com condição de associado.']];
   return `<section class="sob">
   <div class="wrap sob-a">
-   <div>
-     <div class="kick">${T('inicio.sobre-chamada','A ACEIMA')}</div>
+   <div class="kick">${T('inicio.sobre-chamada','A ACEIMA')}</div>
+   <div class="sob-e">
      <h2>${T('inicio.sobre-titulo','Somos comerciantes que decidiram')} <em>${T('inicio.sobre-titulo-destaque','crescer juntos.')}</em></h2>
-   </div>
-   <div>
      <p class="lead">${T('inicio.sobre-texto1','A ACEIMA nasceu em 1998 da união dos lojistas da Estrada Intendente Magalhães. O objetivo continua o mesmo: um padrão de qualidade que o cliente reconhece em qualquer loja da rua.')}</p>
+   </div>
+   <div class="sob-d">
      <p><b>${T('inicio.sobre-texto2-destaque','Em nome de todas as lojas,')}</b> ${T('inicio.sobre-texto2','negociamos taxas com as financeiras, conferimos a procedência dos veículos e mantemos um SAC próprio. Quem compra aqui sabe a quem recorrer.')}</p>
      <div class="sob-n">
        <div><b>${new Date().getFullYear()-1998}</b><span>${T('inicio.sobre-numero1','anos na Intendente')}</span></div>
@@ -748,16 +756,12 @@ function sobre(){
   <div class="emp">
    <div class="wrap">
     <div class="emp-t">
-     <div>
-       <div class="kick c">${T('inicio.empresario-chamada','Para o empresário')}</div>
-       <h2>${T('inicio.empresario-titulo','Faça parte')} <em>${T('inicio.empresario-titulo-destaque','do maior polo.')}</em></h2>
-     </div>
-     <div>
-       <p>${T('inicio.empresario-texto','Lojas de veículos, motos, serviços automotivos e comércio da Intendente e arredores podem se associar. Cada pedido passa pela diretoria: é isso que mantém o selo confiável para quem compra.')}</p>
-       <button class="btnp" onclick="go('associar')">${T('inicio.empresario-botao','Quero me associar')}${ic('<path d="M7 17 17 7M8 7h9v9"/>',16)}</button>
-     </div>
+     <h2>${T('inicio.empresario-titulo','Faça parte')} <em>${T('inicio.empresario-titulo-destaque','do maior polo.')}</em></h2>
+     <p>${T('inicio.empresario-texto','Lojas de veículos, motos, serviços automotivos e comércio da Intendente e arredores podem se associar. Cada pedido passa pela diretoria: é isso que mantém o selo confiável para quem compra.')}</p>
     </div>
-    <div class="emp-4">${b.map((x,i)=>`<div>${forma(i)}<h3>${T(`inicio.empresario-beneficio${i+1}`,x[0])}</h3><p>${T(`inicio.empresario-beneficio${i+1}-texto`,x[1])}</p></div>`).join('')}</div>
+    <div class="emp-4">${b.map((x,i)=>`<div>${forma(i)}<h3>${T(`inicio.empresario-beneficio${i+1}`,x[0])}</h3><p>${T(`inicio.empresario-beneficio${i+1}-texto`,x[1])}</p></div>`).join('')}
+     <button class="btnp" onclick="go('associar')">${T('inicio.empresario-botao','Quero me associar')}${ic('<path d="M7 17 17 7M8 7h9v9"/>',16)}</button>
+    </div>
    </div>
   </div>
  </section>`;
