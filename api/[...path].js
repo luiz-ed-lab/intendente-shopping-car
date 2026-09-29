@@ -807,7 +807,7 @@ async function rotaParceiros(req, res) {
 async function rotaVeiculos(req, res) {
   if (req.method === 'GET' && doSite(req)) {
     const { rows } = await query(
-      `select v.id, v.loja_id, v.marca, v.modelo, v.versao, v.ano_modelo, v.ano_fabricacao, v.km, v.preco, v.cambio, v.combustivel, v.fotos, v.opcionais,
+      `select v.id, v.loja_id, v.tipo, v.marca, v.modelo, v.versao, v.ano_modelo, v.ano_fabricacao, v.km, v.preco, v.cambio, v.combustivel, v.fotos, v.opcionais,
               l.nome as loja_nome, l.whatsapp as loja_whatsapp
          from veiculos v join lojas l on l.id = v.loja_id
         where v.ativo = true and coalesce(v.oculto,false) = false order by v.sincronizado_em desc limit 3000`);

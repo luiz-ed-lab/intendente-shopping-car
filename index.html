@@ -17,7 +17,7 @@
 <style>
 /* ============ BASE: cópia do CSS dos mockups aprovados ============ */
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--f1:Outfit,sans-serif;--f2:Figtree,sans-serif;--navy:#00091A;--gold:#C8862E;--gold2:#E8A048;--gold3:#F4B05C;--cl:#F6F4F1;--ink:#0B1A33;--mut:#5A6B85;--line:#E3DFDA;--ease:cubic-bezier(.2,.8,.2,1)}
+:root{--f1:Outfit,sans-serif;--f2:Figtree,sans-serif;--navy:#00091A;--gold:#C8862E;--gold2:#E8A048;--gold3:#F4B05C;--cl:#F6F4F1;--ink:#0B1A33;--mut:#5A6B85;--line:#E3DFDA;--ease:cubic-bezier(.2,.8,.2,1);--canto:clamp(28px,2.4vw,44px)}
 body{background:var(--navy);color:var(--ink);font-family:var(--f1);-webkit-font-smoothing:antialiased}
 img{display:block;max-width:100%}
 button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
@@ -107,9 +107,10 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vti .d p{padding-top:10px;font-size:1.08rem}
 .hero .sub,.vti .d p,.hs p{line-height:1.3}   /* textos de apoio da home: linhas mais juntas */
 /* imagem de cada caminho, misturada ao fundo animado */
+.hero{min-height:calc(100vh + var(--canto));padding-bottom:var(--canto)}
 .gl>.himg{position:absolute;inset:0;z-index:1;background:right center/cover no-repeat;mix-blend-mode:screen;opacity:0;transform:scale(1.06);pointer-events:none;
   transition:opacity .7s,transform 1.2s var(--ease)}
-.gl>.himg.on{opacity:.38;transform:none}
+.gl>.himg.on{opacity:.24;transform:none}   /* bem discretas (pedido do Luiz, 29/09/2026) */
 
 /* faixa de avaliações da home: passa sozinha e para com o mouse em cima */
 .meio{flex:1;display:flex;flex-direction:column;justify-content:center}
@@ -138,7 +139,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 
 /* início: bloco sobre a ACEIMA e parte do empresário, no estilo do NexStudio (tailgrids), a pedido do Luiz (29/09/2026):
    títulos finos com o fim em itálico, muito respiro, números grandes e o painel escuro de cantos redondos */
-.sob{position:relative;background:var(--cl);padding-top:clamp(72px,7vw,136px)}
+.sob{position:relative;background:var(--cl);padding-top:clamp(72px,7vw,136px);margin-top:calc(-1 * var(--canto));border-radius:var(--canto) var(--canto) 0 0}
 .sob-a{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,120px);align-items:center;padding-bottom:clamp(72px,7vw,136px)}
 .sob h2,.emp h2{font-size:clamp(2.4rem,3.3vw,4rem);font-weight:400;letter-spacing:-.04em;line-height:1.04;margin-top:16px;color:var(--ink)}
 .sob h2 em,.emp h2 em{font-style:italic}
@@ -149,16 +150,19 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .sob-n{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:clamp(36px,3.4vw,64px)}
 .sob-n b{display:block;font-size:clamp(2.8rem,3.6vw,4.4rem);font-weight:400;letter-spacing:-.04em;line-height:1;color:var(--ink)}
 .sob-n span{display:block;margin-top:14px;font-family:var(--f2);font-size:clamp(.68rem,.7vw,.82rem);font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
-.emp{background:var(--navy);border-radius:clamp(28px,2.4vw,44px);padding:clamp(64px,5.8vw,112px) 0}
+.emp{background:var(--navy);border-radius:var(--canto) var(--canto) 0 0;padding:clamp(64px,5.8vw,112px) 0 calc(clamp(64px,5.8vw,112px) + var(--canto))}
+.hs{margin-top:calc(-1 * var(--canto));border-radius:var(--canto) var(--canto) 0 0}
 .emp h2{color:#fff}
 .emp h2 em{color:var(--gold3)}
-.emp-t{display:flex;align-items:flex-end;justify-content:space-between;gap:48px}
-.emp-t p{max-width:600px;margin-top:20px;color:#93A3B9;font-size:clamp(.95rem,1vw,1.15rem);line-height:1.55}
+.emp-t{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,120px);align-items:center}
+.emp-t p{color:#93A3B9;font-size:clamp(.95rem,1vw,1.15rem);line-height:1.55}
+.emp-t .btnp{margin-top:clamp(22px,1.9vw,34px)}
 .btnp{display:inline-flex;align-items:center;gap:12px;flex:none;padding:17px 30px;border-radius:99px;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;font:600 .8rem/1 var(--f2);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
 .btnp svg{transition:transform .3s var(--ease)}
 .btnp:hover svg{transform:translate(2px,-2px)}
-.emp-4{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(28px,2.8vw,56px);margin-top:clamp(56px,5vw,96px)}
-.emp-i{display:block;width:clamp(44px,3vw,58px);height:auto}
+.emp-4{--is:clamp(44px,3vw,58px);display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(28px,2.8vw,56px);margin-top:clamp(56px,5vw,96px)}
+.emp-i{display:block;width:var(--is);height:var(--is)}
+.emp-a{width:calc(var(--is) * 1.18);background:linear-gradient(#F4B05C,rgba(200,134,46,.3));-webkit-mask:url(marca-nova/simbolo-a-contorno.png) 0 0/100% 100% no-repeat;mask:url(marca-nova/simbolo-a-contorno.png) 0 0/100% 100% no-repeat}
 .emp-4 h3{margin-top:clamp(22px,1.7vw,32px);font-size:clamp(1.12rem,1.25vw,1.5rem);font-weight:400;letter-spacing:-.01em;line-height:1.2;color:#fff}
 .emp-4 p{margin-top:12px;font-size:clamp(.9rem,.92vw,1.06rem);line-height:1.55;color:#93A3B9}
 
@@ -168,6 +172,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .stag .c{border-radius:16px;overflow:hidden;box-shadow:0 16px 36px rgba(11,26,51,.13);background:#fff;border:1px solid var(--line);position:relative;margin-bottom:18px;cursor:pointer}
 .stag .c .ph{width:100%;overflow:hidden;position:relative}
 .stag .c img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.26)}
+.stag .c.perfeita img{transform:none}   /* foto da vitrine (vitrine.json): perfeita, sem zoom, o carro aparece inteiro; o zoom só fica se a vitrine não carregar */
 .stag .lb{position:absolute;left:10px;bottom:10px;background:rgba(6,16,32,.86);color:#fff;font-family:var(--f2);font-size:.72rem;padding:5px 11px;border-radius:99px;display:flex;gap:8px;align-items:center}
 .stag .lb b{color:#F4B05C;font-weight:700}
 
@@ -302,7 +307,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .fbar{overflow-x:auto;padding-bottom:4px}
   .assoc-grid{grid-template-columns:1fr!important}
   .sob-a{grid-template-columns:1fr}
-  .emp-t{flex-direction:column;align-items:flex-start}
+  .emp-t{grid-template-columns:1fr;gap:24px}
   .emp-4{grid-template-columns:1fr 1fr}
 }
 @media (max-width:760px){
@@ -352,7 +357,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .avq{font-size:5.33vw}
   .avc .avx{margin-top:2.13vw;font-size:3.07vw}
   .av-g{padding:0 5.63vw;margin-top:2.13vw;font-size:12px;line-height:1.4}   /* 12px é o mínimo do Google */
-  .hs{min-height:0!important;display:block!important;padding:5.63vw 0 6.34vw!important;margin-top:-4.93vw;border-radius:4.93vw 4.93vw 0 0}
+  .hs{min-height:0!important;display:block!important;padding:5.63vw 0 6.34vw!important}
   .hs-grid{display:flex!important;flex-direction:column;align-items:stretch!important;gap:0!important;padding:0 5.63vw!important}
   .hs-grid>div:first-child{display:contents}
   .hs .kick{order:1;font-size:2.82vw;letter-spacing:.56vw;font-weight:700}
@@ -365,11 +370,13 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .stag .col2{margin-top:0}
   .stag .c{margin-bottom:2.82vw;border-radius:3.52vw;border:0;box-shadow:none;background:#0A1A33}
   .stag .c .ph{aspect-ratio:auto!important;height:32.4vw}
-  .stag .c img{transform:scale(1.5)}
+  .stag .c:not(.perfeita) img{transform:scale(1.5)}
   .stag .lb{left:0;right:0;bottom:0;border-radius:0;display:block;padding:5.63vw 2.46vw 2.11vw;background:linear-gradient(to top,rgba(0,8,22,.92),rgba(0,8,22,0));font-size:3.38vw;font-weight:700}
   .stag .lb b{display:block;font-size:3.27vw;font-weight:800;margin-top:1px}
   /* bloco sobre a ACEIMA: a folha clara sobe por cima do topo (o lugar que era do estoque); o painel do empresário é escuro e o estoque sobe por cima dele */
-  .sob{margin-top:-4.93vw;border-radius:4.93vw 4.93vw 0 0;padding-top:8.45vw}
+  :root{--canto:4.93vw}
+  .gl>.himg{background-position:var(--cel,center)}   /* celular: cada foto mostra a sua parte (a 1 o lado esquerdo, as outras o centro) */
+  .sob{padding-top:8.45vw}
   .sob-a{gap:5.63vw;padding-bottom:11.27vw}
   .sob h2,.emp h2{font-size:8.1vw;letter-spacing:-.25vw;margin-top:2.46vw}
   .sob .lead{font-size:4.37vw;line-height:1.4}
@@ -377,12 +384,13 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .sob-n{gap:4.23vw;margin-top:7.04vw}
   .sob-n b{font-size:11.27vw}
   .sob-n span{margin-top:2.11vw;font-size:2.46vw;letter-spacing:.42vw}
-  .emp{border-radius:4.93vw 4.93vw 0 0;padding:9.86vw 0 16.2vw}   /* 16,2vw: 11,27vw de respiro + 4,93vw do canto do estoque, que sobe por cima */
-  .emp-t{gap:6.34vw}
-  .emp-t p{margin-top:3.52vw;font-size:3.73vw}
+  .emp{padding:9.86vw 0 16.2vw}   /* 16,2vw: 11,27vw de respiro + 4,93vw do canto do estoque, que sobe por cima */
+  .emp-t{gap:3.52vw}
+  .emp-t p{font-size:3.73vw}
+  .emp-t .btnp{margin-top:6.34vw}
   .btnp{gap:2.11vw;padding:3.87vw 5.63vw;font-size:3.1vw}
   .emp-4{gap:8.45vw 5.63vw;margin-top:9.86vw}
-  .emp-i{width:9.86vw}
+  .emp-4{--is:9.86vw}
   .emp-4 h3{margin-top:3.52vw;font-size:4.23vw}
   .emp-4 p{margin-top:1.76vw;font-size:3.38vw;line-height:1.45}
   /* estoque */
@@ -563,6 +571,11 @@ const PARCEIROS=[
   wa:null,site:'https://nxp.digital/reserva/r21-vila-valqueire',siteTxt:'Reservar mesa'}
 ];
 
+// vitrine da home: só fotos perfeitas (regra do Luiz): carro inteiro, sem tarja, sem selo ou texto por cima.
+// vitrine.json é escolhido todo dia pelo GitHub Actions (.github/vitrine.py): { fotos: { id do veículo: posição da foto } }
+let VIT=null;
+function vitrine(){const ok=VIT?V.filter(v=>VIT[v.id]!=null&&v.fotos[VIT[v.id]]):[];return (ok.length>=4?ok:V.filter(foto)).slice(0,4);}
+const fotoVitrine=c=>VIT&&VIT[c.id]!=null&&c.fotos[VIT[c.id]]||foto(c);
 let V=[],LJ=[],AVAL=API===null?[]:avGuardadas(),pronto=false;   // AVAL null: as avaliações ainda estão chegando (primeira visita)
 // as avaliações da última visita aparecem na hora; as que chegam agora ficam guardadas para a próxima
 function avGuardadas(){try{const a=JSON.parse(localStorage.getItem('avaliacoes'));return Array.isArray(a)&&a.length?intercalar(a).slice(0,30):null;}catch(e){return null;}}
@@ -580,7 +593,9 @@ async function carregar(){
         if(Array.isArray(ra))try{localStorage.setItem('avaliacoes',JSON.stringify(ra));}catch(e){}
         if(AVAL===null){AVAL=Array.isArray(ra)?intercalar(ra).slice(0,30):[];pintarAvaliacoes();}   // no máximo 30, sem uma loja dominar
       });
-      const [rl,rv]=await Promise.all([fetch('/api/lojas?path=lojas&site=1').then(r=>r.json()),fetch('/api/veiculos?path=veiculos&site=1').then(r=>r.json())]);
+      const [rl,rv,vit]=await Promise.all([fetch('/api/lojas?path=lojas&site=1').then(r=>r.json()),fetch('/api/veiculos?path=veiculos&site=1').then(r=>r.json()),
+        fetch('/vitrine.json').then(r=>r.ok?r.json():null).catch(()=>null)]);
+      VIT=vit&&vit.fotos||null;
       if(Array.isArray(rl)&&rl.length)LJ=rl.filter(l=>l.ativa!==false);
       if(Array.isArray(rv)&&rv.length)V=intercalar(rv.map(mapV));
     }catch(e){}
@@ -658,17 +673,17 @@ const rodape=()=>`<footer class="rod"><div class="wrap">
 /* ==================== INÍCIO ==================== */
 let abaHome=0;
 function home(){
-  // [título, texto, página, imagem ao fundo]
+  // [título, texto, página, imagem ao fundo, parte da imagem que aparece no celular]
   const tabs=[
-    [T('inicio.caminho1','Conheça a ACEIMA'),T('inicio.caminho1-texto','Uma associação construída pela união de quem acredita no comércio da Intendente e trabalha para que ele cresça com solidez. Há {anos} anos representando o comércio da Intendente Magalhães.'),'aceima','fotos-home/aceima.webp'],
+    [T('inicio.caminho1','Conheça a ACEIMA'),T('inicio.caminho1-texto','Uma associação construída pela união de quem acredita no comércio da Intendente e trabalha para que ele cresça com solidez. Há {anos} anos representando o comércio da Intendente Magalhães.'),'aceima','fotos-home/aceima.webp','25% center'],
     [T('inicio.caminho2','Um polo comercial mais do que completo'),T('inicio.caminho2-texto','Empresas de diferentes segmentos, reunidos em um só endereço e identificados pelo selo ACEIMA.'),'associados','fotos-home/polo.webp'],
     [T('inicio.caminho3','Seja um associado'),T('inicio.caminho3-texto','Faça parte de uma rede que fortalece sua marca, amplia sua visibilidade e responde junto com você.'),'associar','fotos-home/associar.webp'],
     [T('inicio.caminho4','Estoque Automotivo'),T('inicio.caminho4-texto','{veículos} anúncios das {lojas} lojas associadas, cada uma com selo e avaliação real no Google.'),'estoque','fotos-home/estoque.webp']];
-  const C=V.filter(foto).slice(0,4);
-  const cs=(c,asp)=>c?`<div class="c" onclick="abrirVeiculo(${c.id})"><div class="ph" style="aspect-ratio:${asp}"><img src="${esc(foto(c))}" alt="${esc(nomeV(c))}" loading="lazy"></div><div class="lb">${esc(nomeV(c))} <b>${precoT(c.preco)}</b></div></div>`:'';
+  const C=vitrine();
+  const cs=(c,asp)=>c?`<div class="c${VIT&&VIT[c.id]!=null?' perfeita':''}" onclick="abrirVeiculo(${c.id})"><div class="ph" style="aspect-ratio:${asp}"><img src="${esc(fotoVitrine(c))}" alt="${esc(nomeV(c))}" loading="lazy"></div><div class="lb">${esc(nomeV(c))} <b>${precoT(c.preco)}</b></div></div>`:'';
   return `<div style="background:var(--navy)">
- <div class="gl hero" style="min-height:100vh;display:flex;flex-direction:column">${LUZ}
-  ${tabs.map((t,i)=>`<div class="himg${i===abaHome?' on':''}"${t[3]?` style="background-image:url('${t[3]}')"`:''}></div>`).join('')}
+ <div class="gl hero" style="display:flex;flex-direction:column">${LUZ}
+  ${tabs.map((t,i)=>`<div class="himg${i===abaHome?' on':''}"${t[3]?` style="background-image:url('${t[3]}')${t[4]?';--cel:'+t[4]:''}"`:''}></div>`).join('')}
   ${hd()}
   <div class="meio">
   <div class="wrap inn">
@@ -707,9 +722,9 @@ function home(){
 const FORMAS=[
   '<rect width="26" height="26" rx="7"/><rect x="30" width="26" height="26" rx="7"/><rect y="30" width="26" height="26" rx="7"/><rect x="30" y="30" width="26" height="26" rx="7"/>',   // quatro lojas, um bloco
   '<path d="M0 0h18l16 28-16 28H0l16-28zM22 0h18l16 28-16 28H22l16-28z"/>',   // anda sozinho
-  '<path d="M28 2a26 26 0 1 1-13 48.5L3 55l.6-18.1A26 26 0 0 1 28 2z"/>',   // conversa
-  '<path d="M10 10h36v36H10z"/><path d="M28 2.5 53.5 28 28 53.5 2.5 28z"/>'];   // selo
-const forma=i=>`<svg class="emp-i" viewBox="0 0 56 56" aria-hidden="true"><defs><linearGradient id="empG${i}" x1="0" y1="0" x2="0" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F4B05C"/><stop offset="1" stop-color="#C8862E" stop-opacity=".3"/></linearGradient></defs><g fill="url(#empG${i})">${FORMAS[i]}</g></svg>`;
+  '<path d="M28 2a26 26 0 1 1-13 48.5L3 55l.6-18.1A26 26 0 0 1 28 2z"/>'];   // conversa
+// a quarta é a logo A (selo da ACEIMA), recortada da logo do topo
+const forma=i=>i===3?'<span class="emp-i emp-a" aria-hidden="true"></span>':`<svg class="emp-i" viewBox="0 0 56 56" aria-hidden="true"><defs><linearGradient id="empG${i}" x1="0" y1="0" x2="0" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F4B05C"/><stop offset="1" stop-color="#C8862E" stop-opacity=".3"/></linearGradient></defs><g fill="url(#empG${i})">${FORMAS[i]}</g></svg>`;
 function sobre(){
   const b=[['Taxas negociadas em bloco','Nenhuma loja consegue sozinha as condições que {lojas} conseguem juntas.'],
            ['Estoque no site, sem digitar','Lemos o site da sua loja e publicamos os anúncios aqui, atualizados todo dia.'],
@@ -736,9 +751,11 @@ function sobre(){
      <div>
        <div class="kick c">${T('inicio.empresario-chamada','Para o empresário')}</div>
        <h2>${T('inicio.empresario-titulo','Faça parte')} <em>${T('inicio.empresario-titulo-destaque','do maior polo.')}</em></h2>
-       <p>${T('inicio.empresario-texto','Lojas de veículos, motos, serviços automotivos e comércio da Intendente e arredores podem se associar. Cada pedido passa pela diretoria: é isso que mantém o selo confiável para quem compra.')}</p>
      </div>
-     <button class="btnp" onclick="go('associar')">${T('inicio.empresario-botao','Quero me associar')}${ic('<path d="M7 17 17 7M8 7h9v9"/>',16)}</button>
+     <div>
+       <p>${T('inicio.empresario-texto','Lojas de veículos, motos, serviços automotivos e comércio da Intendente e arredores podem se associar. Cada pedido passa pela diretoria: é isso que mantém o selo confiável para quem compra.')}</p>
+       <button class="btnp" onclick="go('associar')">${T('inicio.empresario-botao','Quero me associar')}${ic('<path d="M7 17 17 7M8 7h9v9"/>',16)}</button>
+     </div>
     </div>
     <div class="emp-4">${b.map((x,i)=>`<div>${forma(i)}<h3>${T(`inicio.empresario-beneficio${i+1}`,x[0])}</h3><p>${T(`inicio.empresario-beneficio${i+1}-texto`,x[1])}</p></div>`).join('')}</div>
    </div>

@@ -1,0 +1,32 @@
+name: Vitrine da página inicial
+
+# Todo dia escolhe as fotos da vitrine da home: só fotos perfeitas (carro inteiro, sem tarja,
+# sem selo por cima). Grava vitrine.json no repositório quando muda, e a Vercel publica.
+on:
+  schedule:
+    - cron: '30 10 * * *'   # 7h30 no Rio, depois do importador da Vercel (9h UTC)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  vitrine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pillow numpy
+      - name: Escolher as fotos
+        run: python .github/vitrine.py "https://intendente-shopping-car.vercel.app" vitrine.json
+      - name: Gravar se mudou
+        run: |
+          if git diff --quiet -- vitrine.json; then echo "Nada mudou."; exit 0; fi
+          git config user.name "vitrine-aceima"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vitrine.json
+          git commit -m "Vitrine da home: fotos do dia"
+          git pull --rebase
+          git push
