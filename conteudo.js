@@ -92,5 +92,8 @@ window.CONTEUDO = {
   },
   "aceima.historia2": {
     "texto": "Hoje, A Intendente é um polo comercial que busca trazer segurança e credibilidade não só a lojas de automóveis como também a todas as empresas que completam esse segmento."
+  },
+  "veiculo.voltar": {
+    "cor": "#00091A"
   }
 };
