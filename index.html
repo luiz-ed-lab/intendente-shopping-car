@@ -76,16 +76,46 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .drop button{display:block;width:100%;text-align:left;font-family:var(--f2);font-size:.83rem;color:#cfd9e8;padding:9px 12px;border-radius:8px}
 .drop button:hover,.drop button.on{background:rgba(244,176,92,.14);color:var(--gold3)}
 
-/* mosaico do estoque */
-.mosg{display:grid;gap:16px;height:420px;align-items:stretch;margin-bottom:16px}
-.mosc{display:flex;flex-direction:column;gap:16px;min-height:0;overflow:hidden}
-.tilef{position:relative;margin:0;min-height:0;border-radius:14px;overflow:hidden;background:#0A1A33;box-shadow:0 14px 34px rgba(0,0,0,.34);cursor:pointer}
-.tilef img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.5);transform-origin:center 50%}
-.tilef figcaption{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 12px;display:flex;align-items:center;gap:10px;background:linear-gradient(to top,rgba(0,8,22,.9),rgba(0,8,22,0))}
-.tilef .nm{color:#fff;font-weight:700;font-size:.9rem;text-shadow:0 1px 6px rgba(0,0,0,.6)}
-.tilef .pr{margin-left:auto;font-family:var(--f2);font-weight:800;font-size:.84rem;color:#00112C;background:linear-gradient(135deg,#C8862E,#F0AD57);padding:5px 11px;border-radius:7px;white-space:nowrap}
-.tilef:hover img{transform:scale(1.56)}
-.tilef img{transition:transform .5s}
+/* estoque: topo centralizado (pedido do Luiz, 30/09/2026) */
+.est-top{text-align:center;margin-bottom:22px}
+.est-top h2{margin-top:9px;color:#fff;font-size:2rem}
+.est-f .fbar{flex-wrap:wrap;justify-content:center;overflow:visible}
+/* anúncios no estilo do modelo Photography Portfolio (21st.dev, @ecarry), pedido do Luiz em 30/09/2026: só as fotos do modelo.
+   Foto em 4:3, exata como a loja enviou (sem zoom). Etiqueta no canto de cima com o modelo e o ano, recortada na foto como no modelo,
+   e o preço no canto de baixo, do mesmo jeito. Com o mouse, a foto desfoca, a etiqueta mostra o nome completo e a seta,
+   e aparece o que não está no nome (km, câmbio, combustível e a loja). As etiquetas têm a cor da folha em que os anúncios ficam. */
+.est-lista{flex:1;background:var(--navy);border-radius:var(--canto) var(--canto) 0 0;padding:clamp(24px,2vw,40px) 0 60px}
+.ancs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.anc{position:relative;cursor:pointer;outline:0}
+.anc-f{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#0A1A33}
+.anc-f img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease-in-out,filter .3s ease-out,transform .3s ease-out}
+.anc-f img.ok{opacity:1}
+.anc-f img.ja{transition:filter .3s ease-out,transform .3s ease-out}   /* já estava carregada: aparece sem piscar */
+.anc-t,.anc-p{position:absolute;z-index:2;background:var(--navy);font:300 .875rem/1.3 var(--f2)}
+.anc-t{top:0;left:0;display:flex;align-items:center;max-width:calc(100% - 40px);padding:8px 16px 12px;border-bottom-right-radius:18px;color:#fff}
+.anc-p{right:0;bottom:0;padding:12px 16px 8px;border-top-left-radius:18px;color:var(--gold3);font-weight:600}
+/* cantos de dentro do recorte, como no modelo: um quarto de círculo na cor da folha */
+.anc-t::before,.anc-t::after,.anc-p::before,.anc-p::after{content:'';position:absolute;width:18px;height:18px}
+.anc-t::before,.anc-t::after{background:radial-gradient(circle at 100% 100%,transparent 17.5px,var(--navy) 18px)}
+.anc-t::before{top:100%;left:0}
+.anc-t::after{top:0;left:100%}
+.anc-p::before,.anc-p::after{background:radial-gradient(circle at 0 0,transparent 17.5px,var(--navy) 18px)}
+.anc-p::before{bottom:100%;right:0}
+.anc-p::after{bottom:0;right:100%}
+.anc-l{display:none}
+.anc-s{flex:none;width:0;overflow:hidden;transition:width .3s ease-out}
+.anc-s svg{display:block;margin-left:8px}
+.anc-i{position:absolute;inset:0;z-index:1;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:6px;padding:52px 28px;opacity:0;transform:translateY(6px);transition:opacity .3s ease-out,transform .3s ease-out;pointer-events:none}
+.anc-i span{padding:7px 12px;border-radius:99px;background:rgba(0,9,26,.74);border:1px solid rgba(255,255,255,.14);color:#fff;font:500 .8rem/1 var(--f2);white-space:nowrap}
+@media (hover:hover){
+  .anc:hover .anc-f img,.anc:focus-visible .anc-f img{filter:blur(4px);transform:scale(1.04)}
+  .anc:hover .anc-c,.anc:focus-visible .anc-c{display:none}
+  .anc:hover .anc-l,.anc:focus-visible .anc-l{display:block;animation:ancNome .3s ease-out}
+  .anc:hover .anc-s,.anc:focus-visible .anc-s{width:24px}
+  .anc:hover .anc-i,.anc:focus-visible .anc-i{opacity:1;transform:none}
+}
+@keyframes ancNome{from{opacity:0}}
+@media (max-width:1399px){.ancs{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 /* caminhos da home */
 /* o mouse destaca, o clique leva para a página; a altura total não muda, então nada acima se mexe */
@@ -346,6 +376,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .vti.on h3{font-size:2rem}
   .hs-grid,.dup{grid-template-columns:1fr!important;gap:36px!important}
   .fbar{overflow-x:auto;padding-bottom:4px}
+  .ancs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .assoc-grid{grid-template-columns:1fr!important}
   .sob-a{grid-template-columns:1fr}
   .sob-d{margin-top:28px}
@@ -462,13 +493,18 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .fbar .fp svg{display:none}
   .fbar>span:nth-child(3){order:1}        /* celular: Todos, Marca, Ano, Preço, depois o resto */
   .fbar>span:nth-child(n+6){order:2}
-  .fbar>span:nth-child(9){display:none}
-  .est-wrap{padding-top:0!important}
-  .est-f{margin-bottom:4.23vw!important}
-  .tilef{border-radius:3.52vw;box-shadow:none}
-  .tilef figcaption{display:block;padding:5.63vw 2.46vw 2.11vw}
-  .tilef .nm{display:block;font-size:3.38vw;text-shadow:none}
-  .tilef .pr{display:block;background:none;padding:0;color:#F4B05C;font-size:3.27vw;margin-top:1px;border-radius:0}
+  .est-wrap{padding-top:0!important;padding-bottom:5.63vw!important}
+  .est-cel{text-align:center}
+  /* anúncios: uma coluna, como o modelo no celular (medidas do modelo em 375px) */
+  .est-lista{padding:4.27vw 0 11.27vw}
+  .ancs{grid-template-columns:1fr;gap:3.2vw}
+  .anc-f{border-radius:2.67vw}
+  .anc-t,.anc-p{font-size:3.73vw}
+  .anc-t{padding:2.13vw 4.27vw 3.2vw;border-bottom-right-radius:4.8vw;max-width:calc(100% - 10.67vw)}
+  .anc-p{padding:3.2vw 4.27vw 2.13vw;border-top-left-radius:4.8vw}
+  .anc-t::before,.anc-t::after,.anc-p::before,.anc-p::after{width:4.8vw;height:4.8vw}
+  .anc-t::before,.anc-t::after{background:radial-gradient(circle at 100% 100%,transparent 4.67vw,var(--navy) 4.8vw)}
+  .anc-p::before,.anc-p::after{background:radial-gradient(circle at 0 0,transparent 4.67vw,var(--navy) 4.8vw)}
   /* associados: no celular é a lista escura */
   .pg-assoc{background:var(--navy)!important}
   .pg-assoc>video.luz{opacity:.17;mix-blend-mode:screen;filter:brightness(.78) saturate(.9)}
@@ -553,11 +589,19 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 const fmt=n=>Number(n||0).toLocaleString('pt-BR');
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 const uniq=a=>[...new Set(a.filter(Boolean))].sort((x,y)=>String(x).localeCompare(String(y),'pt-BR'));
-// "JEEP COMPASS" → "Jeep Compass"; siglas e modelos com número ficam em caixa alta (HB20, HR-V, S10, BMW)
-const SIGLAS=['BMW','BYD','JAC','RAM','GWM','GM','VW','ABS','TSI','MPI','GNV','4X4','CVT','LTZ','LT','LS','GLS','GTI','SUV','EX','LX','EXL','XEI','XLI'];
-const titulo=s=>String(s||'').split(/\s+/).map(w=>{const u=w.toUpperCase();
-  if(/\d/.test(w)||SIGLAS.includes(u)||(w.includes('-')&&w.split('-').every(p=>p.length<=2)))return u;
-  return w.toLowerCase().replace(/(^|[\-\/])([a-zà-ú])/g,(m,a,b)=>a+b.toUpperCase());}).join(' ');
+// "JEEP COMPASS 1.3 T270 TURBO FLEX 4P AUTOMÁTICO" → "Jeep Compass 1.3 T270 Turbo Flex 4P Automático": só a primeira letra de cada palavra
+// maiúscula (pedido do Luiz, 30/09/2026). Ficam em maiúsculas as palavras curtas técnicas: as que têm número (4P, 16V, 1.0, HB20, T270),
+// as siglas da lista (TSI, TFSI, MPI, CVT, LTZ, BMW...) e as de partes curtas com hífen (HR-V, GR-S). "de", "da", "e"... ficam minúsculas.
+const SIGLAS=['BMW','BYD','JAC','RAM','GWM','GM','VW','GAC','KTM','CAOA','MV','DS','ABS','CBS','TSI','TFSI','MPI','MPFI','MI','MSI','SCE','TCE','DCI','TGDI','CGI','GDI','THP','HPE','VVT','VCT','VTEC','MIVEC','TDI','TD','CRDI','GNV','CVT','DCT','DSG','EDC','AT','MT','AWD','AWC','FWD','RWD','PHEV','HEV','DHT','KW','CV','CC','SUV',
+  'LT','LTZ','LS','LX','LXL','LXR','EX','EXL','EXS','DX','SE','SEL','SR','SRV','SV','SL','GL','GLS','GLX','GLI','GT','GTI','GTS','RS','ST','XS','XL','XLS','XLT','XLI','XEI','XR','XRE','XRX','XTZ','XVS','YBR','YS','ZR','NK','NXR','PCX','CG','CB','NMAX','XMAX','ADV','TXS','VTI','HSE','CD','CS','STD','ED','EL','ELX','DI','SED','MHD','SFI','GS','GSX','XE','SRX','SW','CL','DLX','PDK','AMG','RT','ACT',
+  'GLA','GLC','GLE','CLA','SLK','CRV','HRV','WRV','ASX','TT','II','III','IV','VI','VII'];
+const MINUSC=['de','da','do','das','dos','e','com','sem','para','em'];
+const maiusc1=p=>p.toLowerCase().replace(/[a-zà-ÿ]/,c=>c.toUpperCase());
+const titulo=s=>String(s||'').trim().split(/\s+/).filter(Boolean).map((w,i)=>{
+  if(i&&MINUSC.includes(w.toLowerCase()))return w.toLowerCase();
+  if(/\d/.test(w)||(w.includes('-')&&w.split('-').every(p=>p.length<=2)))return w.toUpperCase();
+  return w.split(/([\-\/.,()])/).map(p=>SIGLAS.includes(p.toUpperCase())?p.toUpperCase():maiusc1(p)).join('');}).join(' ');
+const combNome=s=>({eletrico:'Elétrico',alcool:'Álcool',hibrido:'Híbrido'})[norm(s)]||s||'';   // algumas lojas mandam sem acento
 
 /* número por extenso (textos aprovados usam números escritos) */
 const EU=['zero','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
@@ -645,7 +689,7 @@ let V=[],LJ=[],AVAL=API===null?[]:avGuardadas(),pronto=false;   // AVAL null: as
 // as avaliações da última visita aparecem na hora; as que chegam agora ficam guardadas para a próxima
 function avGuardadas(){try{const a=JSON.parse(localStorage.getItem('avaliacoes'));return Array.isArray(a)&&a.length?intercalar(a).slice(0,30):null;}catch(e){return null;}}
 function mapV(v){return{id:v.id,loja:v.loja_nome||'',lojaId:v.loja_id,wa:v.loja_whatsapp||'',b:titulo((v.marca||'').trim()),mod:titulo((v.modelo||'').trim()),ver:titulo((v.versao||'').trim()),
-  ano:v.ano_modelo||null,anoF:v.ano_fabricacao||null,km:v.km==null?null:(parseInt(v.km)||0),preco:parseInt(v.preco)||0,cambio:v.cambio||'',comb:v.combustivel||'',fotos:v.fotos||[],opc:v.opcionais||[]};}
+  ano:v.ano_modelo||null,anoF:v.ano_fabricacao||null,km:v.km==null?null:(parseInt(v.km)||0),preco:parseInt(v.preco)||0,cambio:v.cambio||'',comb:combNome(v.combustivel),fotos:v.fotos||[],opc:v.opcionais||[]};}
 function baralhar(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 // nenhuma loja domina a vitrine: rodízio entre as lojas, ordem nova a cada visita
 function intercalar(lista){const g={};lista.forEach(v=>(g[v.loja]=g[v.loja]||[]).push(v));const ks=baralhar(Object.keys(g));ks.forEach(k=>baralhar(g[k]));
@@ -862,7 +906,8 @@ const F={marca:'',modelo:'',ano:'',preco:'',loja:'',cambio:'',comb:'',q:'',ord:'
 const PRECOS=[['Até R$ 50 mil',0,50000],['R$ 50 a 80 mil',50000,80000],['R$ 80 a 120 mil',80000,120000],['Acima de R$ 120 mil',120000,1e12]];
 const ORDENS=['Mais recentes','Menor preço','Maior preço','Menor km','Mais novos'];
 const FILTROS=[['marca','Marca'],['modelo','Modelo'],['ano','Ano'],['preco','Preço'],['loja','Loja associada'],['cambio','Câmbio'],['comb','Combustível']];
-let mostrar=32,buscando=false;
+const LOTE=36;   // anúncios por vez: fecha as linhas de 2, 3 e 4 colunas
+let mostrar=LOTE,buscando=false;
 function opcoes(k){
   if(k==='marca')return uniq(V.map(v=>v.b));
   if(k==='modelo')return uniq(V.filter(v=>!F.marca||v.b===F.marca).map(v=>v.mod));
@@ -893,39 +938,46 @@ function filtrar(){
   return l;
 }
 const algumFiltro=()=>FILTROS.some(f=>F[f[0]])||F.q;
-function limparFiltros(){FILTROS.forEach(f=>F[f[0]]='');F.q='';buscando=false;mostrar=32;render(false);}
+function limparFiltros(){FILTROS.forEach(f=>F[f[0]]='');F.q='';buscando=false;mostrar=LOTE;render(false);}
 function filtroLinha(){
   return `<div class="fbar">
    <span class="fp ${algumFiltro()?'drk':'on'}" onclick="limparFiltros()">Todos<span class="so-desk"> os veículos</span></span>
    ${FILTROS.map(f=>`<span class="fp ${F[f[0]]?'on':'drk'}" id="fp-${f[0]}" onclick="abrirFiltro('${f[0]}')">${esc(F[f[0]]||f[1])}${ic(I_DOWN,13)}</span>`).join('')}
-   <span style="flex:1"></span>
-   ${buscando||F.q?`<span class="fp drk">${ic(I_BUSCA,14)}<input id="busca" value="${esc(F.q)}" placeholder="Marca, modelo ou loja" oninput="F.q=this.value;mostrar=32;pintarMosaico()"></span>`
+   <span class="fp drk so-desk" id="fp-ord" onclick="abrirFiltro('ord')">Ordenar: ${esc(F.ord.toLowerCase())}${ic(I_DOWN,13)}</span>
+   ${buscando||F.q?`<span class="fp drk">${ic(I_BUSCA,14)}<input id="busca" value="${esc(F.q)}" placeholder="Marca, modelo ou loja" oninput="F.q=this.value;mostrar=LOTE;pintarAnuncios()"></span>`
      :`<span class="fp drk" onclick="buscando=true;render(false);setTimeout(()=>document.getElementById('busca').focus(),20)">${ic(I_BUSCA,14)}Buscar</span>`}
   </div>`;
 }
-// padrões do mosaico aprovado: 4 colunas, 2 fotos por coluna, 420px de altura, sempre deitadas
-const PADROES=[{w:[1.22,1,1.05,1],s:[[.594,.406],[.47,.53],[.554,.446],[.46,.54]]},{w:[1,1.05,1,1.22],s:[[.54,.46],[.446,.554],[.53,.47],[.406,.594]]}];
-const PADROES_CEL=[[33.8,39.4,31,52.8],[39.4,31,33.8,56.3]];   // celular: alturas em vw tiradas da tela aprovada
-const tileF=(c,estilo)=>`<figure class="tilef" style="${estilo}" onclick="abrirVeiculo(${c.id})">${foto(c)?`<img src="${esc(foto(c))}" alt="${esc(nomeV(c))}" loading="lazy">`:''}<figcaption><span class="nm">${esc(nomeV(c))} ${c.ano||''}</span><span class="pr">${precoT(c.preco)}</span></figcaption></figure>`;
-function mosaico(lista){
-  const cel=matchMedia('(max-width:760px)').matches;let h='';
-  if(cel){
-    for(let i=0,k=0;i<lista.length;i+=8,k++){const b=lista.slice(i,i+8),a=[b[0],b[2],b[4],b[6]].filter(Boolean),c=[b[1],b[3],b[5],b[7]].filter(Boolean);
-      h+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:2.82vw;margin-bottom:2.82vw;align-items:start">${[a,c].map((col,j)=>`<div style="display:flex;flex-direction:column;gap:2.82vw">${col.map((x,n)=>tileF(x,'height:'+PADROES_CEL[(j+k)%2][n]+'vw')).join('')}</div>`).join('')}</div>`;}
-    return h;
-  }
-  for(let i=0,k=0;i<lista.length;i+=8,k++){
-    const b=lista.slice(i,i+8),p=PADROES[k%2];let n=0;const cols=[];
-    p.s.forEach((sp,j)=>{const t=sp.map(f=>b[n]?tileF(b[n++],'flex:'+f):'').join('');if(t)cols.push([p.w[j],t]);});
-    h+=`<div class="mosg" style="grid-template-columns:${cols.map(c=>c[0]+'fr').join(' ')}">${cols.map(c=>`<div class="mosc">${c[1]}</div>`).join('')}</div>`;
-  }
-  return h;
-}
-function pintarMosaico(){
+// anúncio no estilo do modelo: etiqueta com o modelo e o ano; com o mouse, o nome completo, a seta e o que não está no nome
+const SETA='<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>';
+function nomeTodo(c){   // marca, modelo, versão e ano; motos e alguns carros repetem o modelo no começo da versão
+  const m=c.mod||'';let ver=c.ver||'';
+  if(m&&(norm(ver)===norm(m)||norm(ver).startsWith(norm(m)+' ')))ver=ver.slice(m.length).trim();
+  return [c.b,m,ver,c.ano].filter(Boolean).join(' ');}
+// modelo e ano ("Polo 2018"); modelo só de número leva a marca junto ("Peugeot 208 2018", "Omoda 5 2027")
+const nomeCurto=c=>[/[a-zà-ÿ]/i.test(c.mod)?c.mod:[c.b,c.mod].filter(Boolean).join(' '),c.ano].filter(Boolean).join(' ');
+function extras(c){   // km, câmbio, combustível e loja, sem repetir o que o nome já diz
+  const n=norm(nomeTodo(c)),cb=norm(c.cambio);
+  const cambio=!cb?'':cb==='manual'?(/\bmanual\b/.test(n)?'':'Manual'):cb==='cvt'?(/\b(cvt|xtronic|x-tronic|multidrive)\b/.test(n)?'':'CVT')
+    :/autom/.test(cb)?(/\b(aut|automatico|automatic|automatizado|at\d?|eat\d|cvt|dct|dsg|edc|tiptronic|multidrive|xtronic|x-tronic|powershift|geartronic|steptronic)\b/.test(n)?'':'Automático'):titulo(c.cambio);
+  const comb=c.comb&&!n.includes(norm(c.comb))?titulo(c.comb):'';
+  return [c.km!=null?fmt(c.km)+' km':'',cambio,comb,c.loja].filter(Boolean);}
+const anuncio=c=>`<div class="anc" tabindex="0" onclick="abrirVeiculo(${c.id})" onkeydown="if(event.key==='Enter')abrirVeiculo(${c.id})">
+  <div class="anc-f">${foto(c)?`<img src="${esc(foto(c))}" alt="${esc(nomeTodo(c))}" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">`:''}<div class="anc-i">${extras(c).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>
+  <div class="anc-t"><span class="anc-c">${esc(nomeCurto(c))}</span><span class="anc-l">${esc(nomeTodo(c))}</span><span class="anc-s">${ic(SETA,14)}</span></div>
+  <div class="anc-p">${precoT(c.preco)}</div></div>`;
+const jaCarregadas=el=>el.querySelectorAll('.anc-f img').forEach(i=>{if(i.complete&&i.naturalWidth)i.classList.add('ok','ja');});
+function pintarAnuncios(){   // desenha a lista de novo: filtros, ordem e busca
   const l=filtrar(),el=document.getElementById('mos');if(!el)return;
   const nc=document.getElementById('estNc');if(nc)nc.textContent=`${fmt(l.length)} ${l.length===1?'veículo':'veículos'}`;
   document.getElementById('estN').textContent=algumFiltro()?`${fmt(l.length)} ${l.length===1?'veículo encontrado':'veículos encontrados'}`:`${fmt(l.length)} veículos, sempre intercalados entre as ${nLojas()} lojas`;
-  el.innerHTML=l.length?mosaico(l.slice(0,mostrar)):`<div class="vazio">Nenhum veículo com esses filtros. <a onclick="limparFiltros()">Limpar filtros</a></div>`;
+  el.innerHTML=l.length?`<div class="ancs" id="ancs">${l.slice(0,mostrar).map(anuncio).join('')}</div>`:`<div class="vazio">Nenhum veículo com esses filtros. <a onclick="limparFiltros()">Limpar filtros</a></div>`;
+  jaCarregadas(el);
+  const s=document.getElementById('mais');if(s)s.style.display=l.length>mostrar?'block':'none';
+}
+function maisAnuncios(){   // chegou ao fim da lista: acrescenta os próximos sem desenhar de novo os que já estão na tela
+  const l=filtrar(),g=document.getElementById('ancs');if(!g||l.length<=mostrar)return;
+  g.insertAdjacentHTML('beforeend',l.slice(mostrar,mostrar+LOTE).map(anuncio).join(''));mostrar+=LOTE;
   const s=document.getElementById('mais');if(s)s.style.display=l.length>mostrar?'block':'none';
 }
 function estoque(){
@@ -933,20 +985,18 @@ function estoque(){
  ${hd()}
  <div class="wrap est-wrap" style="padding-top:26px;padding-bottom:28px">
    <div class="so-cel est-cel"><h2 class="tt" id="estNc">${fmt(nVeic())} veículos</h2><p class="tts">${T('estoque.subtitulo-celular','Intercalados entre as {lojas} lojas')}</p></div>
-   <div class="est-top so-desk" style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px">
-     <div><div class="kick c">${T('estoque.chamada','Estoque dos associados')}</div>
-     <h2 id="estN" style="margin-top:9px;color:#fff;font-size:2rem">${fmt(nVeic())} veículos, sempre intercalados entre as ${nLojas()} lojas</h2></div>
-     <span class="fp drk" id="fp-ord" onclick="abrirFiltro('ord')">Ordenar: ${esc(F.ord.toLowerCase())}${ic(I_DOWN,13)}</span>
+   <div class="est-top so-desk">
+     <div class="kick c">${T('estoque.chamada','Estoque dos associados')}</div>
+     <h2 id="estN">${fmt(nVeic())} veículos, sempre intercalados entre as ${nLojas()} lojas</h2>
    </div>
-   <div class="est-f" style="margin-bottom:18px">${filtroLinha()}</div>
-   <div id="mos"></div>
-   <div id="mais" style="height:1px"></div>
+   <div class="est-f">${filtroLinha()}</div>
  </div>
+ <section class="est-lista"><div class="wrap"><div id="mos"></div><div id="mais" style="height:1px"></div></div></section>
 </div>${rodape()}`;}
 function depoisEstoque(){
-  pintarMosaico();
+  pintarAnuncios();
   const s=document.getElementById('mais');
-  new IntersectionObserver(es=>{if(es[0].isIntersecting&&filtrar().length>mostrar){mostrar+=32;pintarMosaico();}},{rootMargin:'600px'}).observe(s);
+  new IntersectionObserver(es=>{if(es[0].isIntersecting)maisAnuncios();},{rootMargin:'600px'}).observe(s);
 }
 /* menu suspenso dos filtros */
 function fecharDrop(){document.querySelectorAll('.drop').forEach(d=>d.remove());}
@@ -961,7 +1011,7 @@ function abrirFiltro(k){
   document.body.appendChild(d);
   setTimeout(()=>document.addEventListener('click',function f(e){if(!d.contains(e.target)){fecharDrop();document.removeEventListener('click',f);}}),0);
 }
-function setF(k,v){F[k]=v;if(k==='marca')F.modelo='';mostrar=32;fecharDrop();render(false);}
+function setF(k,v){F[k]=v;if(k==='marca')F.modelo='';mostrar=LOTE;fecharDrop();render(false);}
 
 /* ==================== ASSOCIADOS ==================== */
 let selAssoc=null,catAssoc='Todos';
@@ -1341,7 +1391,7 @@ addEventListener('popstate',e=>{lerRota();atualizarMenu();trocarPagina(e.hasUAVi
 // aba volta a ficar visível: o navegador pode ter pausado o vídeo do fundo
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)document.querySelectorAll('video.luz').forEach(v=>v.play().catch(()=>{}));});
 let largAnt=matchMedia('(max-width:760px)').matches;
-addEventListener('resize',()=>{if(pagAtual==='home')alturaCategorias();const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;montarMenu();if(pagAtual==='estoque')pintarMosaico();}});
+addEventListener('resize',()=>{if(pagAtual==='home')alturaCategorias();const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;montarMenu();}});
 
 rota();
 montarMenu();
