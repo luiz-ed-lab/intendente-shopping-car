@@ -74,5 +74,23 @@ window.CONTEUDO = {
   },
   "inicio.estoque-titulo": {
     "texto": "{veículos arredondados} veículos,\n{lojas} lojas, um estoque."
+  },
+  "aceima.titulo": {
+    "texto": "A associação que faz A Intendente funcionar."
+  },
+  "aceima.subtitulo": {
+    "texto": "Tradição, segurança e credibilidade, reunindo os comércios da Estrada Intendente Magalhães com um só propósito."
+  },
+  "aceima.numero1": {
+    "texto": "Fundação"
+  },
+  "aceima.numero2": {
+    "texto": "Empresas\nAssociadas"
+  },
+  "aceima.numero3": {
+    "texto": "Veículos em\num Estoque"
+  },
+  "aceima.historia2": {
+    "texto": "Hoje, A Intendente é um polo comercial que busca trazer segurança e credibilidade não só a lojas de automóveis como também a todas as empresas que completam esse segmento."
   }
 };
