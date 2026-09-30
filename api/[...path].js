@@ -6,6 +6,8 @@
 //    PATCH/DELETE /api/lojas    -> edita / remove loja
 //    GET  /api/veiculos?...     -> busca de veículos (filtros)
 //    POST /api/veiculos         -> mostra/oculta um veículo no site
+//    GET  /api/logo?id=ID       -> logo de uma loja, como imagem
+//    GET  /api/detalhe?id=ID    -> descrição do anúncio, lida no site da loja
 //    GET/POST /api/leads        -> lista / grava lead
 //    GET  /api/importar?loja=ID -> roda o robô (cron de hora em hora)
 //
@@ -712,8 +714,9 @@ const doSite = req => !!(req.query && req.query.site === '1');
 const CACHE_SITE = 's-maxage=300, stale-while-revalidate=86400';   // 5 min novo; depois disso, entrega o anterior na hora e atualiza por trás
 async function rotaLojas(req, res) {
   if (req.method === 'GET' && doSite(req)) {
-    // sem logo_url: os logos (imagens embutidas) eram quase todo o peso e o site não usa
-    const { rows } = await query('select id, nome, endereco, telefone, whatsapp, google_nota, google_avaliacoes from lojas where ativa = true order by nome');
+    // sem logo_url: os logos (imagens embutidas) eram quase todo o peso. A página do veículo pede a logo da loja sozinha (rota logo);
+    // cor é o fundo da logo que a ACEIMA escolheu no painel
+    const { rows } = await query('select id, nome, endereco, telefone, whatsapp, google_nota, google_avaliacoes, cor from lojas where ativa = true order by nome');
     res.setHeader('Cache-Control', CACHE_SITE);
     return res.json(rows);
   }
@@ -1303,6 +1306,54 @@ async function avaliacoesGoogle() {
   return todas();
 }
 
+// ---------------- PÁGINA DO VEÍCULO ----------------
+// logo de uma loja como imagem (o banco guarda como data URI), com cache: a página do veículo mostra a logo sem pesar a lista de lojas
+async function rotaLogo(req, res) {
+  const id = parseInt((req.query && req.query.id) || '', 10);
+  if (!id) return res.status(400).end();
+  const { rows: [l] } = await query('select logo_url from lojas where id = $1 and ativa = true', [id]);
+  const u = (l && l.logo_url) || '';
+  const m = u.match(/^data:(image\/[a-z0-9.+-]+)(;base64)?,([\s\S]*)$/i);
+  if (!m && !/^https?:\/\//i.test(u)) { res.setHeader('Cache-Control', 's-maxage=3600'); return res.status(404).end(); }
+  res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800');
+  if (!m) { res.statusCode = 302; res.setHeader('Location', u); return res.end(); }   // guardada como endereço
+  res.setHeader('Content-Type', m[1]);
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox");   // logo em SVG não roda script
+  return res.end(m[2] ? Buffer.from(m[3], 'base64') : Buffer.from(decodeURIComponent(m[3])));
+}
+// Descrição que a loja escreveu no anúncio ("Informações do Veículo"). Não fica no banco: é lida no site da loja
+// quando alguém abre o anúncio, e a Vercel guarda por um dia. Sem descrição (loja fora do ar, carro vendido), volta vazia.
+async function rotaDetalhe(req, res) {
+  const id = parseInt((req.query && req.query.id) || '', 10);
+  if (!id) return res.status(400).json({ erro: 'id obrigatório' });
+  const { rows: [v] } = await query(
+    `select v.autocerto_id, l.autocerto_url, l.autocerto_id as origem from veiculos v join lojas l on l.id = v.loja_id
+      where v.id = $1 and v.ativo = true and coalesce(v.oculto,false) = false`, [id]);
+  let descricao = '';
+  if (v && v.autocerto_id && (v.autocerto_url || v.origem)) {
+    const fonte = fonteDaLoja(v.autocerto_url || v.origem);
+    try {
+      const r = await fetch(`${fonte.base}/Veiculo/x/${encodeURIComponent(v.autocerto_id)}/detalhes`,
+        { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ACEIMA-Importer/1.0)' }, redirect: 'follow', signal: AbortSignal.timeout(8000) });
+      if (r.ok) descricao = descricaoDoAnuncio(cheerio.load(await r.text()));
+    } catch (_) {}
+  }
+  res.setHeader('Cache-Control', descricao ? 's-maxage=86400, stale-while-revalidate=604800' : 's-maxage=3600');
+  return res.json({ descricao });
+}
+function descricaoDoAnuncio($) {
+  const titulo = (_, e) => /informa\S*es do ve/i.test($(e).text());
+  let el = $('#vehicle-overview');
+  if (!el.length) el = $('strong').filter(titulo).first().parent();
+  if (!el.length) return '';
+  el = el.clone();
+  el.find('strong').filter(titulo).remove();
+  el.find('br').replaceWith('\n');
+  el.find('p,div,li').each((_, e) => { $(e).append('\n'); });
+  return el.text().split('\n').map(s => s.replace(/\s+/g, ' ').trim()).join('\n').replace(/\n{3,}/g, '\n\n').trim().slice(0, 4000);
+}
+
 // ---------------- ROTEADOR ----------------
 export default async function handler(req, res) {
   let rota;
@@ -1316,6 +1367,8 @@ export default async function handler(req, res) {
     if (rota === 'lojas') return await rotaLojas(req, res);
     if (rota === 'parceiros') return await rotaParceiros(req, res);
     if (rota === 'veiculos') return await rotaVeiculos(req, res);
+    if (rota === 'logo') return await rotaLogo(req, res);
+    if (rota === 'detalhe') return await rotaDetalhe(req, res);
     if (rota === 'leads') return await rotaLeads(req, res);
     if (rota === 'importar') return await rotaImportar(req, res);
     if (rota === 'resumo') return autorizado(req) ? await rotaResumo(req, res) : negar(res);
