@@ -95,5 +95,51 @@ window.CONTEUDO = {
   },
   "veiculo.voltar": {
     "cor": "#00091A"
+  },
+  "veiculo.nome": {
+    "peso": 900
+  },
+  "veiculo.versao": {
+    "cor": "#00091A",
+    "peso": 300
+  },
+  "veiculo.km": {
+    "peso": 900
+  },
+  "veiculo.combustivel": {
+    "peso": 900
+  },
+  "veiculo.cambio": {
+    "peso": 900
+  },
+  "veiculo.ano": {
+    "peso": 900
+  },
+  "veiculo.ficha-valor": {
+    "peso": 900
+  },
+  "veiculo.interesse": {
+    "peso": 700
+  },
+  "veiculo.ver-todas": {
+    "peso": 300
+  },
+  "veiculo.caracteristicas": {
+    "peso": 700
+  },
+  "veiculo.descricao": {
+    "peso": 700
+  },
+  "veiculo.opcionais": {
+    "peso": 900
+  },
+  "veiculo.preco": {
+    "peso": 900
+  },
+  "veiculo.google": {
+    "peso": 900
+  },
+  "veiculo.endereco": {
+    "peso": 900
   }
 };
