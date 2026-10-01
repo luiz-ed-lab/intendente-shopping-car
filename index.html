@@ -83,8 +83,10 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 @supports not selector(::-webkit-scrollbar){.drop{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}}
 
 /* estoque: topo centralizado (pedido do Luiz, 30/09/2026) */
-.est-top{text-align:center;margin-bottom:clamp(22px,1.8vw,34px)}
-.est-top h2{max-width:1200px;margin:10px auto 0;color:#fff;font-size:clamp(2.4rem,3.2vw,3.9rem);letter-spacing:-.03em;line-height:1.06;text-wrap:balance}
+.est-top{text-align:center;margin-bottom:clamp(10px,.9vw,18px);container-type:inline-size}
+/* título numa linha só, no maior tamanho que cabe (pedido do Luiz, 30/09/2026); 25,9 é a largura do texto padrão por px de fonte.
+   Texto editado mais comprido: caberTitulo() diminui até caber */
+.est-top h2{margin:clamp(0px,.2vw,4px) auto 0;color:#fff;font-size:clamp(2rem,3.2vw,3.6rem);font-size:calc(100cqw / 25.9);letter-spacing:-.03em;line-height:1.06;white-space:nowrap}
 .est-f .fbar{flex-wrap:wrap;justify-content:center;overflow:visible}
 /* filtro escolhido: o botão cresce ou diminui até o tamanho novo, e o texto novo aparece por cima (nada seco) */
 @keyframes fpTexto{from{opacity:0;transform:translateY(5px)}}
@@ -110,34 +112,39 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
    e o preço no canto de baixo, do mesmo jeito. Com o mouse, a foto desfoca, a etiqueta mostra o nome completo e a seta,
    e aparece o que não está no nome (km, câmbio, combustível e a loja).
    Os anúncios ficam direto sobre o fundo em movimento (pedido do Luiz, 30/09/2026): as etiquetas são um recorte de verdade na foto
-   (máscara), então o fundo aparece atrás delas. O tamanho de cada recorte vem da própria etiqueta (--tw/--th e --pw/--ph, medidos no JS). */
+   (máscara), então o fundo aparece atrás delas. O tamanho de cada recorte vem da própria etiqueta (--tw/--th e --pw/--ph, medidos no JS).
+   A caixa da foto tem uma borda transparente de 2px (e margem de -2px, então nada muda de lugar), e a máscara vale até a borda:
+   na beirada da máscara, o recorte e a camada cheia cobrem só parte do pixel e a subtração deixa um fio claro (telas com escala
+   de 125% e 150%); com a folga, esse fio cai na borda transparente e some. Por isso as medidas da máscara têm +2px (--tb, --hb, --pb, --qb).
+   As peças se sobrepõem 2px entre si: com 1px, o arredondamento das peças em escala de 125% deixava um fio entre elas */
 .est-lista{flex:1;padding:clamp(4px,.6vw,12px) 0 60px}
 .ancs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .anc{position:relative;cursor:pointer;outline:0}
-.anc-f{--r:18px;position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#0A1A33;
+.anc-f{--r:18px;--tb:calc(var(--tw,0px) + 2px);--hb:calc(var(--th,0px) + 2px);--pb:calc(var(--pw,0px) + 2px);--qb:calc(var(--ph,0px) + 2px);
+  position:relative;aspect-ratio:4/3;margin:-2px;border:2px solid transparent;border-radius:12px;overflow:hidden;background:#0A1A33 padding-box;
   -webkit-mask:linear-gradient(#000 0 0),
-    linear-gradient(#000 0 0) 0 0/calc(var(--tw,0px) - var(--r) + 1px) var(--th,0px) no-repeat,
-    linear-gradient(#000 0 0) 0 0/var(--tw,0px) calc(var(--th,0px) - var(--r) + 1px) no-repeat,
-    radial-gradient(circle at 0 0,#000 calc(var(--r) - .5px),#0000 var(--r)) calc(var(--tw,0px) - var(--r)) calc(var(--th,0px) - var(--r))/var(--r) var(--r) no-repeat,
-    radial-gradient(circle at 100% 100%,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) calc(var(--tw,0px) - 1px) 0/calc(var(--r) + 1px) var(--r) no-repeat,
-    radial-gradient(circle at 100% 100%,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) 0 calc(var(--th,0px) - 1px)/var(--r) calc(var(--r) + 1px) no-repeat,
-    linear-gradient(#000 0 0) right 0 bottom 0/calc(var(--pw,0px) - var(--r) + 1px) var(--ph,0px) no-repeat,
-    linear-gradient(#000 0 0) right 0 bottom 0/var(--pw,0px) calc(var(--ph,0px) - var(--r) + 1px) no-repeat,
-    radial-gradient(circle at 100% 100%,#000 calc(var(--r) - .5px),#0000 var(--r)) right calc(var(--pw,0px) - var(--r)) bottom calc(var(--ph,0px) - var(--r))/var(--r) var(--r) no-repeat,
-    radial-gradient(circle at 0 0,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) right calc(var(--pw,0px) - 1px) bottom 0/calc(var(--r) + 1px) var(--r) no-repeat,
-    radial-gradient(circle at 0 0,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) right 0 bottom calc(var(--ph,0px) - 1px)/var(--r) calc(var(--r) + 1px) no-repeat;
+    linear-gradient(#000 0 0) 0 0/calc(var(--tb) - var(--r) + 2px) var(--hb) no-repeat,
+    linear-gradient(#000 0 0) 0 0/var(--tb) calc(var(--hb) - var(--r) + 2px) no-repeat,
+    radial-gradient(circle at 0 0,#000 calc(var(--r) - .5px),#0000 var(--r)) calc(var(--tb) - var(--r)) calc(var(--hb) - var(--r))/var(--r) var(--r) no-repeat,
+    radial-gradient(circle at 100% 100%,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) calc(var(--tb) - 2px) 0/calc(var(--r) + 2px) calc(var(--r) + 2px) no-repeat,
+    radial-gradient(circle at 100% 100%,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) 0 calc(var(--hb) - 2px)/calc(var(--r) + 2px) calc(var(--r) + 2px) no-repeat,
+    linear-gradient(#000 0 0) right 0 bottom 0/calc(var(--pb) - var(--r) + 2px) var(--qb) no-repeat,
+    linear-gradient(#000 0 0) right 0 bottom 0/var(--pb) calc(var(--qb) - var(--r) + 2px) no-repeat,
+    radial-gradient(circle at 100% 100%,#000 calc(var(--r) - .5px),#0000 var(--r)) right calc(var(--pb) - var(--r)) bottom calc(var(--qb) - var(--r))/var(--r) var(--r) no-repeat,
+    radial-gradient(circle at 0 0,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) right calc(var(--pb) - 2px) bottom 0/calc(var(--r) + 2px) calc(var(--r) + 2px) no-repeat,
+    radial-gradient(circle at 0 0,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) right 0 bottom calc(var(--qb) - 2px)/calc(var(--r) + 2px) calc(var(--r) + 2px) no-repeat;
   -webkit-mask-composite:source-out,source-over,source-over,source-over,source-over,source-over,source-over,source-over,source-over,source-over,source-over;
   mask:linear-gradient(#000 0 0),
-    linear-gradient(#000 0 0) 0 0/calc(var(--tw,0px) - var(--r) + 1px) var(--th,0px) no-repeat,
-    linear-gradient(#000 0 0) 0 0/var(--tw,0px) calc(var(--th,0px) - var(--r) + 1px) no-repeat,
-    radial-gradient(circle at 0 0,#000 calc(var(--r) - .5px),#0000 var(--r)) calc(var(--tw,0px) - var(--r)) calc(var(--th,0px) - var(--r))/var(--r) var(--r) no-repeat,
-    radial-gradient(circle at 100% 100%,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) calc(var(--tw,0px) - 1px) 0/calc(var(--r) + 1px) var(--r) no-repeat,
-    radial-gradient(circle at 100% 100%,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) 0 calc(var(--th,0px) - 1px)/var(--r) calc(var(--r) + 1px) no-repeat,
-    linear-gradient(#000 0 0) right 0 bottom 0/calc(var(--pw,0px) - var(--r) + 1px) var(--ph,0px) no-repeat,
-    linear-gradient(#000 0 0) right 0 bottom 0/var(--pw,0px) calc(var(--ph,0px) - var(--r) + 1px) no-repeat,
-    radial-gradient(circle at 100% 100%,#000 calc(var(--r) - .5px),#0000 var(--r)) right calc(var(--pw,0px) - var(--r)) bottom calc(var(--ph,0px) - var(--r))/var(--r) var(--r) no-repeat,
-    radial-gradient(circle at 0 0,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) right calc(var(--pw,0px) - 1px) bottom 0/calc(var(--r) + 1px) var(--r) no-repeat,
-    radial-gradient(circle at 0 0,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) right 0 bottom calc(var(--ph,0px) - 1px)/var(--r) calc(var(--r) + 1px) no-repeat;
+    linear-gradient(#000 0 0) 0 0/calc(var(--tb) - var(--r) + 2px) var(--hb) no-repeat,
+    linear-gradient(#000 0 0) 0 0/var(--tb) calc(var(--hb) - var(--r) + 2px) no-repeat,
+    radial-gradient(circle at 0 0,#000 calc(var(--r) - .5px),#0000 var(--r)) calc(var(--tb) - var(--r)) calc(var(--hb) - var(--r))/var(--r) var(--r) no-repeat,
+    radial-gradient(circle at 100% 100%,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) calc(var(--tb) - 2px) 0/calc(var(--r) + 2px) calc(var(--r) + 2px) no-repeat,
+    radial-gradient(circle at 100% 100%,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) 0 calc(var(--hb) - 2px)/calc(var(--r) + 2px) calc(var(--r) + 2px) no-repeat,
+    linear-gradient(#000 0 0) right 0 bottom 0/calc(var(--pb) - var(--r) + 2px) var(--qb) no-repeat,
+    linear-gradient(#000 0 0) right 0 bottom 0/var(--pb) calc(var(--qb) - var(--r) + 2px) no-repeat,
+    radial-gradient(circle at 100% 100%,#000 calc(var(--r) - .5px),#0000 var(--r)) right calc(var(--pb) - var(--r)) bottom calc(var(--qb) - var(--r))/var(--r) var(--r) no-repeat,
+    radial-gradient(circle at 0 0,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) right calc(var(--pb) - 2px) bottom 0/calc(var(--r) + 2px) calc(var(--r) + 2px) no-repeat,
+    radial-gradient(circle at 0 0,#0000 calc(var(--r) - 1px),#000 calc(var(--r) - .5px)) right 0 bottom calc(var(--qb) - 2px)/calc(var(--r) + 2px) calc(var(--r) + 2px) no-repeat;
   mask-composite:subtract,add,add,add,add,add,add,add,add,add,add}
 .anc-f img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease-in-out,filter .3s ease-out,transform .3s ease-out}
 .anc-f img.ok{opacity:1}
@@ -349,11 +356,11 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-volta{display:inline-flex;align-items:center;gap:8px;margin-bottom:clamp(14px,1.2vw,22px);font:500 clamp(.9rem,.9vw,1.05rem)/1.2 var(--f2);color:#00091A;cursor:pointer}
 .vp-volta svg{transition:transform .3s var(--ease)}
 .vp-volta:hover svg{transform:translateX(-3px)}
-/* foto em destaque: a foto exata da loja, inteira (sem corte nem zoom), no tamanho que cabe na tela;
-   quando ela fica mais estreita que a página, as laterais mostram a mesma foto desfocada */
-.vp-hero{position:relative;width:100%;aspect-ratio:4/3;max-height:max(340px,calc(100vh - 112 * var(--px,1px) - 150px));max-height:max(340px,calc(100svh - 112 * var(--px,1px) - 150px));border-radius:clamp(16px,1.4vw,26px);overflow:hidden;background:#0A1A33;cursor:zoom-in;isolation:isolate}
-.vp-hb{position:absolute;left:-8%;top:-8%;width:116%;height:116%;max-width:none;object-fit:fill;filter:blur(70px) saturate(1.25) brightness(1.06)}
-.vp-hi{position:relative;display:block;width:auto;height:100%;max-width:100%;margin:0 auto;object-fit:contain;box-shadow:0 0 60px rgba(0,9,26,.3)}
+/* foto em destaque: moldura 4:3 com a foto exata da loja, inteira, sem corte, sem zoom e sem nada em volta (pedido do Luiz, 30/09/2026).
+   O fundo claro só aparece enquanto a foto carrega */
+.vp-hero{position:relative;width:100%;aspect-ratio:4/3;border-radius:clamp(16px,1.4vw,26px);overflow:hidden;background:#E9E4DD;cursor:zoom-in;isolation:isolate}
+.vp-hero.ok{background:none}
+.vp-hi{display:block;width:100%;height:100%;object-fit:contain}
 /* a logo da loja no canto de cima, sobre um esfumado bem leve: escuro para logo clara, claro para logo escura */
 .vp-lj{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity .4s}
 .vp-lj.pronta{opacity:1}
@@ -373,6 +380,17 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-ficha>div{border-top:1px solid var(--line);padding-top:clamp(12px,1vw,18px)}
 .vp-ficha>div>span{display:block;font:600 clamp(.66rem,.68vw,.8rem)/1.2 var(--f2);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
 .vp-ficha b{display:block;margin-top:8px;font:300 clamp(1.5rem,2.2vw,2.6rem)/1.15 var(--f2);letter-spacing:-.02em;color:#3E4C62}
+/* computador: o nome, a ficha e o botão ficam ao lado da foto, com o mesmo espaço entre eles (pedido do Luiz, 30/09/2026):
+   o topo das letras do nome na linha de cima da foto (-.16em: a folga da fonte acima das letras) e o botão na linha de baixo */
+@media (min-width:1101px){
+  .vp-topo{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(40px,3.8vw,76px);align-items:start}
+  .vp-m{align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;gap:28px;margin:0}
+  .vp-m>div:first-child{display:contents}
+  .vp-m h1{margin-top:-.16em;font-size:clamp(2.3rem,3.1vw,3.9rem)}
+  .vp-ficha{order:1;--fv:clamp(1.45rem,2.05vw,2.5rem)}
+  .vp-ficha b{font-size:var(--fv)}
+  .vp-pill{order:2;align-self:flex-start;margin-top:0}
+}
 /* as outras fotos: 4 por vez (2 no celular), passando para o lado; "Ver todas", bem discreto, abre a grade com todas */
 .vp-g{--gg:clamp(10px,.9vw,16px);--gn:4;margin-top:clamp(48px,4.6vw,88px)}
 .vp-gw{position:relative}
@@ -403,7 +421,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-tags svg{color:var(--gold)}
 .vp-c>.kick{margin-top:clamp(28px,2.4vw,44px)}
 .vp-opc{list-style:none;columns:2;column-gap:clamp(24px,2.4vw,44px);margin-top:10px}
-.vp-opc li{break-inside:avoid;position:relative;padding:9px 0 9px 20px;border-bottom:1px solid var(--line);font:400 clamp(.88rem,.9vw,1.02rem)/1.35 var(--f2);color:#3E4C62}
+.vp-opc li{break-inside:avoid;position:relative;padding:5px 0 5px 20px;border-bottom:1px solid var(--line);font:400 clamp(.88rem,.9vw,1.02rem)/1.3 var(--f2);color:#3E4C62}   /* menos espaço entre os opcionais (pedido do Luiz, 30/09/2026) */
 .vp-mais{display:none}
 .vp-opc li::before{content:'';position:absolute;left:2px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:99px;background:var(--gold2)}
 .vp-dt{margin-top:clamp(20px,1.8vw,32px)}
@@ -417,26 +435,35 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-s.so1{grid-template-columns:1fr}
 .vp-s.so1 .vp-opc{columns:4}
 .vp-s.so1 .vp-d{max-width:1000px}
-/* folha azul: o valor e, ao lado, o formulário; embaixo, a linha da loja (logo, endereço, telefone, nota e botões) */
-.vp-ct-t{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,560px);gap:40px clamp(40px,5vw,96px);align-items:start}
-.vp-v p{margin-top:16px;color:#93A3B9;font-size:clamp(1rem,1.1vw,1.25rem)}
-.vp-preco{margin-top:16px;font:700 clamp(3rem,5.2vw,6.2rem)/1 var(--f1);letter-spacing:-.045em;color:#fff}   /* valor com a fonte mais pesada (pedido do Luiz, 30/09/2026) */
-.vp-form{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:clamp(20px,1.7vw,30px);border-radius:clamp(16px,1.3vw,22px);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)}
-.vp-form label{margin-bottom:5px;font-size:.7rem}
-.vp-form input{height:42px}
-.vp-form .inteiro{grid-column:1/-1}
-.vp-form .seg button{height:42px;padding:0}
-.vp-form .btnp{grid-column:1/-1;height:46px;padding:0 22px;justify-content:center}
-/* financiamento: abre a entrada (em dinheiro ou com um carro na troca), como no formulário do site antigo */
-.vp-fin{grid-column:1/-1;display:grid;grid-template-rows:0fr;margin-top:-12px;opacity:0;visibility:hidden;transition:grid-template-rows .4s var(--ease),margin-top .4s var(--ease),opacity .3s,visibility .4s}
-.vp-fin>div{min-height:0;overflow:hidden}
-.vp-form.fin .vp-fin{grid-template-rows:1fr;margin-top:0;opacity:1;visibility:visible}
-.vp-fin-in{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
-.vp-fin-in .inteiro{grid-column:1/-1}
-.vp-fin-c,.vp-form.troca .vp-fin-v{display:none}
-.vp-form.troca .vp-fin-c{display:block}
-.vp-aviso{grid-column:1/-1;font-size:.76rem;color:#7C8CA5}
-.vp-ct-i{display:flex;align-items:center;gap:24px clamp(20px,2.4vw,44px);margin-top:clamp(40px,3.6vw,68px);padding-top:clamp(24px,2vw,36px);border-top:1px solid rgba(255,255,255,.12)}
+/* folha azul: o valor e, ao lado, o formulário, sem bloco atrás (pedido do Luiz, 30/09/2026). O formulário tem a altura exata do valor
+   com o nome embaixo dele: o topo dos campos na altura do topo dos números e a base do botão na base do nome, seja qual for o tamanho
+   (--pf e --nf: tamanhos do valor e do nome; .146 e .35 são as folgas da fonte). Embaixo, a linha da loja (logo, endereço, telefone, nota e botões) */
+.vp-ct .kick{margin-bottom:clamp(10px,.9vw,16px)}
+.vp-ct-t{--pf:clamp(3rem,5.2vw,6.2rem);--nf:clamp(1rem,1.1vw,1.25rem);display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px clamp(36px,3.6vw,68px)}
+.vp-v{max-width:clamp(300px,34vw,640px)}
+.vp-preco{font:700 var(--pf)/1 var(--f1);letter-spacing:-.045em;color:#fff}   /* valor com a fonte mais pesada (pedido do Luiz, 30/09/2026) */
+.vp-v p{margin-top:clamp(10px,.9vw,16px);color:#93A3B9;font-size:var(--nf);line-height:1.4}
+.vp-form{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(2,minmax(30px,1fr));grid-template-areas:"nome tel" "forma bt";gap:clamp(8px,.75vw,14px) clamp(10px,.8vw,14px);margin:calc(var(--pf) * .146) 0 calc(var(--nf) * .35)}
+.vp-form input{height:100%}
+.vp-form .seg button{height:100%;padding:0}
+.vp-form .btnp{height:100%;padding:0 22px;justify-content:center}
+.vp-f-nome{grid-area:nome}
+.vp-f-tel{grid-area:tel}
+.vp-f-forma{grid-area:forma}
+.vp-f-ent{grid-area:ent}
+.vp-f-val,.vp-f-troca{grid-area:val}
+.vp-f-bt{grid-area:bt}
+/* financiamento: abre a entrada (em dinheiro ou com um carro na troca) e o botão desce para a linha nova (mexerForm anima) */
+.vp-form.fin{grid-template-rows:repeat(3,minmax(40px,1fr));grid-template-areas:"nome tel" "forma ent" "val bt"}
+.vp-form .vp-f-ent,.vp-form .vp-f-val,.vp-form .vp-f-troca{display:none}
+.vp-form.fin .vp-f-ent,.vp-form.fin.troca .vp-f-troca{display:flex}
+.vp-form.fin:not(.troca) .vp-f-val{display:block}
+.vp-f-troca{gap:clamp(10px,.8vw,14px)}
+.vp-f-troca input:first-child{flex:1;min-width:0}
+.vp-f-troca input:last-child{flex:0 0 32%}
+/* a linha da loja fica no meio, entre a divisão de cima e o rodapé: o mesmo respiro (--vpi) em cima e embaixo */
+.ct.vp-ct{--vpi:clamp(28px,2.6vw,48px);padding-bottom:var(--vpi)}
+.vp-ct-i{display:flex;align-items:center;gap:24px clamp(20px,2.4vw,44px);margin-top:clamp(40px,3.6vw,68px);padding-top:var(--vpi);border-top:1px solid rgba(255,255,255,.12)}
 .vp-ct-i>div:not(.vp-l-lg)>span{display:block;font:600 clamp(.6rem,.62vw,.72rem)/1.2 var(--f2);letter-spacing:.2em;text-transform:uppercase;color:var(--gold3)}
 .vp-ct-i p{margin-top:8px;color:#fff;font-size:clamp(.9rem,.95vw,1.1rem);font-weight:400;line-height:1.4}
 .vp-ct-i a{color:#fff}
@@ -445,10 +472,15 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-ct-i>.vp-l-lg,.vp-ct-i>.ct-b{flex:none}
 .vp-ct-i .ct-b{flex-direction:column;align-items:stretch;gap:8px}
 .vp-ct-i .btno{justify-content:space-between;gap:10px;padding:10px 18px;font-size:.84rem}
-.vp-l-lg{flex:none;position:relative;display:grid;place-items:center;height:clamp(56px,4.2vw,76px);min-width:clamp(56px,4.2vw,76px);padding:0 14px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
-.vp-l-lg img{max-height:62%;max-width:clamp(100px,8.5vw,150px);width:auto;height:auto}
-.vp-l-lg.claro{background:#F6F4F1}
+/* logo da loja direto na folha; o bloco atrás só aparece quando ela precisa de fundo branco (pedido do Luiz, 30/09/2026):
+   logo que já vem com fundo branco (o bloco pega a cor desse fundo e arredonda os cantos) ou logo escura */
+.vp-l-lg{flex:none;position:relative;display:flex;align-items:center;justify-content:center;height:clamp(40px,3vw,54px);border-radius:12px}
+.vp-l-lg img{max-height:100%;max-width:clamp(110px,9vw,170px);width:auto;height:auto}
+.vp-l-lg.claro,.vp-l-lg.branco{height:clamp(48px,3.6vw,64px);padding:0 clamp(12px,1vw,18px);background:#fff}
+.vp-l-lg.claro img{max-height:62%}
+.vp-l-lg.branco img{max-height:86%}
 .vp-l-lg>span{display:none;font:800 1.2rem/1 var(--f1);color:var(--gold3)}
+.vp-l-lg.sem{min-width:clamp(48px,3.6vw,64px);height:clamp(48px,3.6vw,64px);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
 .vp-l-lg.sem>img{display:none}
 .vp-l-lg.sem>span{display:block}
 /* fotos em tela cheia: a foto no meio e, dos lados, a anterior e a próxima bem apagadas; passar troca as três de lugar.
@@ -478,7 +510,7 @@ body.lb-on{overflow:hidden}
 .nb.on{background:rgba(23,23,23,.1);color:#171717}
 .nb svg{flex:none;width:22px;height:22px}
 .nbi{display:contents}
-.nl{display:block;overflow:hidden;width:0;margin-left:8px;opacity:0;transition:width .26s var(--ease),height .26s var(--ease),margin .26s var(--ease),opacity .2s}
+.nl{display:block;overflow:hidden;width:0;margin-left:16px;opacity:0;transition:width .26s var(--ease),height .26s var(--ease),margin .26s var(--ease),opacity .2s}
 .nl.vis{opacity:1;transition:width .26s var(--ease),height .26s var(--ease),margin .26s var(--ease),opacity .2s .12s}
 .nl>span{display:block;white-space:nowrap;font:500 clamp(.625rem,.5263rem + .5263vw,1rem)/1.9 var(--f2)}
 /* troca de página em fusão: a página nova aparece por cima da antiga; o menu fica fora dela, ao vivo */
@@ -486,12 +518,13 @@ body.lb-on{overflow:hidden}
 #nav{view-transition-name:nav}
 ::view-transition-group(nav),::view-transition-image-pair(nav),::view-transition-new(nav){animation:none}
 ::view-transition-old(nav){display:none}
-/* entrando ou saindo da página da ACEIMA, as logos giram entre si e somem em fusão (pedido do Luiz, 30/09/2026).
-   Cada uma tem o seu nome na transição (logo-sai, logo-entra): gira no próprio lugar, sem andar para o lado como antes no celular */
-::view-transition-old(logo-sai){animation:logoSai .4s cubic-bezier(.5,0,.9,.5) both}
-::view-transition-new(logo-entra){animation:logoEntra .6s cubic-bezier(.1,.6,.35,1) .32s both}
-@keyframes logoSai{from{transform:perspective(600px) rotateY(0)}55%{opacity:1}to{opacity:0;transform:perspective(600px) rotateY(90deg)}}
-@keyframes logoEntra{from{opacity:0;transform:perspective(600px) rotateY(-90deg)}40%{opacity:1}to{transform:perspective(600px) rotateY(0)}}
+/* entrando ou saindo da página da ACEIMA, as logos giram entre si para cima, como as faces de um cubo, e somem em fusão
+   (pedido do Luiz, 30/09/2026): a que sai deita para cima e a que entra vem de baixo. Cada uma tem o seu nome na transição
+   (logo-sai, logo-entra): gira no próprio lugar, sem andar para o lado como antes no celular */
+::view-transition-old(logo-sai){animation:logoSai .56s cubic-bezier(.45,0,.25,1) both}
+::view-transition-new(logo-entra){animation:logoEntra .56s cubic-bezier(.45,0,.25,1) .06s both}
+@keyframes logoSai{from{transform:perspective(700px) translateY(0) rotateX(0)}to{opacity:0;transform:perspective(700px) translateY(-50%) rotateX(90deg)}}
+@keyframes logoEntra{from{opacity:0;transform:perspective(700px) translateY(50%) rotateX(-90deg)}to{transform:perspective(700px) translateY(0) rotateX(0)}}
 /* navegador sem fusão: o conteúdo some no azul do fundo e volta */
 #app{transition:opacity .22s ease}
 #app.some{opacity:0}
@@ -558,6 +591,9 @@ body.lb-on{overflow:hidden}
   .vp-m,.vp-s{grid-template-columns:1fr}
   .vp-s.so1 .vp-opc{columns:2}
   .vp-ct-t{grid-template-columns:1fr}
+  .vp-v{max-width:none}
+  .vp-form{grid-template-rows:repeat(2,46px);margin:0}
+  .vp-form.fin{grid-template-rows:repeat(3,46px)}
   .vp-ct-i{flex-wrap:wrap}
   .vp-ct-i>.ct-b{flex-basis:100%;flex-direction:row}
   .est-cont{top:auto;right:auto;left:50%;bottom:88px;transform:translateX(-50%)}   /* tablet: a lateral é estreita, o contador fica em cima do menu */
@@ -579,7 +615,7 @@ body.lb-on{overflow:hidden}
   #nav.aberto .nb{transition-delay:calc(var(--i) * 25ms)}
   .nb svg{width:3.73vw;height:3.73vw;transition:transform .26s var(--ease)}
   .nb.nome svg{transform:rotate(-90deg)}   /* o ícone da página aberta deita junto com o nome, que é lido subindo */
-  .nl{writing-mode:vertical-rl;width:auto;height:0;margin:.7vw 0}   /* o nome perto do ícone (pedido do Luiz, 30/09/2026) */
+  .nl{writing-mode:vertical-rl;width:auto;height:0;margin:.7vw 0}   /* o nome perto do ícone, só no celular (pedido do Luiz, 30/09/2026) */
   .nl>span{font-size:3.2vw;line-height:1.2;transform:rotate(180deg)}
   /* categorias: o toque só abre; o botão Acessar aparece na que foi tocada */
   .vti.tocada .acessar{display:inline-flex;align-items:center;margin-top:2.82vw;padding:2.11vw 4.23vw;border-radius:2.13vw;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;font:600 3.47vw/1 var(--f2)}
@@ -660,8 +696,8 @@ body.lb-on{overflow:hidden}
   .ct-g>div>span{font-size:2.46vw;letter-spacing:.42vw}
   .ct-g p{margin-top:1.41vw;font-size:4.23vw}
   /* estoque */
-  .est-top{padding:6.34vw 0 0;margin-bottom:5.63vw}
-  .est-top h2{margin:0;font-size:7.75vw;font-weight:800;letter-spacing:-.2vw;line-height:1.14}
+  .est-top{padding:6.34vw 0 0;margin-bottom:3.52vw}
+  .est-top h2{margin:0;font-size:7.75vw;font-weight:800;letter-spacing:-.2vw;line-height:1.14;white-space:normal;text-wrap:balance}   /* numa linha só, ficaria com letra de rodapé */
   .fbar{gap:2.11vw;overflow-x:auto;scrollbar-width:none;margin-bottom:0}
   .fbar::-webkit-scrollbar{display:none}
   .fbar .fp{font-size:3.38vw;font-weight:600;padding:2.11vw 3.87vw;border:1px solid rgba(255,255,255,.16);background:none;color:#C6D2E3;gap:1.4vw}
@@ -673,7 +709,7 @@ body.lb-on{overflow:hidden}
   /* anúncios: uma coluna, como o modelo no celular (medidas do modelo em 375px) */
   .est-lista{padding:0 0 17vw}   /* embaixo, o lugar do contador quando o rodapé aparece */
   .ancs{grid-template-columns:1fr;gap:3.2vw}
-  .anc-f{--r:4.8vw;border-radius:2.67vw}
+  .anc-f{--r:4.8vw;border-radius:calc(2.67vw + 2px)}
   .anc-t,.anc-p{font-size:3.73vw}
   .anc-t{padding:2.13vw 4.27vw 3.2vw;max-width:calc(100% - 10.67vw)}
   .anc-p{padding:3.2vw 4.27vw 2.13vw}
@@ -687,9 +723,9 @@ body.lb-on{overflow:hidden}
   .vp{padding:4.23vw 0 calc(11.27vw + var(--canto))}
   .vp-volta{gap:1.41vw;margin-bottom:3.52vw;font-size:3.3vw}   /* menor no celular (pedido do Luiz, 30/09/2026) */
   .vp-volta svg{width:3.4vw;height:3.4vw}
-  .vp-hero{max-height:none;border-radius:3.52vw}
-  .vp-lj::before{width:72%;height:62%}
-  .vp-lj img{left:3.87vw;top:3.52vw;max-width:30vw;max-height:9.86vw}
+  .vp-hero{border-radius:3.52vw}
+  .vp-lj::before{width:50%;height:44%}
+  .vp-lj img{left:3.52vw;top:3.17vw;max-width:15vw;max-height:4.93vw}   /* logo na foto com a metade do tamanho (pedido do Luiz, 30/09/2026) */
   .vp-m{gap:7.04vw;margin-top:7.04vw}
   .vp-m h1{font-size:8.1vw;letter-spacing:-.3vw}
   .vp-pill{gap:2.82vw;margin-top:4.93vw;padding:1.41vw 1.41vw 1.41vw 4.93vw;font-size:3.52vw}
@@ -714,29 +750,30 @@ body.lb-on{overflow:hidden}
   .vp-c>.kick{margin-top:5.63vw}
   .vp-opc,.vp-s.so1 .vp-opc{columns:1}
   .vp-opc{margin-top:1.41vw}
-  .vp-opc li{padding:1.41vw 0 1.41vw 4.23vw;font-size:3.3vw;line-height:1.3}
+  .vp-opc li{padding:.7vw 0 .7vw 4.23vw;font-size:3.3vw;line-height:1.25}
   .vp-opc li::before{left:.35vw;width:1.41vw;height:1.41vw;margin-top:-.7vw}
   .vp-opc.curta li:nth-child(n+11){display:none}
   .vp-opc.curta+.vp-mais{display:inline-flex;margin-top:3.52vw;padding:2.82vw 4.93vw;border-radius:99px;border:1px solid #CFC8C0;font:600 3.3vw/1 var(--f2);color:var(--ink)}
   .vp-dt{margin-top:4.23vw}
   .vp-dt p{font-size:3.73vw}
-  .vp-preco{margin-top:2.46vw;font-size:12.7vw}
-  .vp-v p{margin-top:2.82vw;font-size:3.73vw}
-  .vp-ct-t{gap:7.04vw}
-  .vp-form{grid-template-columns:1fr;gap:3.52vw;padding:5.63vw;border-radius:4.23vw}
-  .vp-form label{margin-bottom:1.41vw;font-size:2.82vw}
-  .vp-form input,.vp-form .seg button,.vp-form .btnp{height:12.4vw}
+  .vp-ct .kick{margin-bottom:2.46vw}
+  .vp-ct-t{--pf:12.7vw;--nf:3.73vw;gap:7.04vw}
+  .vp-v p{margin-top:2.82vw}
+  .vp-form{grid-template-columns:1fr;grid-template-rows:repeat(4,12.4vw);grid-template-areas:"nome" "tel" "forma" "bt";gap:2.82vw}
+  .vp-form.fin{grid-template-rows:repeat(6,12.4vw);grid-template-areas:"nome" "tel" "forma" "ent" "val" "bt"}
+  .vp-form input{font-size:3.6vw}
   .vp-form .seg button{font-size:3.3vw}
   .vp-form .btnp{padding:0 5.63vw}
-  .vp-fin{margin-top:-3.52vw}
-  .vp-fin-in{grid-template-columns:1fr;gap:3.52vw}
-  .vp-aviso{font-size:3.1vw}
-  .vp-ct-i{flex-direction:column;align-items:stretch;gap:5.63vw;margin-top:8.45vw;padding-top:6.34vw}
+  .vp-f-troca{gap:2.82vw}
+  .ct.vp-ct{--vpi:7.04vw}
+  .vp-ct-i{flex-direction:column;align-items:stretch;gap:5.63vw;margin-top:8.45vw}
   .vp-ct-i>div{flex:none}
   .vp-ct-i>div:not(.vp-l-lg)>span{font-size:2.46vw;letter-spacing:.42vw}
   .vp-ct-i p{margin-top:1.41vw;font-size:4.23vw}
   .vp-ct-i>.vp-l-lg{align-self:flex-start}
-  .vp-l-lg{height:14.08vw;min-width:14.08vw;padding:0 3.52vw;border-radius:2.82vw}
+  .vp-l-lg{height:9.86vw;border-radius:2.82vw}
+  .vp-l-lg.claro,.vp-l-lg.branco,.vp-l-lg.sem{height:12.68vw;padding:0 3.52vw}
+  .vp-l-lg.sem{min-width:12.68vw}
   .vp-l-lg img{max-width:32vw}
   .vp-ct-i .ct-b{flex-direction:column;gap:2.82vw}
   .vp-ct-i .btno{justify-content:center;padding:4.23vw 5.63vw;font-size:3.6vw;gap:2.11vw}
@@ -878,6 +915,8 @@ function T(id,padrao){PADRAO[id]=padrao;const o=valor(id)||{};return `<span data
 // dado que vem do estoque (nome do carro, preço, ficha, descrição): o texto não se edita, mas o estilo sim (tamanho, cor, fonte e peso).
 // O mesmo id vale para todos os anúncios: mudar o peso do nome de um carro muda o de todos
 function E(id,html){const o=valor(id)||{};return `<span data-e="${id}" style="${estiloCss(o)}">${html}</span>`;}
+// texto simples, para o que não pode ter o span do modo de edição (texto de dentro de um campo): o editado, se houver, ou o padrão
+const TX=(id,padrao)=>{const o=valor(id)||{};return esc(o.texto!=null?o.texto:padrao);};
 
 /* ==================== DADOS ==================== */
 // amostra usada quando o site é aberto direto do computador (sem API): as mesmas fotos dos mockups
@@ -1162,8 +1201,74 @@ function opcoes(k){
   if(k==='ord')return ORDENS;
   return [];
 }
+/* busca (pedido do Luiz, 30/09/2026): cada palavra procura em marca, modelo, versão, loja, ano, câmbio e combustível, em qualquer
+   ordem ("kwid auto barra" acha o Kwid da Auto Barra). Aceita erro de digitação ("corola", "onxi"), sigla sem hífen (hrv, tcross),
+   apelido de marca (vw, gm), ano ("2020", "a partir de 2018") e limite de preço ou de km ("até 60 mil", "acima de 100 mil",
+   "de 50 a 80 mil", "até 50 mil km"). Se nenhum anúncio tem todas as palavras, aparecem os que têm mais delas (pelo menos a metade).
+   Na ordem padrão, os mais parecidos vêm primeiro: modelo vale mais que versão, e palavra inteira mais que começo de palavra */
+const APELIDOS={vw:'volkswagen',volks:'volkswagen',gm:'chevrolet',chevy:'chevrolet',mb:'mercedes',merc:'mercedes',benz:'mercedes',automatica:'automatico',aut:'automatico',eletrica:'eletrico',hibrida:'hibrido'};
+const VAZIAS=new Set(['de','da','do','das','dos','e','com','o','a','os','as','em','no','na','nos','nas','um','uma','pra','para','por','carro','carros','veiculo','veiculos','loja','ano','modelo','quero','procuro','reais','mil','km']);
+function lerBusca(q){
+  const lim={};let s=' '+norm(q).replace(/r\$/g,' ')+' ';
+  const num=(n,mil)=>{const x=/^\d{1,3}(\.\d{3})+$/.test(n)?+n.replace(/\./g,''):parseFloat(n.replace(',','.'));return mil?x*1000:x;};
+  const por=(x,km,lado)=>{if(!(x>=0))return;
+    if(!km&&Number.isInteger(x)&&x>=1950&&x<=2039){lim['ano'+lado]=x;return;}   // 4 algarismos de ano: é o ano
+    if(!km&&x<1000)x*=1000;   // "até 60" é 60 mil
+    lim[(km?'km':'p')+lado]=x;};
+  s=s.replace(/\sde\s+(\d[\d.,]*)\s*(mil|k)?\s+(?:a|ate)\s+(\d[\d.,]*)\s*(mil|k)?\s*(km)?(?=\s)/g,(m,a,ma,b,mb,km)=>{por(num(a,ma||mb),km,'min');por(num(b,mb),km,'max');return ' ';});
+  s=s.replace(/\s(ate|abaixo de|menos de|no maximo|maximo|acima de|mais de|a partir de|apartir de|no minimo|minimo|desde)\s+(\d[\d.,]*)\s*(mil|k)?\s*(km)?(?=\s)/g,
+    (m,op,n,mil,km)=>{por(num(n,mil),km,/ate|abaixo|menos|maximo/.test(op)?'max':'min');return ' ';});
+  s=s.replace(/\s(\d[\d.,]*)\s*(mil|k)\s*(km)?(?=\s)/g,(m,n,mil,km)=>{por(num(n,mil),km,'max');return ' ';});   // "80 mil" sozinho: até 80 mil
+  const toks=s.split(/\s+/).map(w=>w.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g,'')).filter(w=>w&&!VAZIAS.has(w)).map(w=>APELIDOS[w]||w);
+  return {toks,lim};
+}
+function parecida(a,b,k){   // no máximo k letras trocadas, a mais, a menos ou vizinhas invertidas
+  if(Math.abs(a.length-b.length)>k)return false;
+  let p2=null,p1=Array.from({length:b.length+1},(_,j)=>j);
+  for(let i=1;i<=a.length;i++){const c=[i];let menor=i;
+    for(let j=1;j<=b.length;j++){let x=Math.min(p1[j]+1,c[j-1]+1,p1[j-1]+(a[i-1]===b[j-1]?0:1));
+      if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])x=Math.min(x,p2[j-2]+1);
+      c[j]=x;if(x<menor)menor=x;}
+    if(menor>k)return false;p2=p1;p1=c;}
+  return p1[b.length]<=k;
+}
+function indiceBusca(v){   // palavras de cada anúncio, com o peso do lugar onde estão (guardado no próprio anúncio)
+  if(v._bi)return v._bi;
+  const pal=[],comp=[];
+  [[v.b,3],[v.mod,4],[v.ver,1.5],[v.loja,3],[v.cambio,1],[v.comb,1]].forEach(([t,p])=>{const n=norm(t);if(!n)return;
+    n.split(/[\s\-\/()]+/).forEach(w=>{w=w.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g,'');if(w)pal.push([w,p]);});
+    comp.push([n.replace(/[^a-z0-9]/g,''),p]);});
+  if(/autom|cvt|dct|dsg/.test(norm(v.cambio)))pal.push(['automatico',1]);
+  return v._bi={pal,comp,anos:[v.ano,v.anoF].filter(Boolean).map(String)};
+}
+function notaBusca(t,ix,exata){   // exata: sem aceitar erro de digitação
+  if(/^(19[5-9]\d|20[0-3]\d)$/.test(t))return ix.anos.includes(t)?3:0;
+  let m=0;const c=t.replace(/[^a-z0-9]/g,'');
+  for(const [w,p] of ix.pal){
+    if(w===t)m=Math.max(m,p);
+    else if(t.length>1&&w.startsWith(t))m=Math.max(m,p*.8);
+    else if(!exata&&c.length>3&&w.length>3&&parecida(c,w,c.length>6?2:1))m=Math.max(m,p*.55);
+  }
+  if(c.length>2)for(const [x,p] of ix.comp)if(x.includes(c))m=Math.max(m,p*.7);   // hrv, tcross, autobarra
+  return m;
+}
+function buscar(l,q){
+  const {toks,lim}=lerBusca(q);
+  l=l.filter(v=>(lim.pmax==null||v.preco>0&&v.preco<=lim.pmax)&&(lim.pmin==null||v.preco>=lim.pmin)
+    &&(lim.kmmax==null||v.km!=null&&v.km<=lim.kmmax)&&(lim.kmmin==null||v.km>=lim.kmmin)
+    &&(lim.anomax==null||v.ano>0&&v.ano<=lim.anomax)&&(lim.anomin==null||v.ano>=lim.anomin));
+  if(!toks.length)return l;
+  const r=[];
+  l.forEach((v,i)=>{const ix=indiceBusca(v),sc=toks.map(t=>notaBusca(t,ix));
+    for(let j=0;j+1<toks.length;j++)if(!sc[j]||!sc[j+1]){const x=notaBusca(toks[j]+toks[j+1],ix,1);if(x)sc[j]=sc[j+1]=x/2;}   // "hb 20" é HB20
+    let n=0,s=0;sc.forEach(x=>{if(x){n++;s+=x;}});if(n)r.push({v,n,s,i});});
+  // os que têm todas as palavras; se nenhum tem, os mais parecidos: pelo menos metade das palavras e nota perto da melhor
+  let f=r.filter(x=>x.n===toks.length);
+  if(!f.length){const best=r.reduce((a,x)=>Math.max(a,x.s),0);f=r.filter(x=>x.n>=Math.ceil(toks.length/2)&&x.s>=best*.7);}
+  if(F.ord===ORDENS[0])f.sort((a,b)=>b.s-a.s||a.i-b.i);
+  return f.map(x=>x.v);
+}
 function filtrar(){
-  const q=norm(F.q);
   let l=V.filter(v=>{
     if(F.marca&&v.b!==F.marca)return false;
     if(F.modelo&&v.mod!==F.modelo)return false;
@@ -1172,8 +1277,8 @@ function filtrar(){
     if(F.loja&&v.loja!==F.loja)return false;
     if(F.cambio){const c=norm(v.cambio);if(F.cambio==='Automático'?!/autom|cvt|dct/.test(c):!/manual/.test(c))return false;}
     if(F.comb&&titulo(v.comb)!==F.comb)return false;
-    if(q&&!norm([v.b,v.mod,v.ver,v.loja,v.ano].join(' ')).includes(q))return false;
     return true;});
+  if(F.q.trim())l=buscar(l,F.q);
   if(F.ord==='Menor preço')l.sort((a,b)=>a.preco-b.preco);
   else if(F.ord==='Maior preço')l.sort((a,b)=>b.preco-a.preco);
   else if(F.ord==='Menor km')l.sort((a,b)=>(a.km==null?1e9:a.km)-(b.km==null?1e9:b.km));
@@ -1181,13 +1286,14 @@ function filtrar(){
   return l;
 }
 const algumFiltro=()=>FILTROS.some(f=>F[f[0]])||F.q;
+function marcarTodos(){const t=document.getElementById('fp-todos');if(t){t.classList.toggle('on',!algumFiltro());t.classList.toggle('drk',!!algumFiltro());}}   // buscando, "Todos" apaga sem redesenhar a barra
 function limparFiltros(){FILTROS.forEach(f=>F[f[0]]='');F.q='';buscando=false;mostrar=LOTE;render(false);}
 function filtroLinha(){
   return `<div class="fbar">
    <span class="fp ${algumFiltro()?'drk':'on'}" id="fp-todos" onclick="limparFiltros()"><span>${T('estoque.todos','Todos')}<span class="so-desk"> ${T('estoque.todos-resto','os veículos')}</span></span></span>
    ${FILTROS.map(f=>`<span class="fp ${F[f[0]]?'on':'drk'}" id="fp-${f[0]}" onclick="abrirFiltro('${f[0]}')"><span>${F[f[0]]?esc(F[f[0]]):T('estoque.filtro-'+f[0],f[1])}</span>${ic(I_DOWN,13)}</span>`).join('')}
    <span class="fp drk so-desk" id="fp-ord" onclick="abrirFiltro('ord')"><span>${T('estoque.ordenar','Ordenar:')} ${esc(F.ord.toLowerCase())}</span>${ic(I_DOWN,13)}</span>
-   ${buscando||F.q?`<span class="fp drk" id="fp-busca">${ic(I_BUSCA,14)}<input id="busca" value="${esc(F.q)}" placeholder="Marca, modelo ou loja" oninput="F.q=this.value;mostrar=LOTE;pintarAnuncios()"></span>`
+   ${buscando||F.q?`<span class="fp drk" id="fp-busca">${ic(I_BUSCA,14)}<input id="busca" value="${esc(F.q)}" placeholder="Modelo, loja, ano ou preço" oninput="F.q=this.value;mostrar=LOTE;pintarAnuncios();marcarTodos()"></span>`
      :`<span class="fp drk" id="fp-busca" onclick="buscando=true;render(false);setTimeout(()=>document.getElementById('busca').focus(),20)">${ic(I_BUSCA,14)}<span>${T('estoque.buscar','Buscar')}</span></span>`}
   </div>`;
 }
@@ -1240,7 +1346,7 @@ let totalEst=0;
 function pintarAnuncios(){   // desenha a lista de novo: filtros, ordem e busca
   const l=filtrar(),el=document.getElementById('mos');if(!el)return;
   if(roEtq)roEtq.disconnect();
-  el.innerHTML=l.length?`<div class="ancs" id="ancs">${l.slice(0,mostrar).map(anuncio).join('')}</div>`:`<div class="vazio">Nenhum veículo com esses filtros. <a onclick="limparFiltros()">Limpar filtros</a></div>`;
+  el.innerHTML=l.length?`<div class="ancs" id="ancs">${l.slice(0,mostrar).map(anuncio).join('')}</div>`:`<div class="vazio">${F.q.trim()?T('estoque.vazio-busca','Nenhum veículo encontrado para essa busca.'):T('estoque.vazio','Nenhum veículo com esses filtros.')} <a onclick="limparFiltros()">${T('estoque.limpar','Limpar filtros')}</a></div>`;
   jaCarregadas(el);recortar(el);
   const s=document.getElementById('mais');if(s)s.style.display=l.length>mostrar?'block':'none';
   totalEst=l.length;const t=document.getElementById('ecT');if(t)t.textContent=fmt(totalEst);
@@ -1282,7 +1388,11 @@ function estoque(){
  <section class="est-lista"><div class="wrap"><div id="mos"></div><div id="mais" style="height:1px"></div></div></section>
  <div class="est-cont-a"><div class="est-cont" id="ecC"><span>${ic(ICONES.estoque,18)}<span><b id="ecN">1</b> ${T('estoque.contador','de')} <span id="ecT">${fmt(filtrar().length)}</span></span></span></div></div>
 </div>${rodape()}`;}
+// título do estoque numa linha só: se um texto editado não couber, a letra diminui até caber
+function caberTitulo(){const h=document.querySelector('.est-top h2');if(!h)return;h.style.fontSize='';if(cel())return;
+  const s=h.scrollWidth,c=h.clientWidth;if(s>c+1)h.style.fontSize=parseFloat(getComputedStyle(h).fontSize)*c/s+'px';}
 function depoisEstoque(){
+  caberTitulo();document.fonts.ready.then(()=>{if(pagAtual==='estoque')caberTitulo();});
   pintarAnuncios();
   const s=document.getElementById('mais');
   new IntersectionObserver(es=>{if(es[0].isIntersecting)maisAnuncios();},{rootMargin:'600px'}).observe(s);
@@ -1304,6 +1414,9 @@ function abrirFiltro(k){
   document.body.appendChild(d);
 }
 function setF(k,v){F[k]=v;if(k==='marca')F.modelo='';mostrar=LOTE;fecharDrop();render(false);}
+// filtros, busca e ordem zeram quando se troca de página (pedido do Luiz, 30/09/2026); abrindo um carro e voltando, continuam
+function zerarFiltros(){FILTROS.forEach(f=>F[f[0]]='');F.q='';F.ord=ORDENS[0];buscando=false;mostrar=LOTE;}
+function estoqueDaLoja(n){zerarFiltros();F.loja=n;go('estoque');}   // "Estoque da loja": só a loja, sem os filtros de antes
 
 /* ==================== ASSOCIADOS ==================== */
 let selAssoc=null,catAssoc='Todos';
@@ -1341,7 +1454,7 @@ function associados(){
           ${S.nota?`<div class="num"><b>${S.nota.toFixed(1).replace('.',',')}<span style="color:#C8862E">★</span></b><small>${fmt(S.av)} avaliações</small></div>`:''}
           ${S.parc?`<div class="num"><b style="font-size:1.05rem">${esc(S.parc.tipo)}</b><small>${esc(S.parc.cat.toLowerCase())} do polo</small></div>`:`<div class="num"><b>${fmt(S.n)}</b><small>anúncios no ar</small></div>`}
         </div>
-        <div class="acts">${S.parc?`<button class="btn d" onclick="go('servicos')">Ver o serviço</button>`:`<button class="btn d" onclick="F.loja='${esc(S.nome).replace(/'/g,"\\'")}';go('estoque')">Ver estoque</button>`}
+        <div class="acts">${S.parc?`<button class="btn d" onclick="go('servicos')">Ver o serviço</button>`:`<button class="btn d" onclick="estoqueDaLoja('${esc(S.nome).replace(/'/g,"\\'")}')">Ver estoque</button>`}
           ${S.wa?`<a class="btn o" href="https://wa.me/${S.wa}?text=${encodeURIComponent('Olá! Vim pelo site da ACEIMA.')}" target="_blank">WhatsApp</a>`:''}</div>
       </div></div>`:'';
   const rows=Math.ceil(vis.length/2);
@@ -1366,7 +1479,7 @@ function associados(){
  </div>
 </div>${rodape()}`;}
 function selA(n){
-  if(matchMedia('(max-width:760px)').matches){const e=entradasAssoc().find(x=>x.nome===n);if(e&&e.parc){go('servicos');return;}F.loja=n;go('estoque');return;}
+  if(matchMedia('(max-width:760px)').matches){const e=entradasAssoc().find(x=>x.nome===n);if(e&&e.parc){go('servicos');return;}estoqueDaLoja(n);return;}
   selAssoc=n;render(false);}
 function catA(c){catAssoc=c;render(false);}
 
@@ -1401,7 +1514,8 @@ function veiculo(){
  <div class="glc vp">${LUZ}
   <div class="wrap">
    <a class="vp-volta" onclick="go('estoque')">${ic('<path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>',14)}${T('veiculo.voltar','Nosso estoque')}</a>
-   <div class="vp-hero" onclick="abrirFoto(0)">${fotos[0]?`<img class="vp-hb" src="${esc(fotos[0])}" alt="" aria-hidden="true"><img class="vp-hi" src="${esc(fotos[0])}" alt="${esc(nomeTodo(v))}" fetchpriority="high">`:''}${lgUrl?`<div class="vp-lj">${lg()}</div>`:''}</div>
+   <div class="vp-topo">
+   <div class="vp-hero" onclick="abrirFoto(0)">${fotos[0]?`<img class="vp-hi" src="${esc(fotos[0])}" alt="${esc(nomeTodo(v))}" fetchpriority="high" onload="this.parentNode.classList.add('ok')">`:''}${lgUrl?`<div class="vp-lj">${lg()}</div>`:''}</div>
    <section class="vp-m">
     <div>
      <h1><span>${E('veiculo.nome',esc(nomeV(v)))}</span>${ver?`<span class="vp-n2">${E('veiculo.versao',esc(ver))}</span>`:''}</h1>
@@ -1409,6 +1523,7 @@ function veiculo(){
     </div>
     <div class="vp-ficha">${ficha.map(f=>`<div><span>${f[0]}</span><b>${E('veiculo.ficha-valor',esc(f[1]))}</b></div>`).join('')}</div>
    </section>
+   </div>
    ${fotos.length>1?`<section class="vp-g" id="vpG">
     <div class="vp-gw">
      <div class="vp-gt" id="vpGt" onscroll="setasGaleria()">${fotos.slice(1).map((f,i)=>`<button type="button" class="vp-f" onclick="abrirFoto(${i+1})"><img src="${esc(f)}" alt="" loading="lazy" onload="this.classList.add('ok')" onerror="this.parentNode.remove();setasGaleria()"></button>`).join('')}</div>
@@ -1429,24 +1544,20 @@ function veiculo(){
  </div>
  <section class="ct vp-ct" id="vpCt">
   <div class="wrap">
+   <div class="kick c">${T('veiculo.valor','Valor')}</div>
    <div class="vp-ct-t">
     <div class="vp-v">
-     <div class="kick c">${T('veiculo.valor','Valor')}</div>
      <div class="vp-preco">${E('veiculo.preco',precoT(v.preco))}</div>
      <p>${E('veiculo.nome-valor',esc(nomeTodo(v)))}</p>
     </div>
     <div class="vp-form campo${fin?' fin':''}${troca?' troca':''}" id="vpForm">
-     <div><label>${T('veiculo.campo-nome','Seu nome')}</label><input id="ldNome" placeholder="Como quer ser chamado"></div>
-     <div><label>${T('veiculo.campo-whatsapp','Seu WhatsApp')}</label><input id="ldTel" inputmode="tel" placeholder="(21) 90000-0000"></div>
-     <div class="inteiro"><label>${T('veiculo.campo-forma','Forma de compra')}</label><div class="seg"><button type="button" class="${fin?'':'on'}" onclick="formaDeCompra('À vista',this)">${T('veiculo.a-vista','À vista')}</button><button type="button" class="${fin?'on':''}" onclick="formaDeCompra('Financiamento',this)">${T('veiculo.financiamento','Financiamento')}</button></div></div>
-     <div class="vp-fin"><div><div class="vp-fin-in">
-      <div class="inteiro"><label>${T('veiculo.campo-entrada','Entrada')}</label><div class="seg"><button type="button" class="${troca?'':'on'}" onclick="entradaDe('valor',this)">${T('veiculo.entrada-valor','Em dinheiro')}</button><button type="button" class="${troca?'on':''}" onclick="entradaDe('carro',this)">${T('veiculo.entrada-carro','Tenho um carro')}</button></div></div>
-      <div class="vp-fin-v inteiro"><label>${T('veiculo.campo-valor-entrada','Valor da entrada')}</label><input id="ldEnt" inputmode="numeric" placeholder="R$ 0" oninput="moedaCampo(this)"></div>
-      <div class="vp-fin-c"><label>${T('veiculo.campo-troca','Carro na troca')}</label><input id="ldTroca" placeholder="Marca e modelo"></div>
-      <div class="vp-fin-c"><label>${T('veiculo.campo-troca-ano','Ano')}</label><input id="ldTrocaAno" inputmode="numeric" maxlength="4" placeholder="2018"></div>
-     </div></div></div>
-     <button type="button" class="btnp" onclick="chamarLoja()">${T('veiculo.botao','Chamar a loja no WhatsApp')}${ic(SETA_DIAG,16)}</button>
-     <p class="vp-aviso">${T('veiculo.aviso','A conversa é direto com a loja. A ACEIMA recebe uma cópia do contato.')}</p>
+     <input id="ldNome" class="vp-f-nome" placeholder="${TX('veiculo.campo-nome','Seu nome')}" aria-label="${TX('veiculo.campo-nome','Seu nome')}" autocomplete="name">
+     <input id="ldTel" class="vp-f-tel" inputmode="tel" placeholder="${TX('veiculo.campo-whatsapp','Seu WhatsApp')}" aria-label="${TX('veiculo.campo-whatsapp','Seu WhatsApp')}" autocomplete="tel">
+     <div class="seg vp-f-forma" role="group" aria-label="${TX('veiculo.campo-forma','Forma de compra')}"><button type="button" class="${fin?'':'on'}" onclick="formaDeCompra('À vista',this)">${T('veiculo.a-vista','À vista')}</button><button type="button" class="${fin?'on':''}" onclick="formaDeCompra('Financiamento',this)">${T('veiculo.financiamento','Financiamento')}</button></div>
+     <div class="seg vp-f-ent" role="group" aria-label="${TX('veiculo.campo-entrada','Entrada')}"><button type="button" class="${troca?'':'on'}" onclick="entradaDe('valor',this)">${T('veiculo.entrada-valor','Entrada em dinheiro')}</button><button type="button" class="${troca?'on':''}" onclick="entradaDe('carro',this)">${T('veiculo.entrada-carro','Tenho um carro')}</button></div>
+     <input id="ldEnt" class="vp-f-val" inputmode="numeric" placeholder="${TX('veiculo.campo-valor-entrada','Valor da entrada')}" aria-label="${TX('veiculo.campo-valor-entrada','Valor da entrada')}" oninput="moedaCampo(this)">
+     <div class="vp-f-troca"><input id="ldTroca" placeholder="${TX('veiculo.campo-troca','Carro na troca')}" aria-label="${TX('veiculo.campo-troca','Carro na troca')}"><input id="ldTrocaAno" inputmode="numeric" maxlength="4" placeholder="${TX('veiculo.campo-troca-ano','Ano')}" aria-label="${TX('veiculo.campo-troca-ano','Ano')}"></div>
+     <button type="button" class="btnp vp-f-bt" onclick="chamarLoja()">${T('veiculo.botao','Chamar a loja no WhatsApp')}${ic(SETA_DIAG,16)}</button>
     </div>
    </div>
    <div class="vp-ct-i">
@@ -1456,7 +1567,7 @@ function veiculo(){
     ${nota?`<div><span>${T('veiculo.google','Avaliação no Google')}</span><p>${nota.toFixed(1).replace('.',',')} ★ · ${fmt(L.google_avaliacoes)} avaliações</p></div>`:''}
     <div class="ct-b">
      ${L.endereco?`<a class="btno" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.loja+', '+L.endereco+', Rio de Janeiro')}" target="_blank" rel="noopener">${T('veiculo.botao-mapa','Como chegar')}${ic(SETA_DIAG,15)}</a>`:''}
-     <a class="btno" onclick="F.loja='${q(v.loja)}';go('estoque')">${T('veiculo.botao-estoque','Estoque da loja')}${ic(SETA_DIAG,15)}</a>
+     <a class="btno" onclick="estoqueDaLoja('${q(v.loja)}')">${T('veiculo.botao-estoque','Estoque da loja')}${ic(SETA_DIAG,15)}</a>
     </div>
    </div>
   </div>
@@ -1465,11 +1576,15 @@ function veiculo(){
 // Logo com muita sobra transparente em volta (a da AG Rio Car) é recortada no desenho, para ocupar o espaço como as outras
 function tomLogo(img){
   if(img.dataset.ok)return;img.dataset.ok=1;
-  const c=img.dataset.cor;let escuro=true;
+  const c=img.dataset.cor;let escuro=true,branco='';
   try{
     const W=img.naturalWidth,H=img.naturalHeight,cv=document.createElement('canvas');cv.width=W;cv.height=H;
     const g=cv.getContext('2d',{willReadFrequently:true});g.drawImage(img,0,0);
     const d=g.getImageData(0,0,W,H).data;let s=0,q=0,x0=W,y0=H,x1=-1,y1=-1;
+    // logo com fundo branco: a borda da imagem é opaca e clara; o bloco atrás dela, embaixo, pega essa mesma cor
+    let nb=0,nc=0,rr=0,gg=0,bb=0;const borda=(x,y)=>{const i=(y*W+x)*4;nb++;if(d[i+3]>200&&d[i]*.299+d[i+1]*.587+d[i+2]*.114>225){nc++;rr+=d[i];gg+=d[i+1];bb+=d[i+2];}};
+    for(let x=0;x<W;x+=3){borda(x,0);borda(x,H-1);}for(let y=0;y<H;y+=3){borda(0,y);borda(W-1,y);}
+    if(nc>nb*.7)branco=`rgb(${Math.round(rr/nc)},${Math.round(gg/nc)},${Math.round(bb/nc)})`;
     for(let y=0;y<H;y+=2)for(let x=0;x<W;x+=2){const i=(y*W+x)*4;if(d[i+3]<40)continue;
       if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;if(d[i+3]>128){s+=(d[i]*299+d[i+1]*587+d[i+2]*114)/1000;q++;}}
     if(q)escuro=s/q>=90;
@@ -1479,7 +1594,10 @@ function tomLogo(img){
       img.src=r.toDataURL();}
   }catch(e){}
   if(/^#[0-9a-f]{6}$/i.test(c)){const n=parseInt(c.slice(1),16);escuro=((n>>16)*299+((n>>8)&255)*587+(n&255)*114)/1000<128;}
-  img.parentNode.classList.add(escuro?'escuro':'claro','pronta');
+  const pai=img.parentNode;pai.classList.add(escuro?'escuro':'claro','pronta');
+  if(pai.classList.contains('vp-l-lg')){   // embaixo, na folha azul: bloco só para logo com fundo branco ou escura
+    if(branco){pai.classList.add('branco');pai.style.background=branco;}
+    else if(!escuro&&/^#[0-9a-f]{6}$/i.test(c))pai.style.background=c;}
 }
 // fotos embaixo do nome: 4 por vez (2 no celular), as setas passam uma tela de fotos; "Ver todas" abre e fecha a grade inteira
 function setasGaleria(){
@@ -1560,8 +1678,21 @@ function passarFoto(d){if(fotosLB.length<2)return;iLB=(iLB+d+fotosLB.length)%fot
 function fecharFoto(){const lb=document.getElementById('lb');if(lb)lb.remove();document.body.classList.remove('lb-on');}
 document.addEventListener('keydown',e=>{if(!document.getElementById('lb'))return;if(e.key==='Escape')fecharFoto();else if(e.key==='ArrowRight'||e.key==='ArrowDown')passarFoto(1);else if(e.key==='ArrowLeft'||e.key==='ArrowUp')passarFoto(-1);});
 // forma de compra: no financiamento abre a entrada (em dinheiro ou com um carro na troca), como no formulário do site antigo
-function formaDeCompra(f,b){formaCompra=f;b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));const fm=document.getElementById('vpForm');if(fm)fm.classList.toggle('fin',f==='Financiamento');}
-function entradaDe(e,b){entradaCompra=e;b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));const fm=document.getElementById('vpForm');if(fm)fm.classList.toggle('troca',e==='carro');}
+function formaDeCompra(f,b){formaCompra=f;b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));mexerForm(fm=>fm.classList.toggle('fin',f==='Financiamento'));}
+function entradaDe(e,b){entradaCompra=e;b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));mexerForm(fm=>fm.classList.toggle('troca',e==='carro'));}
+// o formulário muda de forma sem pular: a altura desliza, cada campo vai do lugar antigo ao novo e os que chegam aparecem em fusão
+function mexerForm(fn){
+  const fm=document.getElementById('vpForm');if(!fm)return;
+  const vis=c=>getComputedStyle(c).display!=='none',kids=[...fm.children];
+  const h0=fm.offsetHeight,antes=new Map(kids.filter(vis).map(c=>[c,c.getBoundingClientRect()]));
+  fn(fm);
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const h1=fm.offsetHeight,op={duration:420,easing:'cubic-bezier(.2,.8,.2,1)'};
+  if(Math.abs(h1-h0)>.5){fm.style.overflow='hidden';fm.animate([{height:h0+'px'},{height:h1+'px'}],op).onfinish=()=>{fm.style.overflow='';};}
+  kids.filter(vis).forEach(c=>{const r=c.getBoundingClientRect(),a=antes.get(c);
+    if(!a){c.animate([{opacity:0,transform:'translateY(-8px)'},{opacity:1,transform:'none'}],{...op,delay:90,fill:'backwards'});return;}
+    const dx=a.left-r.left,dy=a.top-r.top;if(Math.abs(dx)>.5||Math.abs(dy)>.5)c.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:'none'}],op);});
+}
 function moedaCampo(i){const d=i.value.replace(/\D/g,'').slice(0,9);i.value=d?'R$ '+fmt(+d):'';}
 function chamarLoja(){
   const v=V.find(x=>String(x.id)===String(vAtual));if(!v)return;
@@ -1831,6 +1962,7 @@ function render(topo){
 }
 function go(pg,arg){
   const de=pagAtual;
+  if(pg!=='estoque'&&pg!=='veiculo')zerarFiltros();
   if(pg==='veiculo')vAtual=arg;
   pagAtual=pg;const u=urlDe(pg,arg);
   try{
@@ -1859,14 +1991,14 @@ function lerRota(){
   else{pagAtual=ANTIGAS[p]||Object.keys(ROTAS).find(k=>ROTAS[k]===p)||'home';}
 }
 function rota(manter){lerRota();render(!manter);}
-addEventListener('popstate',e=>{const de=pagAtual;lerRota();atualizarMenu();trocarPagina(e.hasUAVisualTransition,de);});   // o gesto de voltar do celular já anima: não repete
+addEventListener('popstate',e=>{const de=pagAtual;lerRota();if(pagAtual!=='estoque'&&pagAtual!=='veiculo')zerarFiltros();atualizarMenu();trocarPagina(e.hasUAVisualTransition,de);});   // o gesto de voltar do celular já anima: não repete
 // aba volta a ficar visível: o navegador pode ter pausado o vídeo do fundo
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)document.querySelectorAll('video.luz').forEach(v=>v.play().catch(()=>{}));});
 let largAnt=matchMedia('(max-width:760px)').matches;
 addEventListener('resize',()=>{if(pagAtual==='home')alturaCategorias();const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;montarMenu();}
   if(pagAtual==='veiculo'){setasGaleria();clearTimeout(ordenarInfo.t);ordenarInfo.t=setTimeout(ordenarInfo,200);}
   if(document.getElementById('lb'))posFotos(true);
-  if(pagAtual==='estoque')contarVistos(true);});
+  if(pagAtual==='estoque'){contarVistos(true);caberTitulo();}});
 
 rota();
 montarMenu();
