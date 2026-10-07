@@ -6,7 +6,8 @@
 //    PATCH/DELETE /api/lojas    -> edita / remove loja
 //    GET  /api/veiculos?...     -> busca de veículos (filtros)
 //    POST /api/veiculos         -> mostra/oculta um veículo no site
-//    GET  /api/logo?id=ID       -> logo de uma loja, como imagem
+//    GET  /api/logo?id=ID       -> logo de uma loja, como imagem (?parceiro=Nome: de um credenciado)
+//    GET  /api/parceiros?site=1 -> nota no Google e logo dos credenciados (serviços e comércio)
 //    GET  /api/detalhe?id=ID    -> descrição do anúncio, lida no site da loja
 //    GET/POST /api/leads        -> lista / grava lead
 //    GET  /api/importar?loja=ID -> roda o robô (cron de hora em hora)
@@ -716,7 +717,7 @@ async function rotaLojas(req, res) {
   if (req.method === 'GET' && doSite(req)) {
     // sem logo_url: os logos (imagens embutidas) eram quase todo o peso. A página do veículo pede a logo da loja sozinha (rota logo);
     // cor é o fundo da logo que a ACEIMA escolheu no painel
-    const { rows } = await query('select id, nome, endereco, telefone, whatsapp, google_nota, google_avaliacoes, cor from lojas where ativa = true order by nome');
+    const { rows } = await query('select id, nome, endereco, telefone, whatsapp, google_nota, google_avaliacoes, cor from lojas where ativa = true and nome <> all($1) order by nome', [FORA_DO_SITE]);
     res.setHeader('Cache-Control', CACHE_SITE);
     return res.json(rows);
   }
@@ -765,6 +766,15 @@ async function rotaLojas(req, res) {
 
 // parceiros de serviço do polo — leitura pública, escrita só com token
 async function rotaParceiros(req, res) {
+  if (req.method === 'GET' && doSite(req)) {
+    // o site: a nota no Google e se tem logo, de cada credenciado (o robô das avaliações guarda tudo em config). Sem migra()
+    const { rows } = await query(`select chave, case when chave = 'avaliacoes_google' then valor end as valor, length(valor) as n
+                                    from config where chave = 'avaliacoes_google' or chave like 'logo_parceiro:%'`);
+    const g = rows.find(r => r.chave === 'avaliacoes_google'), av = g && g.valor ? JSON.parse(g.valor) : {};
+    const comLogo = new Set(rows.filter(r => r.chave.startsWith('logo_parceiro:') && r.n > 0).map(r => r.chave.slice(14)));
+    res.setHeader('Cache-Control', CACHE_SITE);
+    return res.json(PARCEIROS_ROBO.map(p => ({ nome: p.nome, nota: (av[p.nome] || {}).nota || null, total: (av[p.nome] || {}).total || null, logo: comLogo.has(p.nome) })));
+  }
   await migra();
   if (req.method === 'GET') {
     const { rows } = await query(
@@ -813,7 +823,7 @@ async function rotaVeiculos(req, res) {
       `select v.id, v.loja_id, v.tipo, v.marca, v.modelo, v.versao, v.ano_modelo, v.ano_fabricacao, v.km, v.preco, v.cambio, v.combustivel, v.fotos, v.opcionais,
               l.nome as loja_nome, l.whatsapp as loja_whatsapp
          from veiculos v join lojas l on l.id = v.loja_id
-        where v.ativo = true and coalesce(v.oculto,false) = false order by v.sincronizado_em desc limit 3000`);
+        where v.ativo = true and coalesce(v.oculto,false) = false and l.nome <> all($1) order by v.sincronizado_em desc limit 3000`, [FORA_DO_SITE]);
     res.setHeader('Cache-Control', CACHE_SITE);
     return res.json(rows);
   }
@@ -1250,20 +1260,33 @@ async function rotaConteudo(req, res) {
   res.json({ ok: true, ramo });
 }
 
-// ---------------- AVALIAÇÕES DO GOOGLE (faixa da home) ----------------
-// Avaliações reais de cada loja, pela API oficial do Google (Places API New): até 5 por loja.
-// Uma vez por dia atualiza até 30 lojas, as mais antigas primeiro (uma consulta por loja).
-// Com 23 lojas, todas são atualizadas todo dia. Passando de 30 lojas, as outras entram nos dias seguintes.
-// A mesma consulta atualiza a nota e o total de avaliações da loja.
+// ---------------- AVALIAÇÕES DO GOOGLE (faixa da home e notas dos associados) ----------------
+// Avaliações reais de cada associado, pela API oficial do Google (Places API New): até 5 por associado.
+// Uma vez por dia atualiza até 30 associados, os mais antigos primeiro (uma consulta por associado). Associado que nunca foi
+// consultado (um credenciado novo) entra na hora, dentro do mesmo limite de 30 consultas em 24 horas.
+// Com 22 lojas e 4 credenciados, todos são atualizados todo dia. Passando de 30, os outros entram nos dias seguintes.
+// Nas lojas, a mesma consulta atualiza a nota e o total de avaliações (tabela lojas); nos credenciados, a nota fica junto das
+// avaliações, em config. A logo dos credenciados é lida no site de cada um (logosDosParceiros).
 // Precisa da variável GOOGLE_PLACES_KEY na Vercel. Sem ela, a faixa não aparece.
-const semAcento = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+const semAcento = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+// lojas que estão no banco e ficam fora do site e do robô (pedido do Luiz, 07/10/2026). O painel continua vendo
+const FORA_DO_SITE = ['Lions Seminovos'];
+// associados que não são lojas de carro: os mesmos do PARCEIROS do index.html, com o mesmo nome (pedido do Luiz, 07/10/2026)
+const PARCEIROS_ROBO = [
+  { nome: 'LaudoCar', site: 'https://laudocarrj.com.br/' },
+  { nome: 'SISV Inspeção Veicular', site: 'https://grupovialog.com.br/sisv-vila-valqueire-rj/' },
+  { nome: 'Frioline', site: 'https://www.frioline.com.br/' },
+  { nome: 'R21 Bar & Restaurante', site: 'https://nxp.digital/reserva/r21-vila-valqueire' }
+];
 const NOMES_GENERICOS = ['auto', 'car', 'veiculos', 'automoveis', 'motors', 'motos', 'multimarcas', 'seminovos'];
+// a palavra principal do nome ("laudocar", "r21"): a primeira com mais de duas letras que não é genérica
+const palavraChave = nome => semAcento(nome).replace(/[^a-z0-9 ]/g, '').split(' ').find(w => w.length > 2 && !NOMES_GENERICOS.includes(w));
 // confere se o Google achou a loja certa: a palavra principal do nome tem que aparecer no nome do Google
 function mesmaLoja(nosso, google) {
-  const chave = semAcento(nosso).replace(/[^a-z0-9 ]/g, '').split(' ').find(w => w.length > 2 && !NOMES_GENERICOS.includes(w));
+  const chave = palavraChave(nosso);
   return !!chave && semAcento(google).replace(/[^a-z0-9]/g, '').includes(chave);
 }
-// devolve as avaliações da loja, [] se ela não tem, ou null se a consulta falhou
+// devolve { lista, nota, total } do associado (lista vazia se o Google não achou), ou null se a consulta falhou
 async function avaliacoesDaLoja(loja, chave) {
   try {
     const r = await fetch('https://places.googleapis.com/v1/places:searchText', {
@@ -1276,42 +1299,92 @@ async function avaliacoesDaLoja(loja, chave) {
     });
     if (!r.ok) return null;
     const p = ((await r.json()).places || [])[0];
-    if (!p || !mesmaLoja(loja.nome, p.displayName && p.displayName.text)) return [];
-    if (p.rating) await query('update lojas set google_nota=$2, google_avaliacoes=$3, google_em=now() where id=$1',
+    if (!p || !mesmaLoja(loja.nome, p.displayName && p.displayName.text)) return { lista: [], nota: null, total: null };
+    if (p.rating && loja.id) await query('update lojas set google_nota=$2, google_avaliacoes=$3, google_em=now() where id=$1',
       [loja.id, p.rating, p.userRatingCount || null]);
     // só as boas (4 e 5 estrelas) e com texto
-    return (p.reviews || []).filter(v => v.rating >= 4 && v.text && v.text.text && v.authorAttribution)
-      .map(v => ({ loja: loja.nome, autor: v.authorAttribution.displayName || '', foto: v.authorAttribution.photoUri || '',
-        texto: v.text.text, link: v.googleMapsUri || v.authorAttribution.uri || '' }));
+    return { nota: p.rating || null, total: p.userRatingCount || null,
+      lista: (p.reviews || []).filter(v => v.rating >= 4 && v.text && v.text.text && v.authorAttribution)
+        .map(v => ({ loja: loja.nome, autor: v.authorAttribution.displayName || '', foto: v.authorAttribution.photoUri || '',
+          texto: v.text.text, link: v.googleMapsUri || v.authorAttribution.uri || '' })) };
   } catch (_) { return null; }
 }
 async function avaliacoesGoogle() {
   const { rows: [c] } = await query("select valor, em from config where chave='avaliacoes_google'");
-  const guardadas = c ? JSON.parse(c.valor) : {};   // { nome da loja: { em, lista } }
-  const todas = () => Object.values(guardadas).flatMap(g => g.lista);
+  const guardadas = c ? JSON.parse(c.valor) : {};   // { nome do associado: { em, lista, nota, total } }
+  const todas = () => Object.entries(guardadas).filter(([nome]) => !FORA_DO_SITE.includes(nome)).flatMap(([, g]) => g.lista);
   const chave = process.env.GOOGLE_PLACES_KEY;
-  if (!chave || (c && Date.now() - new Date(c.em).getTime() < 864e5)) return todas();
-  await migra();   // só a atualização do dia precisa das colunas novas: quem só lê as avaliações não espera as migrações (eram 3s na primeira visita)
-  const { rows: lojas } = await query('select id, nome from lojas where ativa = true');
-  const LIMITE_DIA = 30;   // consultas por dia ao Google. NUNCA subir sem autorização do Luiz.
+  const recente = c && Date.now() - new Date(c.em).getTime() < 864e5;   // a atualização do dia já foi feita
+  const novos = PARCEIROS_ROBO.filter(p => !guardadas[p.nome]);
+  if (!chave || (recente && !novos.length)) return todas();
+  if (!recente) await migra();   // só a atualização do dia precisa das colunas novas: quem só lê as avaliações não espera as migrações (eram 3s na primeira visita)
+  const { rows: lojas } = await query('select id, nome from lojas where ativa = true and nome <> all($1)', [FORA_DO_SITE]);
+  const associados = lojas.concat(PARCEIROS_ROBO);
+  const LIMITE_DIA = 30;   // consultas ao Google em 24 horas. NUNCA subir sem autorização do Luiz.
   const idade = l => guardadas[l.nome] ? new Date(guardadas[l.nome].em).getTime() : 0;
-  const vez = lojas.sort((a, b) => idade(a) - idade(b)).slice(0, LIMITE_DIA);
+  const feitas = Object.values(guardadas).filter(g => Date.now() - new Date(g.em).getTime() < 864e5).length;   // consultas das últimas 24 horas
+  const vez = recente ? novos.slice(0, Math.max(0, LIMITE_DIA - feitas)) : associados.sort((a, b) => idade(a) - idade(b)).slice(0, LIMITE_DIA);
+  if (!vez.length) return todas();
   const achadas = await Promise.all(vez.map(l => avaliacoesDaLoja(l, chave)));
-  // tudo falhou (chave errada, cota do dia no fim, Google fora do ar): tenta de novo depois; erro não é cobrado
-  if (achadas.every(x => x === null)) return todas();
-  achadas.forEach((x, i) => { if (x !== null) guardadas[vez[i].nome] = { em: new Date().toISOString(), lista: x }; });
-  for (const nome of Object.keys(guardadas)) if (!lojas.some(l => l.nome === nome)) delete guardadas[nome];   // saiu da associação
+  // tudo falhou na atualização do dia (chave errada, cota do dia no fim, Google fora do ar): tenta de novo na próxima visita; erro não é cobrado
+  if (!recente && achadas.every(x => x === null)) return todas();
+  // quem falhou fica com o que tinha; associado que nunca tinha sido consultado fica marcado, sem avaliações, e entra de novo na atualização
+  // do dia seguinte (senão a consulta dele se repetiria a cada visita)
+  const agora = new Date().toISOString();
+  achadas.forEach((x, i) => { const n = vez[i].nome;
+    if (x !== null) guardadas[n] = { em: agora, lista: x.lista, nota: x.nota, total: x.total };
+    else if (!guardadas[n]) guardadas[n] = { em: agora, lista: [], nota: null, total: null }; });
+  if (!recente) for (const nome of Object.keys(guardadas)) if (!associados.some(l => l.nome === nome)) delete guardadas[nome];   // saiu da associação
   await query("insert into config (chave, valor, em) values ('avaliacoes_google', $1, now()) on conflict (chave) do update set valor = $1, em = now()",
     [JSON.stringify(guardadas)]);
+  try { await logosDosParceiros(); } catch (_) {}
   return todas();
+}
+// logo dos credenciados, lida no site de cada um e guardada em config ('logo_parceiro:Nome'). Achada, é lida de novo em 30 dias;
+// não achada (site fora do ar ou sem a logo), em 3 dias
+async function logosDosParceiros() {
+  const { rows } = await query("select chave, em, length(valor) as n from config where chave like 'logo_parceiro:%'");
+  const vez = PARCEIROS_ROBO.filter(p => { const r = rows.find(x => x.chave === 'logo_parceiro:' + p.nome);
+    return !r || Date.now() - new Date(r.em).getTime() > (r.n > 0 ? 30 : 3) * 864e5; });
+  await Promise.all(vez.map(async p => {
+    const logo = await logoDoParceiro(p);
+    await query("insert into config (chave, valor, em) values ($1, $2, now()) on conflict (chave) do update set valor = $2, em = now()",
+      ['logo_parceiro:' + p.nome, logo || '']);
+  }));
+}
+// a logo no site do credenciado: a primeira imagem com "logo" no endereço, no texto alternativo ou na classe, e com o nome dele no
+// endereço ou no texto alternativo (assim não pega a logo do grupo nem a do sistema de reservas). null se não achou
+async function logoDoParceiro(p) {
+  const chave = palavraChave(p.nome);
+  if (!chave || !p.site) return null;
+  try {
+    const h = { 'User-Agent': 'Mozilla/5.0 (compatible; ACEIMA-Importer/1.0)' };
+    const r = await fetch(p.site, { headers: h, redirect: 'follow', signal: AbortSignal.timeout(8000) });
+    if (!r.ok) return null;
+    const $ = cheerio.load(await r.text());
+    let src = null;
+    $('img').each((_, e) => {
+      if (src) return;
+      const u = $(e).attr('src') || $(e).attr('data-src') || '', alt = $(e).attr('alt') || '', cl = $(e).attr('class') || '';
+      if (/logo/i.test(u + ' ' + alt + ' ' + cl) && semAcento(u + ' ' + alt).replace(/[^a-z0-9]/g, '').includes(chave)) src = u;
+    });
+    if (!src) return null;
+    const i = await fetch(new URL(src, r.url || p.site).href, { headers: h, redirect: 'follow', signal: AbortSignal.timeout(8000) });
+    const ct = (i.headers.get('content-type') || '').split(';')[0].trim();
+    if (!i.ok || !/^image\//.test(ct)) return null;
+    const buf = Buffer.from(await i.arrayBuffer());
+    return buf.length && buf.length <= 300000 ? `data:${ct};base64,${buf.toString('base64')}` : null;
+  } catch (_) { return null; }
 }
 
 // ---------------- PÁGINA DO VEÍCULO ----------------
 // logo de uma loja como imagem (o banco guarda como data URI), com cache: a página do veículo mostra a logo sem pesar a lista de lojas
 async function rotaLogo(req, res) {
-  const id = parseInt((req.query && req.query.id) || '', 10);
-  if (!id) return res.status(400).end();
-  const { rows: [l] } = await query('select logo_url from lojas where id = $1 and ativa = true', [id]);
+  const id = parseInt((req.query && req.query.id) || '', 10), parc = req.query && req.query.parceiro;
+  if (!id && !parc) return res.status(400).end();
+  const { rows: [l] } = parc   // credenciado: a logo que o robô leu no site dele
+    ? await query("select valor as logo_url from config where chave = $1", ['logo_parceiro:' + String(parc)])
+    : await query('select logo_url from lojas where id = $1 and ativa = true', [id]);
   const u = (l && l.logo_url) || '';
   const m = u.match(/^data:(image\/[a-z0-9.+-]+)(;base64)?,([\s\S]*)$/i);
   if (!m && !/^https?:\/\//i.test(u)) { res.setHeader('Cache-Control', 's-maxage=3600'); return res.status(404).end(); }
