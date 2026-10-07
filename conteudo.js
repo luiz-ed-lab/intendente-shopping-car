@@ -15,7 +15,7 @@ window.CONTEUDO = {
     "tam": 1.6
   },
   "inicio.subtitulo": {
-    "texto": "{lojas} comércios associados na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade."
+    "texto": "{associados} comércios associados na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade."
   },
   "inicio.caminho1": {
     "texto": "Conheça a ACEIMA"
@@ -36,7 +36,7 @@ window.CONTEUDO = {
     "texto": "Faça parte de uma rede que fortalece sua marca, amplia sua visibilidade e responde junto com você."
   },
   "inicio.caminho2-texto": {
-    "texto": "Empresas de diferentes segmentos, reunidos em um só endereço e identificados pelo selo ACEIMA."
+    "texto": "Empresas de diferentes segmentos, reunidas em um só endereço e identificadas pelo selo ACEIMA."
   },
   "inicio.caminho2": {
     "texto": "Um polo comercial mais do que completo"

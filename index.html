@@ -5,8 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- endereços como /veiculo/123 não podem quebrar os caminhos relativos (logo, vídeo, fotos); do disco, fica como está -->
 <script>if(location.protocol!=='file:'){const b=document.createElement('base');b.href='/';document.head.prepend(b)}</script>
-<title>ACEIMA | O maior polo automotivo da América Latina</title>
-<meta name="description" content="A ACEIMA reúne as lojas da Estrada Intendente Magalhães desde 1998. Estoque dos associados, serviços do polo e como se associar.">
+<!-- ícone do site: a logo redonda da Intendente que o Luiz enviou em 07/10/2026 (original recortado em marca-nova/simbolo-redondo.png) -->
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="marca-nova/icone-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="marca-nova/icone-192.png">
+<link rel="apple-touch-icon" href="marca-nova/apple-touch-icon.png">
+<title>ACEIMA | Intendente, Polo Comercial e Automotivo do Rio</title>
+<meta name="description" content="A ACEIMA reúne as empresas da Estrada Intendente Magalhães desde 1998: lojas de veículos, serviços e comércio sob um mesmo padrão de qualidade e de atendimento.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -126,8 +131,16 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .anc-t{top:0;left:0;max-width:calc(100% - 40px);padding:8px 16px 12px;color:#fff}
 .anc-p{right:0;bottom:0;padding:12px 16px 8px;color:var(--gold3);font-weight:700}
 .anc-l{display:none}
-/* a seta anda junto com a última letra escrita: ela e a última palavra ficam num grupo que não quebra de linha */
+/* a seta anda junto com a última letra escrita: ela e a última palavra ficam num grupo que não quebra de linha (versão sem JS) */
 .anc-u{white-space:nowrap}
+/* sendo escrito (digitar): as linhas já vêm medidas, então nada quebra sozinho, e cada letra nova entra em fusão */
+.anc-l.dg{white-space:nowrap}
+.anc-l .lt{animation:letra .32s ease-out both}
+@keyframes letra{from{opacity:0}}
+/* medição das linhas do nome completo: com lugar para a seta (21px) no fim de cada linha */
+.anc-t.mede{padding-right:37px}
+.anc-t.mede .anc-c{display:none}
+.anc-t.mede .anc-l{display:inline;white-space:normal}
 .anc-s{display:inline-block;width:21px;overflow:hidden;vertical-align:-2px;animation:setaEntra .3s ease-out both}
 .anc-s svg{display:block;margin-left:7px}
 @keyframes setaEntra{from{width:0}}
@@ -139,6 +152,10 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .anc:hover .anc-l,.anc:focus-visible .anc-l{display:inline}
   .anc:hover .anc-i,.anc:focus-visible .anc-i{opacity:1;transform:none}
 }
+/* vivo: o anúncio com o mouse em cima ou, sem mouse, o do meio da tela (sem desfocar a foto) */
+.anc.vivo .anc-c{display:none}
+.anc.vivo .anc-l{display:inline}
+.anc.vivo .anc-i{opacity:1;transform:none}
 @media (max-width:1399px){.ancs{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 /* caminhos da home */
@@ -265,7 +282,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
    azul como a da página do carro (no celular, logo abaixo da linha tocada). Os toques não desenham a página de novo: o fundo não recomeça */
 .as3{flex:1;padding-top:clamp(20px,1.6vw,30px);padding-bottom:clamp(48px,4vw,80px)}
 .as3-topo{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
-.as3-topo h2{margin-top:8px;font-size:clamp(1.8rem,2.2vw,2.6rem)}
+.as3-topo h2{font-size:clamp(1.8rem,2.2vw,2.6rem)}
 /* filtro num botão só: fechado mostra a escolha; aberto, as três opções, cada uma sempre no seu lugar (o menu só cresce para baixo) */
 .as3-cw{position:relative;flex:none;width:clamp(220px,15vw,260px);height:48px}   /* guarda o lugar do botão fechado: abrir não empurra nada */
 .as3-cat{position:absolute;z-index:30;top:0;left:0;right:0;display:flex;flex-direction:column;padding:5px;border-radius:24px;background:#fff;border:1px solid #E5E5E5;box-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1)}
@@ -681,7 +698,9 @@ body.lb-on{overflow:hidden}
 /* Seja um associado (pedido do Luiz, 06/10/2026), no estilo do modelo Resume (21st.dev, @shadcnspace): metade com o título e metade
    com a foto do presidente (o espaço fica pronto até a foto chegar), uma faixa com o contato e seções com título grande e linha, alternando
    cinza e branco. Em 07/10/2026: sem a logo dourada, sem a palavra ACEIMA gigante, sem a numeração das seções, sem os círculos (no lugar,
-   a foto da união) e sem o "Como entrar"; todas as lojas, pequenas, seis por linha; e o formulário numa folha azul, como o da página do carro */
+   a foto da união) e sem o "Como entrar"; o formulário numa folha azul, como o da página do carro. Depois, no mesmo dia: o contato no
+   meio, embaixo da foto; sem o título "Por que se associar" e sem as linhas; a frase dos ramos no lugar dos chips; todos os associados,
+   com as logos mais baixas, sete por linha */
 .as2{--wl:max(60px,calc((100vw - 1780px) / 2 + 60px));background:#fff;color:var(--ink)}
 .as2-hero{display:grid;grid-template-columns:1fr 1fr}
 .as2-hl{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:clamp(48px,5vw,96px) clamp(32px,4vw,80px) clamp(48px,5vw,96px) var(--wl)}   /* o texto e o botão no meio da altura da foto */
@@ -694,7 +713,7 @@ body.lb-on{overflow:hidden}
 .as2-foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .as2-foto>div{display:flex;flex-direction:column;align-items:center;gap:16px;color:rgba(255,255,255,.62);font:500 clamp(.72rem,.78vw,.88rem)/1.3 var(--f2);letter-spacing:.24em;text-transform:uppercase}
 .as2-foto>div svg{width:clamp(44px,4vw,64px);height:auto;stroke-width:1.2}
-.as2-ctt{display:flex;align-items:center;flex-wrap:wrap;gap:16px clamp(28px,3vw,56px);padding-top:clamp(22px,2vw,32px);padding-bottom:clamp(22px,2vw,32px);border-top:1px solid var(--line)}
+.as2-ctt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:16px clamp(28px,3vw,56px);padding-top:clamp(22px,2vw,32px);padding-bottom:clamp(22px,2vw,32px);border-top:1px solid var(--line)}
 .as2-ctt>span{display:inline-flex;align-items:center;gap:12px;font:400 clamp(1rem,1.15vw,1.25rem)/1.3 var(--f2);color:var(--ink)}
 .as2-ctt svg{flex:none;color:var(--gold)}
 .as2-s{position:relative;padding:clamp(72px,7vw,140px) 0}
@@ -702,21 +721,18 @@ body.lb-on{overflow:hidden}
 .as2-cab{padding-bottom:clamp(20px,1.8vw,32px);border-bottom:1px solid var(--ink)}
 .as2-cab h2{font:600 clamp(2.3rem,4.2vw,4.6rem)/1 var(--f1);letter-spacing:-.03em;color:var(--ink)}
 .as2-s p{font:400 clamp(.95rem,1.02vw,1.12rem)/1.75 var(--f2);color:#6A7587}
-/* por que se associar: a foto da união ao lado do texto, dos números e dos ramos, com a mesma altura: em cima na linha das letras do
-   texto e embaixo na base dos ramos */
-.as2-g1{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(40px,5vw,96px);margin-top:clamp(48px,4.6vw,88px)}
+/* a foto da união ao lado do texto, dos números e da frase dos ramos, com a mesma altura: em cima na linha das letras do texto e
+   embaixo na base da frase */
+.as2-g1{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(40px,5vw,96px)}
 .as2-ft{position:relative;min-height:260px;border-radius:clamp(14px,1.2vw,22px);overflow:hidden;background:#E6E1DA}
 .as2-ft img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.as2-s .as2-g1t>p{margin-top:-.5em}   /* a folga da linha acima das letras: o texto começa na linha de cima da foto */
-.as2-nums{display:flex;flex-wrap:wrap;gap:24px clamp(32px,4.6vw,88px);margin-top:clamp(36px,3.4vw,60px);padding-bottom:clamp(36px,3.4vw,60px);border-bottom:1px solid #D9D4CE}
+.as2-s .as2-g1t>p:first-child{margin-top:-.5em}   /* a folga da linha acima das letras: o texto começa na linha de cima da foto */
+.as2-nums{display:flex;flex-wrap:wrap;gap:24px clamp(32px,4.6vw,88px);margin-top:clamp(36px,3.4vw,60px)}
 .as2-nums b{display:block;font:600 clamp(2.2rem,3.1vw,3.4rem)/1 var(--f1);letter-spacing:-.03em;color:var(--ink)}
 .as2-nums small{display:block;max-width:220px;margin-top:10px;font:500 clamp(.92rem,1.05vw,1.15rem)/1.3 var(--f2);color:var(--ink)}
-/* quem pode se associar: o título numa linha e os ramos embaixo dele (pedido do Luiz, 07/10/2026) */
-.as2-ramos{margin-top:clamp(32px,3vw,52px)}
-.as2-rt{display:flex;align-items:center;gap:12px;font:500 clamp(1rem,1.15vw,1.25rem)/1.3 var(--f2)}
-.as2-rt svg{flex:none;color:var(--gold)}
-.as2-ramos>div{display:flex;flex-wrap:wrap;gap:12px;margin-top:clamp(14px,1.2vw,20px)}
-.as2-chip{padding:clamp(12px,1vw,16px) clamp(22px,2vw,30px);border-radius:99px;background:#fff;font:500 clamp(.95rem,1.05vw,1.15rem)/1 var(--f2);color:#6A7587}
+/* a frase dos ramos no lugar de "Quem pode se associar" e dos chips (pedido do Luiz, 07/10/2026); a base dela fica na base da foto */
+.as2-s .as2-todos{display:flex;align-items:center;gap:clamp(12px,1vw,16px);margin-top:clamp(36px,3.4vw,60px);margin-bottom:-.32em;font:500 clamp(1.2rem,1.6vw,1.75rem)/1.3 var(--f1);letter-spacing:-.01em;color:var(--ink)}
+.as2-todos svg{flex:none;width:clamp(26px,2vw,34px);height:auto;color:var(--gold)}
 /* o que a loja ganha: os benefícios e a rede credenciada */
 .as2-g3{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(40px,5vw,96px);align-items:start;margin-top:clamp(48px,4.6vw,80px)}
 .as2-bl{display:grid;gap:clamp(28px,2.6vw,44px)}
@@ -730,12 +746,12 @@ body.lb-on{overflow:hidden}
 .as2-card svg{color:var(--gold)}
 .as2-card h4{font:500 clamp(1rem,1.1vw,1.2rem)/1.3 var(--f2)}
 .as2-card small{font:400 clamp(.85rem,.9vw,.98rem)/1.3 var(--f2);color:#8A95A5}
-/* quem já faz parte: todas as lojas, pequenas, seis por linha; a última linha fica no meio (pedido do Luiz, 07/10/2026) */
-.as2-lojas{--gx:clamp(14px,1.2vw,22px);display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(26px,2.4vw,40px) var(--gx);margin-top:clamp(40px,3.6vw,64px)}
-.as2-lj{flex:0 0 calc((100% - 5 * var(--gx)) / 6);min-width:0;cursor:pointer}
-.as2-lf{display:grid;place-items:center;aspect-ratio:4/3;border-radius:10px;background:#E6E1DA;overflow:hidden;transition:background-color .3s}
+/* quem já faz parte: todos os associados, sete por linha, com as logos mais baixas; a última linha fica no meio (pedido do Luiz, 07/10/2026) */
+.as2-lojas{--gx:clamp(14px,1.2vw,22px);display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(22px,2vw,34px) var(--gx);margin-top:clamp(40px,3.6vw,64px)}
+.as2-lj{flex:0 0 calc((100% - 6 * var(--gx)) / 7);min-width:0;cursor:pointer}
+.as2-lf{display:grid;grid-template-rows:100%;place-items:center;aspect-ratio:2/1;border-radius:10px;background:#E6E1DA;overflow:hidden;transition:background-color .3s}
 .as2-lf.escuro{background:var(--ink)}
-.as2-lf img{max-width:66%;max-height:46%;width:auto;height:auto;transition:transform .4s var(--ease)}
+.as2-lf img{max-width:72%;max-height:56%;width:auto;height:auto;transition:transform .4s var(--ease)}
 .as2-lj:hover .as2-lf img{transform:scale(1.06)}
 .as2-lf.sem>img{display:none}
 .as2-lf>span{display:none;font:800 1.2rem/1 var(--f1);color:var(--gold)}
@@ -759,7 +775,7 @@ body.lb-on{overflow:hidden}
 @media (max-width:1100px){
   .as2{--wl:28px}
   .as2-g3{grid-template-columns:1fr}
-  .as2-lj{flex-basis:calc((100% - 3 * var(--gx)) / 4)}
+  .as2-lj{flex-basis:calc((100% - 4 * var(--gx)) / 5)}
   .vp-form.as2-fm{grid-template-rows:repeat(3,46px)}
 }
 @media (max-width:760px){
@@ -772,22 +788,20 @@ body.lb-on{overflow:hidden}
   .as2-hl .as2-bo{margin-top:7.04vw}
   .as2-foto{min-height:0;aspect-ratio:4/5}
   .as2-foto>div{gap:3.52vw;font-size:2.82vw}
-  .as2-ctt{flex-direction:column;align-items:flex-start;gap:4.23vw;padding:6.34vw 5.63vw}
-  .as2-ctt>span{gap:3.52vw;font-size:3.73vw}
+  .as2-ctt{flex-direction:column;gap:4.23vw;padding:6.34vw 5.63vw;text-align:center}
+  .as2-ctt>span{flex-direction:column;gap:1.76vw;font-size:3.73vw}   /* no meio: o ícone em cima do texto */
   .as2-s{padding:16.9vw 0}
   .as2-cab h2{font-size:9.86vw;letter-spacing:-.3vw}
   .as2-s p{font-size:3.73vw}
-  .as2-g1{grid-template-columns:1fr;gap:8.45vw;margin-top:9.86vw}
+  .as2-g1{grid-template-columns:1fr;gap:8.45vw}
   .as2-ft{min-height:0;aspect-ratio:4/3}
-  .as2-s .as2-g1t>p{margin-top:0}
-  .as2-nums{gap:7.04vw;margin-top:8.45vw;padding-bottom:8.45vw}
+  .as2-s .as2-g1t>p:first-child{margin-top:0}
+  .as2-nums{gap:7.04vw;margin-top:8.45vw}
   .as2-nums>div{flex:1 1 40%}
   .as2-nums b{font-size:9.86vw}
   .as2-nums small{margin-top:2.11vw;font-size:3.52vw}
-  .as2-ramos{margin-top:8.45vw}
-  .as2-rt{gap:2.82vw;font-size:3.94vw}
-  .as2-ramos>div{gap:2.11vw;margin-top:3.52vw}
-  .as2-chip{padding:3.17vw 5.63vw;font-size:3.52vw}
+  .as2-s .as2-todos{gap:3.52vw;margin-top:8.45vw;margin-bottom:0;font-size:5.07vw}
+  .as2-todos svg{width:7.04vw}
   .as2-g3{gap:12.7vw;margin-top:9.86vw}
   .as2-bl{gap:7.04vw}
   .as2-bl>div{padding-left:8.45vw}
@@ -798,7 +812,7 @@ body.lb-on{overflow:hidden}
   .as2-card small{font-size:3.17vw}
   .as2-lojas{--gx:3.52vw;gap:6.34vw var(--gx);margin-top:8.45vw}
   .as2-lj{flex-basis:calc((100% - 2 * var(--gx)) / 3)}
-  .as2-lf{border-radius:2.11vw}
+  .as2-lf{aspect-ratio:16/10;border-radius:2.11vw}
   .as2-lf>span{font-size:4.23vw}
   .as2-lt{margin-top:2.11vw;font-size:3.17vw}
   .as2-lt svg{display:none}
@@ -943,6 +957,7 @@ body.lb-on{overflow:hidden}
   .anc-f{--r:4.8vw;border-radius:2.67vw}
   .anc-t,.anc-p{font-size:3.73vw}
   .anc-t{padding:2.13vw 4.27vw 3.2vw;max-width:calc(100% - 10.67vw)}
+  .anc-t.mede{padding-right:calc(4.27vw + 21px)}
   .anc-p{padding:3.2vw 4.27vw 2.13vw}
   /* contador: embaixo, no centro; quando o rodapé aparece, ele para em cima dele */
   .gl>.est-cont-a{position:sticky;z-index:40;bottom:5.63vw}
@@ -1016,7 +1031,7 @@ body.lb-on{overflow:hidden}
      para o lado com o dedo, a lista numa coluna e a loja tocada logo abaixo da linha dela */
   .as3{padding-top:5.63vw;padding-bottom:11.27vw}
   .as3-topo{flex-direction:column;align-items:flex-start;gap:4.23vw}
-  .as3-topo h2{margin-top:1.41vw;font-size:6.76vw;letter-spacing:-.15vw;line-height:1.15}
+  .as3-topo h2{font-size:6.76vw;letter-spacing:-.15vw;line-height:1.15}
   .as3-cw{width:58vw;height:calc(10.92vw + 2px)}
   .as3-cat{padding:1.06vw;border-radius:5.63vw}
   .as3-cat button{font-size:3.52vw;line-height:5.28vw}
@@ -1153,7 +1168,7 @@ function estiloCss(o){o=o||{};let s='';
 // Com "por extenso" saem em palavras; com inicial maiúscula, começam maiúsculos.
 function comValores(s){return esc(s).replace(/\{([^}]+)\}/g,(m,k)=>{
   const n=norm(k).trim(),ext=n.endsWith(' por extenso'),b=n.replace(/ por extenso$/,'');
-  const q={'veiculos':nVeic(),'veiculos arredondados':Math.floor(nVeic()/100)*100||nVeic(),'lojas':nLojas(),'associados':nLojas()+PARCEIROS.length,'anos':new Date().getFullYear()-1998}[b];
+  const q={'veiculos':nVeic(),'veiculos arredondados':Math.floor(nVeic()/100)*100||nVeic(),'lojas':nLojas(),'associados':nAssoc(),'anos':new Date().getFullYear()-1998}[b];
   if(q==null)return m;const r=ext?extenso(q,b==='lojas'):fmt(q);return k[0]!==k[0].toLowerCase()?Cap(r):r;}).replace(/\n/g,'<br>');}
 function T(id,padrao){PADRAO[id]=padrao;const o=valor(id)||{};return `<span data-t="${id}" style="${estiloCss(o)}">${comValores(o.texto!=null?o.texto:padrao)}</span>`;}
 // dado que vem do estoque (nome do carro, preço, ficha, descrição): o texto não se edita, mas o estilo sim (tamanho, cor, fonte e peso).
@@ -1179,10 +1194,11 @@ const AMOSTRA_V=[
  ['Ford','Ka',2018,45900,'Bragança Automóveis','4038/5483556/1_022642.jpg'],
  ['Citroën','C4 Cactus',2021,73900,'BitCar Automóveis','1719/5444495/16_021544.jpg']
 ].map((c,i)=>({id:9000+i,b:c[0],mod:c[1],ver:'',ano:c[2],anoF:null,km:null,preco:c[3],cambio:'',comb:'',loja:c[4],lojaId:null,wa:'',fotos:[AF+c[5]],opc:[]}));
-const AMOSTRA_L=[[10,"AG Rio Car","Est. Intendente Magalhães, nº 731 - Vila Valqueire","(21) 3738-8786","5521992691749","4.7",270,27],[12,"Alfa Car Veículos","Estrada Intendente Magalhães, Nº 640 - Bento Ribeiro","(21) 3449-5183","5521971939888",null,null,34],[22,"Apollo Automóveis",null,"(21) 96867-2715","552120271964","4.5",952,22],[16,"Astral Pickups","Est. Intendente Magalhães, nº 205 - Madureira","(21) 3177-1137","5521964679349","4.3",56,57],[2,"Auto Barra","Est. Intendente Magalhães, nº 830 - Vila Valqueire","(21) 3495-3637","5521971754723","4.8",469,41],[8,"BitCar Automóveis",null,"(21) 3795-8891",null,"4.7",585,26],[5,"Bragança Automóveis","Est Intendente Magalhães, Nº 940 Bento Ribeiro",null,null,"4.4",96,27],[20,"FLX Multimarcas","Est. Intendente Magalhães, nº 341 Madureira",null,"552133570464","4.7",266,45],[19,"GTS IndyCar","Estrada Intendente Magalhães, nº 634 - Vila Valqueire","(21) 3442-0401",null,"4.8",75,32],[18,"Garra Vip 4x4",null,null,"5521996937057","4.4",251,38],[13,"Grande Estilo Veículos","Est. Intendente Magalhães, nº 840 - Vila Valqueire","(21) 99014-4894","5521990144894","4.3",21,23],[17,"HiperCar","Est. Intendente Magalhães, nº 860 - Vila Valqueire - RJ","(21) 2499-5721","5521974375395","4.7",117,15],[15,"Jay Motors",null,"(21) 96584-7342","5521965847342","4.0",180,135],[14,"Jazz Veículos",null,null,"5521970000151","4.5",5347,555],[3,"Lazari","Est da Fontinha nº 889 Bento Ribeiro","(21) 97032-6720","5521970326720","4.7",1227,107],[24,"Lions Seminovos",null,null,null,"4.8",7084,0],[1,"Luma Car","Est. Intendente Magalhães, nº 678 Vila Valqueire","(21) 3592-5727","5521964176474","4.6",987,34],[6,"Maiorano Veículos","Est. Intendente Magalhães, nº 244 Campinho","(21) 2137-9245","5521995690096","4.8",36,32],[21,"Perfil Multimarcas","Est. Intendente Magalhães, nº 60 Madureira",null,"5521979413884","3.5",113,24],[23,"Riomix Motos",null,"(21) 3796-9962","5521998925675","4.6",168,31],[11,"Robmar Automóveis","Estrada Intendente Magalhães, nº 1.185 Vila Valqueire",null,"5521976646070","4.2",2492,60],[9,"T.F.A. Motors",null,null,"5521964648660","5.0",36,13],[7,"TurboMix Veículos","Est. intendente Magalhães, nº 1187 - Bento Ribeiro","(21) 2453-1235","5521966097837","4.9",812,24]]
+const AMOSTRA_L=[[10,"AG Rio Car","Est. Intendente Magalhães, nº 731 - Vila Valqueire","(21) 3738-8786","5521992691749","4.7",270,27],[12,"Alfa Car Veículos","Estrada Intendente Magalhães, Nº 640 - Bento Ribeiro","(21) 3449-5183","5521971939888",null,null,34],[22,"Apollo Automóveis",null,"(21) 96867-2715","552120271964","4.5",952,22],[16,"Astral Pickups","Est. Intendente Magalhães, nº 205 - Madureira","(21) 3177-1137","5521964679349","4.3",56,57],[2,"Auto Barra","Est. Intendente Magalhães, nº 830 - Vila Valqueire","(21) 3495-3637","5521971754723","4.8",469,41],[8,"BitCar Automóveis",null,"(21) 3795-8891",null,"4.7",585,26],[5,"Bragança Automóveis","Est Intendente Magalhães, Nº 940 Bento Ribeiro",null,null,"4.4",96,27],[20,"FLX Multimarcas","Est. Intendente Magalhães, nº 341 Madureira",null,"552133570464","4.7",266,45],[19,"GTS IndyCar","Estrada Intendente Magalhães, nº 634 - Vila Valqueire","(21) 3442-0401",null,"4.8",75,32],[18,"Garra Vip 4x4",null,null,"5521996937057","4.4",251,38],[13,"Grande Estilo Veículos","Est. Intendente Magalhães, nº 840 - Vila Valqueire","(21) 99014-4894","5521990144894","4.3",21,23],[17,"HiperCar","Est. Intendente Magalhães, nº 860 - Vila Valqueire - RJ","(21) 2499-5721","5521974375395","4.7",117,15],[15,"Jay Motors",null,"(21) 96584-7342","5521965847342","4.0",180,135],[14,"Jazz Veículos",null,null,"5521970000151","4.5",5347,555],[3,"Lazari","Est da Fontinha nº 889 Bento Ribeiro","(21) 97032-6720","5521970326720","4.7",1227,107],[1,"Luma Car","Est. Intendente Magalhães, nº 678 Vila Valqueire","(21) 3592-5727","5521964176474","4.6",987,34],[6,"Maiorano Veículos","Est. Intendente Magalhães, nº 244 Campinho","(21) 2137-9245","5521995690096","4.8",36,32],[21,"Perfil Multimarcas","Est. Intendente Magalhães, nº 60 Madureira",null,"5521979413884","3.5",113,24],[23,"Riomix Motos",null,"(21) 3796-9962","5521998925675","4.6",168,31],[11,"Robmar Automóveis","Estrada Intendente Magalhães, nº 1.185 Vila Valqueire",null,"5521976646070","4.2",2492,60],[9,"T.F.A. Motors",null,null,"5521964648660","5.0",36,13],[7,"TurboMix Veículos","Est. intendente Magalhães, nº 1187 - Bento Ribeiro","(21) 2453-1235","5521966097837","4.9",812,24]]
  .map(l=>({id:l[0],nome:l[1],endereco:l[2],telefone:l[3],whatsapp:l[4],google_nota:l[5],google_avaliacoes:l[6],_n:l[7]}));
 
-// serviços credenciados do polo (conteúdo da página antiga de Serviços)
+// serviços credenciados do polo (conteúdo da página antiga de Serviços). O robô lê a nota no Google e a logo de cada um pelo nome:
+// credenciado novo entra aqui e em PARCEIROS_ROBO, na API, com o mesmo nome
 const PARCEIROS=[
  {nome:'LaudoCar',cat:'Serviços',tipo:'Vistoria cautelar',num:503,tag:'Antes de fechar negócio',
   txt:'Confere estrutura, numerações e o histórico do veículo (leilão, sinistro, recall, roubo e restrições) antes de você fechar negócio.',
@@ -1228,9 +1244,11 @@ async function carregar(){
         if(Array.isArray(ra))try{localStorage.setItem('avaliacoes',JSON.stringify(ra));}catch(e){}
         if(AVAL===null){AVAL=Array.isArray(ra)?intercalar(ra).slice(0,30):[];pintarAvaliacoes();}   // no máximo 30, sem uma loja dominar
       });
-      const [rl,rv,vit]=await Promise.all([fetch('/api/lojas?path=lojas&site=1').then(r=>r.json()),fetch('/api/veiculos?path=veiculos&site=1').then(r=>r.json()),
-        fetch('/vitrine.json').then(r=>r.ok?r.json():null).catch(()=>null)]);
+      const [rl,rv,vit,rp]=await Promise.all([fetch('/api/lojas?path=lojas&site=1').then(r=>r.json()),fetch('/api/veiculos?path=veiculos&site=1').then(r=>r.json()),
+        fetch('/vitrine.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('/api/parceiros?path=parceiros&site=1').then(r=>r.ok?r.json():null).catch(()=>null)]);
       VIT=vit&&vit.fotos||null;
+      // credenciados: a nota no Google e a logo que o robô leu no site de cada um
+      if(Array.isArray(rp))rp.forEach(x=>{const c=PARCEIROS.find(y=>y.nome===x.nome);if(c){c.nota=Number(x.nota)||0;c.av=Number(x.total)||0;c.logo=x.logo?'/api/logo?path=logo&parceiro='+encodeURIComponent(x.nome):'';}});
       if(Array.isArray(rl)&&rl.length)LJ=rl.filter(l=>l.ativa!==false);
       if(Array.isArray(rv)&&rv.length)V=intercalar(rv.map(mapV));
     }catch(e){}
@@ -1241,7 +1259,8 @@ async function carregar(){
   if(API!==null)setTimeout(()=>fetch('/api/refresh?path=refresh&horas=2').catch(()=>{}),1500);
 }
 const nVeic=()=>V.length;
-const nLojas=()=>LJ.length||23;
+const nLojas=()=>LJ.length||22;
+const nAssoc=()=>nLojas()+PARCEIROS.length;   // todos os associados: lojas e credenciados
 const foto=v=>(v.fotos&&v.fotos[0])||'';
 const nomeV=v=>[v.b,v.mod].filter(Boolean).join(' ');
 const precoT=n=>n>0?'R$ '+fmt(n):'Consulte';
@@ -1333,7 +1352,7 @@ function home(){
    <div>
      <div class="kick c">${T('inicio.chamada','ACEIMA · desde 1998')}</div>
      <h1 class="tit">${T('inicio.titulo','Somos o maior polo automotivo')}${T('inicio.titulo-dourado','da América Latina.')}</h1>
-     <p class="sub">${T('inicio.subtitulo','{lojas} lojas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.')}</p>
+     <p class="sub">${T('inicio.subtitulo','{associados} empresas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.')}</p>
    </div>
    <div class="vtl">
     ${tabs.map((t,i)=>`<a class="vti${i===abaHome?' on':''}" href="${hr(t[2])}" onmouseenter="destacar(${i})" onclick="clicarCategoria(event,${i},'${t[2]}')"><h3>${t[0]}</h3><div class="d"><div><p>${t[1]}</p><span class="acessar">${T('inicio.acessar','Acessar')}</span></div></div></a>`).join('')}
@@ -1368,22 +1387,22 @@ const FORMAS=[
 // a quarta é a logo A (selo da ACEIMA), recortada da logo do topo
 const forma=i=>i===3?'<span class="emp-i emp-a" aria-hidden="true"></span>':`<svg class="emp-i" viewBox="0 0 56 56" aria-hidden="true"><defs><linearGradient id="empG${i}" x1="0" y1="0" x2="0" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F4B05C"/><stop offset="1" stop-color="#C8862E" stop-opacity=".3"/></linearGradient></defs><g fill="url(#empG${i})">${FORMAS[i]}</g></svg>`;
 function sobre(){
-  const b=[['Taxas negociadas em bloco','Nenhuma loja consegue sozinha as condições que {lojas} conseguem juntas.'],
+  const b=[['União que fortalece','Nenhuma empresa consegue sozinha o que {associados} conseguem juntas.'],
            ['Estoque no site, sem digitar','Lemos o site da sua loja e publicamos os anúncios aqui, atualizados todo dia.'],
            ['O cliente fala com você','O contato cai no WhatsApp da loja, com cópia por e-mail. A venda continua sendo sua.'],
-           ['Selo e rede credenciada','Vistoria, inspeção e serviços na mesma rua, com condição de associado.']];
+           ['Selo e rede credenciada','Vistoria, inspeção e serviços credenciados na mesma rua.']];
   return `<section class="sob">
   <div class="wrap sob-a">
    <div class="kick">${T('inicio.sobre-chamada','A ACEIMA')}</div>
    <div class="sob-e">
      <h2>${T('inicio.sobre-titulo','Somos comerciantes que decidiram')} <em>${T('inicio.sobre-titulo-destaque','crescer juntos.')}</em></h2>
-     <p class="lead">${T('inicio.sobre-texto1','A ACEIMA nasceu em 1998 da união dos lojistas da Estrada Intendente Magalhães. O objetivo continua o mesmo: um padrão de qualidade que o cliente reconhece em qualquer loja da rua.')}</p>
+     <p class="lead">${T('inicio.sobre-texto1','A ACEIMA nasceu em 1998 da união dos comerciantes da Estrada Intendente Magalhães. O objetivo continua o mesmo: um padrão de qualidade que o cliente reconhece em cada empresa associada.')}</p>
    </div>
    <div class="sob-d">
-     <p><b>${T('inicio.sobre-texto2-destaque','Em nome de todas as lojas,')}</b> ${T('inicio.sobre-texto2','negociamos taxas com as financeiras, conferimos a procedência dos veículos e mantemos um SAC próprio. Quem compra aqui sabe a quem recorrer.')}</p>
+     <p><b>${T('inicio.sobre-texto2-destaque','Em nome de todos os associados,')}</b> ${T('inicio.sobre-texto2','cuidamos do padrão de atendimento, conferimos a procedência dos veículos e mantemos um SAC próprio. Quem compra aqui sabe a quem recorrer.')}</p>
      <div class="sob-n">
        <div><b>${new Date().getFullYear()-1998}</b><span>${T('inicio.sobre-numero1','anos na Intendente')}</span></div>
-       <div><b>${nLojas()}</b><span>${T('inicio.sobre-numero2','comércios associados')}</span></div>
+       <div><b>${nAssoc()}</b><span>${T('inicio.sobre-numero2','comércios associados')}</span></div>
      </div>
    </div>
   </div>
@@ -1391,7 +1410,7 @@ function sobre(){
    <div class="wrap">
     <div class="emp-t">
      <h2>${T('inicio.empresario-titulo','Faça parte')} <em>${T('inicio.empresario-titulo-destaque','do maior polo.')}</em></h2>
-     <p>${T('inicio.empresario-texto','Lojas de veículos, motos, serviços automotivos e comércio da Intendente e arredores podem se associar. Cada pedido passa pela diretoria: é isso que mantém o selo confiável para quem compra.')}</p>
+     <p>${T('inicio.empresario-texto','Empresas de todos os ramos da Intendente e arredores podem se associar. Cada pedido passa pela diretoria: é isso que mantém o selo confiável para quem compra.')}</p>
     </div>
     <div class="emp-4">${b.map((x,i)=>`<div>${forma(i)}<h3>${T(`inicio.empresario-beneficio${i+1}`,x[0])}</h3><p>${T(`inicio.empresario-beneficio${i+1}-texto`,x[1])}</p></div>`).join('')}
      <a class="btnp" href="${hr('associar')}">${T('inicio.empresario-botao','Quero me associar')}${ic('<path d="M7 17 17 7M8 7h9v9"/>',16)}</a>
@@ -1411,7 +1430,7 @@ function avaliacoes(){
     <div class="avt">${a.foto?`<img class="avf" src="${esc(a.foto)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:`<span class="avf">${iniciais(a.autor)}</span>`}<div><b>${esc(a.autor)}</b><small>${esc(a.loja)}</small></div><span class="avq">“</span></div>
     <p class="avx">${esc(a.texto)}</p></a>`;
   const h=lista.map(card).join('');
-  return `<div class="av${AVAL?'':' espera'}"><div class="kick c">${T('inicio.avaliacoes','Avaliações das lojas no Google')}</div>
+  return `<div class="av${AVAL?'':' espera'}"><div class="kick c">${T('inicio.avaliacoes','Avaliações dos associados no Google')}</div>
    <div class="av-janela"><div class="av-trilho" style="animation-duration:${dur}s;animation-delay:-${atraso.toFixed(2)}s"><div>${h}</div><div aria-hidden="true">${h.replace(/<a /g,'<a tabindex="-1" ')}</div></div></div><span class="av-g">Google Maps</span></div>`;
 }
 // as avaliações chegaram: a faixa entra no lugar guardado (ou o lugar some, se não veio nenhuma)
@@ -1565,52 +1584,103 @@ function animarFiltros(antes){
 const SETA='<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>';
 // versão sem o modelo no começo: motos e alguns carros repetem o modelo na versão
 function versaoDe(c){const m=c.mod||'';let ver=c.ver||'';if(m&&(norm(ver)===norm(m)||norm(ver).startsWith(norm(m)+' ')))ver=ver.slice(m.length).trim();return ver;}
-const nomeTodo=c=>[c.b,c.mod,versaoDe(c),c.ano].filter(Boolean).join(' ');   // marca, modelo, versão e ano
-// modelo e ano ("Polo 2018"); modelo só de número leva a marca junto ("Peugeot 208 2018", "Omoda 5 2027")
-const nomeCurto=c=>[/[a-zà-ÿ]/i.test(c.mod)?c.mod:[c.b,c.mod].filter(Boolean).join(' '),c.ano].filter(Boolean).join(' ');
+const nomeTodo=c=>[c.b,c.mod,versaoDe(c),c.ano].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();   // marca, modelo, versão e ano
+// marca, modelo e ano ("Volkswagen Polo 2018"; a marca entrou a pedido do Luiz, 07/10/2026)
+const nomeCurto=c=>[c.b,c.mod,c.ano].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
 function extras(c){   // km, câmbio, combustível e loja, sem repetir o que o nome já diz
   const n=norm(nomeTodo(c)),cb=norm(c.cambio);
   const cambio=!cb?'':cb==='manual'?(/\bmanual\b/.test(n)?'':'Manual'):cb==='cvt'?(/\b(cvt|xtronic|x-tronic|multidrive)\b/.test(n)?'':'CVT')
     :/autom/.test(cb)?(/\b(aut|automatico|automatic|automatizado|at\d?|eat\d|cvt|dct|dsg|edc|tiptronic|multidrive|xtronic|x-tronic|powershift|geartronic|steptronic)\b/.test(n)?'':'Automático'):titulo(c.cambio);
   const comb=c.comb&&!n.includes(norm(c.comb))?titulo(c.comb):'';
   return [c.km!=null?fmt(c.km)+' km':'',cambio,comb,c.loja].filter(Boolean);}
-// com o mouse, o nome completo é escrito letra por letra no lugar do curto (antes ele aparecia de uma vez e piscava): começa rápido e
-// desacelera até a última letra, para não ficar agressivo (pedido do Luiz, 07/10/2026).
-// A seta fica num grupo com a última palavra (.anc-u, sem quebra de linha): anda junto com a última letra escrita, em qualquer linha
+// com o mouse (sem mouse, o anúncio do meio da tela), a etiqueta mostra o nome completo: a marca e o modelo ficam parados e o resto é
+// escrito letra por letra, começando rápido e desacelerando até a última, cada letra entrando em fusão (pedidos do Luiz, 07/10/2026).
+// As linhas do nome completo são medidas antes, já com lugar para a seta no fim de cada uma: nenhuma palavra pula de linha enquanto é
+// escrita (era a "embolada"), e a seta anda sempre ao lado da última letra. O grupo .anc-u fica para quem não roda o JS
 const nomeComSeta=n=>{const i=n.lastIndexOf(' ')+1;return `${esc(n.slice(0,i))}<span class="anc-u">${esc(n.slice(i))}<span class="anc-s">${ic(SETA,14)}</span></span>`;};
+function linhasNome(a,t,l,n){   // as linhas do nome completo na largura da etiqueta, menos a seta
+  const W=a.firstElementChild.offsetWidth;if(l._W===W&&l._ls)return l._ls;
+  l.classList.remove('dg');l.textContent=n;t.classList.add('mede');
+  const tx=l.firstChild,rg=document.createRange(),ls=[];let topo=null,ini=0;
+  for(let i=0;i<n.length;i++){
+    if(n[i]===' ')continue;
+    rg.setStart(tx,i);rg.setEnd(tx,i+1);const r=rg.getBoundingClientRect();if(!r.height)continue;
+    if(topo===null)topo=r.top;else if(r.top>topo+r.height/2){ls.push(n.slice(ini,i).trimEnd());ini=i;topo=r.top;}
+  }
+  ls.push(n.slice(ini));t.classList.remove('mede');
+  l._W=W;return l._ls=ls;
+}
 function digitar(a){
-  const l=a.querySelector('.anc-l');if(!l||!matchMedia('(hover:hover)').matches)return;
-  const n=l.dataset.n||(l.dataset.n=l.textContent),u=l.querySelector('.anc-u'),t0=performance.now(),dur=Math.min(700,180+n.length*13);
-  if(l.firstChild.nodeType!==3)l.prepend('');if(u.firstChild.nodeType!==3)u.prepend('');
-  const antes=l.firstChild,ult=u.firstChild,por=s=>{const i=s.lastIndexOf(' ')+1;antes.data=s.slice(0,i);ult.data=s.slice(i);};
-  cancelAnimationFrame(a._dg);por('');
-  const passo=agora=>{const t=Math.min(1,(agora-t0)/dur),k=Math.min(n.length,Math.max(1,Math.ceil((1-(1-t)**2.4)*n.length)));por(n.slice(0,k));if(k<n.length)a._dg=requestAnimationFrame(passo);};
+  const t=a.querySelector('.anc-t'),l=a.querySelector('.anc-l');if(!t||!l)return;
+  cancelAnimationFrame(a._dg);
+  const n=l.dataset.n,ls=linhasNome(a,t,l,n),c=a.querySelector('.anc-c').textContent.split(' '),w=n.split(' ');
+  let p=0;while(p<c.length&&p<w.length&&c[p]===w[p])p++;   // as palavras iguais às do nome curto (marca e modelo) ficam paradas
+  let fixas=0;for(let i=0,r=p?w.slice(0,p).join(' ').length+1:0;i<ls.length&&r>0;i++){const k=Math.min(ls[i].length,r);fixas+=k;r-=k+1;}   // +1: o espaço da quebra
+  const pos=[];ls.forEach((x,i)=>{for(let j=0;j<x.length;j++)pos.push([i,j]);});   // cada letra: linha e lugar na linha
+  const seta=document.createElement('span');seta.className='anc-s';seta.innerHTML=ic(SETA,14);
+  l.textContent='';l.classList.add('dg');l.append(seta);
+  let feitas=0;
+  const ate=k=>{for(;feitas<k;feitas++){const [i,j]=pos[feitas];if(i&&!j)l.insertBefore(document.createElement('br'),seta);
+    let e;if(feitas<fixas)e=document.createTextNode(ls[i][j]);else{e=document.createElement('span');e.className='lt';e.textContent=ls[i][j];}
+    l.insertBefore(e,seta);}};
+  ate(fixas);
+  const m=pos.length-fixas;if(!m)return;
+  const t0=performance.now(),dur=Math.min(1000,260+m*22);
+  const passo=agora=>{const x=Math.min(1,Math.max(0,(agora-t0)/dur)),k=fixas+Math.min(m,Math.max(1,Math.ceil((1-(1-x)**2.2)*m)));
+    ate(k);if(k<pos.length)a._dg=requestAnimationFrame(passo);};
   a._dg=requestAnimationFrame(passo);
 }
-const anuncio=c=>`<a class="anc" href="${hrV(c)}" onmouseenter="digitar(this)" onfocus="digitar(this)">
-  <div class="anc-f">${foto(c)?`<img src="${esc(foto(c))}" alt="${esc(nomeTodo(c))}" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">`:''}<div class="anc-i">${extras(c).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>
-  <div class="anc-t"><span class="anc-c">${esc(nomeCurto(c))}</span><span class="anc-l">${nomeComSeta(nomeTodo(c))}</span></div>
-  <div class="anc-p">${precoT(c.preco)}</div></a>`;
+const comMouse=()=>matchMedia('(hover:hover)').matches;
+function acenderAnc(a){if(a.classList.contains('vivo'))return;a.classList.add('vivo');a._vivo=performance.now();digitar(a);}
+function apagarAnc(a){if(!a.classList.contains('vivo'))return;a.classList.remove('vivo');a._vivo=performance.now();cancelAnimationFrame(a._dg);}
+const anuncio=c=>{const n=nomeTodo(c);return `<a class="anc" href="${hrV(c)}" onmouseenter="if(comMouse())acenderAnc(this)" onmouseleave="if(comMouse())apagarAnc(this)" onfocus="acenderAnc(this)" onblur="apagarAnc(this)">
+  <div class="anc-f">${foto(c)?`<img src="${esc(foto(c))}" alt="${esc(n)}" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">`:''}<div class="anc-i">${extras(c).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>
+  <div class="anc-t"><span class="anc-c">${esc(nomeCurto(c))}</span><span class="anc-l" data-n="${esc(n)}">${nomeComSeta(n)}</span></div>
+  <div class="anc-p">${precoT(c.preco)}</div></a>`;};
 // o recorte das etiquetas na foto é o contorno da própria foto, um caminho com arcos (clip-path): liso em qualquer escala de tela.
 // No canto de cima, a etiqueta do nome; no de baixo, a do preço; a foto contorna as duas com cantos redondos (--r) e tem os outros
-// dois cantos com o raio da caixa. Refeito sempre que a foto ou uma etiqueta muda de tamanho (também enquanto o nome é escrito)
-function recorteAnc(a,r,R){
-  const s=a._s,f=a.firstElementChild;if(!s||!f||!(s.W&&s.tw&&s.pw))return;
-  const {W,H,tw,th,pw,ph}=s,rt=Math.min(r,tw/2,th/2),rp=Math.min(r,pw/2,ph/2),n=v=>+v.toFixed(2);
+// dois cantos com o raio da caixa. Refeito sempre que a foto ou uma etiqueta muda de tamanho (também enquanto o nome é escrito).
+// s: W e H da foto, tw e th da etiqueta medida, dw e dh da etiqueta como o recorte está agora, pw e ph do preço
+function recorteAnc(a){
+  const s=a._s,f=a.firstElementChild;if(!s||!f||!(s.W&&s.dw&&s.pw))return;
+  const {W,H,dw:tw,dh:th,pw,ph,r,R}=s,rt=Math.min(r,tw/2,th/2),rp=Math.min(r,pw/2,ph/2),n=v=>+v.toFixed(2);
   f.style.clipPath=`path('M${n(tw+rt)} 0H${n(W-R)}A${n(R)} ${n(R)} 0 0 1 ${n(W)} ${n(R)}V${n(H-ph-rp)}A${n(rp)} ${n(rp)} 0 0 1 ${n(W-rp)} ${n(H-ph)}`
     +`H${n(W-pw+rp)}A${n(rp)} ${n(rp)} 0 0 0 ${n(W-pw)} ${n(H-ph+rp)}V${n(H-rp)}A${n(rp)} ${n(rp)} 0 0 1 ${n(W-pw-rp)} ${n(H)}H${n(R)}A${n(R)} ${n(R)} 0 0 1 0 ${n(H-R)}`
     +`V${n(th+rt)}A${n(rt)} ${n(rt)} 0 0 1 ${n(rt)} ${n(th)}H${n(tw-rt)}A${n(rt)} ${n(rt)} 0 0 0 ${n(tw)} ${n(th-rt)}V${n(rt)}A${n(rt)} ${n(rt)} 0 0 1 ${n(tw+rt)} 0Z')`;
 }
+// a etiqueta mudou de tamanho (o nome sendo escrito, uma linha a mais, a volta para o nome curto): o recorte vai até o tamanho novo
+// deslizando, rápido no começo e devagar no fim (pedido do Luiz, 07/10/2026: com duas linhas era um corte seco). Enquanto ele anda,
+// a etiqueta fica cortada no tamanho do recorte, para o texto nunca passar por cima da foto
+function desenharRecorte(a){
+  const s=a._s,x=s.tw-s.dw,y=s.th-s.dh;recorteAnc(a);
+  a.children[1].style.clipPath=x>.4||y>.4?`inset(0 ${Math.max(0,x).toFixed(1)}px ${Math.max(0,y).toFixed(1)}px 0)`:'';
+}
+function seguirRecorte(a){
+  const s=a._s;if(a._rq)return;let t0=performance.now();
+  // crescendo, a largura acompanha cada letra na hora (a seta e o texto nunca ficam cortados); diminuindo, desliza. A altura sempre desliza
+  const passo=agora=>{const dt=Math.min(64,Math.max(0,agora-t0));t0=agora;
+    s.dw=s.tw>s.dw?s.tw:s.dw+(s.tw-s.dw)*(1-Math.exp(-dt/60));s.dh+=(s.th-s.dh)*(1-Math.exp(-dt/85));
+    const fim=Math.abs(s.tw-s.dw)<.3&&Math.abs(s.th-s.dh)<.3;if(fim){s.dw=s.tw;s.dh=s.th;}
+    desenharRecorte(a);a._rq=fim?0:requestAnimationFrame(passo);};
+  a._rq=requestAnimationFrame(passo);
+}
 const roEtq=typeof ResizeObserver==='function'?new ResizeObserver(es=>{
-  const mudou=new Set();let cs=null;
+  const mudou=new Map();let cs=null;   // anúncio → true quando a foto mudou de tamanho (tela nova): aí o recorte vai direto
   for(const e of es){const el=e.target,a=el.closest('.anc');if(!a)continue;
     const b=e.borderBoxSize&&e.borderBoxSize[0],w=b?b.inlineSize:el.offsetWidth,h=b?b.blockSize:el.offsetHeight,s=a._s||(a._s={});
-    if(el.classList.contains('anc-f')){s.W=w;s.H=h;cs=cs||getComputedStyle(el);}else if(el.classList.contains('anc-p')){s.pw=w;s.ph=h;}else{s.tw=w;s.th=h;}
-    mudou.add(a);}
+    let direto=mudou.get(a)||false;
+    if(el.classList.contains('anc-f')){s.W=w;s.H=h;direto=true;cs=cs||getComputedStyle(el);}
+    else if(el.classList.contains('anc-p')){s.pw=w;s.ph=h;}
+    else{s.tw=w;s.th=h;if(s.dw==null)direto=true;}
+    mudou.set(a,direto);}
   if(!mudou.size)return;
-  cs=cs||getComputedStyle([...mudou][0].firstElementChild);
+  cs=cs||getComputedStyle([...mudou.keys()][0].firstElementChild);
   const v=cs.getPropertyValue('--r').trim(),r=parseFloat(v)*(v.endsWith('vw')?innerWidth/100:1),R=parseFloat(cs.borderTopLeftRadius)||0;
-  mudou.forEach(a=>recorteAnc(a,r,R));}):null;
+  mudou.forEach((direto,a)=>{const s=a._s;s.r=r;s.R=R;
+    if(s.tw==null)return;
+    if(direto||!(performance.now()-(a._vivo||-1e9)<4000)){s.dw=s.tw;s.dh=s.th;}   // só desliza o que o mouse (ou o meio da tela) mexeu
+    if(s.tw>s.dw)s.dw=s.tw;
+    desenharRecorte(a);if(s.dw!==s.tw||s.dh!==s.th)seguirRecorte(a);});}):null;
 const recortar=el=>{if(roEtq)el.querySelectorAll('.anc-f,.anc-t,.anc-p').forEach(t=>{if(!t._ro){t._ro=1;roEtq.observe(t);}});};
 const jaCarregadas=el=>el.querySelectorAll('.anc-f img').forEach(i=>{if(i.complete&&i.naturalWidth)i.classList.add('ok','ja');});
 let totalEst=0;
@@ -1623,19 +1693,25 @@ function pintarAnuncios(){   // desenha a lista de novo: filtros, ordem e busca
   totalEst=l.length;const t=document.getElementById('ecT');if(t)t.textContent=fmt(totalEst);
   const c=document.getElementById('ecC');if(c)c.classList.toggle('vazio',!l.length);
   contarVistos(true);
+  document.fonts.ready.then(()=>requestAnimationFrame(anuncioDoMeio));   // as linhas do nome são medidas com a fonte do site
 }
 function maisAnuncios(){   // chegou ao fim da lista: acrescenta os próximos sem desenhar de novo os que já estão na tela
   const l=filtrar(),g=document.getElementById('ancs');if(!g||l.length<=mostrar)return;
   g.insertAdjacentHTML('beforeend',l.slice(mostrar,mostrar+LOTE).map(anuncio).join(''));mostrar+=LOTE;recortar(g);
   const s=document.getElementById('mais');if(s)s.style.display=l.length>mostrar?'block':'none';
 }
+// a grade dos anúncios: o primeiro, quantas colunas e a distância entre as linhas
+function gradeAnc(){
+  const g=document.getElementById('ancs');if(!g||!g.children.length)return null;
+  const cs=g.children,r0=cs[0].getBoundingClientRect();let cols=1;while(cols<cs.length&&Math.abs(cs[cols].getBoundingClientRect().top-r0.top)<2)cols++;
+  return {cs,r0,cols,passo:cs[cols]?cs[cols].getBoundingClientRect().top-r0.top:r0.height+12};
+}
 // contador: quantos anúncios já passaram pelo meio da tela ("12 de 1.427"); no fim da página, todos
 function contarVistos(novo){
-  const g=document.getElementById('ancs'),n=document.getElementById('ecN');if(!n)return;
-  let k=1;
-  if(g&&g.children.length){
-    const cs=g.children,r0=cs[0].getBoundingClientRect();let cols=1;while(cols<cs.length&&Math.abs(cs[cols].getBoundingClientRect().top-r0.top)<2)cols++;
-    const passo=cs[cols]?cs[cols].getBoundingClientRect().top-r0.top:r0.height+12;
+  const n=document.getElementById('ecN');if(!n)return;
+  let k=1;const G=gradeAnc();
+  if(G){
+    const {cs,r0,cols,passo}=G;
     const filas=Math.floor((innerHeight*.55-(r0.top+r0.height/2))/passo)+1;
     k=Math.max(1,Math.min(cs.length,filas*cols));
     if(cs.length>=totalEst&&innerHeight+scrollY>=document.documentElement.scrollHeight-4)k=totalEst;
@@ -1644,8 +1720,19 @@ function contarVistos(novo){
   const txt=fmt(k);if(n.textContent===txt)return;
   n.textContent=txt;if(!novo){n.classList.remove('sobe');void n.offsetWidth;n.classList.add('sobe');}
 }
+// sem mouse (celular e tablet), o anúncio do meio da tela faz o que o mouse faz no computador, sem desfocar a foto: o nome completo é
+// escrito e aparece o que não está no nome (pedido do Luiz, 07/10/2026). No tablet, a linha inteira do meio
+function anuncioDoMeio(){
+  if(pagAtual!=='estoque'||comMouse())return;
+  const G=gradeAnc();let alvo=[];
+  if(G){const {cs,r0,cols,passo}=G,c0=r0.top+r0.height/2;
+    const fila=Math.max(0,Math.min(Math.ceil(cs.length/cols)-1,Math.round((innerHeight/2-c0)/passo))),yc=c0+fila*passo;
+    if(yc>0&&yc<innerHeight)alvo=[...cs].slice(fila*cols,fila*cols+cols);}
+  document.querySelectorAll('#ancs .anc.vivo').forEach(a=>{if(!alvo.includes(a))apagarAnc(a);});
+  alvo.forEach(acenderAnc);
+}
 let contaPedida=0;
-addEventListener('scroll',()=>{if(pagAtual!=='estoque'||contaPedida)return;contaPedida=requestAnimationFrame(()=>{contaPedida=0;contarVistos();});},{passive:true});
+addEventListener('scroll',()=>{if(pagAtual!=='estoque'||contaPedida)return;contaPedida=requestAnimationFrame(()=>{contaPedida=0;contarVistos();anuncioDoMeio();});},{passive:true});
 function estoque(){
   return `<div class="gl dark fix" style="min-height:100vh;display:flex;flex-direction:column">${LUZ}
  ${hd()}
@@ -1698,10 +1785,9 @@ function voltarEstoque(e){if(nova(e))return;e.preventDefault();go('estoque',F.lo
 let selAssoc=null,catAssoc='Todos';
 const CATS=[['Todos','associados.filtro-todos'],['Automóveis','associados.filtro-automoveis'],['Comércio Geral','associados.filtro-comercio']];
 function entradasAssoc(){
-  const lojas=LJ.map(l=>({nome:l.nome,id:l.id,cor:l.cor,cat:'Automóveis',nota:Number(l.google_nota)||0,av:Number(l.google_avaliacoes)||0,n:contagem(l.nome),num:numRua(l.endereco),end:l.endereco,wa:l.whatsapp,tel:l.telefone}))
-    .sort((a,b)=>b.nota-a.nota||b.av-a.av||a.nome.localeCompare(b.nome,'pt-BR'));   // da melhor nota no Google para a menor
-  const parc=PARCEIROS.map(p=>({nome:p.nome,cat:'Comércio Geral',nota:0,av:0,n:null,num:p.num,end:p.inf[0][1],wa:p.wa,tel:(p.inf.find(x=>x[0]==='Telefone')||[])[1],parc:p}));
-  return lojas.concat(parc);
+  const lojas=LJ.map(l=>({nome:l.nome,id:l.id,cor:l.cor,cat:'Automóveis',nota:Number(l.google_nota)||0,av:Number(l.google_avaliacoes)||0,n:contagem(l.nome),num:numRua(l.endereco),end:l.endereco,wa:l.whatsapp,tel:l.telefone}));
+  const parc=PARCEIROS.map(p=>({nome:p.nome,cat:'Comércio Geral',nota:p.nota||0,av:p.av||0,n:null,num:p.num,end:p.inf[0][1],wa:p.wa,tel:(p.inf.find(x=>x[0]==='Telefone')||[])[1],parc:p,logo:p.logo||''}));
+  return lojas.concat(parc).sort((a,b)=>b.nota-a.nota||b.av-a.av||a.nome.localeCompare(b.nome,'pt-BR'));   // da melhor nota no Google para a menor
 }
 const visivelAssoc=e=>catAssoc==='Todos'||e.cat===catAssoc;
 // a estrada: 8 pontos em ordem de numeração; a loja escolhida sempre aparece
@@ -1710,7 +1796,7 @@ function eixoAssoc(E){
   const idx=[...new Set(Array.from({length:q},(_,i)=>Math.round(i*(todos.length-1)/Math.max(1,q-1))))];
   const is=todos.findIndex(e=>e.nome===selAssoc);
   if(is>=0&&!idx.includes(is)){let k=0;idx.forEach((v,j)=>{if(Math.abs(v-is)<Math.abs(idx[k]-is))k=j;});idx[k]=is;idx.sort((a,b)=>a-b);}
-  return `<div class="eixo-ms">${idx.map(i=>{const m=todos[i];return `<button type="button" class="m${m.nome===selAssoc?' on':''}" data-n="${esc(m.nome)}" onclick="selA(this)"><span class="t">${esc(m.nome)}</span><span class="p"></span><span class="nn">nº ${m.num}</span></button>`;}).join('')}</div>`;
+  return `<div class="eixo-ms">${idx.map(i=>{const m=todos[i];return `<button type="button" class="m${m.nome===selAssoc?' on':''}" data-n="${esc(m.nome)}" onclick="selA(this)"><span class="t">${esc(m.nome)}</span><span class="p"></span><span class="nn">Nº ${m.num}</span></button>`;}).join('')}</div>`;
 }
 function listaAssoc(E){
   const vis=E.filter(visivelAssoc);
@@ -1723,12 +1809,12 @@ const telLinks=t=>String(t).split('·').map(x=>x.trim()).filter(Boolean).map(x=>
 const fmtWa=w=>{const d=String(w||'').replace(/\D/g,'').replace(/^55/,'');return d.length>=10?`(${d.slice(0,2)}) ${d.slice(2,-4)}-${d.slice(-4)}`:esc(w||'');};
 // a loja tocada, no padrão da folha azul da página do carro: o nome grande, os números ao lado e embaixo a linha da loja
 function lojaAssoc(S){
-  const pc=S.parc,nota=S.nota?S.nota.toFixed(1).replace('.',','):'',lg=API!==null&&S.id?'/api/logo?path=logo&id='+S.id:'',sd=ic(SETA_DIAG,15);
+  const pc=S.parc,nota=S.nota?S.nota.toFixed(1).replace('.',','):'',lg=API===null?'':pc?S.logo:S.id?'/api/logo?path=logo&id='+S.id:'',sd=ic(SETA_DIAG,15);
   const mapa='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(S.nome+', '+(S.end||'Estrada Intendente Magalhães')+', Rio de Janeiro');
   return `<div class="kick c">${pc?T('associados.selo-credenciado','Credenciado ACEIMA'):T('associados.selo-associado','Associado ACEIMA')}</div>
    <div class="as3-ct-t">
-    <div class="as3-v"><h3>${esc(S.nome)}</h3><p>${pc?esc(pc.tipo):T('associados.ramo-loja','Loja de veículos')}${S.num?` · nº ${S.num} da Intendente`:''}</p></div>
-    <div class="as3-n">${pc?`<p>${esc(pc.txt)}</p>`:`${nota?`<div><b>${nota}<i>★</i></b><span>${fmt(S.av)} ${T('associados.avaliacoes','avaliações no Google')}</span></div>`:''}<div><b>${fmt(S.n)}</b><span>${T('associados.anuncios','anúncios no ar')}</span></div>`}</div>
+    <div class="as3-v"><h3>${esc(S.nome)}</h3><p>${pc?esc(pc.tipo):T('associados.ramo-loja','Loja de veículos')}${S.num?` · Nº ${S.num} da Intendente`:''}</p></div>
+    <div class="as3-n">${nota?`<div><b>${nota}<i>★</i></b><span>${fmt(S.av)} ${T('associados.avaliacoes','avaliações no Google')}</span></div>`:''}${pc?`<p>${esc(pc.txt)}</p>`:`<div><b>${fmt(S.n)}</b><span>${T('associados.anuncios','anúncios no ar')}</span></div>`}</div>
    </div>
    <div class="vp-ct-i">
     <div class="vp-l-lg${lg?'':' sem'}">${lg?`<img src="${lg}" alt="${esc(S.nome)}" data-cor="${esc(S.cor||'')}" onload="tomLogo(this)" onerror="this.parentNode.classList.add('sem')">`:''}<span>${esc(iniciais(S.nome))}</span></div>
@@ -1747,7 +1833,7 @@ function associados(){
  <div class="gl topo" style="flex:none">${LUZ}${hd()}</div>
  <div class="wrap as3">
   <div class="as3-topo">
-   <div><div class="kick">${T('associados.chamada','Quem faz o polo')}</div><h2>${T('associados.titulo','{Associados por extenso} associados numa rua só.')}</h2></div>
+   <h2>${T('associados.titulo','{associados} Empresas unificadas em um polo.')}</h2>
    <div class="as3-cw"><div class="as3-cat" id="asCat">${CATS.map(c=>`<button type="button" class="${catAssoc===c[0]?'on':''}" data-c="${c[0]}" onclick="catA(this)"><span>${T(c[1],c[0])}<b>${q[c[0]]}</b>${ic(I_DOWN,15)}</span></button>`).join('')}</div></div>
   </div>
   <div class="eixo" id="asEixo">${eixoAssoc(E)}</div>
@@ -1758,9 +1844,23 @@ function associados(){
 // tocar numa loja (na estrada ou na lista) abre o bloco dela; tocar de novo fecha. Só mudam as partes que precisam: o fundo continua
 function selA(el){
   const n=el.dataset.n;selAssoc=selAssoc===n?null:n;
-  const E=entradasAssoc();document.getElementById('asEixo').innerHTML=eixoAssoc(E);
+  const E=entradasAssoc();trocarEixo(E);
   document.querySelectorAll('#asLista .row').forEach(r=>r.classList.toggle('on',r.dataset.n===selAssoc));
   mostrarLoja(E,true);
+}
+// a estrada com outras lojas: as de antes somem e as novas aparecem em fusão, e a faixa fica (pedido do Luiz, 07/10/2026).
+// Com as mesmas lojas, só muda a marcada
+function trocarEixo(E){
+  const ms=document.querySelector('#asEixo .eixo-ms');if(!ms)return;
+  const novo=document.createElement('div');novo.innerHTML=eixoAssoc(E);const nm=novo.firstElementChild;
+  const nomes=x=>[...x.children].map(b=>b.dataset.n).join('|');
+  if(nomes(ms)===nomes(nm)){[...ms.children].forEach(b=>b.classList.toggle('on',b.dataset.n===selAssoc));return;}
+  const entra=()=>{ms._sai=null;ms.replaceChildren(...nm.children);if(!rd)[...ms.children].forEach(b=>b.animate([{opacity:0},{opacity:1}],{duration:340,easing:'ease-out'}));};
+  const rd=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(ms._sai){ms._sai.forEach(a=>a.cancel());entra();return;}   // tocou de novo no meio da troca: vai direto para as novas
+  if(rd||!ms.children.length){entra();return;}
+  ms._sai=[...ms.children].map(b=>b.animate([{opacity:1},{opacity:0}],{duration:200,easing:'ease-in',fill:'forwards'}));
+  ms._sai[0].onfinish=entra;
 }
 // no computador, a folha azul embaixo da lista (rola até ela, se preciso); no celular, o bloco logo abaixo da linha tocada
 function mostrarLoja(E,rolar){
@@ -1788,7 +1888,7 @@ function catA(b){
   w.classList.remove('aberto');if(c===catAssoc)return;
   catAssoc=c;w.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.c===c));
   const E=entradasAssoc();if(selAssoc&&!E.some(e=>e.nome===selAssoc&&visivelAssoc(e)))selAssoc=null;
-  document.getElementById('asEixo').innerHTML=eixoAssoc(E);
+  trocarEixo(E);
   const l=document.getElementById('asLista');l.innerHTML=listaAssoc(E);
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches)l.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});
   mostrarLoja(E);
@@ -2070,7 +2170,7 @@ function chamarLoja(){
 
 /* ==================== A ACEIMA ==================== */
 function aceima(){
-  const bene=[['aceima.beneficio1','Menores taxas do mercado','aceima.beneficio1-texto','Negociadas com as financeiras em nome de todas as lojas.'],
+  const bene=[['aceima.beneficio1','Atendimento diferenciado','aceima.beneficio1-texto','Todo associado segue o mesmo padrão, da primeira conversa ao pós-venda.'],
               ['aceima.beneficio2','Selo de qualidade','aceima.beneficio2-texto','Procedência conferida em todos os veículos.'],
               ['aceima.beneficio3','SAC da associação','aceima.beneficio3-texto','Segunda a sexta, das 9h às 17h.'],
               ['aceima.beneficio4','Serviços na mesma rua','aceima.beneficio4-texto','Vistoria, inspeção e comércio credenciado.']];
@@ -2082,14 +2182,14 @@ function aceima(){
   <h1 class="ac2-tit">${T('aceima.titulo','A associação que faz o maior polo automotivo da América Latina funcionar.')}</h1>
   <div class="ac2-m">${LUZ}
    <div class="ac2-selo">${T('aceima.chamada','Desde 1998')}</div>
-   <div class="ac2-ent"><p>${T('aceima.subtitulo','Tradição, credibilidade e as melhores taxas do mercado, reunindo as lojas da Estrada Intendente Magalhães em um só lugar.')}</p></div>
+   <div class="ac2-ent"><p>${T('aceima.subtitulo','Tradição, segurança e credibilidade, reunindo os comércios da Estrada Intendente Magalhães com um só propósito.')}</p></div>
   </div>
-  <p class="ac2-sub">${T('aceima.subtitulo','Tradição, credibilidade e as melhores taxas do mercado, reunindo as lojas da Estrada Intendente Magalhães em um só lugar.')}</p>
+  <p class="ac2-sub">${T('aceima.subtitulo','Tradição, segurança e credibilidade, reunindo os comércios da Estrada Intendente Magalhães com um só propósito.')}</p>
  </section>
  <section class="wrap ac2-g ac2-a">
   <div class="ac2-t">
    <h2>${T('aceima.historia-titulo','Nossa história.')}</h2>
-   <p>${T('aceima.historia1','A A.C.E.I.M.A. nasceu em 1998 da união de comerciantes e lojistas da Estrada Intendente Magalhães, com um objetivo claro: manter um padrão de qualidade e negociar acordos com as financeiras para oferecer as melhores taxas de juros do setor aos clientes das lojas associadas.')}</p>
+   <p>${T('aceima.historia1','A A.C.E.I.M.A. nasceu em 1998 da união de comerciantes e lojistas da Estrada Intendente Magalhães, com um objetivo claro: manter um padrão de qualidade e de atendimento que dê ao cliente a mesma segurança em qualquer empresa associada.')}</p>
    <div class="ac2-acc">${bene.map((b,i)=>`<div class="ac2-ai${i?'':' on'}"><button type="button" onclick="abrirItem(this)">${T(b[0],b[1])}<i></i></button><div class="ac2-ap"><p>${T(b[2],b[3])}</p></div></div>`).join('')}</div>
    <a class="ac2-pill" href="${hr('associar')}">${T('aceima.botao-associar','Seja um associado')}${ic('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',15)}</a>
   </div>
@@ -2098,7 +2198,7 @@ function aceima(){
  <section class="wrap ac2-c">
   <div class="ac2-ch">
    <h2>${T('aceima.publicacoes-titulo','Nosso trabalho.')}</h2>
-   <p>${T('aceima.publicacoes-texto','O que a ACEIMA faz pelo polo: acordos com as financeiras, ações junto ao poder público e campanhas na rua.')}</p>
+   <p>${T('aceima.publicacoes-texto','O que a ACEIMA faz pelo polo: ações junto ao poder público, campanhas na rua e encontros que unem os associados.')}</p>
   </div>
   <div class="ac2-cards">${pubs.map((l,i)=>`<a class="ac2-card" href="${hr('publicacoes')}"><div class="foto">Foto da ação</div><h3>${T(`publicacoes.item${i+1}-titulo`,l[1])}${seta}</h3><small>${T(`publicacoes.item${i+1}-categoria`,l[0])} · ${T(`publicacoes.item${i+1}-data`,l[2])}</small></a>`).join('')}</div>
  </section>
@@ -2107,7 +2207,7 @@ function aceima(){
    <div class="ac2-ct-e">
     <div class="kick">${T('aceima.contato-selo','SAC da associação')}</div>
     <h2>${T('aceima.contato-titulo','Fale com a')} <em>${T('aceima.contato-titulo-destaque','ACEIMA.')}</em></h2>
-    <p>${T('aceima.contato-texto','O SAC atende quem comprou nas lojas associadas e quem quer se associar.')}</p>
+    <p>${T('aceima.contato-texto','O SAC atende os clientes das empresas associadas e quem quer se associar.')}</p>
     <div class="ac2-ct-b">
      <a class="btnp" href="https://wa.me/${WA_ACEIMA}?text=${encodeURIComponent('Olá! Vim pelo site da ACEIMA.')}" target="_blank" rel="noopener">${T('aceima.botao-whatsapp','WhatsApp')}${ic(SETA_DIAG,16)}</a>
      <a class="ac2-pill" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Estrada Intendente Magalhães, 830, Vila Valqueire, Rio de Janeiro')}" target="_blank" rel="noopener">${T('aceima.botao-mapa','Como chegar')}${seta}</a>
@@ -2141,18 +2241,21 @@ function alturaAcordeao(){
 
 /* ==================== SEJA UM ASSOCIADO ==================== */
 function associar(){
-  const b=[['Taxas negociadas em bloco','Nenhuma loja consegue sozinha o que {lojas} conseguem juntas.'],
-           ['Estoque publicado sozinho','O robô lê o site da sua loja e publica os anúncios aqui.'],
+  const b=[['A força de um polo unido','Nenhuma empresa consegue sozinha o que {associados} conseguem juntas.'],
+           ['Presença no site','Sua empresa aparece entre os associados, com endereço, contato e avaliações. Loja de veículos tem o estoque publicado sozinho.'],
            ['O cliente cai no seu WhatsApp','Com cópia por e-mail. A venda continua sendo sua.'],
-           ['Selo e rede credenciada','Vistoria, inspeção e serviços na mesma rua, com condição de associado.']];
-  const ramos=['Loja de veículos','Motos','Serviço automotivo','Comércio'];
+           ['Selo e rede credenciada','Vistoria, inspeção e serviços credenciados na mesma rua.']];
+  const ramos=['Loja de veículos','Motos','Serviço automotivo','Comércio','Outro ramo'];   // as opções do campo Ramo do formulário
   const ICO_PARC={'Vistoria cautelar':'<path d="M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.7 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1.2 1.2 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
     'Inspeção obrigatória':'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
     'Ar-condicionado':'<path d="M2 12h20"/><path d="M12 2v20"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/>',
     'Bar e restaurante':'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>'};
   const conta={};V.forEach(v=>{conta[v.loja]=(conta[v.loja]||0)+1;});
-  const lojas=LJ.slice().sort((x,y)=>(conta[y.nome]||0)-(conta[x.nome]||0)||x.nome.localeCompare(y.nome,'pt-BR'));   // todas as lojas, as com mais anúncios primeiro
+  const lojas=LJ.slice().sort((x,y)=>(conta[y.nome]||0)-(conta[x.nome]||0)||x.nome.localeCompare(y.nome,'pt-BR'));   // todas as lojas, as com mais anúncios primeiro, e os credenciados no fim
   const seta=ic('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',16),sd=ic(SETA_DIAG,15);
+  // um associado em "Quem já faz parte": a logo (ou as iniciais), o nome e, embaixo, a nota e os veículos (ou o ramo)
+  const cartaoLj=(nome,href,lg,cor,nota,info)=>`<a class="as2-lj" href="${href}"><div class="as2-lf${lg?'':' sem'}">${lg?`<img src="${lg}" alt="${esc(nome)}" data-cor="${esc(cor||'')}" loading="lazy" onload="tomLogo(this)" onerror="this.parentNode.classList.add('sem')">`:''}<span>${esc(iniciais(nome))}</span></div>
+     <div class="as2-lt"><span>${esc(nome)}</span>${seta}</div><div class="as2-ls">${[nota?nota.toFixed(1).replace('.',',')+' ★':'',info?esc(info):''].filter(Boolean).join(' · ')||'&nbsp;'}</div></a>`;
   const ICO_TEL='<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>';
   const ICO_PINO='<path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>';
   const ICO_HORA='<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>';
@@ -2160,9 +2263,9 @@ function associar(){
  <div class="gl topo">${LUZ}${hd()}</div>
  <section class="as2-hero">
   <div class="as2-hl">
-   <div class="kick">${T('associar.chamada','Para lojistas e comerciantes do polo')}</div>
-   <h1>${T('associar.titulo','O que a sua loja ganha\nao se associar à ACEIMA.')}</h1>
-   <p>${T('associar.texto','A associação não é um selo na parede. É acordo de taxa fechado em bloco, cliente chegando pelo site e a sua loja dentro de um padrão que o comprador reconhece na rua.')}</p>
+   <div class="kick">${T('associar.chamada','Para empresas de todos os ramos')}</div>
+   <h1>${T('associar.titulo','O que você ganha\nao se associar à ACEIMA.')}</h1>
+   <p>${T('associar.texto','A associação não é um selo na parede. É fazer parte de um polo com {anos} anos de credibilidade, receber clientes pelo site e atender dentro de um padrão que o cliente reconhece na rua.')}</p>
    <button type="button" class="as2-bo" onclick="document.getElementById('asForm').scrollIntoView({behavior:'smooth'})">${T('associar.botao-topo','Falar com a associação')}</button>
   </div>
   <div class="as2-foto"><div>${ic('<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',64)}${T('associar.foto','Foto do presidente')}</div></div>
@@ -2174,24 +2277,23 @@ function associar(){
  </div>
  <section class="as2-s cz">
   <div class="wrap">
-   <div class="as2-cab"><h2>${T('associar.s1-titulo','Por que se associar')}</h2></div>
    <div class="as2-g1">
     <div class="as2-ft"><img src="fotos-aceima/uniao.webp" alt="" loading="lazy"></div>
     <div class="as2-g1t">
-     <p>${T('associar.s1-texto','Desde 1998, a ACEIMA reúne os comércios da Estrada Intendente Magalhães sob um mesmo padrão. A loja associada negocia em bloco com as financeiras, aparece no estoque do site e ganha um selo que o cliente reconhece.')}</p>
+     <p>${T('associar.s1-texto','Desde 1998, a ACEIMA reúne as empresas da Estrada Intendente Magalhães sob um mesmo padrão de qualidade e de atendimento. Quem se associa ganha um selo que o cliente reconhece, a força de um polo unido e espaço no site da associação.')}</p>
      <div class="as2-nums">
-      <div><b>${nLojas()}</b><small>${T('associar.numero1','lojas associadas')}</small></div>
+      <div><b>${nAssoc()}</b><small>${T('associar.numero1','empresas associadas')}</small></div>
       <div><b>${fmt(nVeic())}</b><small>${T('associar.numero2','veículos no ar pelo site')}</small></div>
       <div><b>${new Date().getFullYear()-1998} anos</b><small>${T('associar.numero3','de associação na Intendente Magalhães')}</small></div>
      </div>
-     <div class="as2-ramos"><span class="as2-rt">${ic(ICONES.associados,22)}${T('associar.ramos','Quem pode se associar')}</span><div>${ramos.map((r,i)=>`<span class="as2-chip">${T(`associar.ramo${i+1}`,r)}</span>`).join('')}</div></div>
+     <p class="as2-todos">${ic(ICONES.associados,30)}${T('associar.todos-ramos','Você pode ser nosso associado, independentemente do seu ramo.')}</p>
     </div>
    </div>
   </div>
  </section>
  <section class="as2-s">
   <div class="wrap">
-   <div class="as2-cab"><h2>${T('associar.s3-titulo','O que a sua loja ganha')}</h2></div>
+   <div class="as2-cab"><h2>${T('associar.s3-titulo','O que a sua empresa ganha')}</h2></div>
    <div class="as2-g3">
     <div class="as2-bl">${b.map((x,i)=>`<div><h3>${T(`associar.beneficio${i+1}`,x[0])}</h3><p>${T(`associar.beneficio${i+1}-texto`,x[1])}</p></div>`).join('')}</div>
     <div class="as2-rede"><div class="kick">${T('associar.rede','Rede credenciada na mesma rua')}</div>
@@ -2203,9 +2305,8 @@ function associar(){
  <section class="as2-s cz">
   <div class="wrap">
    <div class="as2-cab"><h2>${T('associar.s4-titulo','Quem já faz parte')}</h2></div>
-   <div class="as2-lojas">${lojas.map(l=>{const n=Number(l.google_nota)||0,q=conta[l.nome]||0;return `<a class="as2-lj" href="${q?hr('estoque',l.nome):hr('associados')}"><div class="as2-lf${API!==null&&l.id?'':' sem'}">${API!==null&&l.id?`<img src="/api/logo?path=logo&id=${l.id}" alt="${esc(l.nome)}" data-cor="${esc(l.cor||'')}" loading="lazy" onload="tomLogo(this)" onerror="this.parentNode.classList.add('sem')">`:''}<span>${esc(iniciais(l.nome))}</span></div>
-     <div class="as2-lt"><span>${esc(l.nome)}</span>${seta}</div><div class="as2-ls">${[n?n.toFixed(1).replace('.',',')+' ★':'',q?fmt(q)+' veículos':''].filter(Boolean).join(' · ')||'&nbsp;'}</div></a>`;}).join('')}</div>
-   <div class="as2-mais"><a class="as2-bo" href="${hr('associados')}">${T('associar.botao-lojas','Ver todas as lojas')}</a></div>
+   <div class="as2-lojas">${lojas.map(l=>{const n=Number(l.google_nota)||0,q=conta[l.nome]||0,lg=API!==null&&l.id?'/api/logo?path=logo&id='+l.id:'';return cartaoLj(l.nome,q?hr('estoque',l.nome):hr('associados'),lg,l.cor,n,q?fmt(q)+' veículos':'');}).join('')}${PARCEIROS.map(c=>cartaoLj(c.curto||c.nome,hr('servicos'),c.logo,'',c.nota,c.tipo)).join('')}</div>
+   <div class="as2-mais"><a class="as2-bo" href="${hr('associados')}">${T('associar.botao-lojas','Ver todos os associados')}</a></div>
   </div>
  </section>
  <section class="ct vp-ct as2-ct" id="asForm">
@@ -2256,7 +2357,7 @@ function publicacoes(){
      <div class="foto" style="height:300px;border-radius:16px">Foto da ação</div>
      <div style="display:flex;align-items:center;gap:12px;margin-top:18px"><span class="fp on" style="padding:5px 13px;font-size:.72rem;cursor:default">${T('publicacoes.destaque-selo','Destaque')}</span><span style="font-family:var(--f2);font-size:.78rem;color:var(--mut)">${T('publicacoes.destaque-data','18 de março de 2026')}</span></div>
      <h2 style="font-size:1.85rem;margin-top:12px;max-width:760px">${T('publicacoes.destaque-titulo','Título da matéria em destaque da associação')}</h2>
-     <p style="margin-top:10px;max-width:760px;font-size:.96rem">${T('publicacoes.destaque-texto','Espaço para a ACEIMA contar o que fez: negociação com as financeiras, ação junto ao poder público, mutirão de vistoria, campanha do polo.')}</p>
+     <p style="margin-top:10px;max-width:760px;font-size:.96rem">${T('publicacoes.destaque-texto','Espaço para a ACEIMA contar o que fez: ação junto ao poder público, mutirão de vistoria, campanha do polo, encontro dos associados.')}</p>
    </div>
    <div>
      <div style="font-family:var(--f2);font-size:.68rem;letter-spacing:2px;color:var(--mut);padding-bottom:12px;border-bottom:2px solid #0B1A33">${T('publicacoes.recentes','MAIS RECENTES')}</div>
@@ -2273,7 +2374,7 @@ function servicos(){
  <div class="gl">${LUZ}${hd()}
   <div class="wrap" style="padding-top:30px;padding-bottom:50px">
    <div class="kick c">${T('servicos.chamada','Credenciados ACEIMA')}</div>
-   <h2 style="margin:12px 0 14px;font-size:2.6rem">${T('servicos.titulo','Tudo que o carro precisa, na mesma rua.')}</h2>
+   <h2 style="margin:12px 0 14px;font-size:2.6rem">${T('servicos.titulo','Tudo o que você precisa, na mesma rua.')}</h2>
    <p style="font-size:1rem;max-width:620px">${T('servicos.subtitulo','Vistoria, inspeção, ar-condicionado e até o almoço a poucos metros das lojas.')}</p>
   </div></div>
  <div class="wrap" style="padding-top:10px;padding-bottom:50px">
@@ -2369,7 +2470,7 @@ function sairEdicao(){
 const VIEWS={home,estoque,associados,veiculo,aceima,associar,publicacoes,servicos};
 const ROTAS={home:'/',estoque:'/estoque',associados:'/associados',aceima:'/a-aceima',associar:'/seja-um-associado',publicacoes:'/publicacoes',servicos:'/servicos'};
 const ANTIGAS={'/lojas':'associados','/aceima':'aceima','/vender':'associar','/contato':'aceima'};
-const TITULOS={home:'ACEIMA | O maior polo automotivo da América Latina',estoque:'Nosso estoque | ACEIMA',associados:'Associados | ACEIMA',aceima:'A ACEIMA | ACEIMA',associar:'Seja um associado | ACEIMA',publicacoes:'Publicações | ACEIMA',servicos:'Serviços do polo | ACEIMA'};
+const TITULOS={home:'ACEIMA | Intendente, Polo Comercial e Automotivo do Rio',estoque:'Nosso estoque | ACEIMA',associados:'Associados | ACEIMA',aceima:'A ACEIMA | ACEIMA',associar:'Seja um associado | ACEIMA',publicacoes:'Publicações | ACEIMA',servicos:'Serviços do polo | ACEIMA'};
 const HASH=location.protocol==='file:';   // aberto do computador: rotas pelo #
 const slug=s=>norm(s).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 const urlV=v=>'/veiculo/'+v.id+'-'+slug(nomeV(v)+' '+(v.ano||''));
@@ -2462,7 +2563,8 @@ let largAnt=matchMedia('(max-width:760px)').matches;
 addEventListener('resize',()=>{if(pagAtual==='home')alturaCategorias();const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;montarMenu();if(pagAtual==='associados'&&selAssoc)mostrarLoja();}
   if(pagAtual==='veiculo'){setasGaleria();clearTimeout(ordenarInfo.t);ordenarInfo.t=setTimeout(ordenarInfo,200);}
   if(document.getElementById('lb'))posFotos(true);
-  if(pagAtual==='estoque'){contarVistos(true);caberTitulo();}
+  if(pagAtual==='estoque'){contarVistos(true);caberTitulo();anuncioDoMeio();
+    document.querySelectorAll('#ancs .anc.vivo').forEach(a=>{const l=a.querySelector('.anc-l');if(l._W!==a.firstElementChild.offsetWidth)digitar(a);});}   // outra largura: o nome é medido de novo
   if(pagAtual==='aceima'){clearTimeout(alturaAcordeao.t);alturaAcordeao.t=setTimeout(alturaAcordeao,150);}
   menuNoRodape();});
 
