@@ -24,7 +24,7 @@ window.CONTEUDO = {
     "texto": "Estoque Automotivo"
   },
   "inicio.caminho4-texto": {
-    "texto": "{veículos} anúncios das {lojas} lojas associadas, cada uma com selo e avaliação real no Google."
+    "texto": "{veículos} Anúncios dentre {lojas} lojas associadas, acesse agora e garanta o seu!"
   },
   "inicio.caminho1-texto": {
     "texto": "Uma associação construída pela união de quem acredita no comércio da Intendente e trabalha para que ele cresça com solidez. Há {anos} anos representando o comércio da Intendente Magalhães."
@@ -49,7 +49,7 @@ window.CONTEUDO = {
     "peso": 700
   },
   "inicio.empresario-beneficio2-texto": {
-    "texto": "Lemos o site da sua loja e publicamos os anúncios aqui, atualizados todos os dias."
+    "texto": "Seu estoque cadastrado diretamente em nosso site."
   },
   "inicio.empresario-beneficio3-texto": {
     "texto": "O contato cai direto no WhatsApp da loja. A venda no nosso site continua sendo sua."
