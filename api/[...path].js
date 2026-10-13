@@ -1,5 +1,5 @@
 // ============================================================
-//  Backend consolidado — site da ACEIMA
+//  Backend consolidado — site da Aceima
 //  Uma única função "pega-tudo" que atende:
 //    GET  /api/lojas            -> lista lojas ativas
 //    POST /api/lojas            -> cadastra loja
@@ -76,7 +76,7 @@ async function migra() {
       [MARCAS_CAMINHAO, RX_CAMINHAO, RX_UTILITARIO]);
   } catch (_) {}
   try { await query("update veiculos set tipo='carro' where tipo is null"); } catch (_) {}
-  // nota do Google da loja, digitada pela ACEIMA no painel (o site só mostra o que está aqui)
+  // nota do Google da loja, digitada pela Aceima no painel (o site só mostra o que está aqui)
   try { await query('alter table lojas add column if not exists google_nota numeric(2,1)'); } catch (_) {}
   try { await query('alter table lojas add column if not exists google_avaliacoes integer'); } catch (_) {}
   // quando a galeria de fotos foi lida pela última vez (para reler de tempos em tempos)
@@ -86,7 +86,7 @@ async function migra() {
   try { await query('update veiculos set km = null where km > 1500000'); } catch (_) {}
   try { await query('alter table lojas add column if not exists google_em timestamptz'); } catch (_) {}
   // primeira carga das notas do Google (levantadas uma a uma em 25/08/2026).
-  // Só preenche o que está vazio: o que a ACEIMA digitar no painel nunca é sobrescrito aqui.
+  // Só preenche o que está vazio: o que a Aceima digitar no painel nunca é sobrescrito aqui.
   try {
     const semente = [
       ['AG Rio Car',4.7,270],['Apollo Automóveis',4.5,952],['Astral Pickups',4.3,56],
@@ -116,9 +116,9 @@ async function migra() {
     await query('update veiculos set km = null where km = 0 and (ano_modelo is null or ano_modelo < $1)',
       [ANO_ZERO_KM()]);
   } catch (_) {}
-  // por que o anúncio está oculto: null = nunca mexido, 'sem_foto' = o robô escondeu, 'manual' = a ACEIMA decidiu
+  // por que o anúncio está oculto: null = nunca mexido, 'sem_foto' = o robô escondeu, 'manual' = a Aceima decidiu
   try { await query('alter table veiculos add column if not exists oculto_motivo text'); } catch (_) {}
-  // cor de fundo da logo definida à mão pela ACEIMA (vence a detecção automática)
+  // cor de fundo da logo definida à mão pela Aceima (vence a detecção automática)
   try { await query('alter table lojas add column if not exists cor text'); } catch (_) {}
   // parceiros de serviço do polo (vistoria, laudo, ar-condicionado, alimentação...)
   try {
@@ -185,8 +185,8 @@ const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
 // Remetente próprio: mesmo domínio do site (aceima.com.br fica para o PitGest).
 // Enquanto o domínio não estiver verificado no Resend da conta cuja chave está aqui,
 // o envio cai sozinho no remetente de teste — que só entrega para o dono da conta.
-const REMETENTE = process.env.RESEND_FROM || 'ACEIMA <leads@intendenteautoshopping.com.br>';
-const REMETENTE_RESERVA = 'ACEIMA <onboarding@resend.dev>';
+const REMETENTE = process.env.RESEND_FROM || 'Aceima <leads@intendenteautoshopping.com.br>';
+const REMETENTE_RESERVA = 'Aceima <onboarding@resend.dev>';
 const SITE_URL = process.env.SITE_URL || 'https://intendente-shopping-car.vercel.app';
 
 // envia pelo Resend tentando o remetente próprio e, se ele for recusado, o de teste
@@ -206,7 +206,7 @@ async function enviarResend(key, payload) {
 }
 
 // ---------------- SEGURANÇA ----------------
-// Só a ACEIMA pode escrever (cadastrar/editar/excluir loja, ocultar veículo, ver e mudar leads).
+// Só a Aceima pode escrever (cadastrar/editar/excluir loja, ocultar veículo, ver e mudar leads).
 // A senha fica na variável PAINEL_TOKEN do Vercel — nunca no código, que é público.
 // Enquanto a variável não existir, nada trava (compatibilidade), mas fica desprotegido.
 const PAINEL_TOKEN = process.env.PAINEL_TOKEN || null;
@@ -288,7 +288,7 @@ function tabelaDados(colunas, linhas, vazio) {
 async function enviarEmailsLead(lead, soAceima, anexos) {
   const key = process.env.RESEND_API_KEY;
   if (!key || !lead) return;
-  // lead de "quero vender": vai para a ACEIMA e, em cópia oculta, para TODAS as lojas
+  // lead de "quero vender": vai para a Aceima e, em cópia oculta, para TODAS as lojas
   // associadas com e-mail cadastrado (uma loja não enxerga o e-mail da outra).
   let emails = [], ocultos = [];
   if (soAceima) { /* teste de layout: nunca vai para a loja */ }
@@ -304,7 +304,7 @@ async function enviarEmailsLead(lead, soAceima, anexos) {
   ocultos = [...new Set(ocultos.filter(Boolean))].filter(e => !emails.includes(e));
   if (!emails.length) return;
   const det = lead.detalhes ? (typeof lead.detalhes === 'string' ? JSON.parse(lead.detalhes) : lead.detalhes) : null;
-  // pedido de associação (formulário do Seja um associado): só para a ACEIMA, com a empresa e o ramo
+  // pedido de associação (formulário do Seja um associado): só para a Aceima, com a empresa e o ramo
   if (lead.tipo === 'associacao') {
     const t = String(lead.cliente_telefone || '').replace(/\D/g, ''), wa = 'https://wa.me/' + (t.length > 11 ? t : '55' + t);
     const tb = t.length >= 10 ? '(' + t.slice(-11, -9) + ') ' + t.slice(-9, -4) + '-' + t.slice(-4) : (lead.cliente_telefone || '—');
@@ -318,11 +318,11 @@ async function enviarEmailsLead(lead, soAceima, anexos) {
         linhaInfo('Empresa', esc(empresa)), linhaInfo('Ramo', esc(ramo))].join(''),
       botao: t ? { url: wa, texto: 'Falar no WhatsApp' } : null,
       aviso: null,
-      rodape: 'Contato gerado pelo site da ACEIMA.'
+      rodape: 'Contato gerado pelo site da Aceima.'
     });
-    const texto = ['Uma empresa quer se associar à ACEIMA, pelo site.', '', 'Nome: ' + (lead.cliente_nome || '-'), 'WhatsApp: ' + tb,
+    const texto = ['Uma empresa quer se associar à Aceima, pelo site.', '', 'Nome: ' + (lead.cliente_nome || '-'), 'WhatsApp: ' + tb,
       empresa ? 'Empresa: ' + empresa : null, ramo ? 'Ramo: ' + ramo : null].filter(x => x !== null).join('\n');
-    await enviarResend(key, { to: [ACEIMA_MAIL], reply_to: ACEIMA_MAIL, subject: 'Empresa quer se associar — via site da ACEIMA', text: texto, html });
+    await enviarResend(key, { to: [ACEIMA_MAIL], reply_to: ACEIMA_MAIL, subject: 'Empresa quer se associar — via site da Aceima', text: texto, html });
     return;
   }
 
@@ -355,10 +355,10 @@ async function enviarEmailsLead(lead, soAceima, anexos) {
     ? (lead.forma_compra + ((entradaTxt || trocaTxt) ? '' : (lead.entrada || '')))
     : '';
   const assunto = compra
-    ? 'Cliente quer VENDER um veículo — via site da ACEIMA'
-    : 'Novo lead de venda — via site da ACEIMA';
+    ? 'Cliente quer VENDER um veículo — via site da Aceima'
+    : 'Novo lead de venda — via site da Aceima';
   const linhas = [
-    'Este é um cliente vindo do site da ACEIMA.', '',
+    'Este é um cliente vindo do site da Aceima.', '',
     'Nome: ' + (lead.cliente_nome || '-'),
     'WhatsApp: ' + (lead.cliente_telefone || '-'),
     lead.cliente_email ? ('E-mail: ' + lead.cliente_email) : null,
@@ -370,7 +370,7 @@ async function enviarEmailsLead(lead, soAceima, anexos) {
     formaTxt ? ('Forma de compra: ' + formaTxt) : null,
     entradaTxt ? ('Entrada: ' + entradaTxt) : null,
     trocaTxt ? ('Carro na troca: ' + trocaTxt) : null,
-    '', 'Mensagem enviada automaticamente pela ACEIMA.'
+    '', 'Mensagem enviada automaticamente pela Aceima.'
   ].filter(x => x !== null);
 
   const tel = String(lead.cliente_telefone || '').replace(/\D/g, '');
@@ -403,7 +403,7 @@ async function enviarEmailsLead(lead, soAceima, anexos) {
     tabela,
     botao: tel ? { url: 'https://wa.me/' + (tel.length > 11 ? tel : '55' + tel), texto: 'Falar com o cliente no WhatsApp' } : null,
     aviso: null,
-    rodape: 'Contato gerado pelo site da ACEIMA.'
+    rodape: 'Contato gerado pelo site da Aceima.'
   });
 
   const envelope = { to: emails, reply_to: ACEIMA_MAIL, subject: assunto, text: linhas.join('\n'), html };
@@ -672,7 +672,7 @@ async function detalheSite(base, slug, id) {
 
 // Nota do Google da loja. Lê a ficha pública do Google e guarda nota + total de avaliações.
 // Se o Google mudar o formato ou barrar a leitura, devolve null e o valor atual é mantido:
-// nunca inventa nota e nunca apaga o que a ACEIMA digitou no painel.
+// nunca inventa nota e nunca apaga o que a Aceima digitou no painel.
 async function notaGoogle(nome) {
   const url = 'https://www.google.com/search?hl=pt-BR&gl=br&q='
     + encodeURIComponent('"' + nome + '" Intendente Magalhães Rio de Janeiro');
@@ -737,7 +737,7 @@ const CACHE_SITE = 's-maxage=300, stale-while-revalidate=86400';   // 5 min novo
 async function rotaLojas(req, res) {
   if (req.method === 'GET' && doSite(req)) {
     // sem logo_url: os logos (imagens embutidas) eram quase todo o peso. A página do veículo pede a logo da loja sozinha (rota logo);
-    // cor é o fundo da logo que a ACEIMA escolheu no painel
+    // cor é o fundo da logo que a Aceima escolheu no painel
     const { rows } = await query('select id, nome, endereco, telefone, whatsapp, google_nota, google_avaliacoes, cor from lojas where ativa = true and nome <> all($1) order by nome', [FORA_DO_SITE]);
     res.setHeader('Cache-Control', CACHE_SITE);
     return res.json(rows);
@@ -860,7 +860,7 @@ async function rotaVeiculos(req, res) {
   }
   const q = req.query || {};
   // o site não mostra o que está oculto; o painel (com token) PRECISA ver,
-  // senão a ACEIMA esconde um carro e nunca mais consegue trazer de volta
+  // senão a Aceima esconde um carro e nunca mais consegue trazer de volta
   const cond = ['v.ativo = true']; const p = [];
   if (!autorizado(req)) cond.push('coalesce(v.oculto,false) = false');
   const add = (frag, val) => { p.push(val); cond.push(frag.replace('?', '$' + p.length)); };
@@ -882,7 +882,7 @@ async function rotaVeiculos(req, res) {
 
 async function rotaLeads(req, res) {
   await migra();
-  // dados de cliente: só a ACEIMA lê e altera. O site continua podendo CRIAR lead (POST).
+  // dados de cliente: só a Aceima lê e altera. O site continua podendo CRIAR lead (POST).
   if (req.method !== 'POST' && !autorizado(req)) return negar(res);
   if (req.method === 'GET') {
     const { rows } = await query(
@@ -1017,7 +1017,7 @@ async function importarLoja(loja) {
              galeria_em = case when $15::boolean then now() else veiculos.galeria_em end,
              tipo=excluded.tipo, ativo=true, sincronizado_em=now(),
              -- escondido por falta de foto volta sozinho quando a loja publica a imagem;
-             -- decisão manual da ACEIMA ('manual') o robô nunca desfaz
+             -- decisão manual da Aceima ('manual') o robô nunca desfaz
              oculto = case
                  when veiculos.oculto_motivo = 'manual' then veiculos.oculto
                  when $15::boolean and coalesce(array_length(excluded.fotos,1),0) <= 1 then true
@@ -1113,7 +1113,7 @@ async function rotaRefresh(req, res) {
   res.json({ ok: true, atualizado: true, ...r });
 }
 
-// resumo diário para a ACEIMA
+// resumo diário para a Aceima
 async function enviarResumo() {
   // 1) LEADS de compra de carro (interesse em anúncio) por loja
   const { rows: leadsLoja } = await query(
@@ -1149,7 +1149,7 @@ async function enviarResumo() {
 
   // versão em texto puro (para quem não vê HTML)
   const linhas = [
-    'Resumo das últimas 24h — site da ACEIMA', '',
+    'Resumo das últimas 24h — site da Aceima', '',
     `Leads: ${somaLeads} (${n(aval.total)} querem vender o próprio carro)`,
     `Estoque no ar: ${totNoAr} · entraram ${totNovos} · saíram ${totSairam} · ocultos ${totOcultos}`, ''
   ];
@@ -1199,13 +1199,13 @@ async function enviarResumo() {
     aviso: lojasErro.length
       ? '<b>Sincronização com falha:</b> ' + lojasErro.map(l => esc(l.nome)).join(', ') + '. O estoque dessas lojas pode estar desatualizado no site — vale checar se o site delas está no ar.'
       : null,
-    botao: { url: SITE_URL + '/painel.html', texto: 'Abrir o painel da ACEIMA' },
+    botao: { url: SITE_URL + '/painel.html', texto: 'Abrir o painel da Aceima' },
     rodape: null
   });
 
   const key = process.env.RESEND_API_KEY;
   if (key) {
-    await enviarResend(key, { to: [ACEIMA_MAIL], subject: 'Resumo diário — site da ACEIMA', text: linhas.join('\n'), html });
+    await enviarResend(key, { to: [ACEIMA_MAIL], subject: 'Resumo diário — site da Aceima', text: linhas.join('\n'), html });
   }
   return { enviado: !!key, para: ACEIMA_MAIL, resumo: linhas };
 }
@@ -1214,7 +1214,7 @@ async function rotaResumo(req, res) {
   res.json({ ok: true, ...(await enviarResumo()) });
 }
 
-// envia um e-mail de lead de EXEMPLO só para a ACEIMA, para conferir o layout.
+// envia um e-mail de lead de EXEMPLO só para a Aceima, para conferir o layout.
 // Não grava nada no banco e nunca manda para a loja.
 async function rotaTesteEmail(req, res) {
   await migra();
