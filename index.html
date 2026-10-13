@@ -91,7 +91,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .est-top{text-align:center;margin-bottom:clamp(10px,.9vw,18px);container-type:inline-size}
 /* título numa linha só, no maior tamanho que cabe (pedido do Luiz, 30/09/2026); 25,9 é a largura do texto padrão por px de fonte.
    Texto editado mais comprido: caberTitulo() diminui até caber */
-.est-top h2{margin:clamp(0px,.2vw,4px) auto 0;color:#fff;font-size:clamp(2rem,3.2vw,3.6rem);font-size:calc(100cqw / 25.9);letter-spacing:-.03em;line-height:1.06;white-space:nowrap}
+.est-top h2{margin:clamp(0px,.2vw,4px) auto 0;color:#fff;font-size:clamp(1.3rem,2.08vw,2.34rem);font-size:calc(100cqw / 39.8);letter-spacing:-.03em;line-height:1.06;white-space:nowrap}
 .est-f .fbar{flex-wrap:wrap;justify-content:center;overflow:visible}
 /* filtro escolhido: o botão cresce ou diminui até o tamanho novo, e o texto novo aparece por cima (nada seco) */
 @keyframes fpTexto{from{opacity:0;transform:translateY(5px)}}
@@ -320,16 +320,27 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .row .g.sem{color:#A9A198;font-weight:400}
 .row .g span{color:#C8862E}
 .row .a{font-family:var(--f2);font-size:.72rem;color:var(--mut);width:116px;flex:none;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* a loja tocada: folha azul embaixo da lista, no padrão da página do carro (o nome grande, os números ao lado e a linha da loja) */
+/* a loja tocada: folha azul enxuta embaixo da lista (pedido do Luiz, 13/10/2026): a logo ao lado do nome, os números à direita
+   e uma linha só com os contatos e os botões */
 .as3-ct{margin-top:0}
-.as3-ct-t{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:28px clamp(36px,3.6vw,68px)}
-.as3-v h3{font:700 clamp(2.4rem,4vw,4.8rem)/1.02 var(--f1);letter-spacing:-.045em;color:#fff}
-.as3-v p{margin-top:clamp(10px,.9vw,16px);color:#93A3B9;font-size:clamp(1rem,1.1vw,1.25rem);line-height:1.4}
-.as3-n{display:flex;gap:clamp(32px,4vw,72px)}
-.as3-n b{display:block;font:600 clamp(2rem,3vw,3.4rem)/1 var(--f1);letter-spacing:-.03em;color:#fff}
-.as3-n b i{margin-left:.12em;font-style:normal;font-size:.62em;color:var(--gold3)}
-.as3-n>div>span{display:block;margin-top:10px;font:600 clamp(.6rem,.62vw,.72rem)/1.3 var(--f2);letter-spacing:.2em;text-transform:uppercase;color:var(--gold3)}
-.as3-n p{max-width:440px;color:#B9C6DA;font-size:clamp(.95rem,1vw,1.1rem);line-height:1.55}
+.ct.vp-ct.as3-ct{padding:clamp(34px,3vw,52px) 0 clamp(30px,2.6vw,44px)}
+.as3-cab{display:flex;align-items:center;gap:clamp(18px,1.6vw,28px)}
+.as3-cab .vp-l-lg{flex:none}
+.as3-v{flex:1;min-width:0}
+.vp-ct .as3-v .kick{margin-bottom:6px}
+.as3-v h3{font:700 clamp(1.6rem,2.1vw,2.4rem)/1.08 var(--f1);letter-spacing:-.035em;color:#fff}
+.as3-v p{margin-top:6px;color:#93A3B9;font-size:clamp(.85rem,.9vw,.98rem);line-height:1.4}
+.as3-n{flex:none;display:flex;gap:clamp(28px,3vw,52px)}
+.as3-n b{display:block;font:600 clamp(1.5rem,1.85vw,2.1rem)/1 var(--f1);letter-spacing:-.03em;color:#fff}
+.as3-n b i{margin-left:.1em;font-style:normal;font-size:.62em;color:var(--gold3)}
+.as3-n>div>span{display:block;margin-top:7px;font:600 clamp(.56rem,.58vw,.66rem)/1.3 var(--f2);letter-spacing:.18em;text-transform:uppercase;color:var(--gold3)}
+.as3-tx{max-width:820px;margin-top:clamp(14px,1.2vw,20px);color:#B9C6DA;font-size:clamp(.88rem,.92vw,1rem);line-height:1.55}
+.as3-i{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr) auto;align-items:center;gap:16px clamp(20px,2.2vw,40px);margin-top:clamp(20px,1.9vw,30px);padding-top:clamp(18px,1.6vw,26px);border-top:1px solid rgba(255,255,255,.12)}
+.as3-i>div>span{display:block;font:600 clamp(.56rem,.58vw,.66rem)/1.2 var(--f2);letter-spacing:.18em;text-transform:uppercase;color:var(--gold3)}
+.as3-i p{margin-top:6px;color:#fff;font-size:clamp(.84rem,.88vw,.98rem);line-height:1.4}
+.as3-i a{color:#fff}
+.as3-b{grid-column:-2;display:flex;gap:8px}
+.as3-b .btno{gap:10px;padding:10px 18px;font-size:.82rem}
 
 /* páginas de leitura */
 .bene{display:grid;grid-template-columns:1fr 1fr;gap:20px 34px}
@@ -610,8 +621,7 @@ body.lb-on{overflow:hidden}
 .ac2-hero{padding-top:clamp(30px,3vw,56px)}
 .ac2-tit{max-width:1000px;margin:0 auto;text-align:center;font:400 clamp(1.6rem,2.3vw,2.8rem)/1.22 var(--f1);letter-spacing:-.02em;background:linear-gradient(90deg,#1E3E70 15%,#C8862E 85%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .ac2-m{position:relative;height:clamp(380px,38.5vw,720px);margin-top:clamp(30px,3vw,56px);border-radius:var(--rm);overflow:hidden;background:var(--navy);isolation:isolate}
-.ac2-m>video.luz{opacity:.55;mix-blend-mode:screen;filter:brightness(.92) saturate(.9)}
-.semvideo .ac2-m{background:#00091A url('fundo-animado-frame.jpg') 0% 0%/160% 160% no-repeat;animation:vidro 38s ease-in-out infinite alternate}
+.ac2-mf{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 62%}   /* a Intendente antiga (foto enviada pelo Luiz em 13/10/2026) */
 .ac2-selo{position:absolute;z-index:2;top:clamp(16px,1.7vw,28px);left:clamp(16px,1.7vw,28px);padding:10px 18px;border-radius:99px;background:rgba(246,244,241,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font:500 clamp(.8rem,.85vw,.95rem)/1.3 var(--f2);color:var(--ink)}
 .ac2-ent{--r:clamp(20px,2.2vw,36px);position:absolute;z-index:2;top:0;left:50%;transform:translateX(-50%);width:min(460px,36%);padding:clamp(20px,2vw,34px) clamp(22px,2vw,36px) clamp(24px,2.3vw,40px);border-radius:0 0 var(--r) var(--r);background:var(--cl);text-align:center}
 .ac2-ent::before,.ac2-ent::after{content:'';position:absolute;top:0;width:var(--r);height:var(--r)}
@@ -654,7 +664,7 @@ body.lb-on{overflow:hidden}
 .ac2-ct h2{white-space:pre-line}
 .ac2-ct h2 em{font-style:normal;color:var(--gold)}
 .ac2-ct-e{display:flex;flex-direction:column;align-items:flex-start}
-.ac2 .ac2-ct-e>p{max-width:520px;margin-top:clamp(12px,1.1vw,18px)}
+.ac2 .ac2-ct-e>p{max-width:520px;margin-top:clamp(12px,1.1vw,18px);white-space:pre-line}
 .ac2-ct-b{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:clamp(22px,2vw,34px)}
 .ac2-ct-b .ac2-pill{margin-top:0}
 .ac2-ct-b .btnp{padding:12px 20px;font-size:clamp(.85rem,.9vw,.98rem)}
@@ -671,7 +681,7 @@ body.lb-on{overflow:hidden}
   .ac2-pill{gap:2.82vw;margin-top:5.63vw;padding:2.82vw 4.23vw 2.82vw 4.93vw;font-size:3.52vw}
   .ac2-hero{padding-top:7.04vw}
   .ac2-tit{font-size:6.76vw}
-  .ac2-m{height:auto;aspect-ratio:350/440;margin-top:7.04vw}
+  .ac2-m{height:auto;aspect-ratio:4/3;margin-top:7.04vw}   /* com a foto antiga, deitada: em pé, cortava metade da rua */
   .ac2-selo{top:4.23vw;left:4.23vw;padding:2.46vw 4.23vw;font-size:3.17vw}
   .ac2-ent{display:none}
   .ac2 .ac2-sub{display:block;max-width:86%;margin:7.04vw auto 0;text-align:center;font-size:3.73vw}
@@ -689,6 +699,7 @@ body.lb-on{overflow:hidden}
   .ac2-ct{grid-template-columns:1fr;gap:8.45vw;margin-top:19.7vw;padding:8.45vw 7.04vw}
   .ac2-ct .kick,.ac2-ct-g>div>span{font-size:2.46vw;letter-spacing:.42vw}
   .ac2-ct .kick{margin-bottom:2.82vw}
+  .ac2 .ac2-ct-e>p{white-space:normal;text-wrap:balance}   /* no celular, a quebra de linha do texto deixava "associadas" sozinha numa linha */
   .ac2-ct-b{align-self:stretch;flex-direction:column;align-items:stretch;padding-top:5.63vw}
   .ac2-ct-b>*{justify-content:center}
   .ac2-ct-b .btnp{padding:3.87vw 5.63vw;font-size:3.6vw}
@@ -702,15 +713,15 @@ body.lb-on{overflow:hidden}
    meio, embaixo da foto; sem o título "Por que se associar" e sem as linhas; a frase dos ramos no lugar dos chips; todos os associados,
    com as logos mais baixas, sete por linha */
 .as2{--wl:max(60px,calc((100vw - 1780px) / 2 + 60px));background:#fff;color:var(--ink)}
-.as2-hero{display:grid;grid-template-columns:1fr 1fr}
+.as2-hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr)}   /* a foto do presidente é em pé: a coluna dela é mais estreita, e ela aparece inteira, da logo na parede aos braços cruzados */
 .as2-hl{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:clamp(48px,5vw,96px) clamp(32px,4vw,80px) clamp(48px,5vw,96px) var(--wl)}   /* o texto e o botão no meio da altura da foto */
 .as2-bo{display:inline-flex;align-items:center;gap:10px;padding:clamp(14px,1.2vw,20px) clamp(24px,2vw,32px);border-radius:99px;border:1px solid var(--gold);color:var(--ink);font:500 clamp(.95rem,1.05vw,1.15rem)/1 var(--f2);cursor:pointer;transition:background-color .25s,color .25s}
 .as2-bo:hover{background:var(--gold);color:#fff}
-.as2-hl h1{margin-top:clamp(14px,1.2vw,20px);font:600 clamp(2.3rem,3.6vw,4.3rem)/1.12 var(--f1);letter-spacing:-.03em;white-space:pre-line}
+.as2-hl h1{margin-top:clamp(14px,1.2vw,20px);font:600 clamp(1.8rem,2.7vw,3.2rem)/1.14 var(--f1);letter-spacing:-.03em;white-space:pre-line}
 .as2 .as2-hl p{max-width:620px;margin-top:clamp(20px,2vw,36px);font:400 clamp(.95rem,1vw,1.1rem)/1.7 var(--f2);color:#5E6B7E}
 .as2-hl .as2-bo{margin-top:clamp(28px,2.6vw,44px)}
 .as2-foto{position:relative;min-height:clamp(420px,42vw,800px);display:grid;place-items:center;background:#00091A url('fundo-animado-frame.jpg') 0% 0%/200% 200% no-repeat;animation:vidro 38s ease-in-out infinite alternate}
-.as2-foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.as2-foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 6%}
 .as2-foto>div{display:flex;flex-direction:column;align-items:center;gap:16px;color:rgba(255,255,255,.62);font:500 clamp(.72rem,.78vw,.88rem)/1.3 var(--f2);letter-spacing:.24em;text-transform:uppercase}
 .as2-foto>div svg{width:clamp(44px,4vw,64px);height:auto;stroke-width:1.2}
 .as2-ctt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:16px clamp(28px,3vw,56px);padding-top:clamp(22px,2vw,32px);padding-bottom:clamp(22px,2vw,32px);border-top:1px solid var(--line)}
@@ -729,7 +740,7 @@ body.lb-on{overflow:hidden}
 .as2-s .as2-g1t>p:first-child{margin-top:-.5em}   /* a folga da linha acima das letras: o texto começa na linha de cima da foto */
 .as2-nums{display:flex;flex-wrap:wrap;gap:24px clamp(32px,4.6vw,88px);margin-top:clamp(36px,3.4vw,60px)}
 .as2-nums b{display:block;font:600 clamp(2.2rem,3.1vw,3.4rem)/1 var(--f1);letter-spacing:-.03em;color:var(--ink)}
-.as2-nums small{display:block;max-width:220px;margin-top:10px;font:500 clamp(.92rem,1.05vw,1.15rem)/1.3 var(--f2);color:var(--ink)}
+.as2-nums small{display:block;max-width:240px;margin-top:10px;white-space:pre-line;font:500 clamp(.92rem,1.05vw,1.15rem)/1.3 var(--f2);color:var(--ink)}
 /* a frase dos ramos no lugar de "Quem pode se associar" e dos chips (pedido do Luiz, 07/10/2026); a base dela fica na base da foto */
 .as2-s .as2-todos{display:flex;align-items:center;gap:clamp(12px,1vw,16px);margin-top:clamp(36px,3.4vw,60px);margin-bottom:-.32em;font:500 clamp(1.2rem,1.6vw,1.75rem)/1.3 var(--f1);letter-spacing:-.01em;color:var(--ink)}
 .as2-todos svg{flex:none;width:clamp(26px,2vw,34px);height:auto;color:var(--gold)}
@@ -766,7 +777,12 @@ body.lb-on{overflow:hidden}
 .as2-ct .vp-ct-t{--pf:clamp(2.8rem,4.6vw,5.6rem)}
 .as2-ct-h{font:700 var(--pf)/1 var(--f1);letter-spacing:-.045em;color:#fff}
 .vp-form.as2-fm{grid-template-rows:repeat(3,minmax(40px,1fr));grid-template-areas:"nome tel" "emp ramo" "bt bt"}
-.as2-fm select{height:100%}
+.as2-sel{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;height:100%;padding:0 14px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#61718c;font:400 .85rem/1.2 var(--f2);text-align:left;cursor:pointer;transition:border-color .2s,color .2s}
+.as2-sel>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.as2-sel svg{flex:none;transition:transform .3s var(--ease)}
+.as2-sel:hover{border-color:rgba(255,255,255,.3)}
+.as2-sel.on{color:#fff}
+.as2-sel.aberto svg{transform:rotate(180deg)}
 .as2-f-nome{grid-area:nome}
 .as2-f-tel{grid-area:tel}
 .as2-f-emp{grid-area:emp}
@@ -783,7 +799,7 @@ body.lb-on{overflow:hidden}
   .as2-hero{grid-template-columns:1fr}
   .as2-hl{padding:9.86vw 5.63vw}
   .as2-bo{gap:2.82vw;padding:3.52vw 5.63vw;font-size:3.52vw}
-  .as2-hl h1{margin-top:3.52vw;font-size:8.45vw;letter-spacing:-.25vw}
+  .as2-hl h1{margin-top:3.52vw;font-size:7.04vw;letter-spacing:-.2vw;white-space:normal;text-wrap:balance}
   .as2 .as2-hl p{margin-top:4.93vw;font-size:3.73vw}
   .as2-hl .as2-bo{margin-top:7.04vw}
   .as2-foto{min-height:0;aspect-ratio:4/5}
@@ -820,7 +836,7 @@ body.lb-on{overflow:hidden}
   .as2-mais{margin-top:9.86vw}
   .as2-ct .vp-ct-t{--pf:11.27vw}
   .vp-form.as2-fm{grid-template-rows:repeat(5,12.4vw);grid-template-areas:"nome" "tel" "emp" "ramo" "bt"}
-  .as2-fm select{font-size:3.6vw}
+  .as2-sel{font-size:3.6vw}
 }
 
 @media (max-width:1100px){
@@ -942,7 +958,7 @@ body.lb-on{overflow:hidden}
   .ct-b a{justify-content:center;padding:4.23vw 5.63vw;gap:2.11vw;font-size:3.6vw}
   /* estoque */
   .est-top{padding:6.34vw 0 0;margin-bottom:3.52vw}
-  .est-top h2{margin:0;font-size:7.75vw;font-weight:800;letter-spacing:-.2vw;line-height:1.14;white-space:normal;text-wrap:balance}   /* numa linha só, ficaria com letra de rodapé */
+  .est-top h2{margin:0;font-size:5.04vw;font-weight:800;letter-spacing:-.2vw;line-height:1.14;white-space:normal;text-wrap:balance}   /* numa linha só, ficaria com letra de rodapé */
   .fbar{gap:2.11vw;overflow-x:auto;scrollbar-width:none;margin-bottom:0}
   .fbar::-webkit-scrollbar{display:none}
   .fbar .fp{font-size:3.38vw;font-weight:600;padding:2.11vw 3.87vw;border:1px solid rgba(255,255,255,.16);background:none;color:#C6D2E3;gap:1.4vw}
@@ -1051,15 +1067,25 @@ body.lb-on{overflow:hidden}
   .row.on .nm{color:var(--gold)}
   .row .g{font-size:3.38vw}
   .row .a{width:auto;max-width:30vw;font-size:3.17vw}
-  .as3-in{--vpi:5.63vw;margin:2.82vw 0 4.23vw;padding:7.04vw 5.63vw;border-radius:4.93vw;background:var(--navy);color:#fff}
-  .as3-in .kick{margin-bottom:2.46vw}
-  .as3-ct-t{grid-template-columns:1fr;gap:5.63vw}
-  .as3-v h3{font-size:8.45vw}
-  .as3-v p{margin-top:2.11vw;font-size:3.73vw}
-  .as3-n{gap:8.45vw}
-  .as3-n b{font-size:8.45vw}
-  .as3-n>div>span{margin-top:1.76vw;font-size:2.46vw;letter-spacing:.42vw}
-  .as3-n p{font-size:3.73vw}
+  .as3-in{margin:2.82vw 0 4.23vw;padding:5.63vw;border-radius:4.93vw;background:var(--navy);color:#fff}
+  .as3-cab{flex-wrap:wrap;gap:4.23vw 3.52vw}
+  .as3-cab .vp-l-lg{height:11.27vw}
+  .as3-cab .vp-l-lg.claro,.as3-cab .vp-l-lg.branco,.as3-cab .vp-l-lg.sem{height:11.27vw;padding:0 2.82vw}
+  .as3-cab .vp-l-lg.sem{min-width:11.27vw}
+  .as3-cab .vp-l-lg img{max-width:24vw}
+  .as3-in .as3-v .kick{margin-bottom:1.06vw;font-size:2.46vw;letter-spacing:.42vw}
+  .as3-v h3{font-size:6.2vw;letter-spacing:-.12vw}
+  .as3-v p{margin-top:.7vw;font-size:3.2vw}
+  .as3-n{flex-basis:100%;gap:9.86vw}
+  .as3-n b{font-size:6.2vw}
+  .as3-n>div>span{margin-top:1.41vw;font-size:2.25vw;letter-spacing:.3vw}
+  .as3-tx{margin-top:3.52vw;font-size:3.47vw}
+  .as3-i{grid-template-columns:1fr 1fr;gap:3.52vw 4.23vw;margin-top:4.23vw;padding-top:4.23vw}
+  .as3-i .as3-e,.as3-b{grid-column:1/-1}
+  .as3-i>div>span{font-size:2.25vw;letter-spacing:.3vw}
+  .as3-i p{margin-top:1.06vw;font-size:3.6vw}
+  .as3-b{gap:2.11vw}
+  .as3-b .btno{flex:1;justify-content:center;padding:3.52vw 2.82vw;gap:1.76vw;font-size:3.3vw}
   /* páginas de leitura */
   h1{font-size:8vw;letter-spacing:-.14vw}
   h2{font-size:6.5vw;letter-spacing:-.1vw}
@@ -1288,12 +1314,13 @@ let menuAberto=false,menuTrocando=false;
 function montarMenu(){
   let n=document.getElementById('nav');
   if(!n){n=document.createElement('nav');n.id='nav';n.setAttribute('aria-label','Menu');document.body.appendChild(n);
-    document.addEventListener('click',e=>{if(menuAberto&&!n.contains(e.target))fecharMenu();});}
+    document.addEventListener('click',e=>{if(menuAberto&&!n.contains(e.target))fecharMenu();});
+    n.addEventListener('mouseleave',()=>passarMenu(null));}
   const at=menuDe(),noMenu=PAGINAS.some(p=>p[0]===at),c=cel();
   const itens=noMenu||!c?PAGINAS:[['menu','Menu'],...PAGINAS];   // Serviços do polo não está no menu: no celular fica o ícone de menu
   const on=noMenu?at:(c?'menu':'');
   // cada página é um link de verdade (dá para abrir em outra guia); o de menu, que só abre e fecha, é um botão
-  n.innerHTML=itens.map((p,i)=>{const at=`class="nb${p[0]===on?' on':''}" data-p="${p[0]}" style="--i:${i}" aria-label="${p[1]}" onclick="clicarMenu(event,'${p[0]}')"`,
+  n.innerHTML=itens.map((p,i)=>{const at=`class="nb${p[0]===on?' on':''}" data-p="${p[0]}" style="--i:${i}" aria-label="${p[1]}" onclick="clicarMenu(event,'${p[0]}')" onmouseenter="passarMenu(this)"`,
     dentro=`<span class="nbi">${ic(ICONES[p[0]],22)}<span class="nl"><span>${p[1]}</span></span></span>`;
     return p[0]==='menu'?`<button type="button" ${at}>${dentro}</button>`:`<a href="${hr(p[0])}" ${at}>${dentro}</a>`;}).join('');
   menuAberto=false;n.classList.remove('aberto');
@@ -1303,11 +1330,18 @@ function montarMenu(){
 function abrirNomes(){
   const v=cel();
   document.querySelectorAll('#nav .nb').forEach(b=>{
-    const l=b.querySelector('.nl'),on=b.classList.contains('on')&&(!v||menuAberto||menuTrocando);
+    const l=b.querySelector('.nl'),on=v?b.classList.contains('on')&&(menuAberto||menuTrocando):b.classList.contains('on')||b.classList.contains('hov');
     const t=on?(v?l.firstChild.scrollHeight:l.firstChild.scrollWidth)+'px':'0px';
     l.style.width=v?'':t;l.style.height=v?t:'';l.style.margin=on?'':'0';l.classList.toggle('vis',on);b.classList.toggle('nome',on);});
 }
 function marcar(pg){document.querySelectorAll('#nav .nb').forEach(b=>b.classList.toggle('on',b.dataset.p===pg));abrirNomes();}
+// no computador, o mouse em cima de uma página abre o nome dela também; saindo da barra, fecha. Clicando, a página anterior fecha com a
+// troca de página e a nova fica aberta (pedido do Luiz, 13/10/2026). Passar de uma para outra troca o nome aberto, sem fechar e abrir de novo
+function passarMenu(b){
+  if(cel()||!matchMedia('(hover:hover)').matches)return;
+  let mudou=false;document.querySelectorAll('#nav .nb').forEach(x=>{const h=x===b;if(x.classList.contains('hov')!==h){x.classList.toggle('hov',h);mudou=true;}});
+  if(mudou)abrirNomes();
+}
 function atualizarMenu(){if(cel()&&!menuAberto&&!menuTrocando)montarMenu();else marcar(menuDe());}
 // Estoque sempre leva ao estoque geral, com os filtros zerados e outros carros na frente, mesmo de dentro de um anúncio ou do próprio
 // estoque (pedido do Luiz, 07/10/2026). Com Ctrl, Shift ou o botão do meio, o navegador abre a página em outra guia
@@ -1340,7 +1374,7 @@ function home(){
     [T('inicio.caminho1','Conheça a ACEIMA'),T('inicio.caminho1-texto','Uma associação construída pela união de quem acredita no comércio da Intendente e trabalha para que ele cresça com solidez. Há {anos} anos representando o comércio da Intendente Magalhães.'),'aceima','fotos-home/aceima.webp','25% center'],
     [T('inicio.caminho2','Um polo comercial mais do que completo'),T('inicio.caminho2-texto','Empresas de diferentes segmentos, reunidos em um só endereço e identificados pelo selo ACEIMA.'),'associados','fotos-home/polo.webp'],
     [T('inicio.caminho3','Seja um associado'),T('inicio.caminho3-texto','Faça parte de uma rede que fortalece sua marca, amplia sua visibilidade e responde junto com você.'),'associar','fotos-home/associar.webp'],
-    [T('inicio.caminho4','Estoque Automotivo'),T('inicio.caminho4-texto','{veículos} anúncios das {lojas} lojas associadas, cada uma com selo e avaliação real no Google.'),'estoque','fotos-home/estoque.webp']];
+    [T('inicio.caminho4','Estoque Automotivo'),T('inicio.caminho4-texto','{veículos} Anúncios dentre {lojas} lojas associadas, acesse agora e garanta o seu!'),'estoque','fotos-home/estoque.webp']];
   const C=vitrine();
   const cs=(c,asp)=>c?`<a class="c${VIT&&VIT[c.id]!=null?' perfeita':''}" href="${hrV(c)}"><div class="ph" style="aspect-ratio:${asp}"><img src="${esc(fotoVitrine(c))}" alt="${esc(nomeV(c))}" loading="lazy"></div><div class="lb">${esc(nomeV(c))} <b>${precoT(c.preco)}</b></div></a>`:'';
   return `<div style="background:var(--navy)">
@@ -1388,9 +1422,9 @@ const FORMAS=[
 const forma=i=>i===3?'<span class="emp-i emp-a" aria-hidden="true"></span>':`<svg class="emp-i" viewBox="0 0 56 56" aria-hidden="true"><defs><linearGradient id="empG${i}" x1="0" y1="0" x2="0" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F4B05C"/><stop offset="1" stop-color="#C8862E" stop-opacity=".3"/></linearGradient></defs><g fill="url(#empG${i})">${FORMAS[i]}</g></svg>`;
 function sobre(){
   const b=[['União que fortalece','Nenhuma empresa consegue sozinha o que {associados} conseguem juntas.'],
-           ['Estoque no site, sem digitar','Lemos o site da sua loja e publicamos os anúncios aqui, atualizados todo dia.'],
+           ['Estoque no site, sem digitar','Seu estoque cadastrado diretamente em nosso site.'],
            ['O cliente fala com você','O contato cai no WhatsApp da loja, com cópia por e-mail. A venda continua sendo sua.'],
-           ['Selo e rede credenciada','Vistoria, inspeção e serviços credenciados na mesma rua.']];
+           ['Rede Credenciada','Inúmeros serviços credenciados. Um clube de benefícios só seu.']];
   return `<section class="sob">
   <div class="wrap sob-a">
    <div class="kick">${T('inicio.sobre-chamada','A ACEIMA')}</div>
@@ -1410,7 +1444,7 @@ function sobre(){
    <div class="wrap">
     <div class="emp-t">
      <h2>${T('inicio.empresario-titulo','Faça parte')} <em>${T('inicio.empresario-titulo-destaque','do maior polo.')}</em></h2>
-     <p>${T('inicio.empresario-texto','Empresas de todos os ramos da Intendente e arredores podem se associar. Cada pedido passa pela diretoria: é isso que mantém o selo confiável para quem compra.')}</p>
+     <p>${T('inicio.empresario-texto','Empresas de todos os ramos da Intendente e arredores podem se associar.')}</p>
     </div>
     <div class="emp-4">${b.map((x,i)=>`<div>${forma(i)}<h3>${T(`inicio.empresario-beneficio${i+1}`,x[0])}</h3><p>${T(`inicio.empresario-beneficio${i+1}-texto`,x[1])}</p></div>`).join('')}
      <a class="btnp" href="${hr('associar')}">${T('inicio.empresario-botao','Quero me associar')}${ic('<path d="M7 17 17 7M8 7h9v9"/>',16)}</a>
@@ -1598,22 +1632,24 @@ function extras(c){   // km, câmbio, combustível e loja, sem repetir o que o n
 // As linhas do nome completo são medidas antes, já com lugar para a seta no fim de cada uma: nenhuma palavra pula de linha enquanto é
 // escrita (era a "embolada"), e a seta anda sempre ao lado da última letra. O grupo .anc-u fica para quem não roda o JS
 const nomeComSeta=n=>{const i=n.lastIndexOf(' ')+1;return `${esc(n.slice(0,i))}<span class="anc-u">${esc(n.slice(i))}<span class="anc-s">${ic(SETA,14)}</span></span>`;};
-function linhasNome(a,t,l,n){   // as linhas do nome completo na largura da etiqueta, menos a seta
+function linhasNome(a,t,l,n){   // as linhas do nome completo na largura da etiqueta, menos a seta; guarda também a altura da etiqueta com todas elas
   const W=a.firstElementChild.offsetWidth;if(l._W===W&&l._ls)return l._ls;
-  l.classList.remove('dg');l.textContent=n;t.classList.add('mede');
+  l.classList.remove('dg');l.textContent=n;t.style.minHeight='';t.classList.add('mede');
   const tx=l.firstChild,rg=document.createRange(),ls=[];let topo=null,ini=0;
   for(let i=0;i<n.length;i++){
     if(n[i]===' ')continue;
     rg.setStart(tx,i);rg.setEnd(tx,i+1);const r=rg.getBoundingClientRect();if(!r.height)continue;
     if(topo===null)topo=r.top;else if(r.top>topo+r.height/2){ls.push(n.slice(ini,i).trimEnd());ini=i;topo=r.top;}
   }
-  ls.push(n.slice(ini));t.classList.remove('mede');
+  ls.push(n.slice(ini));l._H=t.offsetHeight;t.classList.remove('mede');
   l._W=W;return l._ls=ls;
 }
 function digitar(a){
   const t=a.querySelector('.anc-t'),l=a.querySelector('.anc-l');if(!t||!l)return;
   cancelAnimationFrame(a._dg);
   const n=l.dataset.n,ls=linhasNome(a,t,l,n),c=a.querySelector('.anc-c').textContent.split(' '),w=n.split(' ');
+  // nome de duas linhas: a etiqueta já nasce com a altura final, e o recorte abre a segunda linha logo no começo (pedido do Luiz, 13/10/2026)
+  t.style.minHeight=ls.length>1?l._H+'px':'';
   let p=0;while(p<c.length&&p<w.length&&c[p]===w[p])p++;   // as palavras iguais às do nome curto (marca e modelo) ficam paradas
   let fixas=0;for(let i=0,r=p?w.slice(0,p).join(' ').length+1:0;i<ls.length&&r>0;i++){const k=Math.min(ls[i].length,r);fixas+=k;r-=k+1;}   // +1: o espaço da quebra
   const pos=[];ls.forEach((x,i)=>{for(let j=0;j<x.length;j++)pos.push([i,j]);});   // cada letra: linha e lugar na linha
@@ -1632,7 +1668,8 @@ function digitar(a){
 }
 const comMouse=()=>matchMedia('(hover:hover)').matches;
 function acenderAnc(a){if(a.classList.contains('vivo'))return;a.classList.add('vivo');a._vivo=performance.now();digitar(a);}
-function apagarAnc(a){if(!a.classList.contains('vivo'))return;a.classList.remove('vivo');a._vivo=performance.now();cancelAnimationFrame(a._dg);}
+function apagarAnc(a){if(!a.classList.contains('vivo'))return;a.classList.remove('vivo');a._vivo=performance.now();cancelAnimationFrame(a._dg);
+  const t=a.querySelector('.anc-t');if(t)t.style.minHeight='';}
 const anuncio=c=>{const n=nomeTodo(c);return `<a class="anc" href="${hrV(c)}" onmouseenter="if(comMouse())acenderAnc(this)" onmouseleave="if(comMouse())apagarAnc(this)" onfocus="acenderAnc(this)" onblur="apagarAnc(this)">
   <div class="anc-f">${foto(c)?`<img src="${esc(foto(c))}" alt="${esc(n)}" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">`:''}<div class="anc-i">${extras(c).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>
   <div class="anc-t"><span class="anc-c">${esc(nomeCurto(c))}</span><span class="anc-l" data-n="${esc(n)}">${nomeComSeta(n)}</span></div>
@@ -1758,7 +1795,8 @@ function depoisEstoque(){
 /* menu suspenso dos filtros. Um só ouvinte, fixo, fecha a lista quando se toca fora dela. Antes, cada lista deixava o seu ouvinte
    para trás quando se escolhia uma opção, e ele fechava a próxima lista no mesmo clique que a abria: o filtro "às vezes não clicava" */
 let dropDe='';
-function fecharDrop(){document.querySelectorAll('.drop:not(.saindo)').forEach(d=>{d.classList.add('saindo');setTimeout(()=>d.remove(),150);});dropDe='';}   // some em fusão
+function fecharDrop(){document.querySelectorAll('.drop:not(.saindo)').forEach(d=>{d.classList.add('saindo');setTimeout(()=>d.remove(),150);});dropDe='';
+  document.querySelectorAll('.as2-sel.aberto').forEach(x=>x.classList.remove('aberto'));}   // some em fusão
 document.addEventListener('pointerdown',e=>{if(dropDe&&!e.target.closest('.drop:not(.saindo),#fp-'+dropDe))fecharDrop();});
 function abrirFiltro(k){
   if(dropDe===k){fecharDrop();return;}   // tocar de novo no mesmo filtro fecha a lista
@@ -1807,21 +1845,22 @@ function listaAssoc(E){
 }
 const telLinks=t=>String(t).split('·').map(x=>x.trim()).filter(Boolean).map(x=>`<a href="tel:+55${x.replace(/\D/g,'')}">${esc(x)}</a>`).join(' · ');
 const fmtWa=w=>{const d=String(w||'').replace(/\D/g,'').replace(/^55/,'');return d.length>=10?`(${d.slice(0,2)}) ${d.slice(2,-4)}-${d.slice(-4)}`:esc(w||'');};
-// a loja tocada, no padrão da folha azul da página do carro: o nome grande, os números ao lado e embaixo a linha da loja
+// a loja tocada, numa folha azul enxuta (pedido do Luiz, 13/10/2026: o texto estava grande e com muito espaço vazio): a logo ao lado do
+// nome, a nota e os anúncios à direita (no credenciado, o texto dele embaixo do nome) e uma linha com os contatos e os botões
 function lojaAssoc(S){
   const pc=S.parc,nota=S.nota?S.nota.toFixed(1).replace('.',','):'',lg=API===null?'':pc?S.logo:S.id?'/api/logo?path=logo&id='+S.id:'',sd=ic(SETA_DIAG,15);
   const mapa='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(S.nome+', '+(S.end||'Estrada Intendente Magalhães')+', Rio de Janeiro');
-  return `<div class="kick c">${pc?T('associados.selo-credenciado','Credenciado ACEIMA'):T('associados.selo-associado','Associado ACEIMA')}</div>
-   <div class="as3-ct-t">
-    <div class="as3-v"><h3>${esc(S.nome)}</h3><p>${pc?esc(pc.tipo):T('associados.ramo-loja','Loja de veículos')}${S.num?` · Nº ${S.num} da Intendente`:''}</p></div>
-    <div class="as3-n">${nota?`<div><b>${nota}<i>★</i></b><span>${fmt(S.av)} ${T('associados.avaliacoes','avaliações no Google')}</span></div>`:''}${pc?`<p>${esc(pc.txt)}</p>`:`<div><b>${fmt(S.n)}</b><span>${T('associados.anuncios','anúncios no ar')}</span></div>`}</div>
-   </div>
-   <div class="vp-ct-i">
+  return `<div class="as3-cab">
     <div class="vp-l-lg${lg?'':' sem'}">${lg?`<img src="${lg}" alt="${esc(S.nome)}" data-cor="${esc(S.cor||'')}" onload="tomLogo(this)" onerror="this.parentNode.classList.add('sem')">`:''}<span>${esc(iniciais(S.nome))}</span></div>
-    ${S.end?`<div class="vp-ct-e"><span>${T('associados.endereco','Endereço')}</span><p>${esc(S.end)}</p></div>`:''}
+    <div class="as3-v"><div class="kick c">${pc?T('associados.selo-credenciado','Credenciado ACEIMA'):T('associados.selo-associado','Associado ACEIMA')}</div><h3>${esc(S.nome)}</h3><p>${pc?esc(pc.tipo):T('associados.ramo-loja','Loja de veículos')}${S.num?` · Nº ${S.num} da Intendente`:''}</p></div>
+    <div class="as3-n">${nota?`<div><b>${nota}<i>★</i></b><span>${fmt(S.av)} ${T('associados.avaliacoes','avaliações no Google')}</span></div>`:''}${pc?'':`<div><b>${fmt(S.n)}</b><span>${T('associados.anuncios','anúncios no ar')}</span></div>`}</div>
+   </div>
+   ${pc?`<p class="as3-tx">${esc(pc.txt)}</p>`:''}
+   <div class="as3-i">
+    ${S.end?`<div class="as3-e"><span>${T('associados.endereco','Endereço')}</span><p>${esc(S.end)}</p></div>`:''}
     ${S.tel?`<div><span>${T('associados.telefone','Telefone')}</span><p>${telLinks(S.tel)}</p></div>`:''}
     ${S.wa?`<div><span>${T('associados.whatsapp','WhatsApp')}</span><p><a href="https://wa.me/${S.wa}?text=${encodeURIComponent('Olá! Vim pelo site da ACEIMA.')}" target="_blank" rel="noopener">${fmtWa(S.wa)}</a></p></div>`:''}
-    <div class="ct-b">
+    <div class="as3-b">
      <a class="btno" href="${mapa}" target="_blank" rel="noopener">${T('associados.botao-mapa','Como chegar')}${sd}</a>
      ${pc?`<a class="btno" href="${hr('servicos')}">${T('associados.botao-servico','Ver o serviço')}${sd}</a>`:S.n?`<a class="btno" href="${hr('estoque',S.nome)}">${T('associados.botao-estoque','Estoque da loja')}${sd}</a>`:''}
     </div>
@@ -2170,17 +2209,18 @@ function chamarLoja(){
 
 /* ==================== A ACEIMA ==================== */
 function aceima(){
-  const bene=[['aceima.beneficio1','Atendimento diferenciado','aceima.beneficio1-texto','Todo associado segue o mesmo padrão, da primeira conversa ao pós-venda.'],
-              ['aceima.beneficio2','Selo de qualidade','aceima.beneficio2-texto','Procedência conferida em todos os veículos.'],
-              ['aceima.beneficio3','SAC da associação','aceima.beneficio3-texto','Segunda a sexta, das 9h às 17h.'],
-              ['aceima.beneficio4','Serviços na mesma rua','aceima.beneficio4-texto','Vistoria, inspeção e comércio credenciado.']];
+  // a rede credenciada vem antes do SAC (pedido do Luiz, 13/10/2026); cada aba continua com o seu id
+  const bene=[['aceima.beneficio1','Atendimento diferenciado','aceima.beneficio1-texto','Nossos associados seguem um padrão ACEIMA, que te garante confiança na hora de adquirir o seu carro novo.'],
+              ['aceima.beneficio2','Selo de qualidade','aceima.beneficio2-texto','O selo leva para a fachada de cada associado a reputação de {anos} anos do polo. Para o cliente, é a certeza de que a empresa tem um nome a zelar.'],
+              ['aceima.beneficio4','Rede Credenciada','aceima.beneficio4-texto','Uma vasta rede de comércios que completam todo o ecossistema de uma venda.'],
+              ['aceima.beneficio3','SAC da associação','aceima.beneficio3-texto','Segunda a sexta, das 9h às 17h.']];
   const pubs=[['Conquistas','Título de uma conquista da associação','12 mar 2026'],['Comunicados','Comunicado da diretoria aos associados','04 mar 2026'],['Imprensa','O polo na imprensa do Rio de Janeiro','21 fev 2026']];
   const seta=ic(SETA_DIAG,15);
   return `<div class="ac2">
  <div class="gl topo">${LUZ}${hd()}</div>
  <section class="wrap ac2-hero">
   <h1 class="ac2-tit">${T('aceima.titulo','A associação que faz o maior polo automotivo da América Latina funcionar.')}</h1>
-  <div class="ac2-m">${LUZ}
+  <div class="ac2-m"><img class="ac2-mf" src="fotos-aceima/intendente-antiga.webp" alt="Foto antiga da Estrada Intendente Magalhães">
    <div class="ac2-selo">${T('aceima.chamada','Desde 1998')}</div>
    <div class="ac2-ent"><p>${T('aceima.subtitulo','Tradição, segurança e credibilidade, reunindo os comércios da Estrada Intendente Magalhães com um só propósito.')}</p></div>
   </div>
@@ -2207,9 +2247,10 @@ function aceima(){
    <div class="ac2-ct-e">
     <div class="kick">${T('aceima.contato-selo','SAC da associação')}</div>
     <h2>${T('aceima.contato-titulo','Fale com a')} <em>${T('aceima.contato-titulo-destaque','ACEIMA.')}</em></h2>
-    <p>${T('aceima.contato-texto','O SAC atende os clientes das empresas associadas e quem quer se associar.')}</p>
+    <p>${T('aceima.contato-texto','O SAC atende os clientes das empresas associadas\ne quem quer se associar.')}</p>
     <div class="ac2-ct-b">
-     <a class="btnp" href="https://wa.me/${WA_ACEIMA}?text=${encodeURIComponent('Olá! Vim pelo site da ACEIMA.')}" target="_blank" rel="noopener">${T('aceima.botao-whatsapp','WhatsApp')}${ic(SETA_DIAG,16)}</a>
+     <a class="btnp" href="${hr('associar')}">${T('aceima.contato-associar','Quero me associar')}${ic('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',16)}</a>
+     <a class="btnp" href="https://wa.me/${WA_ACEIMA}?text=${encodeURIComponent('Olá! Tive um problema com um associado e gostaria de entender como posso prosseguir.')}" target="_blank" rel="noopener">${T('aceima.contato-reclamacao','Tenho uma reclamação')}${ic(SETA_DIAG,16)}</a>
      <a class="ac2-pill" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Estrada Intendente Magalhães, 830, Vila Valqueire, Rio de Janeiro')}" target="_blank" rel="noopener">${T('aceima.botao-mapa','Como chegar')}${seta}</a>
     </div>
    </div>
@@ -2242,10 +2283,9 @@ function alturaAcordeao(){
 /* ==================== SEJA UM ASSOCIADO ==================== */
 function associar(){
   const b=[['A força de um polo unido','Nenhuma empresa consegue sozinha o que {associados} conseguem juntas.'],
-           ['Presença no site','Sua empresa aparece entre os associados, com endereço, contato e avaliações. Loja de veículos tem o estoque publicado sozinho.'],
-           ['O cliente cai no seu WhatsApp','Com cópia por e-mail. A venda continua sendo sua.'],
-           ['Selo e rede credenciada','Vistoria, inspeção e serviços credenciados na mesma rua.']];
-  const ramos=['Loja de veículos','Motos','Serviço automotivo','Comércio','Outro ramo'];   // as opções do campo Ramo do formulário
+           ['Presença Digital','Redes sociais andando lado a lado. Sua empresa cadastrada em nosso site. E o seu estoque fazendo parte do nosso catálogo.'],
+           ['O nosso cliente é seu cliente','Leads do nosso site vão direto para a sua principal fonte de atendimento, além de lhe disponibilizar uma cópia por e-mail com os dados do cliente.'],
+           ['Rede Credenciada','Uma vasta rede com inúmeros parceiros que te disponibilizam um Clube de Benefícios só seu.']];
   const ICO_PARC={'Vistoria cautelar':'<path d="M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.7 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1.2 1.2 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
     'Inspeção obrigatória':'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
     'Ar-condicionado':'<path d="M2 12h20"/><path d="M12 2v20"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/>',
@@ -2264,11 +2304,11 @@ function associar(){
  <section class="as2-hero">
   <div class="as2-hl">
    <div class="kick">${T('associar.chamada','Para empresas de todos os ramos')}</div>
-   <h1>${T('associar.titulo','O que você ganha\nao se associar à ACEIMA.')}</h1>
-   <p>${T('associar.texto','A associação não é um selo na parede. É fazer parte de um polo com {anos} anos de credibilidade, receber clientes pelo site e atender dentro de um padrão que o cliente reconhece na rua.')}</p>
+   <h1>${T('associar.titulo','O que a sua empresa ganha\nao se associar à ACEIMA.')}</h1>
+   <p>${T('associar.texto','A associação não é um nome ou um selo. É fazer parte de um polo com {anos} anos de credibilidade e ser reconhecido como uma empresa confiável e segura.')}</p>
    <button type="button" class="as2-bo" onclick="document.getElementById('asForm').scrollIntoView({behavior:'smooth'})">${T('associar.botao-topo','Falar com a associação')}</button>
   </div>
-  <div class="as2-foto"><div>${ic('<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',64)}${T('associar.foto','Foto do presidente')}</div></div>
+  <div class="as2-foto"><img src="fotos-aceima/presidente.webp" alt="Presidente da ACEIMA"></div>
  </section>
  <div class="wrap as2-ctt">
   <span>${ic(ICO_TEL,22)}${T('aceima.telefones','(21) 3283-6600 · (21) 99104-1424')}</span>
@@ -2280,11 +2320,11 @@ function associar(){
    <div class="as2-g1">
     <div class="as2-ft"><img src="fotos-aceima/uniao.webp" alt="" loading="lazy"></div>
     <div class="as2-g1t">
-     <p>${T('associar.s1-texto','Desde 1998, a ACEIMA reúne as empresas da Estrada Intendente Magalhães sob um mesmo padrão de qualidade e de atendimento. Quem se associa ganha um selo que o cliente reconhece, a força de um polo unido e espaço no site da associação.')}</p>
+     <p>${T('associar.s1-texto','Desde 1998, a ACEIMA reúne as empresas da Estrada Intendente Magalhães sob um mesmo padrão de qualidade e de atendimento.')}</p>
      <div class="as2-nums">
-      <div><b>${nAssoc()}</b><small>${T('associar.numero1','empresas associadas')}</small></div>
-      <div><b>${fmt(nVeic())}</b><small>${T('associar.numero2','veículos no ar pelo site')}</small></div>
-      <div><b>${new Date().getFullYear()-1998} anos</b><small>${T('associar.numero3','de associação na Intendente Magalhães')}</small></div>
+      <div><b>${nAssoc()}</b><small>${T('associar.numero1','Empresas\nAssociadas')}</small></div>
+      <div><b>${fmt(nVeic())}</b><small>${T('associar.numero2','Veículos\nCadastrados')}</small></div>
+      <div><b>${new Date().getFullYear()-1998} Anos</b><small>${T('associar.numero3','de Associação na\nIntendente Magalhães')}</small></div>
      </div>
      <p class="as2-todos">${ic(ICONES.associados,30)}${T('associar.todos-ramos','Você pode ser nosso associado, independentemente do seu ramo.')}</p>
     </div>
@@ -2293,7 +2333,7 @@ function associar(){
  </section>
  <section class="as2-s">
   <div class="wrap">
-   <div class="as2-cab"><h2>${T('associar.s3-titulo','O que a sua empresa ganha')}</h2></div>
+   <div class="as2-cab"><h2>${T('associar.s3-titulo','Benefícios do associado')}</h2></div>
    <div class="as2-g3">
     <div class="as2-bl">${b.map((x,i)=>`<div><h3>${T(`associar.beneficio${i+1}`,x[0])}</h3><p>${T(`associar.beneficio${i+1}-texto`,x[1])}</p></div>`).join('')}</div>
     <div class="as2-rede"><div class="kick">${T('associar.rede','Rede credenciada na mesma rua')}</div>
@@ -2313,12 +2353,12 @@ function associar(){
   <div class="wrap">
    <div class="kick c">${T('associar.s5-titulo','Fale com a associação')}</div>
    <div class="vp-ct-t">
-    <div class="vp-v"><div class="as2-ct-h">${T('associar.form-titulo','Faça parte.')}</div><p>${T('associar.form-texto','Cada pedido passa pela diretoria: é isso que mantém o selo confiável para quem compra.')}</p></div>
+    <div class="vp-v"><div class="as2-ct-h">${T('associar.form-titulo','Faça parte.')}</div><p>${T('associar.form-texto','Fale diretamente conosco e tire suas dúvidas agora mesmo.')}</p></div>
     <div class="vp-form campo as2-fm" oninput="liberarAssoc()" onchange="liberarAssoc()">
      <input id="asNome" class="as2-f-nome" placeholder="${TX('associar.campo-nome','Seu nome')}" aria-label="${TX('associar.campo-nome','Seu nome')}" autocomplete="name">
      <input id="asTel" class="as2-f-tel" inputmode="tel" placeholder="${TX('associar.campo-whatsapp','Seu WhatsApp')}" aria-label="${TX('associar.campo-whatsapp','Seu WhatsApp')}" autocomplete="tel">
      <input id="asEmp" class="as2-f-emp" placeholder="${TX('associar.campo-empresa','Nome da empresa')}" aria-label="${TX('associar.campo-empresa','Nome da empresa')}" autocomplete="organization">
-     <select id="asRamo" class="as2-f-ramo" aria-label="${TX('associar.campo-ramo','Ramo')}">${ramos.map((r,i)=>`<option>${TX(`associar.ramo${i+1}`,r)}</option>`).join('')}</select>
+     <button type="button" id="fp-ramo" class="as2-f-ramo as2-sel" data-v="" aria-haspopup="listbox" onclick="abrirRamo()"><span>${TX('associar.campo-ramo','Ramo da empresa')}</span>${ic(I_DOWN,14)}</button>
      <button type="button" class="btnp as2-f-bt" onclick="enviarAssoc()" disabled>${T('associar.botao','Falar com a associação')}${ic(SETA_DIAG,16)}</button>
     </div>
    </div>
@@ -2334,13 +2374,36 @@ function associar(){
   </div>
  </section>
 </div>${rodape()}`;}
+// ramos do formulário (pedido do Luiz, 13/10/2026): os quatro primeiros na ordem dele e o resto em ordem alfabética. Na mensagem,
+// os adjetivos entram sem o "de" ("do ramo alimentício") e os outros com ele ("do ramo de Loja de Automóveis")
+const RAMOS=['Loja de Automóveis','Serviços Automotivos','Alimentício','Escolar','Academia e Esportes','Advocacia','Agropecuário','Arquitetura e Engenharia',
+  'Autoescola','Autopeças','Bar e Restaurante','Beleza e Estética','Calçados','Comunicação e Marketing','Construção Civil','Contabilidade','Despachante',
+  'Eletrônicos e Celulares','Energia Solar','Estacionamento','Farmacêutico','Funilaria e Pintura','Gráfico','Hoteleiro','Imobiliário','Informática e Tecnologia',
+  'Lava-Jato','Locadora de Veículos','Logística e Transporte','Loja de Motos','Materiais de Construção','Mecânica e Oficina','Moda e Vestuário','Móveis e Decoração',
+  'Odontológico','Ótica','Pet Shop','Pneus e Rodas','Reboque e Guincho','Saúde','Seguros','Som e Acessórios Automotivos','Supermercado','Vidraçaria',
+  'Vistoria e Inspeção Veicular','Outro ramo'];
+const RAMOS_ADJ=['Alimentício','Escolar','Agropecuário','Farmacêutico','Gráfico','Hoteleiro','Imobiliário','Odontológico'];
+// o campo Ramo abre a mesma lista dos filtros do estoque (some em fusão e fecha tocando fora, pelo ouvinte fixo dos filtros)
+function abrirRamo(){
+  if(dropDe==='ramo'){fecharDrop();return;}
+  fecharDrop();const alvo=document.getElementById('fp-ramo');if(!alvo)return;
+  const r=alvo.getBoundingClientRect(),d=document.createElement('div');d.className='drop';dropDe='ramo';
+  d.style.left=(r.left+scrollX)+'px';d.style.top=(r.bottom+scrollY+8)+'px';d.style.width=Math.max(220,r.width)+'px';
+  d.innerHTML=RAMOS.map(o=>`<button class="${alvo.dataset.v===o?'on':''}" data-v="${esc(o)}">${esc(o)}</button>`).join('');
+  d.querySelectorAll('button').forEach(b=>b.onclick=()=>{alvo.dataset.v=b.dataset.v;alvo.firstElementChild.textContent=b.dataset.v;alvo.classList.add('on');fecharDrop();});
+  document.body.appendChild(d);alvo.classList.add('aberto');
+  const on=d.querySelector('.on');if(on)d.scrollTop=on.offsetTop-d.clientHeight/2;
+}
 // o botão só libera com o nome e o WhatsApp preenchidos, como no formulário da página do carro
 function liberarAssoc(){const b=document.querySelector('.as2-f-bt');if(!b)return;const v=id=>(document.getElementById(id)||{}).value||'';b.disabled=!(v('asNome').trim()&&v('asTel').replace(/\D/g,'').length>=10);}
 function enviarAssoc(){
   const g=id=>document.getElementById(id),nome=g('asNome').value.trim(),emp=g('asEmp').value.trim(),tel=g('asTel').value.replace(/\D/g,'');
   g('asNome').classList.toggle('bad',!nome);g('asTel').classList.toggle('bad',tel.length<10);if(!nome||tel.length<10)return;
-  const msg=`Olá! Meu nome é ${nome}${emp?', da '+emp:''} (${g('asRamo').value}). Quero saber como me associar à ACEIMA. Meu WhatsApp: ${g('asTel').value.trim()}.`;
+  // a mensagem não leva o WhatsApp: ele fica no lead, que vai para o painel e por e-mail para a ACEIMA (pedido do Luiz, 13/10/2026)
+  const ramo=(g('fp-ramo')||{dataset:{}}).dataset.v||'',rr=ramo&&ramo!=='Outro ramo'?(RAMOS_ADJ.includes(ramo)?ramo.toLowerCase():'de '+ramo):'';
+  const msg=`Olá! Meu nome é ${nome}${emp?`, represento a empresa ${emp}`:''}${rr?` e faço parte do ramo ${rr}`:''}. Quero saber mais sobre a ACEIMA e como me associar.`;
   window.open('https://wa.me/'+WA_ACEIMA+'?text='+encodeURIComponent(msg),'_blank');
+  if(API!==null)fetch('/api/leads?path=leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'associacao',canal:'formulario',cliente_nome:nome,cliente_telefone:tel,detalhes:{empresa:emp||null,ramo:ramo||null}})}).catch(()=>{});
 }
 
 /* ==================== PUBLICAÇÕES ==================== */

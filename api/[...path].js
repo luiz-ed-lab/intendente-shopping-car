@@ -1,5 +1,5 @@
 // ============================================================
-//  Backend consolidado — Nova Intendente Shopping Car (ACEIMA)
+//  Backend consolidado — site da ACEIMA
 //  Uma única função "pega-tudo" que atende:
 //    GET  /api/lojas            -> lista lojas ativas
 //    POST /api/lojas            -> cadastra loja
@@ -304,6 +304,27 @@ async function enviarEmailsLead(lead, soAceima, anexos) {
   ocultos = [...new Set(ocultos.filter(Boolean))].filter(e => !emails.includes(e));
   if (!emails.length) return;
   const det = lead.detalhes ? (typeof lead.detalhes === 'string' ? JSON.parse(lead.detalhes) : lead.detalhes) : null;
+  // pedido de associação (formulário do Seja um associado): só para a ACEIMA, com a empresa e o ramo
+  if (lead.tipo === 'associacao') {
+    const t = String(lead.cliente_telefone || '').replace(/\D/g, ''), wa = 'https://wa.me/' + (t.length > 11 ? t : '55' + t);
+    const tb = t.length >= 10 ? '(' + t.slice(-11, -9) + ') ' + t.slice(-9, -4) + '-' + t.slice(-4) : (lead.cliente_telefone || '—');
+    const empresa = det && det.empresa ? String(det.empresa) : '', ramo = det && det.ramo ? String(det.ramo) : '';
+    const html = emailLayout({
+      etiqueta: 'Quer se associar',
+      titulo: 'Uma empresa quer se associar!',
+      subtitulo: 'Confira os dados abaixo:',
+      tabela: [linhaInfo('Nome', esc(lead.cliente_nome), true),
+        linhaInfo('WhatsApp', `<a href="${wa}" style="color:#25a35a;text-decoration:none;font-weight:700">${esc(tb)}</a>`),
+        linhaInfo('Empresa', esc(empresa)), linhaInfo('Ramo', esc(ramo))].join(''),
+      botao: t ? { url: wa, texto: 'Falar no WhatsApp' } : null,
+      aviso: null,
+      rodape: 'Contato gerado pelo site da ACEIMA.'
+    });
+    const texto = ['Uma empresa quer se associar à ACEIMA, pelo site.', '', 'Nome: ' + (lead.cliente_nome || '-'), 'WhatsApp: ' + tb,
+      empresa ? 'Empresa: ' + empresa : null, ramo ? 'Ramo: ' + ramo : null].filter(x => x !== null).join('\n');
+    await enviarResend(key, { to: [ACEIMA_MAIL], reply_to: ACEIMA_MAIL, subject: 'Empresa quer se associar — via site da ACEIMA', text: texto, html });
+    return;
+  }
 
   // o lead recém-criado vem do INSERT ... RETURNING *, que NÃO traz o nome do veículo
   // (isso é um join que só existe no GET). Sem isso o e-mail saía com "—".
@@ -334,10 +355,10 @@ async function enviarEmailsLead(lead, soAceima, anexos) {
     ? (lead.forma_compra + ((entradaTxt || trocaTxt) ? '' : (lead.entrada || '')))
     : '';
   const assunto = compra
-    ? 'Cliente quer VENDER um veículo — via site Intendente Shopping Car'
-    : 'Novo lead de venda — via site Intendente Shopping Car';
+    ? 'Cliente quer VENDER um veículo — via site da ACEIMA'
+    : 'Novo lead de venda — via site da ACEIMA';
   const linhas = [
-    'Este é um cliente vindo do site da Intendente Shopping Car.', '',
+    'Este é um cliente vindo do site da ACEIMA.', '',
     'Nome: ' + (lead.cliente_nome || '-'),
     'WhatsApp: ' + (lead.cliente_telefone || '-'),
     lead.cliente_email ? ('E-mail: ' + lead.cliente_email) : null,
@@ -382,7 +403,7 @@ async function enviarEmailsLead(lead, soAceima, anexos) {
     tabela,
     botao: tel ? { url: 'https://wa.me/' + (tel.length > 11 ? tel : '55' + tel), texto: 'Falar com o cliente no WhatsApp' } : null,
     aviso: null,
-    rodape: 'Contato gerado pelo site da Intendente Shopping Car e repassado pela ACEIMA.'
+    rodape: 'Contato gerado pelo site da ACEIMA.'
   });
 
   const envelope = { to: emails, reply_to: ACEIMA_MAIL, subject: assunto, text: linhas.join('\n'), html };
@@ -768,10 +789,10 @@ async function rotaLojas(req, res) {
 async function rotaParceiros(req, res) {
   if (req.method === 'GET' && doSite(req)) {
     // o site: a nota no Google e se tem logo, de cada credenciado (o robô das avaliações guarda tudo em config). Sem migra()
-    const { rows } = await query(`select chave, case when chave = 'avaliacoes_google' then valor end as valor, length(valor) as n
+    const { rows } = await query(`select chave, case when chave = 'avaliacoes_google' then valor end as valor, left(valor, 5) = 'data:' as tem
                                     from config where chave = 'avaliacoes_google' or chave like 'logo_parceiro:%'`);
     const g = rows.find(r => r.chave === 'avaliacoes_google'), av = g && g.valor ? JSON.parse(g.valor) : {};
-    const comLogo = new Set(rows.filter(r => r.chave.startsWith('logo_parceiro:') && r.n > 0).map(r => r.chave.slice(14)));
+    const comLogo = new Set(rows.filter(r => r.chave.startsWith('logo_parceiro:') && r.tem).map(r => r.chave.slice(14)));
     res.setHeader('Cache-Control', CACHE_SITE);
     return res.json(PARCEIROS_ROBO.map(p => ({ nome: p.nome, nota: (av[p.nome] || {}).nota || null, total: (av[p.nome] || {}).total || null, logo: comLogo.has(p.nome) })));
   }
@@ -1128,7 +1149,7 @@ async function enviarResumo() {
 
   // versão em texto puro (para quem não vê HTML)
   const linhas = [
-    'Resumo das últimas 24h — Intendente Shopping Car', '',
+    'Resumo das últimas 24h — site da ACEIMA', '',
     `Leads: ${somaLeads} (${n(aval.total)} querem vender o próprio carro)`,
     `Estoque no ar: ${totNoAr} · entraram ${totNovos} · saíram ${totSairam} · ocultos ${totOcultos}`, ''
   ];
@@ -1184,7 +1205,7 @@ async function enviarResumo() {
 
   const key = process.env.RESEND_API_KEY;
   if (key) {
-    await enviarResend(key, { to: [ACEIMA_MAIL], subject: 'Resumo diário — Intendente Shopping Car', text: linhas.join('\n'), html });
+    await enviarResend(key, { to: [ACEIMA_MAIL], subject: 'Resumo diário — site da ACEIMA', text: linhas.join('\n'), html });
   }
   return { enviado: !!key, para: ACEIMA_MAIL, resumo: linhas };
 }
@@ -1272,11 +1293,12 @@ const semAcento = s => String(s || '').toLowerCase().normalize('NFD').replace(/[
 // lojas que estão no banco e ficam fora do site e do robô (pedido do Luiz, 07/10/2026). O painel continua vendo
 const FORA_DO_SITE = ['Lions Seminovos'];
 // associados que não são lojas de carro: os mesmos do PARCEIROS do index.html, com o mesmo nome (pedido do Luiz, 07/10/2026)
+// site: onde o robô lê a logo. A SISV não tem site nem logo (fica com as iniciais); o do R21 é o r21.com.br (Luiz, 13/10/2026)
 const PARCEIROS_ROBO = [
   { nome: 'LaudoCar', site: 'https://laudocarrj.com.br/' },
-  { nome: 'SISV Inspeção Veicular', site: 'https://grupovialog.com.br/sisv-vila-valqueire-rj/' },
+  { nome: 'SISV Inspeção Veicular' },
   { nome: 'Frioline', site: 'https://www.frioline.com.br/' },
-  { nome: 'R21 Bar & Restaurante', site: 'https://nxp.digital/reserva/r21-vila-valqueire' }
+  { nome: 'R21 Bar & Restaurante', site: 'https://r21.com.br/' }
 ];
 const NOMES_GENERICOS = ['auto', 'car', 'veiculos', 'automoveis', 'motors', 'motos', 'multimarcas', 'seminovos'];
 // a palavra principal do nome ("laudocar", "r21"): a primeira com mais de duas letras que não é genérica
@@ -1316,6 +1338,7 @@ async function avaliacoesGoogle() {
   const chave = process.env.GOOGLE_PLACES_KEY;
   const recente = c && Date.now() - new Date(c.em).getTime() < 864e5;   // a atualização do dia já foi feita
   const novos = PARCEIROS_ROBO.filter(p => !guardadas[p.nome]);
+  try { await logosDosParceiros(); } catch (_) {}
   if (!chave || (recente && !novos.length)) return todas();
   if (!recente) await migra();   // só a atualização do dia precisa das colunas novas: quem só lê as avaliações não espera as migrações (eram 3s na primeira visita)
   const { rows: lojas } = await query('select id, nome from lojas where ativa = true and nome <> all($1)', [FORA_DO_SITE]);
@@ -1337,19 +1360,22 @@ async function avaliacoesGoogle() {
   if (!recente) for (const nome of Object.keys(guardadas)) if (!associados.some(l => l.nome === nome)) delete guardadas[nome];   // saiu da associação
   await query("insert into config (chave, valor, em) values ('avaliacoes_google', $1, now()) on conflict (chave) do update set valor = $1, em = now()",
     [JSON.stringify(guardadas)]);
-  try { await logosDosParceiros(); } catch (_) {}
   return todas();
 }
-// logo dos credenciados, lida no site de cada um e guardada em config ('logo_parceiro:Nome'). Achada, é lida de novo em 30 dias;
-// não achada (site fora do ar ou sem a logo), em 3 dias
+// logo dos credenciados, lida no site de cada um e guardada em config ('logo_parceiro:Nome', em data URI). Achada, é lida de novo em
+// 30 dias; não achada, fica marcado o site que foi lido ('sem:' + site) e ela é procurada de novo em 3 dias, ou logo que o site mudar.
+// Uma leitura que falha não apaga a logo que já estava guardada. Credenciado sem site não é lido
 async function logosDosParceiros() {
-  const { rows } = await query("select chave, em, length(valor) as n from config where chave like 'logo_parceiro:%'");
-  const vez = PARCEIROS_ROBO.filter(p => { const r = rows.find(x => x.chave === 'logo_parceiro:' + p.nome);
-    return !r || Date.now() - new Date(r.em).getTime() > (r.n > 0 ? 30 : 3) * 864e5; });
+  const { rows } = await query(`select chave, em, left(valor, 5) = 'data:' as tem, case when valor like 'sem:%' then valor end as lido
+                                  from config where chave like 'logo_parceiro:%'`);
+  const vez = PARCEIROS_ROBO.filter(p => { if (!p.site) return false;
+    const r = rows.find(x => x.chave === 'logo_parceiro:' + p.nome);
+    return !r || Date.now() - new Date(r.em).getTime() > (r.tem ? 30 : 3) * 864e5 || (!r.tem && r.lido !== 'sem:' + p.site); });
   await Promise.all(vez.map(async p => {
     const logo = await logoDoParceiro(p);
-    await query("insert into config (chave, valor, em) values ($1, $2, now()) on conflict (chave) do update set valor = $2, em = now()",
-      ['logo_parceiro:' + p.nome, logo || '']);
+    await query(`insert into config (chave, valor, em) values ($1, $2, now()) on conflict (chave) do update
+                   set valor = case when $2 like 'data:%' or config.valor not like 'data:%' then $2 else config.valor end, em = now()`,
+      ['logo_parceiro:' + p.nome, logo || 'sem:' + p.site]);
   }));
 }
 // a logo no site do credenciado: a primeira imagem com "logo" no endereço, no texto alternativo ou na classe, e com o nome dele no
@@ -1366,7 +1392,11 @@ async function logoDoParceiro(p) {
     $('img').each((_, e) => {
       if (src) return;
       const u = $(e).attr('src') || $(e).attr('data-src') || '', alt = $(e).attr('alt') || '', cl = $(e).attr('class') || '';
-      if (/logo/i.test(u + ' ' + alt + ' ' + cl) && semAcento(u + ' ' + alt).replace(/[^a-z0-9]/g, '').includes(chave)) src = u;
+      if (!/logo/i.test(u + ' ' + alt + ' ' + cl) || !semAcento(u + ' ' + alt).replace(/[^a-z0-9]/g, '').includes(chave)) return;
+      // com várias resoluções (srcset), a menor que tenha pelo menos 600 px de largura: a maior pesaria à toa (a do R21 tem 2560 px)
+      const op = String($(e).attr('srcset') || '').split(',').map(x => x.trim().split(/\s+/)).filter(x => x[0] && /^\d+w$/.test(x[1] || ''))
+        .map(x => [x[0], parseInt(x[1], 10)]).sort((a, b) => a[1] - b[1]);
+      src = (op.find(x => x[1] >= 600) || op[op.length - 1] || [u])[0];
     });
     if (!src) return null;
     const i = await fetch(new URL(src, r.url || p.site).href, { headers: h, redirect: 'follow', signal: AbortSignal.timeout(8000) });
