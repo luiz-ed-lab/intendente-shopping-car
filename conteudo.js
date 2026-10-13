@@ -76,7 +76,7 @@ window.CONTEUDO = {
     "texto": "{veículos arredondados} veículos,\n{lojas} lojas, um estoque."
   },
   "aceima.titulo": {
-    "texto": "A associação que faz A Intendente funcionar."
+    "texto": "A associação que faz \nA Intendente funcionar."
   },
   "aceima.subtitulo": {
     "texto": "Tradição, segurança e credibilidade, reunindo os comércios da Estrada Intendente Magalhães com um só propósito."

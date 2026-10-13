@@ -193,13 +193,11 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .av.espera{visibility:hidden}
 .av.chegou{animation:avChega .6s ease}
 @keyframes avChega{from{opacity:0}}
-.av-janela{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
-.av-trilho{--g:12px;display:flex;gap:var(--g);width:max-content;animation:rolar linear infinite}
+.av-janela{overflow:hidden;touch-action:pan-y;-webkit-user-select:none;user-select:none;cursor:grab;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.av-janela.arrasta,.av-janela.arrasta *{cursor:grabbing}   /* dá para segurar e arrastar, com o dedo ou o mouse (pedido do Luiz, 13/10/2026): passoAvaliacoes() */
+.av-trilho{--g:12px;display:flex;gap:var(--g);width:max-content;will-change:transform}
 .av-trilho>div{display:contents}
-.av:hover .av-trilho{animation-play-state:paused}
-@keyframes rolar{to{transform:translateX(calc(-50% - var(--g) / 2))}}
-@media(prefers-reduced-motion:reduce){.av-trilho{animation:none}}
-.avc{display:block;width:280px;flex:none;padding:12px 14px;border-radius:18px;background:#fff;box-shadow:0 12px 30px rgba(0,0,0,.28);color:var(--ink)}
+.avc{display:block;width:280px;flex:none;padding:12px 14px;border-radius:18px;background:#fff;box-shadow:0 12px 30px rgba(0,0,0,.28);color:var(--ink);-webkit-touch-callout:none}
 .avt{display:flex;align-items:center;gap:10px}
 .avf{width:36px;height:36px;border-radius:99px;flex:none;object-fit:cover;display:grid;place-items:center;background:#F6F4F1;color:#C8862E;font-weight:800;font-size:.72rem}
 .avt>div{min-width:0}
@@ -621,8 +619,9 @@ body.lb-on{overflow:hidden}
 /* topo: o título em degradê e a mídia com o entalhe (um recorte com cantos redondos, pintado na cor da página) */
 .ac2-hero{padding-top:clamp(30px,3vw,56px)}
 .ac2-tit{max-width:1000px;margin:0 auto;text-align:center;font:400 clamp(1.6rem,2.3vw,2.8rem)/1.22 var(--f1);letter-spacing:-.02em;background:linear-gradient(90deg,#1E3E70 15%,#C8862E 85%);-webkit-background-clip:text;background-clip:text;color:transparent}
+@media (min-width:761px){.ac2-tit br{display:none}}   /* a quebra de linha antes de "A Intendente" é só do celular (pedido do Luiz, 13/10/2026): no computador, o título fica numa linha */
 .ac2-m{position:relative;height:clamp(380px,38.5vw,720px);margin-top:clamp(30px,3vw,56px);border-radius:var(--rm);overflow:hidden;background:var(--navy);isolation:isolate}
-.ac2-mf{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 62%}   /* a Intendente antiga (foto enviada pelo Luiz em 13/10/2026) */
+.ac2-mf{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 94%}   /* a Intendente antiga, vista de cima (foto enviada pelo Luiz em 13/10/2026): o recorte mostra a rua que sai à esquerda */
 .ac2-m>video.luz{opacity:.5;mix-blend-mode:screen;filter:brightness(4) contrast(2.4) saturate(0)}   /* o vidro da home por cima da foto antiga, só a luz que passa: o vídeo é quase todo azul-escuro, então o filtro apaga o fundo e deixa as faixas claras (pedido do Luiz, 13/10/2026) */
 .ac2-selo{position:absolute;z-index:2;top:clamp(16px,1.7vw,28px);left:clamp(16px,1.7vw,28px);padding:10px 18px;border-radius:99px;background:rgba(246,244,241,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font:500 clamp(.8rem,.85vw,.95rem)/1.3 var(--f2);color:var(--ink)}
 .ac2-ent{--r:clamp(20px,2.2vw,36px);position:absolute;z-index:2;top:0;left:50%;transform:translateX(-50%);width:min(460px,36%);padding:clamp(20px,2vw,34px) clamp(22px,2vw,36px) clamp(24px,2.3vw,40px);border-radius:0 0 var(--r) var(--r);background:var(--cl);text-align:center}
@@ -634,7 +633,7 @@ body.lb-on{overflow:hidden}
 /* história: o texto e a foto da sede com a mesma altura, alinhados em cima e embaixo com qualquer aba aberta (pedido do Luiz, 07/10/2026):
    o acordeão guarda a altura que tem com a aba mais longa aberta (alturaAcordeao) e a foto acompanha a coluna do texto */
 .ac2-a .ac2-t{grid-column:1}
-.ac2-a h2{margin-top:-.26em}   /* o topo das letras na linha de cima da foto (a folga da fonte acima delas) */
+.ac2-a h2{margin-top:-.26em;font-weight:600}   /* o topo das letras na linha de cima da foto (a folga da fonte acima delas); "Nossa história" com mais peso (pedido do Luiz, 13/10/2026) */
 .ac2-a .ac2-f{grid-column:2/4;position:relative}
 .ac2-a .ac2-f img{position:absolute;inset:0}
 .ac2-acc{margin-top:clamp(26px,2.4vw,42px);border-top:1px solid var(--line)}
@@ -678,35 +677,50 @@ body.lb-on{overflow:hidden}
   .ac2-ent{width:min(460px,48%)}
 }
 @media (max-width:760px){
-  .ac2{--g:5.63vw;--rm:6.34vw;padding-bottom:16.9vw}
+  /* celular (pedido do Luiz, 13/10/2026): cantos bem menos redondos, textos menores e as seções no meio */
+  .ac2{--g:5.63vw;--rm:2.82vw;padding-bottom:16.9vw}
   .ac2 h2{font-size:7.04vw;letter-spacing:-.15vw}
   .ac2 p{font-size:3.73vw}
-  .ac2-pill{gap:2.82vw;margin-top:5.63vw;padding:2.82vw 4.23vw 2.82vw 4.93vw;font-size:3.52vw}
-  .ac2-hero{padding-top:7.04vw}
+  .ac2-pill{gap:2.82vw;margin-top:5.63vw;padding:2.46vw 4.23vw 2.46vw 4.93vw;font-size:3.3vw}
+  .ac2-hero{padding-top:8.45vw}   /* o título com respiro embaixo do cabeçalho */
   .ac2-tit{font-size:6.76vw}
-  .ac2-m{height:auto;aspect-ratio:4/3;margin-top:7.04vw}   /* com a foto antiga, deitada: em pé, cortava metade da rua */
-  .ac2-selo{top:4.23vw;left:4.23vw;padding:2.46vw 4.23vw;font-size:3.17vw}
-  .ac2-ent{display:none}
-  .ac2 .ac2-sub{display:block;max-width:86%;margin:7.04vw auto 0;text-align:center;font-size:3.73vw}
+  .ac2-m{height:auto;aspect-ratio:4/3;margin-top:7.04vw}   /* deitada, como no computador */
+  .ac2-mf{object-position:50% 100%}
+  /* "Desde 1998" num entalhe no meio de cima da foto, como o subtítulo no computador */
+  .ac2-selo{display:none}
+  .ac2-ent{--r:2.82vw;width:auto;padding:1.76vw 4.93vw 2.46vw}
+  .ac2 .ac2-ent p{display:none}
+  .ac2-ent .so-cel{display:block;font:500 3.17vw/1.2 var(--f2);color:var(--ink);white-space:nowrap}
+  .ac2 .ac2-sub{display:block;max-width:none;margin:5.63vw auto 0;text-align:center;font-size:3vw;line-height:1.45;text-wrap:balance}   /* no máximo duas linhas */
   .ac2-g{grid-template-columns:1fr;margin-top:19.7vw}
   .ac2-a .ac2-t,.ac2-a .ac2-f{grid-column:1}
   .ac2-t{padding:0}
   .ac2-a h2{margin-top:0}
+  .ac2-a .ac2-t>h2,.ac2-a .ac2-t>p{text-align:center}   /* "Nossa história" e o texto no meio */
   .ac2-a .ac2-f{aspect-ratio:350/240}
+  .ac2-a>.ac2-pill{justify-self:center;margin-top:0}   /* "Seja um associado" embaixo da foto */
   .ac2-ai>button{padding:4.23vw 0;font-size:3.52vw}
+  .ac2 .ac2-ap p{padding-bottom:4.23vw;font-size:3vw;line-height:1.45}   /* o texto da aba aberta bem menor */
   .ac2-c{margin-top:19.7vw}
-  .ac2 .ac2-ch>p{margin-top:2.82vw}
-  .ac2-cards{grid-template-columns:1fr;gap:8.45vw;margin-top:8.45vw}
-  .ac2-card h3{margin-top:4.23vw;font-size:3.94vw}
-  .ac2-card small{font-size:3.38vw}
-  .ac2-ct{grid-template-columns:1fr;gap:8.45vw;margin-top:19.7vw;padding:8.45vw 7.04vw}
+  .ac2 .ac2-ch>p{margin-top:2.82vw;font-size:3vw;line-height:1.45}
+  /* duas publicações por linha; a última, sozinha, no meio */
+  .ac2-cards{display:flex;flex-wrap:wrap;justify-content:center;gap:7.04vw 4.23vw;margin-top:7.04vw}
+  .ac2-card{flex:0 0 calc(50% - 2.115vw);min-width:0}
+  .ac2-card .foto{font-size:2.25vw}
+  .ac2-card h3{gap:2.11vw;margin-top:2.82vw;font-size:3.3vw}
+  .ac2-card h3 svg{width:3.52vw;height:3.52vw;margin-top:.35vw}
+  .ac2-card small{margin-top:1.76vw;font-size:2.82vw}
+  /* Fale com a Aceima: tudo no meio, o texto bem menor e os botões mais baixos */
+  .ac2-ct{grid-template-columns:1fr;gap:8.45vw;margin-top:19.7vw;padding:8.45vw 7.04vw;text-align:center}
   .ac2-ct .kick,.ac2-ct-g>div>span{font-size:2.46vw;letter-spacing:.42vw}
   .ac2-ct .kick{margin-bottom:2.82vw}
-  .ac2 .ac2-ct-e>p{white-space:normal;text-wrap:balance}   /* no celular, a quebra de linha do texto deixava "associadas" sozinha numa linha */
-  .ac2-ct-b{align-self:stretch;flex-direction:column;align-items:stretch;padding-top:5.63vw}
+  .ac2-ct-e{align-items:center}
+  .ac2 .ac2-ct-e>p{max-width:none;margin-top:2.82vw;font-size:3vw;line-height:1.4;white-space:normal;text-wrap:balance}   /* no celular, a quebra de linha do texto deixava "associadas" sozinha numa linha */
+  .ac2-ct-b{align-self:stretch;flex-direction:column;align-items:stretch;gap:2.11vw;padding-top:5.63vw}
   .ac2-ct-b>*{justify-content:center}
-  .ac2-ct-b .btnp{padding:3.87vw 5.63vw;font-size:3.6vw}
+  .ac2-ct-b .btnp,.ac2-ct-b .ac2-pill{gap:2.11vw;padding:2.82vw 4.93vw;font-size:3.2vw}
   .ac2-ct-g{justify-self:stretch;width:auto;gap:4.23vw}
+  .ac2 .ac2-ct-g p{font-size:3.47vw}
 }
 
 /* Seja um associado (pedido do Luiz, 06/10/2026), no estilo do modelo Resume (21st.dev, @shadcnspace): metade com o título e metade
@@ -720,7 +734,7 @@ body.lb-on{overflow:hidden}
 .as2-hl{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:clamp(48px,5vw,96px) clamp(32px,4vw,80px) clamp(48px,5vw,96px) var(--wl)}   /* o texto e o botão no meio da altura da foto */
 .as2-bo{display:inline-flex;align-items:center;gap:10px;padding:clamp(14px,1.2vw,20px) clamp(24px,2vw,32px);border-radius:99px;border:1px solid var(--gold);color:var(--ink);font:500 clamp(.95rem,1.05vw,1.15rem)/1 var(--f2);cursor:pointer;transition:background-color .25s,color .25s}
 .as2-bo:hover{background:var(--gold);color:#fff}
-.as2-hl h1{margin-top:clamp(14px,1.2vw,20px);font:600 clamp(1.8rem,2.7vw,3.2rem)/1.14 var(--f1);letter-spacing:-.03em;white-space:pre-line}
+.as2-hl h1{font:600 clamp(1.8rem,2.7vw,3.2rem)/1.14 var(--f1);letter-spacing:-.03em;white-space:pre-line}   /* sem a chamada em cima (pedido do Luiz, 13/10/2026) */
 .as2 .as2-hl p{max-width:620px;margin-top:clamp(20px,2vw,36px);font:400 clamp(.95rem,1vw,1.1rem)/1.7 var(--f2);color:#5E6B7E}
 .as2-hl .as2-bo{margin-top:clamp(28px,2.6vw,44px)}
 .as2-foto{position:relative;min-height:clamp(420px,42vw,800px);display:grid;place-items:center;background:#00091A url('fundo-animado-frame.jpg') 0% 0%/200% 200% no-repeat;animation:vidro 38s ease-in-out infinite alternate}
@@ -805,35 +819,48 @@ body.lb-on{overflow:hidden}
 @media (max-width:760px){
   .as2{--wl:5.63vw}
   .as2-hero{grid-template-columns:1fr}
-  .as2-hl{padding:9.86vw 5.63vw}
+  .as2-hl{position:relative;z-index:2;padding:9.86vw 5.63vw}
   .as2-bo{gap:2.82vw;padding:3.52vw 5.63vw;font-size:3.52vw}
-  .as2-hl h1{margin-top:3.52vw;font-size:7.04vw;letter-spacing:-.2vw;white-space:normal;text-wrap:balance}
-  .as2 .as2-hl p{margin-top:4.93vw;font-size:3.73vw}
-  .as2-hl .as2-bo{margin-top:7.04vw}
-  .as2-foto{min-height:0;aspect-ratio:4/5}
+  .as2-hl h1{font-size:7.04vw;letter-spacing:-.2vw;white-space:normal;text-wrap:balance}
+  .as2 .as2-hl p{margin-top:4.23vw;font-size:3.2vw;line-height:1.5}   /* menor e com as linhas mais juntas (pedido do Luiz, 13/10/2026) */
+  .as2-hl .as2-bo{margin-top:6.34vw}
+  /* a foto do presidente sobe por baixo do fim do texto e some no branco em cima (pedido do Luiz, 13/10/2026) */
+  .as2-foto{min-height:0;aspect-ratio:4/5;margin-top:-9.86vw}
+  .as2-foto::after{content:'';position:absolute;left:0;right:0;top:0;height:30%;background:linear-gradient(#fff,rgba(255,255,255,0))}
   .as2-foto>div{gap:3.52vw;font-size:2.82vw}
-  .as2-ctt{flex-direction:column;gap:4.23vw;padding:6.34vw 5.63vw;text-align:center}
-  .as2-ctt>span{flex-direction:column;gap:1.76vw;font-size:3.73vw}   /* no meio: o ícone em cima do texto */
+  /* o contato embaixo da foto (pedido do Luiz, 13/10/2026): longe dela, menor (o endereço numa linha) e organizado, cada ícone ao lado
+     do texto, num bloco no meio */
+  .as2-ctt{flex-direction:column;align-items:flex-start;width:max-content;max-width:100%;margin:0 auto;gap:3.52vw;padding:9.86vw 0;border-top:0}
+  .as2-ctt>span{gap:2.82vw;font-size:3vw}
+  .as2-ctt svg{width:4.23vw;height:4.23vw}
   .as2-s{padding:16.9vw 0}
+  .as2-cab{text-align:center}   /* os títulos das seções no meio (pedido do Luiz, 13/10/2026) */
   .as2-cab h2{font-size:9.86vw;letter-spacing:-.3vw}
   .as2-s p{font-size:3.73vw}
-  .as2-g1{grid-template-columns:1fr;gap:8.45vw}
+  /* a primeira seção: o texto em cima da foto e no meio, os três números numa linha só e a frase dos ramos menor (pedido do Luiz, 13/10/2026) */
+  .as2-g1{display:flex;flex-direction:column;gap:0}
+  .as2-g1t{display:contents}
+  .as2-s .as2-g1t>p:first-child{order:-1;margin:0 0 7.04vw;text-align:center;font-size:3.2vw;line-height:1.45}
   .as2-ft{min-height:0;aspect-ratio:4/3}
-  .as2-s .as2-g1t>p:first-child{margin-top:0}
-  .as2-nums{gap:7.04vw;margin-top:8.45vw}
-  .as2-nums>div{flex:1 1 40%}
-  .as2-nums b{font-size:9.86vw}
-  .as2-nums small{margin-top:2.11vw;font-size:3.52vw}
-  .as2-s .as2-todos{gap:3.52vw;margin-top:8.45vw;margin-bottom:0;font-size:5.07vw}
-  .as2-todos svg{width:7.04vw}
-  .as2-g3{gap:12.7vw;margin-top:9.86vw}
-  .as2-bl{gap:7.04vw}
-  .as2-bl>div{padding-left:8.45vw}
-  .as2-bl h3{font-size:4.5vw}
-  .as2-cards{gap:3.52vw}
-  .as2-card{gap:2.82vw;padding:6.34vw 3.52vw}
-  .as2-card h4{font-size:3.73vw}
-  .as2-card small{font-size:3.17vw}
+  .as2-nums{flex-wrap:nowrap;justify-content:center;gap:7.04vw;margin-top:7.04vw;text-align:center}
+  .as2-nums>div{flex:none}
+  .as2-nums b{font-size:7.04vw}
+  .as2-nums small{max-width:none;margin-top:1.41vw;font-size:2.82vw}
+  .as2-s .as2-todos{flex-direction:column;gap:2.11vw;margin-top:7.04vw;margin-bottom:0;font-size:3.47vw;text-align:center;text-wrap:balance}
+  .as2-todos svg{width:5.63vw}
+  /* benefícios bem menores e mais juntos; a rede credenciada no meio, com os quatro numa linha (pedido do Luiz, 13/10/2026) */
+  .as2-g3{gap:9.86vw;margin-top:7.04vw}
+  .as2-bl{gap:4.93vw}
+  .as2-bl>div{padding-left:6.34vw}
+  .as2-bl>div::before{top:.32em;width:3.2vw;height:3.2vw;border-width:1px;background:radial-gradient(circle,var(--ink) 0 .7vw,#fff .85vw)}
+  .as2-bl h3{font-size:3.73vw}
+  .as2-bl p{margin-top:1.06vw;font-size:3vw;line-height:1.45}
+  .as2-rede .kick{margin-bottom:4.23vw;text-align:center}
+  .as2-cards{grid-template-columns:repeat(4,minmax(0,1fr));gap:2.11vw}
+  .as2-card{gap:1.76vw;padding:3.52vw 1.06vw;border-radius:2.11vw}
+  .as2-card svg{width:6.34vw;height:6.34vw}
+  .as2-card h4{font-size:2.82vw;line-height:1.2}
+  .as2-card small{font-size:2.25vw;line-height:1.2}
   .as2-lojas{--gx:3.52vw;gap:6.34vw var(--gx);margin-top:8.45vw}
   .as2-lj{flex-basis:calc((100% - 2 * var(--gx)) / 3)}
   .as2-lf{aspect-ratio:16/10;border-radius:2.11vw}
@@ -841,14 +868,16 @@ body.lb-on{overflow:hidden}
   .as2-lt{margin-top:2.11vw;font-size:3.17vw}
   .as2-lt svg{display:none}
   .as2-ls{margin-top:.7vw;font-size:2.67vw}
-  .as2-mais{margin-top:9.86vw}
-  .as2-ct .vp-ct-t{--pf:11.27vw}
-  .vp-form.as2-fm{grid-template-rows:repeat(5,12.4vw);grid-template-areas:"nome" "tel" "emp" "ramo" "bt"}
-  .as2-sel{font-size:3.6vw}
+  .as2-mais{margin-top:8.45vw}
+  .as2-mais .as2-bo{gap:2.11vw;padding:2.46vw 4.93vw;font-size:3.2vw}   /* "Ver todos" menor (pedido do Luiz, 13/10/2026) */
+  /* o formulário na proporção do resto do site, como o da página do carro (pedido do Luiz, 13/10/2026) */
+  .as2-ct .vp-ct-t{--pf:8.45vw}
+  .vp-form.as2-fm{grid-template-rows:repeat(5,10.56vw);grid-template-areas:"nome" "tel" "emp" "ramo" "bt"}
+  .as2-sel{font-size:3.2vw}
 }
 
 @media (max-width:1100px){
-  .wrap{padding:0 28px}
+  .wrap{padding-left:28px;padding-right:28px}   /* só as laterais: com "padding:0 28px", o respiro de cima das seções que também são .wrap sumia (o título da Aceima colado no cabeçalho) */
   .av-g{padding:0 28px}
   h1{font-size:3rem}
   .vti h3{font-size:1.5rem}
@@ -876,7 +905,7 @@ body.lb-on{overflow:hidden}
 @media (max-width:760px){
   /* medidas tiradas das telas de celular aprovadas (tela útil de 284px), convertidas em vw */
   .so-desk{display:none!important}
-  .wrap{padding:0 5.63vw}
+  .wrap{padding-left:5.63vw;padding-right:5.63vw}
   /* logo à esquerda, a 5,63vw do topo e da lateral; o menu fica no canto direito, centralizado com a logo */
   header{justify-content:flex-start;padding:5.63vw 5.63vw 0}
   header .lg{height:9.86vw}
@@ -894,7 +923,7 @@ body.lb-on{overflow:hidden}
   .nl>span{font-size:3.2vw;line-height:1.2;transform:rotate(180deg)}
   /* categorias: o toque só abre; o botão Acessar aparece na que foi tocada */
   .vti.tocada .acessar{display:inline-flex;align-items:center;margin-top:2.82vw;padding:2.11vw 4.23vw;border-radius:2.13vw;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;font:600 3.47vw/1 var(--f2)}
-  p{font-size:4.06vw}
+  p{font-size:3.47vw}   /* textos na proporção do resto do site (pedido do Luiz, 13/10/2026: tudo menor no celular) */
   /* início */
   .hero{min-height:0!important;padding-bottom:11.27vw}   /* a imagem e o vidro do fundo descem até atrás dos cantos do bloco claro, que sobe por cima (6,34vw de respiro + 4,93vw do canto) */
   .hero .inn{justify-content:flex-start!important;gap:0!important;padding:11.27vw 5.63vw 0!important}
@@ -902,7 +931,7 @@ body.lb-on{overflow:hidden}
   .hero .tit>[data-t="inicio.titulo"]{font-size:5.33vw!important}   /* celular: "Credibilidade que move" maior que o tamanho do modo de edição, e "desde 1998" bem menor */
   /* o subtítulo termina em 70% da tela; o título e as descrições das categorias (que começam em 9,86vw) vão até o fim */
   .hero h1{font-size:6.93vw;line-height:1.14;letter-spacing:-.14vw;margin:1.87vw 0 0!important;max-width:none!important}   /* o título pode passar dos 70%: "A Intendente!" cabe numa linha só */
-  .hero .sub{font-size:3.73vw!important;margin-top:.43vw;max-width:64.37vw}
+  .hero .sub{font-size:3vw!important;margin-top:.43vw;max-width:64.37vw}   /* do tamanho das descrições das categorias (pedido do Luiz, 13/10/2026) */
   .vtl{margin-top:5.63vw}
   .vti{padding:3.87vw 0 3.87vw 4.23vw}
   .vti::before{top:3.17vw;bottom:3.17vw}
@@ -925,12 +954,13 @@ body.lb-on{overflow:hidden}
   .hs{min-height:0!important;display:block!important;padding:5.63vw 0 6.34vw!important}
   .hs-grid{display:flex!important;flex-direction:column;align-items:stretch!important;gap:0!important;padding:0 5.63vw!important}
   .hs-grid>div:first-child{display:contents}
-  .hs .kick{order:1;font-size:2.82vw;letter-spacing:.56vw;font-weight:700}
-  .hs h2{order:2;font-size:5.75vw!important;line-height:1.22;letter-spacing:0;margin:2.46vw 0 4.23vw!important}
+  /* o estoque da home: tudo no meio e o texto menor, com as linhas mais juntas (pedido do Luiz, 13/10/2026) */
+  .hs .kick{order:1;font-size:2.82vw;letter-spacing:.56vw;font-weight:700;text-align:center}
+  .hs h2{order:2;font-size:5.75vw!important;line-height:1.22;letter-spacing:0;margin:2.46vw 0 4.23vw!important;text-align:center}
   .hs .stag{order:3}
-  .hs p{order:4;margin-top:4.23vw;font-size:4.06vw!important}
-  .btn{font-size:3.8vw;padding:3.52vw 5.63vw}
-  .hs .btns{order:5;flex-wrap:wrap;gap:2.82vw!important}
+  .hs p{order:4;margin-top:4.23vw;font-size:3vw!important;line-height:1.4;text-align:center}
+  .btn{font-size:3.3vw;padding:2.82vw 5.63vw}
+  .hs .btns{order:5;flex-wrap:wrap;justify-content:center;gap:2.82vw!important}
   .stag{gap:2.82vw}
   .stag .col2{margin-top:0}
   .stag .c{margin-bottom:2.82vw;border-radius:3.52vw;border:0;box-shadow:none;background:#0A1A33}
@@ -942,34 +972,38 @@ body.lb-on{overflow:hidden}
   :root{--canto:4.93vw}
   .gl>.himg{background-position:var(--cel,center)}   /* celular: cada foto mostra a sua parte (a 1 o lado esquerdo, as outras o centro) */
   .sob{padding-top:8.45vw}
-  .sob-a{padding-bottom:11.27vw}
+  /* o bloco da Aceima: todo o texto no meio e os textos menores, do tamanho das descrições das categorias (pedido do Luiz, 13/10/2026) */
+  .sob-a{padding-bottom:11.27vw;text-align:center}
   .sob-a>.kick{margin-bottom:2.46vw}
   .sob h2,.emp h2{font-size:8.1vw;letter-spacing:-.25vw}
-  .sob .lead{margin-top:5.63vw;font-size:4.37vw;line-height:1.4}
-  .sob-d{margin-top:3.52vw}
-  .sob-d p{font-size:3.73vw}
+  .sob .lead{margin-top:4.23vw;font-size:3vw;line-height:1.45}
+  .sob-d{margin-top:2.82vw}
+  .sob-d p{font-size:3vw;line-height:1.45}
   .sob-n{gap:4.23vw;margin-top:7.04vw}
   .sob-n b{font-size:16.9vw}
   .sob-n>div>span{margin-top:2.11vw;font-size:2.46vw;letter-spacing:.42vw}
   .emp{padding:9.86vw 0 16.2vw}   /* 16,2vw: 11,27vw de respiro + 4,93vw do canto do estoque, que sobe por cima */
-  .emp-t p{margin-top:3.52vw;font-size:3.73vw}
-  .btnp{gap:2.11vw;padding:3.87vw 5.63vw;font-size:3.6vw}
-  .emp-4{gap:8.45vw 5.63vw;margin-top:9.86vw}
+  /* Faça parte: textos menores, linhas mais juntas e tudo no meio (pedido do Luiz, 13/10/2026) */
+  .emp-t p{margin-top:3.52vw;font-size:3vw;line-height:1.35}
+  .btnp{gap:2.11vw;padding:3.17vw 5.63vw;font-size:3.3vw}
+  .emp-4{gap:7.04vw 5.63vw;margin-top:8.45vw;text-align:center}
   .emp-4{--is:9.86vw}
-  .emp-4 h3{margin-top:3.52vw;font-size:4.23vw}
-  .emp-4 p{margin-top:1.76vw;font-size:3.38vw;line-height:1.45}
-  .emp-4 .btnp{margin-top:1.41vw;padding:4.23vw 5.63vw}
+  .emp-4>div{display:flex;flex-direction:column;align-items:center}
+  .emp-4 h3{margin-top:2.82vw;font-size:3.73vw}
+  .emp-4 p{margin-top:1.41vw;font-size:3vw;line-height:1.35}
+  .emp-4 .btnp{margin-top:1.41vw;padding:3.52vw 5.63vw}
   /* folha azul do contato (página do veículo) */
   .ct{padding:9.86vw 0 11.27vw}
   .ct h2{margin-top:2.46vw;font-size:8.1vw;letter-spacing:-.25vw}
   .ct-b{flex-direction:column;gap:2.82vw}
-  .ct-b a{justify-content:center;padding:4.23vw 5.63vw;gap:2.11vw;font-size:3.6vw}
+  .ct-b a{justify-content:center;padding:2.82vw 4.93vw;gap:2.11vw;font-size:3.2vw}
   /* estoque */
   .est-top{padding:6.34vw 0 0;margin-bottom:3.52vw}
   .est-top h2{margin:0;font-size:5.04vw;font-weight:800;letter-spacing:-.2vw;line-height:1.14;white-space:normal;text-wrap:balance}   /* numa linha só, ficaria com letra de rodapé */
-  .fbar{gap:2.11vw;overflow-x:auto;scrollbar-width:none;margin-bottom:0}
+  .fbar{gap:1.41vw;overflow-x:auto;scrollbar-width:none;margin-bottom:0}
   .fbar::-webkit-scrollbar{display:none}
-  .fbar .fp{font-size:3.38vw;font-weight:600;padding:2.11vw 3.87vw;border:1px solid rgba(255,255,255,.16);background:none;color:#C6D2E3;gap:1.4vw}
+  .fbar .fp{font-size:2.82vw;font-weight:600;padding:1.76vw 2.82vw;border:1px solid rgba(255,255,255,.16);background:none;color:#C6D2E3;gap:1.4vw}   /* menores, para caber em duas linhas (pedido do Luiz, 13/10/2026) */
+  .fbar .fp.lite{border-color:var(--line);background:#fff;color:var(--ink)}   /* filtros em fundo claro (Publicações): o texto claro do estoque sumia */
   .fbar .fp.on{background:linear-gradient(135deg,#C8862E,#F0AD57);color:#00112C;border-color:transparent}
   .fbar .fp svg{display:none}
   .fbar>span:nth-child(3){order:1}        /* celular: Todos, Marca, Ano, Preço, depois o resto */
@@ -997,7 +1031,7 @@ body.lb-on{overflow:hidden}
   .vp-lj::before{width:50%;height:44%}
   .vp-lj img{left:3.52vw;top:3.17vw;max-width:15vw;max-height:4.93vw}   /* logo na foto com a metade do tamanho (pedido do Luiz, 30/09/2026) */
   .vp-m{gap:7.04vw;margin-top:7.04vw}
-  .vp-m h1{font-size:8.1vw;letter-spacing:-.3vw}
+  .vp-m h1{font-size:7.04vw;letter-spacing:-.25vw}
   .vp-pill{gap:2.82vw;margin-top:4.93vw;padding:1.41vw 1.41vw 1.41vw 4.93vw;font-size:3.52vw}
   .vp-pill i{width:8.45vw}
   .vp-ficha{gap:4.23vw 5.63vw}
@@ -1012,7 +1046,7 @@ body.lb-on{overflow:hidden}
   .vp-gn{right:2.13vw}
   .vp-gv{gap:1.41vw;margin-top:3.52vw;padding:1.41vw 2.82vw;font-size:3.47vw}
   .vp-s{gap:8.45vw;margin-top:11.27vw}
-  .vp-s h2{font-size:8.1vw;letter-spacing:-.3vw}
+  .vp-s h2{font-size:6.2vw;letter-spacing:-.2vw}   /* títulos de "Características" e "Descrição" menores (pedido do Luiz, 13/10/2026) */
   /* características um pouco menores; opcionais menores e com menos espaço entre as linhas (pedido do Luiz, 30/09/2026) */
   .vp-tags{gap:1.41vw;margin-top:4.23vw}
   .vp-tags>span{gap:1.06vw;padding:1.6vw 2.82vw;font-size:2.82vw}
@@ -1024,28 +1058,30 @@ body.lb-on{overflow:hidden}
   .vp-opc li::before{left:.35vw;width:1.41vw;height:1.41vw;margin-top:-.7vw}
   .vp-mais{gap:1.41vw;margin-top:2.11vw;padding:1.41vw 0;font-size:3.47vw}
   .vp-dt{margin-top:4.23vw}
-  .vp-dt p{font-size:3.73vw}
-  .vp-ct .kick{margin-bottom:2.46vw}
-  .vp-ct-t{--pf:12.7vw;--nf:3.73vw;gap:7.04vw}
-  .vp-v p{margin-top:2.82vw}
-  .vp-form{grid-template-columns:1fr;grid-template-rows:repeat(4,12.4vw);grid-template-areas:"nome" "tel" "forma" "bt";gap:2.82vw}
-  .vp-form.fin{grid-template-rows:repeat(6,12.4vw);grid-template-areas:"nome" "tel" "forma" "ent" "val" "bt"}   /* celular: a escolha entre dinheiro e carro antes do valor ou do carro (pedido do Luiz, 07/10/2026) */
-  .vp-form input{font-size:3.6vw}
-  .vp-form .seg button{font-size:3.3vw}
-  .vp-form .btnp{padding:0 5.63vw}
-  .vp-f-troca{gap:2.82vw}
-  .ct.vp-ct{--vpi:7.04vw}
-  .vp-ct-i{flex-direction:column;align-items:stretch;gap:5.63vw;margin-top:8.45vw}
+  .vp-dt p{font-size:3.2vw;line-height:1.45}   /* descrição menor e com as linhas mais juntas (pedido do Luiz, 13/10/2026) */
+  .vp-dt p+p{margin-top:.7em}
+  /* do valor para baixo, tudo menor, na proporção do resto do site (pedido do Luiz, 13/10/2026) */
+  .vp-ct .kick{margin-bottom:2.11vw}
+  .vp-ct-t{--pf:9.86vw;--nf:3.2vw;gap:5.63vw}
+  .vp-v p{margin-top:2.11vw}
+  .vp-form{grid-template-columns:1fr;grid-template-rows:repeat(4,10.56vw);grid-template-areas:"nome" "tel" "forma" "bt";gap:2.11vw}
+  .vp-form.fin{grid-template-rows:repeat(6,10.56vw);grid-template-areas:"nome" "tel" "forma" "ent" "val" "bt"}   /* celular: a escolha entre dinheiro e carro antes do valor ou do carro (pedido do Luiz, 07/10/2026) */
+  .vp-form input{font-size:3.2vw}
+  .vp-form .seg button{font-size:3vw}
+  .vp-form .btnp{padding:0 4.93vw;font-size:3.2vw}
+  .vp-f-troca{gap:2.11vw}
+  .ct.vp-ct{--vpi:5.63vw}
+  .vp-ct-i{flex-direction:column;align-items:stretch;gap:4.23vw;margin-top:7.04vw}
   .vp-ct-i>div{flex:none}
-  .vp-ct-i>div:not(.vp-l-lg)>span{font-size:2.46vw;letter-spacing:.42vw}
-  .vp-ct-i p{margin-top:1.41vw;font-size:4.23vw}
+  .vp-ct-i>div:not(.vp-l-lg)>span{font-size:2.25vw;letter-spacing:.38vw}
+  .vp-ct-i p{margin-top:1.06vw;font-size:3.47vw}
   .vp-ct-i>.vp-l-lg{align-self:flex-start}
-  .vp-l-lg{height:9.86vw;border-radius:2.82vw}
-  .vp-l-lg.claro,.vp-l-lg.branco,.vp-l-lg.sem{height:12.68vw;padding:0 3.52vw}
-  .vp-l-lg.sem{min-width:12.68vw}
-  .vp-l-lg img{max-width:32vw}
-  .vp-ct-i .ct-b{flex-direction:column;gap:2.82vw}
-  .vp-ct-i .btno{justify-content:center;padding:4.23vw 5.63vw;font-size:3.6vw;gap:2.11vw}
+  .vp-l-lg{height:8.45vw;border-radius:2.11vw}
+  .vp-l-lg.claro,.vp-l-lg.branco,.vp-l-lg.sem{height:10.56vw;padding:0 2.82vw}
+  .vp-l-lg.sem{min-width:10.56vw}
+  .vp-l-lg img{max-width:28vw}
+  .vp-ct-i .ct-b{flex-direction:column;gap:2.11vw}
+  .vp-ct-i .btno{justify-content:center;padding:2.82vw 4.93vw;font-size:3.2vw;gap:2.11vw}
   #lb button{width:11.27vw;height:11.27vw}
   #lb .lb-a,#lb .lb-p{display:none}   /* celular: passa deslizando para cima e para baixo, ou tocando na foto de cima ou de baixo */
   #lb .lb-x{top:4.23vw;right:4.23vw}
@@ -1091,16 +1127,24 @@ body.lb-on{overflow:hidden}
   .as3-i{grid-template-columns:1fr 1fr;gap:3.52vw 4.23vw;margin-top:4.23vw;padding-top:4.23vw}
   .as3-i .as3-e,.as3-b{grid-column:1/-1}
   .as3-i>div>span{font-size:2.25vw;letter-spacing:.3vw}
-  .as3-i p{margin-top:1.06vw;font-size:3.6vw}
+  .as3-i p{margin-top:1.06vw;font-size:3.47vw}
   .as3-b{gap:2.11vw}
-  .as3-b .btno{flex:1;justify-content:center;padding:3.52vw 2.82vw;gap:1.76vw;font-size:3.3vw}
+  .as3-b .btno{flex:1;justify-content:center;padding:2.82vw;gap:1.76vw;font-size:3.2vw}
   /* páginas de leitura */
   h1{font-size:8vw;letter-spacing:-.14vw}
   h2{font-size:6.5vw;letter-spacing:-.1vw}
   .kick{font-size:2.82vw;letter-spacing:.56vw}
   .kick.kn,.as3-in .as3-v .kick.kn{font-size:3.3vw;letter-spacing:.1vw}
   .bene{grid-template-columns:1fr}
+  /* Publicações e Serviços: títulos e textos na proporção do resto do site (os tamanhos do computador estão no próprio elemento) */
+  .pb-tit,.sv-tit{font-size:7.04vw!important;letter-spacing:-.2vw}
+  .pb-foto{height:auto!important;aspect-ratio:16/10}
+  .pb-dt{font-size:5.07vw!important}
+  .pb-tx,.sv-sub{font-size:3.47vw!important}
+  .pb-it{font-size:3.73vw!important}
+  .sv-h{font-size:5.63vw!important}
   .parc{grid-template-columns:1fr;gap:18px}
+  .parc .inf{font-size:3.47vw;line-height:1.7}
   .rod .wrap{flex-direction:column;align-items:flex-start}
 }
 @media (min-width:761px){.so-cel{display:none!important}.inn .kick{font-size:.8rem;letter-spacing:3px}}
@@ -1291,6 +1335,9 @@ async function carregar(){
   if(!V.length)V=AMOSTRA_V.slice();
   if(!LJ.length)LJ=AMOSTRA_L.slice();
   pronto=true;rota(true);
+  // recarregou a página (ou voltou de outro site e ela abriu do zero): volta ao lugar onde estava, se ainda não rolou
+  const nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0],p=POS[chaveAtual];
+  if(nav&&/reload|back_forward/.test(nav.type)&&p&&p.pg===pagAtual&&p.y>0&&scrollY<2)irPara(p.y);
   if(API!==null)setTimeout(()=>fetch('/api/refresh?path=refresh&horas=2').catch(()=>{}),1500);
 }
 const nVeic=()=>V.length;
@@ -1463,21 +1510,50 @@ function sobre(){
  </section>`;
 }
 // faixa de avaliações: textos reais das avaliações das lojas no Google (a API renova toda semana); o clique abre a avaliação no Google
-let avT0=0;   // quando a faixa apareceu: ao redesenhar a página, ela continua de onde estava
+// a faixa anda sozinha e dá para segurar e arrastar, com o dedo ou o mouse (pedido do Luiz, 13/10/2026); com o mouse em cima, para.
+// Solta no meio do arrasto, ela continua deslizando e para devagar. A posição fica em AV: redesenhando a página, continua de onde estava
+const AV={x:0,v:0,t:0,arr:null,mouse:false,raf:0,P:0,n:1,tr:null},MOV_RED=matchMedia('(prefers-reduced-motion:reduce)');
+function faixaAvaliacoes(){
+  const j=document.querySelector('.av-janela');if(!j)return;
+  if(!j._ok){j._ok=1;AV.arr=null;AV.mouse=j.matches(':hover');
+    j.addEventListener('dragstart',e=>e.preventDefault());
+    j.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')AV.mouse=true;});
+    j.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')AV.mouse=false;});
+    j.addEventListener('pointerdown',e=>{if(e.button)return;AV.v=0;AV.arr={id:e.pointerId,x0:e.clientX,p0:AV.x,moveu:false,h:[[e.timeStamp,e.clientX]]};});
+    j.addEventListener('pointermove',e=>{const a=AV.arr;if(!a||e.pointerId!==a.id)return;const dx=e.clientX-a.x0;
+      if(!a.moveu){if(Math.abs(dx)<6)return;a.moveu=true;j.classList.add('arrasta');try{j.setPointerCapture(e.pointerId);}catch(_){}}
+      AV.x=a.p0-dx;a.h.push([e.timeStamp,e.clientX]);if(a.h.length>6)a.h.shift();});
+    const solta=e=>{const a=AV.arr;if(!a||e.pointerId!==a.id)return;AV.arr=null;if(!a.moveu)return;j.classList.remove('arrasta');j._arrastou=performance.now();
+      const h=a.h,dt=h[h.length-1][0]-h[0][0];AV.v=e.type==='pointerup'&&dt>0?Math.max(-3000,Math.min(3000,-(h[h.length-1][1]-h[0][1])/dt*1000)):0;};
+    j.addEventListener('pointerup',solta);j.addEventListener('pointercancel',solta);
+    j.addEventListener('click',e=>{if(performance.now()-(j._arrastou||-1e9)<400){e.preventDefault();e.stopPropagation();}},true);   // arrastar não abre a avaliação
+  }
+  if(!AV.raf)AV.raf=requestAnimationFrame(passoAvaliacoes);
+}
+function passoAvaliacoes(t){
+  const tr=document.querySelector('.av-trilho');if(!tr){AV.raf=0;AV.t=0;return;}
+  if(tr!==AV.tr||!AV.P){AV.tr=tr;const g=parseFloat(getComputedStyle(tr).columnGap)||0;AV.P=(tr.scrollWidth+g)/2;AV.n=tr.firstElementChild.children.length||1;}   // um ciclo: a primeira cópia inteira
+  const dt=AV.t?Math.min(.05,(t-AV.t)/1000):0;AV.t=t;
+  if(!AV.arr){
+    if(Math.abs(AV.v)>8){AV.x+=AV.v*dt;AV.v*=Math.pow(.05,dt);}   // depois de soltar, desliza e para devagar
+    else{AV.v=0;if(!AV.mouse&&!MOV_RED.matches)AV.x+=AV.P/(AV.n*6.6)*dt;}   // a mesma velocidade de antes: um cartão a cada 6,6 s
+  }
+  if(AV.P>0)AV.x=(AV.x%AV.P+AV.P)%AV.P;
+  tr.style.transform=`translate3d(${(-AV.x).toFixed(2)}px,0,0)`;
+  AV.raf=requestAnimationFrame(passoAvaliacoes);
+}
 function avaliacoes(){
   if(AVAL&&!AVAL.length)return '';
   const lista=AVAL||Array(6).fill({autor:'Cliente',loja:'Loja',texto:'. '.repeat(120)});   // enquanto chegam, cartões invisíveis guardam o lugar: os textos de cima não pulam
-  if(AVAL&&!avT0)avT0=performance.now();
-  const dur=Math.round(lista.length*6.6),atraso=avT0?((performance.now()-avT0)/1000)%dur:0;
   const card=a=>`<a class="avc" ${a.link?`href="${esc(a.link)}" target="_blank" rel="noopener"`:''}>
     <div class="avt">${a.foto?`<img class="avf" src="${esc(a.foto)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:`<span class="avf">${iniciais(a.autor)}</span>`}<div><b>${esc(a.autor)}</b><small>${esc(a.loja)}</small></div><span class="avq">“</span></div>
     <p class="avx">${esc(a.texto)}</p></a>`;
   const h=lista.map(card).join('');
   return `<div class="av${AVAL?'':' espera'}"><div class="kick c">${T('inicio.avaliacoes','Avaliações dos associados no Google')}</div>
-   <div class="av-janela"><div class="av-trilho" style="animation-duration:${dur}s;animation-delay:-${atraso.toFixed(2)}s"><div>${h}</div><div aria-hidden="true">${h.replace(/<a /g,'<a tabindex="-1" ')}</div></div></div><span class="av-g">Google Maps</span></div>`;
+   <div class="av-janela"><div class="av-trilho" style="transform:translate3d(${(-AV.x).toFixed(2)}px,0,0)"><div>${h}</div><div aria-hidden="true">${h.replace(/<a /g,'<a tabindex="-1" ')}</div></div></div><span class="av-g">Google Maps</span></div>`;
 }
 // as avaliações chegaram: a faixa entra no lugar guardado (ou o lugar some, se não veio nenhuma)
-function pintarAvaliacoes(){const a=document.querySelector('.av');if(!a)return;a.outerHTML=avaliacoes();const n=document.querySelector('.av');if(n)n.classList.add('chegou');}
+function pintarAvaliacoes(){const a=document.querySelector('.av');if(!a)return;a.outerHTML=avaliacoes();const n=document.querySelector('.av');if(n)n.classList.add('chegou');faixaAvaliacoes();}
 // só troca as classes: redesenhar a página reiniciaria o vídeo do fundo
 function destacar(i){if(EDIT)return;abaHome=i;document.querySelectorAll('.vti.tocada').forEach(e=>e.classList.remove('tocada'));['.vti','.himg'].forEach(s=>document.querySelectorAll(s).forEach((e,j)=>e.classList.toggle('on',j===i)));girar();}
 // a lista fica sempre com a altura da maior descrição: a troca não mexe em nada acima nem abaixo, e a sobra fica no fim
@@ -1829,7 +1905,9 @@ function estoqueDaLoja(n){zerarFiltros();F.loja=n;go('estoque',n);}   // "Estoqu
 // Estoque pelo menu ou por um link: o estoque geral, sem filtros e com outros carros na frente (pedido do Luiz, 07/10/2026)
 function estoqueNovo(){zerarFiltros();if(V.length)V=intercalar(V);go('estoque');}
 // "Nosso estoque", na página do carro, volta para o estoque como estava (filtros e ordem)
-function voltarEstoque(e){if(nova(e))return;e.preventDefault();go('estoque',F.loja||undefined);}
+function voltarEstoque(e){if(nova(e))return;e.preventDefault();
+  if(history.state&&history.state.de==='estoque'){history.back();return;}   // veio do estoque: volta pelo histórico, no mesmo ponto da lista
+  go('estoque',F.loja||undefined);}
 
 /* ==================== ASSOCIADOS ==================== */
 // pedido do Luiz em 07/10/2026: filtro num botão só, estrada alinhada, lista em três colunas pela nota e a loja tocada numa folha azul
@@ -1896,7 +1974,7 @@ function associados(){
 // tocar numa loja (na estrada ou na lista) abre o bloco dela; tocar de novo fecha. Só mudam as partes que precisam: o fundo continua
 function selA(el){
   const n=el.dataset.n;selAssoc=selAssoc===n?null:n;
-  try{history.replaceState(null,'',(HASH?'#':'')+urlDe('associados',selAssoc||undefined));}catch(e){}   // o endereço acompanha a loja aberta
+  try{history.replaceState(history.state,'',(HASH?'#':'')+urlDe('associados',selAssoc||undefined));}catch(e){}   // o endereço acompanha a loja aberta
   const E=entradasAssoc();trocarEixo(E);
   document.querySelectorAll('#asLista .row').forEach(r=>r.classList.toggle('on',r.dataset.n===selAssoc));
   mostrarLoja(E,true);
@@ -2242,9 +2320,9 @@ function aceima(){
  <div class="gl topo">${LUZ}${hd()}</div>
  <section class="wrap ac2-hero">
   <h1 class="ac2-tit">${T('aceima.titulo','A associação que faz o maior polo automotivo da América Latina funcionar.')}</h1>
-  <div class="ac2-m"><img class="ac2-mf" src="fotos-aceima/intendente-antiga.webp" alt="Foto antiga da Estrada Intendente Magalhães">${LUZ}
+  <div class="ac2-m"><img class="ac2-mf" src="fotos-aceima/intendente-antiga.webp" alt="Foto aérea antiga da Estrada Intendente Magalhães">${LUZ}
    <div class="ac2-selo">${T('aceima.chamada','Desde 1998')}</div>
-   <div class="ac2-ent"><p>${T('aceima.subtitulo','Tradição, segurança e credibilidade, reunindo os comércios da Estrada Intendente Magalhães com um só propósito.')}</p></div>
+   <div class="ac2-ent"><p>${T('aceima.subtitulo','Tradição, segurança e credibilidade, reunindo os comércios da Estrada Intendente Magalhães com um só propósito.')}</p><span class="so-cel">${T('aceima.chamada','Desde 1998')}</span></div>
   </div>
   <p class="ac2-sub">${T('aceima.subtitulo','Tradição, segurança e credibilidade, reunindo os comércios da Estrada Intendente Magalhães com um só propósito.')}</p>
  </section>
@@ -2253,9 +2331,10 @@ function aceima(){
    <h2>${T('aceima.historia-titulo','Nossa história.')}</h2>
    <p>${T('aceima.historia1','A Aceima nasceu em 1998 da união de comerciantes e lojistas da Estrada Intendente Magalhães, com um objetivo claro: manter um padrão de qualidade e de atendimento que dê ao cliente a mesma segurança em qualquer empresa associada.')}</p>
    <div class="ac2-acc">${bene.map((b,i)=>`<div class="ac2-ai${i?'':' on'}"><button type="button" onclick="abrirItem(this)">${T(b[0],b[1])}<i></i></button><div class="ac2-ap"><p>${T(b[2],b[3])}</p></div></div>`).join('')}</div>
-   <a class="ac2-pill" href="${hr('associar')}">${T('aceima.botao-associar','Seja um associado')}${ic('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',15)}</a>
+   <a class="ac2-pill so-desk" href="${hr('associar')}">${T('aceima.botao-associar','Seja um associado')}${ic('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',15)}</a>
   </div>
   <div class="ac2-f"><img src="fotos-aceima/sede.webp" alt="Sala de reuniões da Aceima" loading="lazy"></div>
+  <a class="ac2-pill so-cel" href="${hr('associar')}">${T('aceima.botao-associar','Seja um associado')}${ic('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',15)}</a>
  </section>
  <section class="wrap ac2-c">
   <div class="ac2-ch">
@@ -2294,10 +2373,11 @@ function abrirItem(b){
   it.classList.add('on');if(!rd){const p=it.querySelector('.ac2-ap');p.animate([{height:'0px',opacity:0},{height:p.scrollHeight+'px',opacity:1}],op);}
 }
 // história: o acordeão guarda a altura que tem com a aba mais longa aberta. Abrir outra aba não muda a altura da coluna, e a foto ao lado
-// continua alinhada ao texto em cima e embaixo (pedido do Luiz, 07/10/2026)
+// continua alinhada ao texto em cima e embaixo (pedido do Luiz, 07/10/2026). No celular, sem a foto ao lado, não guarda: com as abas
+// fechadas, o espaço vazio some (pedido do Luiz, 13/10/2026)
 function alturaAcordeao(){
   document.querySelectorAll('.ac2-a .ac2-acc').forEach(acc=>{
-    acc.style.minHeight='';const its=[...acc.children],on=its.map(x=>x.classList.contains('on'));let m=0;
+    acc.style.minHeight='';if(cel())return;const its=[...acc.children],on=its.map(x=>x.classList.contains('on'));let m=0;
     its.forEach((x,j)=>{its.forEach((y,k)=>y.classList.toggle('on',k===j));m=Math.max(m,acc.offsetHeight);});
     its.forEach((y,k)=>y.classList.toggle('on',on[k]));acc.style.minHeight=m+'px';});
 }
@@ -2326,7 +2406,6 @@ function associar(){
  <div class="gl topo">${LUZ}${hd()}</div>
  <section class="as2-hero">
   <div class="as2-hl">
-   <div class="kick">${T('associar.chamada','Para empresas de todos os ramos')}</div>
    <h1>${T('associar.titulo','O que a sua empresa ganha\nao se associar à Aceima.')}</h1>
    <p>${T('associar.texto','A associação não é um nome ou um selo. É fazer parte de um polo com {anos} anos de credibilidade e ser reconhecido como uma empresa confiável e segura.')}</p>
    <button type="button" class="as2-bo" onclick="document.getElementById('asForm').scrollIntoView({behavior:'smooth'})">${T('associar.botao-topo','Falar com a associação')}</button>
@@ -2359,7 +2438,7 @@ function associar(){
    <div class="as2-cab"><h2>${T('associar.s3-titulo','Benefícios do associado')}</h2></div>
    <div class="as2-g3">
     <div class="as2-bl">${b.map((x,i)=>`<div><h3>${T(`associar.beneficio${i+1}`,x[0])}</h3><p>${T(`associar.beneficio${i+1}-texto`,x[1])}</p></div>`).join('')}</div>
-    <div class="as2-rede"><div class="kick">${T('associar.rede','Rede credenciada na mesma rua')}</div>
+    <div class="as2-rede"><div class="kick">${T('associar.rede','Rede credenciada')}</div>
      <div class="as2-cards">${PARCEIROS.map(p=>`<div class="as2-card">${ic(ICO_PARC[p.tipo]||ICONES.associados,40)}<h4>${esc(p.curto||p.nome)}</h4><small>${esc(p.tipo)}</small></div>`).join('')}</div>
     </div>
    </div>
@@ -2435,20 +2514,20 @@ function publicacoes(){
   return `<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--cl)">
  <div class="gl topo" style="flex:none">${LUZ}${hd()}</div>
  <div class="wrap" style="padding-top:28px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap">
-   <div><div class="kick">${T('publicacoes.chamada','Nosso trabalho')}</div><h2 style="margin-top:10px;font-size:2.3rem">${T('publicacoes.titulo','O que a Aceima faz pelo polo.')}</h2></div>
+   <div><div class="kick">${T('publicacoes.chamada','Nosso trabalho')}</div><h2 class="pb-tit" style="margin-top:10px;font-size:2.3rem">${T('publicacoes.titulo','O que a Aceima faz pelo polo.')}</h2></div>
    <div class="fbar" style="flex-wrap:wrap">${['Tudo','Ações no polo','Conquistas','Comunicados','Imprensa'].map((f,i)=>`<span class="fp ${i?'lite':'on'}">${T(`publicacoes.filtro${i+1}`,f)}</span>`).join('')}</div>
  </div>
  <div class="wrap dup" style="padding-top:24px;flex:1;display:grid;grid-template-columns:1.32fr .68fr;gap:46px;align-items:start">
    <div>
-     <div class="foto" style="height:300px;border-radius:16px">Foto da ação</div>
+     <div class="foto pb-foto" style="height:300px;border-radius:16px">Foto da ação</div>
      <div style="display:flex;align-items:center;gap:12px;margin-top:18px"><span class="fp on" style="padding:5px 13px;font-size:.72rem;cursor:default">${T('publicacoes.destaque-selo','Destaque')}</span><span style="font-family:var(--f2);font-size:.78rem;color:var(--mut)">${T('publicacoes.destaque-data','18 de março de 2026')}</span></div>
-     <h2 style="font-size:1.85rem;margin-top:12px;max-width:760px">${T('publicacoes.destaque-titulo','Título da matéria em destaque da associação')}</h2>
-     <p style="margin-top:10px;max-width:760px;font-size:.96rem">${T('publicacoes.destaque-texto','Espaço para a Aceima contar o que fez: ação junto ao poder público, mutirão de vistoria, campanha do polo, encontro dos associados.')}</p>
+     <h2 class="pb-dt" style="font-size:1.85rem;margin-top:12px;max-width:760px">${T('publicacoes.destaque-titulo','Título da matéria em destaque da associação')}</h2>
+     <p class="pb-tx" style="margin-top:10px;max-width:760px;font-size:.96rem">${T('publicacoes.destaque-texto','Espaço para a Aceima contar o que fez: ação junto ao poder público, mutirão de vistoria, campanha do polo, encontro dos associados.')}</p>
    </div>
    <div>
      <div style="font-family:var(--f2);font-size:.68rem;letter-spacing:2px;color:var(--mut);padding-bottom:12px;border-bottom:2px solid #0B1A33">${T('publicacoes.recentes','MAIS RECENTES')}</div>
      ${lista.map((l,i)=>`<div style="display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--line);align-items:flex-start"><div class="foto" style="width:84px;height:64px;border-radius:9px;flex:none;font-size:.55rem">Foto</div>
-       <div><div style="font-family:var(--f2);font-size:.68rem;color:#C8862E;font-weight:600;letter-spacing:.6px;text-transform:uppercase">${T(`publicacoes.item${i+1}-categoria`,l[0])}</div><h3 style="font-size:.97rem;margin-top:5px;line-height:1.35">${T(`publicacoes.item${i+1}-titulo`,l[1])}</h3><div style="font-family:var(--f2);font-size:.74rem;color:var(--mut);margin-top:5px">${T(`publicacoes.item${i+1}-data`,l[2])}</div></div></div>`).join('')}
+       <div><div style="font-family:var(--f2);font-size:.68rem;color:#C8862E;font-weight:600;letter-spacing:.6px;text-transform:uppercase">${T(`publicacoes.item${i+1}-categoria`,l[0])}</div><h3 class="pb-it" style="font-size:.97rem;margin-top:5px;line-height:1.35">${T(`publicacoes.item${i+1}-titulo`,l[1])}</h3><div style="font-family:var(--f2);font-size:.74rem;color:var(--mut);margin-top:5px">${T(`publicacoes.item${i+1}-data`,l[2])}</div></div></div>`).join('')}
    </div>
  </div>
  <div class="wrap" style="padding-top:18px;padding-bottom:40px"><div class="aviso"><b>Conteúdo ilustrativo.</b> Textos, fotos e datas serão levantados com a diretoria.</div></div>
@@ -2460,12 +2539,12 @@ function servicos(){
  <div class="gl">${LUZ}${hd()}
   <div class="wrap" style="padding-top:30px;padding-bottom:50px">
    <div class="kick c kn">${T('servicos.chamada','Credenciados Aceima')}</div>
-   <h2 style="margin:12px 0 14px;font-size:2.6rem">${T('servicos.titulo','Tudo o que você precisa, na mesma rua.')}</h2>
-   <p style="font-size:1rem;max-width:620px">${T('servicos.subtitulo','Vistoria, inspeção, ar-condicionado e até o almoço a poucos metros das lojas.')}</p>
+   <h2 class="sv-tit" style="margin:12px 0 14px;font-size:2.6rem">${T('servicos.titulo','Tudo o que você precisa, na mesma rua.')}</h2>
+   <p class="sv-sub" style="font-size:1rem;max-width:620px">${T('servicos.subtitulo','Vistoria, inspeção, ar-condicionado e até o almoço a poucos metros das lojas.')}</p>
   </div></div>
  <div class="wrap" style="padding-top:10px;padding-bottom:50px">
   ${PARCEIROS.map(p=>{const s='servicos.'+slug(p.nome);return `<div class="parc">
-    <div><div class="kick">${T(s+'.chamada',p.tag)}</div><h2 style="font-size:1.9rem;margin:8px 0 10px">${esc(p.nome)}</h2><p style="max-width:640px">${T(s+'.texto',p.txt)}</p>
+    <div><div class="kick">${T(s+'.chamada',p.tag)}</div><h2 class="sv-h" style="font-size:1.9rem;margin:8px 0 10px">${esc(p.nome)}</h2><p style="max-width:640px">${T(s+'.texto',p.txt)}</p>
       <div class="chips">${p.chips.map((c,i)=>`<span class="fp lite">${T(`${s}.item${i+1}`,c)}</span>`).join('')}</div></div>
     <div><div class="inf">${p.inf.map((r,i)=>`<b>${T(`${s}.info${i+1}-rotulo`,r[0])}</b><br>${T(`${s}.info${i+1}`,r[1])}<br>`).join('')}</div>
       <div style="display:flex;gap:8px;margin-top:14px">${p.wa?`<a class="btn" href="https://wa.me/${p.wa}?text=${encodeURIComponent('Olá! Vim pelo site da Aceima e '+p.waTxt+'.')}" target="_blank">${T(s+'.botao-whatsapp','WhatsApp')}</a>`:''}<a class="btn o" href="${p.site}" target="_blank" rel="noopener">${T(s+'.botao-site',p.siteTxt||'Ver o site')}</a></div></div>
@@ -2575,6 +2654,29 @@ function rotaDe(p){
   const pg=ANTIGAS[cam]||Object.keys(ROTAS).find(k=>ROTAS[k]===cam)||'home';
   return {pg,arg:(pg==='estoque'||pg==='associados')&&i>=0?new URLSearchParams(p.slice(i+1)).get('loja')||undefined:undefined};
 }
+/* volta para o mesmo ponto da página (pedido do Luiz, 13/10/2026): cada entrada do histórico tem uma chave, e o lugar da página fica
+   guardado nela (no estoque, também os filtros e quantos anúncios estavam na tela). Voltando ou avançando, a página abre onde estava */
+try{history.scrollRestoration='manual';}catch(e){}
+const POS=(()=>{try{return JSON.parse(sessionStorage.getItem('posicoes'))||{};}catch(e){return {};}})();
+const novaChave=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+let chaveAtual=history.state&&history.state.k;
+if(!chaveAtual){chaveAtual=novaChave();try{history.replaceState({...(history.state||{}),k:chaveAtual},'');}catch(e){}}
+function guardarPos(){const p=POS[chaveAtual]={pg:pagAtual,y:Math.round(scrollY)};if(pagAtual==='estoque'){p.f={...F};p.m=mostrar;}if(pagAtual==='associados')p.cat=catAssoc;}
+function salvarPos(){guardarPos();try{Object.keys(POS).slice(0,-60).forEach(k=>delete POS[k]);sessionStorage.setItem('posicoes',JSON.stringify(POS));}catch(e){}}   // recarregar a página também volta ao lugar
+addEventListener('pagehide',salvarPos);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)salvarPos();});
+function voltarComo(p){   // o estado guardado da página, antes de desenhá-la de novo
+  if(pagAtual==='estoque'&&p.f){Object.assign(F,p.f);mostrar=Math.max(LOTE,p.m||LOTE);buscando=!!F.q;}
+  if(pagAtual==='associados'){rolarAssoc=false;if(p.cat)catAssoc=p.cat;}
+}
+// a página pode ainda estar crescendo (a descrição do carro chegando): tenta de novo por um tempo, sem brigar com quem já está rolando
+function irPara(y){
+  cancelAnimationFrame(irPara.r);scrollTo(0,y);if(Math.abs(scrollY-y)<2)return;
+  const fim=performance.now()+2500,ev=['wheel','touchstart','keydown'],para=()=>{cancelAnimationFrame(irPara.r);ev.forEach(t=>removeEventListener(t,para));};
+  ev.forEach(t=>addEventListener(t,para,{passive:true}));
+  const passo=()=>{scrollTo(0,y);if(Math.abs(scrollY-y)<2||performance.now()>fim)para();else irPara.r=requestAnimationFrame(passo);};
+  irPara.r=requestAnimationFrame(passo);
+}
 function render(topo){
   fecharDrop();fecharFoto();
   const filtrosAntes=pagAtual==='estoque'&&document.querySelector('#app .fbar')?medirFiltros():null;   // mesma página: os filtros mudam de tamanho sem pular
@@ -2587,39 +2689,41 @@ function render(topo){
   if(pagAtual==='veiculo')depoisVeiculo();
   if(pagAtual==='associados'&&selAssoc)mostrarLoja();
   if(pagAtual==='aceima'){alturaAcordeao();document.fonts.ready.then(()=>{if(pagAtual==='aceima')alturaAcordeao();});}
-  if(pagAtual==='home'){girar();alturaCategorias();document.fonts.ready.then(()=>{if(pagAtual==='home')alturaCategorias();});}
+  if(pagAtual==='home'){girar();alturaCategorias();faixaAvaliacoes();document.fonts.ready.then(()=>{if(pagAtual==='home')alturaCategorias();});}
   if(EDIT){sel=null;pintarBarra();}
   document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});v.play().catch(()=>{});});
-  if(topo)scrollTo(0,0);
+  if(typeof topo==='number')irPara(topo);else if(topo)scrollTo(0,0);   // voltando pelo histórico, a página abre onde estava
   if(pagAtual==='associados'&&rolarAssoc&&selAssoc&&entradasAssoc().some(e=>e.nome===selAssoc)){rolarAssoc=false;setTimeout(rolarParaLoja,topo?500:80);}   // aberto pela logo: desce até a loja
   if(TITULOS[pagAtual])document.title=TITULOS[pagAtual];
   else if(pagAtual==='veiculo'){const v=V.find(x=>String(x.id)===String(vAtual));if(v)document.title=nomeV(v)+' '+(v.ano||'')+' | Aceima';}
-  if(pagAtual==='estoque'){const u=urlDe('estoque',F.loja);if(caminho()!==u)try{history.replaceState(null,'',(HASH?'#':'')+u);}catch(e){}}   // o endereço acompanha a loja do filtro
+  if(pagAtual==='estoque'){const u=urlDe('estoque',F.loja);if(caminho()!==u)try{history.replaceState(history.state,'',(HASH?'#':'')+u);}catch(e){}}   // o endereço acompanha a loja do filtro
   menuNoRodape();
 }
 function go(pg,arg){
   const de=pagAtual;
+  guardarPos();   // a página que fica para trás guarda onde estava
   if(pg!=='estoque'&&pg!=='veiculo')zerarFiltros();
   if(pg==='veiculo')vAtual=arg;
   if(pg==='associados'&&arg){selAssoc=arg;catAssoc='Todos';rolarAssoc=true;}   // pela logo de um associado: ele já vem aberto
   else if(pg==='associados'&&de!=='associados'){selAssoc=null;catAssoc='Todos';}   // entrando em Associados pelo menu, nenhuma loja vem aberta
   pagAtual=pg;const u=urlDe(pg,arg);
-  try{if(caminho()!==u)history.pushState(null,'',(HASH?'#':'')+u);}catch(e){}   // alguns ambientes (pré-visualização, iframe) não deixam trocar o endereço
+  try{if(caminho()!==u){const k=novaChave();history.pushState({k,de},'',(HASH?'#':'')+u);chaveAtual=k;}}catch(e){}   // alguns ambientes (pré-visualização, iframe) não deixam trocar o endereço
   atualizarMenu();trocarPagina(false,de);
 }
 // fusão: a página nova aparece por cima da antiga, e o menu fica na tela
 // entrando ou saindo da página da Aceima, as logos têm a sua própria troca: giram entre si (nomes "logo-sai" e "logo-entra" na transição)
-function trocarPagina(semAnimacao,de){
-  if(semAnimacao||matchMedia('(prefers-reduced-motion: reduce)').matches){render(true);return;}
+function trocarPagina(semAnimacao,de,y){
+  const topo=y==null?true:y;   // y: o lugar onde a página estava (voltando pelo histórico)
+  if(semAnimacao||matchMedia('(prefers-reduced-motion: reduce)').matches){render(topo);return;}
   if(document.startViewTransition){
     const troca=de!=null&&(de==='aceima')!==(pagAtual==='aceima');
     const antes=troca&&document.querySelector('header .lg');
     if(antes&&antes.getBoundingClientRect().bottom>0)antes.style.viewTransitionName='logo-sai';   // fora da tela, só a nova aparece
-    const tr=document.startViewTransition(()=>{render(true);const n=troca&&document.querySelector('header .lg');if(n)n.style.viewTransitionName='logo-entra';});
+    const tr=document.startViewTransition(()=>{render(topo);const n=troca&&document.querySelector('header .lg');if(n)n.style.viewTransitionName='logo-entra';});
     if(troca)tr.finished.finally(()=>{const n=document.querySelector('header .lg');if(n)n.style.viewTransitionName='';});
     return;}
   const a=document.getElementById('app');a.classList.add('some');   // navegador sem fusão: some no azul e volta
-  clearTimeout(trocarPagina.t);trocarPagina.t=setTimeout(()=>{render(true);a.classList.remove('some');},220);
+  clearTimeout(trocarPagina.t);trocarPagina.t=setTimeout(()=>{render(topo);a.classList.remove('some');},220);
 }
 function lerRota(){
   const r=rotaDe(caminho());pagAtual=r.pg;
@@ -2629,8 +2733,12 @@ function lerRota(){
   return r;
 }
 function rota(manter){lerRota();render(!manter);}
-addEventListener('popstate',e=>{const de=pagAtual,r=lerRota();if(pagAtual!=='estoque'&&pagAtual!=='veiculo')zerarFiltros();if(pagAtual==='associados'&&de!=='associados'&&!r.arg){selAssoc=null;catAssoc='Todos';}
-  atualizarMenu();trocarPagina(e.hasUAVisualTransition,de);});   // o gesto de voltar do celular já anima: não repete
+addEventListener('popstate',e=>{guardarPos();   // a página que sai fica guardada onde estava
+  const de=pagAtual,r=lerRota(),k=e.state&&e.state.k,p=k&&POS[k],volta=!!p&&p.pg===pagAtual;
+  if(k)chaveAtual=k;else{chaveAtual=novaChave();try{history.replaceState({...(history.state||{}),k:chaveAtual},'');}catch(_){}}
+  if(pagAtual!=='estoque'&&pagAtual!=='veiculo')zerarFiltros();if(pagAtual==='associados'&&de!=='associados'&&!r.arg){selAssoc=null;catAssoc='Todos';}
+  if(volta)voltarComo(p);
+  atualizarMenu();trocarPagina(e.hasUAVisualTransition,de,volta?p.y:undefined);});   // o gesto de voltar do celular já anima: não repete
 // links do site: o clique normal troca a página aqui dentro, sem recarregar. Cada link tem o endereço de verdade, então Ctrl, Shift, Cmd,
 // o botão do meio e o "abrir em nova guia" do botão direito funcionam em todo o site (pedido do Luiz, 07/10/2026)
 const nova=e=>!!e&&(e.button>0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey);
@@ -2651,7 +2759,7 @@ if(typeof ResizeObserver==='function')new ResizeObserver(menuNoRodape).observe(d
 // aba volta a ficar visível: o navegador pode ter pausado o vídeo do fundo
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)document.querySelectorAll('video.luz').forEach(v=>v.play().catch(()=>{}));});
 let largAnt=matchMedia('(max-width:760px)').matches;
-addEventListener('resize',()=>{if(pagAtual==='home')alturaCategorias();const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;montarMenu();if(pagAtual==='associados'&&selAssoc)mostrarLoja();}
+addEventListener('resize',()=>{AV.P=0;if(pagAtual==='home')alturaCategorias();const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;montarMenu();if(pagAtual==='associados'&&selAssoc)mostrarLoja();}
   if(pagAtual==='veiculo'){setasGaleria();clearTimeout(ordenarInfo.t);ordenarInfo.t=setTimeout(ordenarInfo,200);}
   if(document.getElementById('lb'))posFotos(true);
   if(pagAtual==='estoque'){contarVistos(true);caberTitulo();anuncioDoMeio();
