@@ -215,8 +215,8 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 
 /* início: bloco sobre a Aceima e parte do empresário, no estilo do NexStudio (tailgrids), a pedido do Luiz (29/09/2026):
    títulos finos com o fim em itálico, muito respiro, números grandes e o painel escuro de cantos redondos */
-.sob{position:relative;background:var(--cl);padding-top:clamp(72px,7vw,136px);margin-top:calc(-1 * var(--canto));border-radius:var(--canto) var(--canto) 0 0}
-.sob-a{display:grid;grid-template-columns:1fr 1fr;column-gap:clamp(40px,6vw,120px);padding-bottom:clamp(72px,7vw,136px)}
+.sob{position:relative;background:var(--cl);padding-top:clamp(56px,4.8vw,92px);margin-top:calc(-1 * var(--canto));border-radius:var(--canto) var(--canto) 0 0}
+.sob-a{display:grid;grid-template-columns:1fr 1fr;column-gap:clamp(40px,6vw,120px);padding-bottom:clamp(56px,4.8vw,92px)}   /* só o título e os números: menos respiro (14/10/2026) */
 /* as duas colunas começam e terminam na mesma linha: à esquerda, título em cima e texto embaixo; à direita, texto em cima e números embaixo */
 .sob-e{display:flex;flex-direction:column;justify-content:space-between}
 .sob-d{display:flex;flex-direction:column;justify-content:space-between;margin-top:-.12vw;padding-bottom:3.5px}   /* acerto fino: o topo dos números na linha do topo das letras do título, e a base dos rótulos na base da última linha */
@@ -257,7 +257,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .emp-4 p{margin-top:12px;font-size:clamp(.9rem,.92vw,1.06rem);line-height:1.55;color:#93A3B9}
 
 /* A Aceima: história com os benefícios ao lado; contato numa folha escura que sobe por cima dela, como o bloco do empresário da home */
-.ct{position:relative;z-index:3;background:var(--navy);margin-top:calc(-1 * var(--canto));border-radius:var(--canto) var(--canto) 0 0;padding:clamp(64px,5.8vw,112px) 0 clamp(56px,5vw,96px)}
+.ct{position:relative;z-index:3;background:var(--navy);margin-top:calc(-1 * var(--canto));border-radius:var(--canto) var(--canto) 0 0;padding:clamp(48px,3.8vw,72px) 0 clamp(44px,3.6vw,68px)}   /* sem espaço vazio em volta do conteúdo (pedido do Luiz, 14/10/2026) */
 .ct h2{margin-top:16px;font-size:clamp(2.4rem,3.3vw,4rem);font-weight:400;letter-spacing:-.04em;line-height:1.04;color:#fff}
 .ct h2 em{display:block;font-style:italic;color:var(--gold3)}
 .ct-b{display:flex;gap:12px;flex-wrap:wrap}
@@ -368,7 +368,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 /* veículo, no estilo do modelo USD Halo (21st.dev, @mohammadshehadeh), pedido do Luiz em 30/09/2026: a primeira foto em destaque,
    com a logo da loja num canto levemente esfumado; embaixo, o nome em duas linhas e, ao lado, a ficha; depois as outras fotos,
    as características e a descrição da loja; por fim o valor, a loja e os contatos, numa folha azul que sobe por cima */
-.vp{padding:clamp(20px,1.6vw,30px) 0 calc(clamp(72px,6.4vw,124px) + var(--canto))}
+.vp{padding:clamp(20px,1.6vw,30px) 0 calc(clamp(48px,3.8vw,72px) + var(--canto))}
 /* voltar: sem caixa alta e com a seta na cor do texto (pedido do Luiz, 30/09/2026) */
 .vp-volta{display:inline-flex;align-items:center;gap:8px;margin-bottom:clamp(14px,1.2vw,22px);font:500 clamp(.9rem,.9vw,1.05rem)/1.2 var(--f2);color:#00091A;cursor:pointer}
 .vp-volta svg{transition:transform .3s var(--ease)}
@@ -415,17 +415,17 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
    nome fica na linha de cima da foto (-.16em: a folga da fonte acima das letras). As fotos embaixo da foto (.vp-g) ficam só no tablet e
    no celular */
 @media (min-width:1101px){
-  .vp{padding-top:clamp(14px,1vw,20px)}
-  .vp-volta{margin-bottom:clamp(10px,.75vw,14px)}
-  .vp-topo{--fh:clamp(380px,100vh - 260px,880px);display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(30px,2.6vw,52px);align-items:start}
+  .vp{padding-top:clamp(10px,.6vw,12px)}
+  .vp-volta{margin-bottom:clamp(8px,.55vw,10px)}
+  .vp-topo{--fh:clamp(380px,100vh - 260px,880px);display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(18px,1.4vw,28px);align-items:start}   /* a foto mais perto da coluna (pedido do Luiz, 14/10/2026) */
   .vp-hero{width:calc(var(--fh) * 4 / 3);height:var(--fh);aspect-ratio:auto}
-  .vp-m{width:var(--cw,auto);max-width:100%;height:var(--fh);display:flex;flex-direction:column;gap:clamp(14px,1.05vw,20px);margin:0}
+  .vp-m{width:var(--cw,auto);max-width:100%;height:var(--fh);display:flex;flex-direction:column;gap:clamp(12px,.85vw,16px);margin:0}
   .vp-m.mede{height:auto}
   .vp-m.mede .vp-mini{display:none}
   .vp-m>div:first-child{display:contents}
-  .vp-m h1{margin-top:-.16em;font-size:clamp(1.5rem,2.1vw,2.6rem)}
-  .vp-ficha{order:1;gap:clamp(10px,.65vw,12px) clamp(18px,1.6vw,30px)}
-  .vp-ficha>div{padding-top:clamp(7px,.5vw,9px);border-top-color:rgba(11,26,51,.11)}
+  .vp-m h1{margin-top:-.16em;font-size:clamp(1.4rem,1.85vw,2.3rem)}
+  .vp-ficha{order:1;gap:clamp(8px,.55vw,10px) clamp(18px,1.6vw,30px)}
+  .vp-ficha>div{padding-top:clamp(6px,.4vw,7px);border-top-color:rgba(11,26,51,.11)}
   .vp-ficha>div>span{font-size:clamp(.56rem,.58vw,.7rem)}
   .vp-ficha b{margin-top:clamp(2px,.2vw,4px);font-size:clamp(.98rem,1.15vw,1.4rem)}
   /* a base das fotos na base da foto grande; com três, a última fica no meio */
@@ -433,9 +433,13 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .vp-mf{flex:0 0 calc(50% - var(--gm) / 2)}
   .vp-mini.um .vp-mf{flex-basis:100%}   /* uma só: na largura da coluna */
   .vp-m .vp-pill{display:none}
-  .vp-pd{display:flex;justify-content:center;margin-top:clamp(12px,.85vw,16px)}
-  .vp-pd .vp-pill{margin:0;padding:6px 6px 6px 24px}
-  .vp-pd .vp-pill i{width:clamp(32px,2.2vw,40px)}
+  /* o "Tenho interesse" no meio do caminho entre as fotos e os textos de baixo (pedido do Luiz, 14/10/2026): a mesma distância (--dp) até a
+     base das fotos e até o topo das letras do título de baixo, que fica a .15em do topo da caixa dele */
+  .vp{--dp:clamp(24px,1.7vw,32px)}
+  .vp-pd{display:flex;justify-content:center;margin-top:var(--dp)}
+  .vp .vp-s{margin-top:calc(var(--dp) - .15 * clamp(2.2rem,3.3vw,4rem))}
+  .vp-pd .vp-pill{margin:0;padding:5px 5px 5px 22px}
+  .vp-pd .vp-pill i{width:clamp(30px,2vw,36px)}
   .vp-g{display:none}
   .vp>.wrap,#vpCt>.wrap{max-width:calc(var(--vpw,1660px) + 120px)}
 }
@@ -526,8 +530,8 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-f-troca input:first-child{flex:1;min-width:0}
 .vp-f-troca input:last-child{flex:0 0 32%}
 /* a linha da loja fica no meio, entre a divisão de cima e o rodapé: o mesmo respiro (--vpi) em cima e embaixo */
-.ct.vp-ct{--vpi:clamp(28px,2.6vw,48px);padding-bottom:var(--vpi)}
-.vp-ct-i{display:flex;align-items:center;gap:24px clamp(20px,2.4vw,44px);margin-top:clamp(40px,3.6vw,68px);padding-top:var(--vpi);border-top:1px solid rgba(255,255,255,.12)}
+.ct.vp-ct{--vpi:clamp(22px,1.7vw,32px);padding-bottom:var(--vpi)}
+.vp-ct-i{display:flex;align-items:center;gap:24px clamp(20px,2.4vw,44px);margin-top:clamp(26px,2vw,38px);padding-top:var(--vpi);border-top:1px solid rgba(255,255,255,.12)}
 .vp-ct-i>div:not(.vp-l-lg)>span{display:block;font:600 clamp(.6rem,.62vw,.72rem)/1.2 var(--f2);letter-spacing:.2em;text-transform:uppercase;color:var(--gold3)}
 .vp-ct-i p{margin-top:8px;color:#fff;font-size:clamp(.9rem,.95vw,1.1rem);font-weight:400;line-height:1.4}
 .vp-ct-i a{color:#fff}
@@ -655,14 +659,14 @@ body.lb-on{overflow:hidden}
    o título no meio, em degradê; a mídia grande e redonda (o vidro do fundo) com um entalhe no meio de cima para o subtítulo e um selo
    no canto; a história com os benefícios em acordeão, ao lado da foto da sede; o nosso trabalho com três publicações; e o SAC num
    bloco redondo. Em 07/10/2026 saíram a foto da união, os números e as perguntas, e o título ficou com menos respiro em cima e embaixo */
-.ac2{--g:clamp(24px,2.8vw,40px);--rm:clamp(24px,2.8vw,44px);background:var(--cl);color:var(--ink);padding-bottom:clamp(64px,6vw,112px)}
+.ac2{--g:clamp(24px,2.8vw,40px);--rm:clamp(24px,2.8vw,44px);--sec:clamp(64px,5.6vw,108px);background:var(--cl);color:var(--ink);padding-bottom:clamp(48px,4.2vw,80px)}   /* --sec: a distância entre as seções, sem espaço vazio (14/10/2026) */
 .ac2 h2{font:400 clamp(1.55rem,1.9vw,2.3rem)/1.18 var(--f1);letter-spacing:-.025em;color:var(--ink)}
 .ac2 p{font:400 clamp(.95rem,1vw,1.1rem)/1.6 var(--f2);color:#4A5870}
 .ac2-pill{display:inline-flex;align-items:center;gap:10px;margin-top:clamp(22px,2vw,34px);padding:10px 16px 10px 18px;border-radius:99px;background:rgba(11,26,51,.06);color:var(--ink);font:500 clamp(.85rem,.9vw,.98rem)/1 var(--f2);cursor:pointer;transition:background-color .25s}
 .ac2-pill:hover{background:rgba(11,26,51,.11)}
 .ac2-pill svg{transition:transform .3s var(--ease)}
 .ac2-pill:hover svg{transform:translate(2px,-2px)}
-.ac2-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--g);margin-top:clamp(88px,8.4vw,168px)}
+.ac2-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--g);margin-top:var(--sec)}
 .ac2-t{padding:0 clamp(0px,1.7vw,24px)}
 .ac2-t>p{margin-top:clamp(16px,1.5vw,26px)}
 .ac2-f{border-radius:var(--rm);overflow:hidden;background:#E9E4DD}
@@ -698,7 +702,7 @@ body.lb-on{overflow:hidden}
 .ac2-ai.on>.ac2-ap{display:block}
 .ac2 .ac2-ap p{padding-bottom:clamp(16px,1.4vw,22px)}
 /* nosso trabalho: o título e o texto de apoio no meio e, por último, três publicações lado a lado (pedido do Luiz, 07/10/2026) */
-.ac2-c{margin-top:clamp(88px,8.4vw,168px)}
+.ac2-c{margin-top:var(--sec)}
 .ac2-ch{max-width:640px;margin:0 auto;text-align:center}
 .ac2 .ac2-ch>p{margin-top:clamp(12px,1.1vw,18px)}
 .ac2-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--g);margin-top:clamp(36px,3.4vw,60px)}
@@ -710,7 +714,7 @@ body.lb-on{overflow:hidden}
 .ac2-card small{display:inline-block;margin-top:12px;font:400 clamp(.82rem,.86vw,.95rem)/1.3 var(--f2);color:var(--mut);text-decoration:underline;text-underline-offset:3px}
 /* SAC: à esquerda a chamada, o título, o texto embaixo dele e os botões; à direita os dados, do topo da chamada à base dos botões.
    O mesmo respiro nos quatro lados (pedido do Luiz, 07/10/2026) */
-.ac2-ct{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(32px,3vw,56px) clamp(40px,5vw,96px);margin-top:clamp(88px,8.4vw,168px);padding:clamp(36px,3.4vw,64px);border-radius:var(--rm);background:#EDE9E4}
+.ac2-ct{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(32px,3vw,56px) clamp(40px,5vw,96px);margin-top:var(--sec);padding:clamp(36px,3.4vw,64px);border-radius:var(--rm);background:#EDE9E4}
 .ac2-ct .kick,.ac2-ct-g>div>span{display:block;font:600 clamp(.66rem,.68vw,.78rem)/1.2 var(--f2);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
 .ac2-ct .kick{margin-bottom:clamp(12px,1vw,16px)}
 .ac2-ct h2{white-space:pre-line}
@@ -797,9 +801,10 @@ body.lb-on{overflow:hidden}
 .as2-ctt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:16px clamp(28px,3vw,56px);padding-top:clamp(22px,2vw,32px);padding-bottom:clamp(22px,2vw,32px);border-top:1px solid var(--line)}
 .as2-ctt>span{display:inline-flex;align-items:center;gap:12px;font:400 clamp(1rem,1.15vw,1.25rem)/1.3 var(--f2);color:var(--ink)}
 .as2-ctt svg{flex:none;color:var(--gold)}
-.as2-s{position:relative;padding:clamp(72px,7vw,140px) 0}
+.as2-s{position:relative;padding:clamp(56px,4.4vw,84px) 0}   /* sem espaço vazio (pedido do Luiz, 14/10/2026) */
+.as2-s.as2-fim{padding-bottom:calc(clamp(56px,4.4vw,84px) + var(--canto))}   /* a folha azul sobe por cima: o mesmo respiro fica à vista */
 .as2-s.cz{background:#F1EFEC}
-.as2-cab{padding-bottom:clamp(20px,1.8vw,32px);border-bottom:1px solid var(--ink)}
+.as2-cab{padding:0}   /* sem a linha embaixo dos títulos (pedido do Luiz, 14/10/2026) */
 .as2-cab h2{font:600 clamp(2.3rem,4.2vw,4.6rem)/1 var(--f1);letter-spacing:-.03em;color:var(--ink)}
 .as2-s p{font:400 clamp(.95rem,1.02vw,1.12rem)/1.75 var(--f2);color:#6A7587}
 /* a foto da união ao lado do texto, dos números e da frase dos ramos, com a mesma altura: em cima na linha das letras do texto e
@@ -815,7 +820,7 @@ body.lb-on{overflow:hidden}
 .as2-s .as2-todos{display:flex;align-items:center;gap:clamp(10px,.8vw,14px);margin-top:clamp(36px,3.4vw,60px);margin-bottom:-.32em;font:400 clamp(1rem,1.2vw,1.35rem)/1.3 var(--f1);letter-spacing:-.01em;color:var(--ink)}   /* menor e mais leve (pedido do Luiz, 14/10/2026) */
 .as2-todos svg{flex:none;width:clamp(22px,1.6vw,28px);height:auto;color:var(--gold)}
 /* o que a loja ganha: os benefícios e a rede credenciada */
-.as2-g3{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(40px,5vw,96px);align-items:stretch;margin-top:clamp(48px,4.6vw,80px)}   /* as duas colunas começam e terminam na mesma linha (pedido do Luiz, 13/10/2026) */
+.as2-g3{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(40px,5vw,96px);align-items:stretch;margin-top:clamp(28px,2.2vw,42px)}   /* as duas colunas começam e terminam na mesma linha (pedido do Luiz, 13/10/2026) */
 .as2-bl{display:grid;gap:clamp(28px,2.6vw,44px)}
 .as2-bl>div{position:relative;padding-left:clamp(32px,2.6vw,40px)}
 .as2-bl>div::before{content:'';position:absolute;left:0;top:.35em;width:14px;height:14px;border:1.5px solid var(--ink);border-radius:50%;background:radial-gradient(circle,var(--ink) 0 3px,#fff 3.5px)}
@@ -831,7 +836,7 @@ body.lb-on{overflow:hidden}
 .as2-card h4{font:500 clamp(1rem,1.1vw,1.2rem)/1.3 var(--f2)}
 .as2-card small{font:400 clamp(.85rem,.9vw,.98rem)/1.3 var(--f2);color:#8A95A5}
 /* quem já faz parte: todos os associados, sete por linha, com as logos mais baixas; a última linha fica no meio (pedido do Luiz, 07/10/2026) */
-.as2-lojas{--gx:clamp(14px,1.2vw,22px);display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(22px,2vw,34px) var(--gx);margin-top:clamp(40px,3.6vw,64px)}
+.as2-lojas{--gx:clamp(14px,1.2vw,22px);display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(22px,2vw,34px) var(--gx);margin-top:clamp(28px,2.2vw,42px)}
 .as2-lj{flex:0 0 calc((100% - 6 * var(--gx)) / 7);min-width:0;cursor:pointer}
 .as2-lf{display:grid;grid-template-rows:100%;place-items:center;aspect-ratio:2/1;border-radius:10px;background:#E6E1DA;overflow:hidden;transition:background-color .3s}
 .as2-lf.escuro{background:var(--ink)}
@@ -845,7 +850,7 @@ body.lb-on{overflow:hidden}
 .as2-lt svg{flex:none;width:16px;height:16px;transition:transform .3s var(--ease)}
 .as2-lj:hover .as2-lt svg{transform:translateX(3px)}
 .as2-ls{margin-top:4px;font:400 clamp(.76rem,.8vw,.88rem)/1.3 var(--f2);color:#6A7587;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.as2-mais{display:flex;justify-content:center;margin-top:clamp(44px,4vw,72px)}
+.as2-mais{display:flex;justify-content:center;margin-top:clamp(28px,2.4vw,44px)}
 /* fale com a associação: a folha azul com o formulário, no padrão do formulário da página do carro (pedido do Luiz, 07/10/2026) */
 .as2-ct .vp-ct-t{--pf:clamp(2.8rem,4.6vw,5.6rem)}
 .as2-ct-h{font:700 var(--pf)/1 var(--f1);letter-spacing:-.045em;color:#fff}
@@ -890,7 +895,7 @@ body.lb-on{overflow:hidden}
      conta o canto da folha azul, que sobe por cima */
   .as2-s{padding:9.33vw 0 9.86vw}   /* em cima, 9,33: a folga da linha acima das letras completa os 9,86 */
   .as2-s.as2-fim{padding-bottom:calc(9.86vw + var(--canto))}
-  .as2-cab{padding-bottom:0;border-bottom:0;text-align:center}   /* os títulos das seções no meio (pedido do Luiz, 13/10/2026), sem a linha embaixo (14/10/2026) */
+  .as2-cab{text-align:center}   /* os títulos das seções no meio (pedido do Luiz, 13/10/2026) */
   .as2-cab h2{font-size:9.86vw;letter-spacing:-.3vw}
   .as2-s p{font-size:3.73vw}
   /* a primeira seção: o texto em cima da foto e no meio, os três números numa linha só e a frase dos ramos menor (pedido do Luiz, 13/10/2026) */
@@ -917,13 +922,13 @@ body.lb-on{overflow:hidden}
   .as2-card svg{width:6.34vw;height:6.34vw}
   .as2-card h4{font-size:2.82vw;line-height:1.2}
   .as2-card small{font-size:2.25vw;line-height:1.2}
-  .as2-lojas{--gx:3.52vw;gap:6.34vw var(--gx);margin-top:5.63vw}
-  .as2-lj{flex-basis:calc((100% - 2 * var(--gx)) / 3)}
+  .as2-lojas{--gx:2.82vw;gap:4.93vw var(--gx);margin-top:5.63vw}
+  .as2-lj{flex-basis:calc((100% - 3 * var(--gx)) / 4)}   /* quatro por linha (pedido do Luiz, 14/10/2026) */
   .as2-lf{aspect-ratio:16/10;border-radius:2.11vw}
   .as2-lf>span{font-size:4.23vw}
-  .as2-lt{margin-top:2.11vw;font-size:3.17vw}
+  .as2-lt{margin-top:1.76vw;font-size:2.67vw}
   .as2-lt svg{display:none}
-  .as2-ls{margin-top:.7vw;font-size:2.67vw}
+  .as2-ls{margin-top:.53vw;font-size:2.11vw}
   .as2-mais{margin-top:8.45vw}
   .as2-mais .as2-bo{gap:2.11vw;padding:2.46vw 4.93vw;font-size:3.2vw}   /* "Ver todos" menor (pedido do Luiz, 13/10/2026) */
   /* o formulário na proporção do resto do site, como o da página do carro (pedido do Luiz, 13/10/2026) */
@@ -2295,7 +2300,7 @@ function ajustarTopo(){
   const g=parseFloat(getComputedStyle(tp).columnGap)||0,gm=mini?parseFloat(getComputedStyle(mini).columnGap)||0:0,gs=parseFloat(getComputedStyle(m).rowGap)||0,Wt=tp.clientWidth;
   const nav=document.getElementById('nav'),menu=nav?nav.offsetHeight+(parseFloat(getComputedStyle(nav).bottom)||0):76;
   const pd=document.querySelector('.vp-pd'),botao=pd?pd.offsetHeight+(parseFloat(getComputedStyle(pd).marginTop)||0):0;   // a linha do botão, embaixo
-  const Hmax=Math.max(360,innerHeight-menu-14-botao-(tp.getBoundingClientRect().top+scrollY));   // 14px de folga em cima do menu
+  const Hmax=Math.max(360,innerHeight-menu-10-botao-(tp.getBoundingClientRect().top+scrollY));   // 10px de folga em cima do menu
   const semFotos=w=>{m.style.setProperty('--cw',w+'px');m.classList.add('mede');const h=m.offsetHeight;m.classList.remove('mede');return h;};
   let H=Hmax,W=Wt-g-Hmax*4/3;
   for(let i=0;i<3;i++){   // o nome pode quebrar de outro jeito na largura nova: a conta é refeita com ela
