@@ -102,6 +102,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 @keyframes dropEntra{from{opacity:0;transform:translateY(-6px) scale(.98)}}
 @keyframes dropSai{to{opacity:0;transform:translateY(-4px) scale(.98)}}
 #mos.troca{animation:mosEntra .4s var(--ease) both}
+#mos.sai{opacity:0;transition:opacity .25s ease}   /* trocando de página, os anúncios somem em fusão */
 @keyframes mosEntra{from{opacity:0;transform:translateY(10px)}}
 /* contador de anúncios ("1 de 1.427"), na pílula do menu: no celular embaixo, parado em cima do rodapé; no computador, em pé na lateral */
 .est-cont-a{height:0}
@@ -125,9 +126,9 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .ancs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .anc{display:block;position:relative;cursor:pointer;outline:0}
 .anc-f{--r:18px;position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:#0A1A33}
-.anc-f img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease-in-out,filter .3s ease-out,transform .3s ease-out}
+.anc-f img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease-in-out,filter .27s ease-out,transform .27s ease-out}
 .anc-f img.ok{opacity:1}
-.anc-f img.ja{transition:filter .3s ease-out,transform .3s ease-out}   /* já estava carregada: aparece sem piscar */
+.anc-f img.ja{transition:filter .27s ease-out,transform .27s ease-out}   /* já estava carregada: aparece sem piscar */
 .anc-t,.anc-p{position:absolute;z-index:2;font:600 .875rem/1.3 var(--f2)}
 .anc-t{top:0;left:0;max-width:calc(100% - 40px);padding:8px 16px 12px;color:#fff}
 .anc-p{right:0;bottom:0;padding:12px 16px 8px;color:var(--gold3);font-weight:700}
@@ -136,16 +137,16 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .anc-u{white-space:nowrap}
 /* sendo escrito (digitar): as linhas já vêm medidas, então nada quebra sozinho, e cada letra nova entra em fusão */
 .anc-l.dg{white-space:nowrap}
-.anc-l .lt{animation:letra .32s ease-out both}
+.anc-l .lt{animation:letra .28s ease-out both}
 @keyframes letra{from{opacity:0}}
 /* medição das linhas do nome completo: com lugar para a seta (21px) no fim de cada linha */
 .anc-t.mede{padding-right:37px}
 .anc-t.mede .anc-c{display:none}
 .anc-t.mede .anc-l{display:inline;white-space:normal}
-.anc-s{display:inline-block;width:21px;overflow:hidden;vertical-align:-2px;animation:setaEntra .3s ease-out both}
+.anc-s{display:inline-block;width:21px;overflow:hidden;vertical-align:-2px;animation:setaEntra .26s ease-out both}
 .anc-s svg{display:block;margin-left:7px}
 @keyframes setaEntra{from{width:0}}
-.anc-i{position:absolute;inset:0;z-index:1;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:6px;padding:52px 28px;opacity:0;transform:translateY(6px);transition:opacity .3s ease-out,transform .3s ease-out;pointer-events:none}
+.anc-i{position:absolute;inset:0;z-index:1;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:6px;padding:52px 28px;opacity:0;transform:translateY(6px);transition:opacity .27s ease-out,transform .27s ease-out;pointer-events:none}
 .anc-i span{padding:7px 12px;border-radius:99px;background:rgba(0,9,26,.74);border:1px solid rgba(255,255,255,.14);color:#fff;font:500 .8rem/1 var(--f2);white-space:nowrap}
 @media (hover:hover){
   .anc:hover .anc-f img,.anc:focus-visible .anc-f img{filter:blur(4px);transform:scale(1.04)}
@@ -163,12 +164,15 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 /* o mouse destaca, o clique leva para a página; a altura total não muda, então nada acima se mexe */
 .inn{display:flex;flex-direction:column;gap:28px}
 .inn h1{margin:18px 0;color:#fff;max-width:1080px}
-.inn .sub{font-size:1.2rem;max-width:740px}
 /* título da home: cada parte na sua linha e com a sua própria altura, sem o respiro da linha do h1; "desde 1998" fica encostado */
 .tit>[data-t]{display:block;width:fit-content;line-height:1.05}
 .tit>[data-t]+[data-t]{margin-top:-.1em}
 .tit>[data-t="inicio.titulo-dourado"]{background:linear-gradient(100deg,#F6C078,#C8862E);-webkit-background-clip:text;background-clip:text;color:transparent}
-.inn .tit{margin:.12em 0 -.055em}   /* o título fica no meio: a mesma distância até "desde 1998" e até o subtítulo */
+.inn .tit{margin:.12em 0 -.055em}
+/* "desde 1998" e "Credibilidade que move" começam no primeiro pixel do topo do A de "A Intendente!" (pedido do Luiz, 14/10/2026):
+   alinharA() mede as letras desenhadas e acerta o recuo (--ak e --at) */
+.hero .inn .kick{margin-left:var(--ak,0px)}
+.hero .tit>[data-t="inicio.titulo"]{margin-left:var(--at,0px)}
 .vti{display:block;padding:12px 0 12px 30px;position:relative;cursor:pointer}
 .vti+.vti{background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent) top/100% 1px no-repeat}
 .vti::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:2px;background:var(--gold2);transform:scaleY(0);transition:transform .45s var(--ease)}
@@ -179,7 +183,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vti .d>div{overflow:hidden;min-height:0}
 .vti.on .d{grid-template-rows:1fr;opacity:1;transform:none}
 .vti .d p{padding-top:10px;font-size:1.08rem}
-.hero .sub,.vti .d p,.hs p{line-height:1.3}   /* textos de apoio da home: linhas mais juntas */
+.vti .d p,.hs p{line-height:1.3}   /* textos de apoio da home: linhas mais juntas */
 /* imagem de cada caminho, misturada ao fundo animado */
 .hero{min-height:calc(100vh + var(--canto));padding-bottom:var(--canto)}
 .gl>.himg{position:absolute;inset:0;z-index:1;background:right center/cover no-repeat;mix-blend-mode:screen;opacity:0;transform:scale(1.06);pointer-events:none;
@@ -216,7 +220,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .sob-a>.kick{grid-column:1/-1;margin-bottom:16px}
 /* as duas colunas começam e terminam na mesma linha: à esquerda, título em cima e texto embaixo; à direita, texto em cima e números embaixo */
 .sob-e{display:flex;flex-direction:column;justify-content:space-between}
-.sob-d{display:flex;flex-direction:column;justify-content:space-between;padding:.21vw 0 3.5px}   /* acerto fino: a tinta do texto na linha da tinta do título, e a base dos rótulos na base da última linha */
+.sob-d{display:flex;flex-direction:column;justify-content:space-between;margin-top:-.12vw;padding-bottom:3.5px}   /* acerto fino: o topo dos números na linha do topo das letras do título, e a base dos rótulos na base da última linha */
 .sob h2,.emp h2{font-size:clamp(2.4rem,3.3vw,4rem);font-weight:400;letter-spacing:-.04em;line-height:1.04;color:var(--ink)}
 .sob h2 em,.emp h2 em{font-style:italic}
 .sob h2 em{color:var(--gold)}
@@ -250,6 +254,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .btnp svg{transition:transform .3s var(--ease)}
 .btnp:hover svg{transform:translate(2px,-2px)}
 .emp-4{--is:clamp(44px,3vw,58px);display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(28px,2.8vw,56px);margin-top:clamp(56px,5vw,96px)}
+.emp-4>div{display:flex;flex-direction:column;align-items:center;text-align:center}   /* os textos e os ícones no meio (pedido do Luiz, 14/10/2026) */
 .emp-i{display:block;width:var(--is);height:var(--is)}
 .emp-a{width:calc(var(--is) * 1.18);background:linear-gradient(#F4B05C,rgba(200,134,46,.3));-webkit-mask:url(marca-nova/simbolo-a-contorno.png) 0 0/100% 100% no-repeat;mask:url(marca-nova/simbolo-a-contorno.png) 0 0/100% 100% no-repeat}
 .emp-4 h3{margin-top:clamp(22px,1.7vw,32px);font-size:clamp(1.12rem,1.25vw,1.5rem);font-weight:400;letter-spacing:-.01em;line-height:1.2;color:#fff}
@@ -272,8 +277,9 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .stag .c .ph{width:100%;overflow:hidden;position:relative}
 .stag .c img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.26)}
 .stag .c.perfeita img{transform:none}   /* foto da vitrine (vitrine.json): perfeita, sem zoom, o carro aparece inteiro; o zoom só fica se a vitrine não carregar */
-.stag .lb{position:absolute;left:10px;bottom:10px;background:rgba(6,16,32,.86);color:#fff;font-family:var(--f2);font-size:.72rem;padding:5px 11px;border-radius:99px;display:flex;gap:8px;align-items:center}
-.stag .lb b{color:#F4B05C;font-weight:700}
+.stag .lb{position:absolute;left:10px;bottom:10px;max-width:calc(100% - 20px);background:rgba(6,16,32,.86);color:#fff;font-family:var(--f2);font-size:.72rem;padding:5px 11px;border-radius:99px;display:flex;gap:8px;align-items:center}
+.stag .lb span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stag .lb b{flex:none;color:#F4B05C;font-weight:700;white-space:nowrap}
 
 /* associados (pedido do Luiz, 07/10/2026): o filtro é um botão só, como o menu do celular (mostra a escolha e, tocando, as outras
    opções); a estrada com as lojas tem os pontos no meio dela e as lojas das pontas no começo e no fim da linha do texto, com a mesma
@@ -283,7 +289,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .as3-topo{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
 .as3-topo h2{font-size:clamp(1.8rem,2.2vw,2.6rem)}
 /* filtro num botão só: fechado mostra a escolha; aberto, as três opções, cada uma sempre no seu lugar (o menu só cresce para baixo) */
-.as3-cw{position:relative;flex:none;width:clamp(220px,15vw,260px);height:48px}   /* guarda o lugar do botão fechado: abrir não empurra nada */
+.as3-cw{position:relative;flex:none;width:clamp(240px,15.5vw,280px);height:48px}   /* guarda o lugar do botão fechado: abrir não empurra nada */
 .as3-cat{position:absolute;z-index:30;top:0;left:0;right:0;display:flex;flex-direction:column;padding:5px;border-radius:24px;background:#fff;border:1px solid #E5E5E5;box-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1)}
 .as3-cat button{display:grid;grid-template-rows:0fr;padding:0 14px;border-radius:999px;opacity:0;color:#737373;font:500 .9rem/18px var(--f2);text-align:left;transition:grid-template-rows .35s var(--ease),padding .35s var(--ease),opacity .25s,background-color .2s,color .2s}
 .as3-cat button>span{display:flex;align-items:center;gap:8px;min-height:0;overflow:hidden;white-space:nowrap}
@@ -380,7 +386,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-lj::before{content:'';position:absolute;left:0;top:0;width:min(320px,32%);height:min(190px,30%);background:radial-gradient(farthest-side at 0 0,var(--esf),transparent)}
 .vp-lj.escuro{--esf:rgba(0,9,26,.5)}
 .vp-lj.claro{--esf:rgba(246,244,241,.72)}
-.vp-lj img{pointer-events:auto;cursor:pointer;position:absolute;left:clamp(14px,1.5vw,28px);top:clamp(12px,1.35vw,26px);width:auto;height:auto;max-width:clamp(65px,7vw,130px);max-height:clamp(22px,2.2vw,40px)}
+.vp-lj img{pointer-events:auto;cursor:pointer;position:absolute;left:clamp(14px,1.5vw,28px);top:clamp(12px,1.35vw,26px);width:auto;height:auto;max-width:clamp(56px,6vw,112px);max-height:clamp(19px,1.9vw,34px)}
 .vp-m{display:grid;grid-template-columns:1fr 1fr;gap:40px clamp(40px,5vw,96px);margin-top:clamp(48px,5vw,96px)}
 .vp-m h1{font-size:clamp(2.5rem,3.6vw,4.4rem);font-weight:600;letter-spacing:-.045em;line-height:1.02;color:var(--ink)}   /* nome com mais peso (pedido do Luiz, 30/09/2026) */
 .vp-m h1>span{display:block}
@@ -393,26 +399,45 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-ficha>div{border-top:1px solid var(--line);padding-top:clamp(12px,1vw,18px)}
 .vp-ficha>div>span{display:block;font:600 clamp(.66rem,.68vw,.8rem)/1.2 var(--f2);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
 .vp-ficha b{display:block;margin-top:8px;font:300 clamp(1.5rem,2.2vw,2.6rem)/1.15 var(--f2);letter-spacing:-.02em;color:#3E4C62}
-/* computador: a foto quase da largura toda e, ao lado, numa coluna estreita, o nome, a ficha (um item embaixo do outro) e o botão
-   (pedido do Luiz, 01/10/2026). A coluna tem a altura da foto: o topo das letras do nome na linha de cima da foto (-.16em: a folga
-   da fonte acima das letras) e o botão na linha de baixo; os itens da ficha dividem o meio em faixas iguais, sem sobrar espaço vazio */
+/* as quatro fotos seguintes, ao lado da foto (só no computador): com o mouse, as três primeiras crescem um pouco; a quarta fica desfocada,
+   com "Ver todas", e abre a tela cheia nela, de onde dá para passar por todas (pedido do Luiz, 14/10/2026) */
+.vp-mini{display:none}
+.vp-mf{display:block;position:relative;aspect-ratio:4/3;border-radius:clamp(10px,.8vw,14px);overflow:hidden;background:#E9E4DD;cursor:zoom-in}
+.vp-mf img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease-in-out,transform .5s var(--ease),filter .35s}
+.vp-mf img.ok{opacity:1}
+.vp-mf:not(.vp-mt):hover img{transform:scale(1.05)}
+.vp-mt img{filter:blur(5px) brightness(.7);transform:scale(1.12)}
+.vp-mt:hover img{filter:blur(4px) brightness(.6)}
+.vp-mt>span{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font:500 clamp(.85rem,.9vw,1.05rem)/1.2 var(--f2)}
+/* computador (pedido do Luiz, 14/10/2026): a foto e, ao lado, o nome, a ficha de dois em dois (como no celular), as quatro fotos seguintes,
+   duas por linha, e o botão no meio, embaixo de tudo. Tudo cabe na tela, acima do menu: ajustarTopo() acha a altura da foto (--fh) e a
+   largura da coluna (--cw). A coluna tem a altura da foto: o topo das letras do nome na linha de cima da foto (-.16em: a folga da fonte
+   acima das letras) e a base do botão na linha de baixo. As fotos embaixo da foto (.vp-g) ficam só no tablet e no celular */
 @media (min-width:1101px){
-  .vp-topo{display:grid;grid-template-columns:minmax(0,1fr) clamp(250px,24vw,460px);gap:clamp(30px,2.6vw,52px);align-items:start}
-  .vp-m{align-self:stretch;display:flex;flex-direction:column;gap:clamp(18px,1.5vw,28px);margin:0}
+  .vp-topo{--fh:clamp(380px,100vh - 260px,880px);display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(30px,2.6vw,52px);align-items:start}
+  .vp-hero{width:calc(var(--fh) * 4 / 3);height:var(--fh);aspect-ratio:auto}
+  .vp-m{width:var(--cw,auto);max-width:100%;height:var(--fh);display:flex;flex-direction:column;gap:clamp(16px,1.3vw,26px);margin:0}
+  .vp-m.mede{height:auto}
+  .vp-m.mede .vp-mini{display:none}
   .vp-m>div:first-child{display:contents}
-  .vp-m h1{margin-top:-.16em;font-size:clamp(1.7rem,2.4vw,3rem)}
-  .vp-ficha{order:1;flex:1;display:flex;flex-direction:column;gap:0}
-  .vp-ficha>div{flex:1;display:flex;flex-direction:column;justify-content:center;padding:clamp(10px,.9vw,16px) 0;border-top-color:rgba(11,26,51,.11)}
-  .vp-ficha>div:last-child{border-bottom:1px solid rgba(11,26,51,.11)}
-  .vp-ficha b{margin-top:clamp(4px,.45vw,8px);font-size:clamp(1.35rem,2.2vw,2.75rem)}
-  .vp-pill{order:2;align-self:flex-start;margin-top:0}
+  .vp-m h1{margin-top:-.16em;font-size:clamp(1.5rem,2.1vw,2.6rem)}
+  .vp-ficha{order:1;gap:clamp(12px,1vw,18px) clamp(18px,1.6vw,30px)}
+  .vp-ficha>div{padding-top:clamp(8px,.7vw,12px);border-top-color:rgba(11,26,51,.11)}
+  .vp-ficha>div>span{font-size:clamp(.58rem,.6vw,.72rem)}
+  .vp-ficha b{margin-top:clamp(3px,.3vw,6px);font-size:clamp(1.05rem,1.35vw,1.65rem)}
+  .vp-mini{--gm:clamp(8px,.7vw,12px);order:2;display:flex;flex-wrap:wrap;justify-content:center;gap:var(--gm)}   /* com três, a última fica no meio */
+  .vp-mf{flex:0 0 calc(50% - var(--gm) / 2)}
+  .vp-mini.um .vp-mf{flex-basis:100%}   /* uma só: na largura da coluna */
+  .vp-pill{order:3;align-self:center;margin-top:auto}
+  .vp-g{display:none}
+  .vp>.wrap,#vpCt>.wrap{max-width:calc(var(--vpw,1660px) + 120px)}
 }
-/* as outras fotos: 4 por vez (2 no celular), passando para o lado; "Ver todas", bem discreto, abre a grade com todas */
+/* as outras fotos (tablet e celular): 4 por vez (2 no celular), passando para o lado; "Ver todas", bem discreto, abre a quarta foto em tela
+   cheia, de onde dá para passar por todas (pedido do Luiz, 14/10/2026) */
 .vp-g{--gg:clamp(10px,.9vw,16px);--gn:4;margin-top:clamp(48px,4.6vw,88px)}
 .vp-gw{position:relative}
 .vp-gt{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - (var(--gn) - 1) * var(--gg)) / var(--gn));gap:var(--gg);overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:clamp(12px,1vw,18px)}
 .vp-gt::-webkit-scrollbar{display:none}
-.vp-g.todas .vp-gt{grid-auto-flow:row;grid-template-columns:repeat(var(--gn),minmax(0,1fr));overflow:visible;border-radius:0}
 .vp-f{display:block;position:relative;aspect-ratio:4/3;border-radius:clamp(12px,1vw,18px);overflow:hidden;background:#E9E4DD;cursor:zoom-in;scroll-snap-align:start}
 .vp-f img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease-in-out,transform .5s var(--ease)}
 .vp-f img.ok{opacity:1}
@@ -422,13 +447,11 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-gp{left:clamp(10px,1vw,18px)}
 .vp-gn{right:clamp(10px,1vw,18px)}
 .vp-ga.off{opacity:0;pointer-events:none}
-.vp-g.todas .vp-ga,.vp-g.cabe .vp-ga,.vp-g.cabe .vp-gv{display:none}
+.vp-g.cabe .vp-ga,.vp-g.cabe .vp-gv{display:none}
 .vp-gv{display:flex;align-items:center;gap:6px;margin:clamp(14px,1.2vw,22px) auto 0;padding:6px 10px;font:500 clamp(.84rem,.86vw,.98rem)/1 var(--f2);color:#8A96A8;transition:color .2s}
 .vp-gv:hover{color:var(--ink)}
-.vp-gv svg{transition:transform .35s var(--ease)}
-.vp-g.todas .vp-gv svg{transform:rotate(180deg)}
-.vp-gv .vm,.vp-g.todas .vp-gv .vt{display:none}
-.vp-g.todas .vp-gv .vm{display:inline}
+.vp-gv svg{transition:transform .3s var(--ease)}
+.vp-gv:hover svg{transform:translateX(2px)}
 /* características e descrição, lado a lado com os títulos na mesma linha; a que for maior vem primeiro (ordenarInfo) */
 .vp-s{display:grid;grid-template-columns:1fr 1fr;gap:40px clamp(40px,5vw,96px);align-items:start;margin-top:clamp(64px,6.4vw,124px)}
 .vp-s h2{font-size:clamp(2.2rem,3.3vw,4rem);font-weight:500;letter-spacing:-.045em;line-height:1.02;color:var(--ink)}
@@ -542,6 +565,22 @@ body.lb-on{overflow:hidden}
 .nl{display:block;overflow:hidden;width:0;margin-left:8px;opacity:0;transition:width .26s var(--ease),height .26s var(--ease),margin .26s var(--ease),opacity .2s}   /* no computador, o nome perto do ícone (pedido do Luiz, 30/09/2026) */
 .nl.vis{opacity:1;transition:width .26s var(--ease),height .26s var(--ease),margin .26s var(--ease),opacity .2s .12s}
 .nl>span{display:block;white-space:nowrap;font:500 clamp(.625rem,.5263rem + .5263vw,1rem)/1.9 var(--f2)}
+/* páginas do estoque (pedido do Luiz, 14/10/2026): as setas ficam uma de cada lado do menu, separadas dele, e só aparecem as que levam a
+   alguma página; com o mouse em cima, aparece o texto. No celular, ficam ao lado do contador (.ec-pg) */
+.nb-pg{position:absolute;top:50%;display:flex;align-items:center;height:52px;padding:0 15px;border-radius:999px;background:#fff;border:1px solid #E5E5E5;
+  box-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);color:#171717;opacity:0;visibility:hidden;transform:translateY(-50%) scale(.85);
+  transition:opacity .25s,visibility .25s,transform .35s var(--ease),background-color .2s}
+.nb-pg:hover{background:#F5F5F5}
+.nb-ant{right:calc(100% + 12px)}
+.nb-prox{left:calc(100% + 12px)}
+#nav.pg-a .nb-ant,#nav.pg-p .nb-prox{opacity:1;visibility:visible;transform:translateY(-50%)}
+.nb-pg svg{flex:none;width:20px;height:20px}
+.nb-pg .pt{display:block;overflow:hidden;max-width:0;opacity:0;transition:max-width .3s var(--ease),margin .3s var(--ease),opacity .2s}
+.nb-pg .pt>span{display:block;white-space:nowrap;font:500 clamp(.625rem,.5263rem + .5263vw,1rem)/1.9 var(--f2)}
+.nb-pg:hover .pt{max-width:170px;opacity:1}
+.nb-ant:hover .pt{margin-left:8px}
+.nb-prox:hover .pt{margin-right:8px}
+.ec-pg{display:none}
 /* troca de página em fusão: a página nova aparece por cima da antiga; o menu fica fora dela, ao vivo */
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.45s;animation-timing-function:ease}
 #nav{view-transition-name:nav}
@@ -622,7 +661,7 @@ body.lb-on{overflow:hidden}
 @media (min-width:761px){.ac2-tit br{display:none}}   /* a quebra de linha antes de "A Intendente" é só do celular (pedido do Luiz, 13/10/2026): no computador, o título fica numa linha */
 .ac2-m{position:relative;height:clamp(380px,38.5vw,720px);margin-top:clamp(30px,3vw,56px);border-radius:var(--rm);overflow:hidden;background:var(--navy);isolation:isolate}
 .ac2-mf{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 94%}   /* a Intendente antiga, vista de cima (foto enviada pelo Luiz em 13/10/2026): o recorte mostra a rua que sai à esquerda */
-.ac2-m>video.luz{opacity:.5;mix-blend-mode:screen;filter:brightness(4) contrast(2.4) saturate(0)}   /* o vidro da home por cima da foto antiga, só a luz que passa: o vídeo é quase todo azul-escuro, então o filtro apaga o fundo e deixa as faixas claras (pedido do Luiz, 13/10/2026) */
+.ac2-m>video.luz{opacity:.2;mix-blend-mode:screen;filter:brightness(4) contrast(2.4) saturate(0)}   /* o vidro da home por cima da foto antiga, só a luz que passa: o vídeo é quase todo azul-escuro, então o filtro apaga o fundo e deixa as faixas claras (pedido do Luiz, 13/10/2026); bem transparente, o efeito estava muito aparente (14/10/2026) */
 .ac2-selo{position:absolute;z-index:2;top:clamp(16px,1.7vw,28px);left:clamp(16px,1.7vw,28px);padding:10px 18px;border-radius:99px;background:rgba(246,244,241,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font:500 clamp(.8rem,.85vw,.95rem)/1.3 var(--f2);color:var(--ink)}
 .ac2-ent{--r:clamp(20px,2.2vw,36px);position:absolute;z-index:2;top:0;left:50%;transform:translateX(-50%);width:min(460px,36%);padding:clamp(20px,2vw,34px) clamp(22px,2vw,36px) clamp(24px,2.3vw,40px);border-radius:0 0 var(--r) var(--r);background:var(--cl);text-align:center}
 .ac2-ent::before,.ac2-ent::after{content:'';position:absolute;top:0;width:var(--r);height:var(--r)}
@@ -699,6 +738,8 @@ body.lb-on{overflow:hidden}
   .ac2-a .ac2-t>h2,.ac2-a .ac2-t>p{text-align:center}   /* "Nossa história" e o texto no meio */
   .ac2-a .ac2-f{aspect-ratio:350/240}
   .ac2-a>.ac2-pill{justify-self:center;margin-top:0}   /* "Seja um associado" embaixo da foto */
+  .ac2-acc{margin-top:11.27vw;border-top:0}   /* mais respiro entre a história e as abas, sem a linha em cima da primeira e embaixo da última (pedido do Luiz, 14/10/2026) */
+  .ac2-ai:last-child{border-bottom:0}
   .ac2-ai>button{padding:4.23vw 0;font-size:3.52vw}
   .ac2 .ac2-ap p{padding-bottom:4.23vw;font-size:3vw;line-height:1.45}   /* o texto da aba aberta bem menor */
   .ac2-c{margin-top:19.7vw}
@@ -756,11 +797,11 @@ body.lb-on{overflow:hidden}
 .as2-ft img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .as2-s .as2-g1t>p:first-child{margin-top:-.5em}   /* a folga da linha acima das letras: o texto começa na linha de cima da foto */
 .as2-nums{display:flex;flex-wrap:wrap;gap:24px clamp(32px,4.6vw,88px);margin-top:clamp(36px,3.4vw,60px)}
-.as2-nums b{display:block;font:600 clamp(2.2rem,3.1vw,3.4rem)/1 var(--f1);letter-spacing:-.03em;color:var(--ink)}
+.as2-nums b{display:block;font:600 clamp(2.8rem,4.2vw,4.8rem)/1 var(--f1);letter-spacing:-.03em;color:var(--ink)}   /* maiores (pedido do Luiz, 14/10/2026) */
 .as2-nums small{display:block;max-width:240px;margin-top:10px;white-space:pre-line;font:500 clamp(.92rem,1.05vw,1.15rem)/1.3 var(--f2);color:var(--ink)}
 /* a frase dos ramos no lugar de "Quem pode se associar" e dos chips (pedido do Luiz, 07/10/2026); a base dela fica na base da foto */
-.as2-s .as2-todos{display:flex;align-items:center;gap:clamp(12px,1vw,16px);margin-top:clamp(36px,3.4vw,60px);margin-bottom:-.32em;font:500 clamp(1.2rem,1.6vw,1.75rem)/1.3 var(--f1);letter-spacing:-.01em;color:var(--ink)}
-.as2-todos svg{flex:none;width:clamp(26px,2vw,34px);height:auto;color:var(--gold)}
+.as2-s .as2-todos{display:flex;align-items:center;gap:clamp(10px,.8vw,14px);margin-top:clamp(36px,3.4vw,60px);margin-bottom:-.32em;font:400 clamp(1rem,1.2vw,1.35rem)/1.3 var(--f1);letter-spacing:-.01em;color:var(--ink)}   /* menor e mais leve (pedido do Luiz, 14/10/2026) */
+.as2-todos svg{flex:none;width:clamp(22px,1.6vw,28px);height:auto;color:var(--gold)}
 /* o que a loja ganha: os benefícios e a rede credenciada */
 .as2-g3{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(40px,5vw,96px);align-items:stretch;margin-top:clamp(48px,4.6vw,80px)}   /* as duas colunas começam e terminam na mesma linha (pedido do Luiz, 13/10/2026) */
 .as2-bl{display:grid;gap:clamp(28px,2.6vw,44px)}
@@ -819,7 +860,7 @@ body.lb-on{overflow:hidden}
 @media (max-width:760px){
   .as2{--wl:5.63vw}
   .as2-hero{grid-template-columns:1fr}
-  .as2-hl{position:relative;z-index:2;padding:9.86vw 5.63vw}
+  .as2-hl{position:relative;z-index:2;align-items:center;padding:9.86vw 5.63vw;text-align:center}   /* os textos de cima no meio (pedido do Luiz, 14/10/2026) */
   .as2-bo{gap:2.82vw;padding:3.52vw 5.63vw;font-size:3.52vw}
   .as2-hl h1{font-size:7.04vw;letter-spacing:-.2vw;white-space:normal;text-wrap:balance}
   .as2 .as2-hl p{margin-top:4.23vw;font-size:3.2vw;line-height:1.5}   /* menor e com as linhas mais juntas (pedido do Luiz, 13/10/2026) */
@@ -833,8 +874,11 @@ body.lb-on{overflow:hidden}
   .as2-ctt{flex-direction:column;align-items:flex-start;width:max-content;max-width:100%;margin:0 auto;gap:3.52vw;padding:9.86vw 0;border-top:0}
   .as2-ctt>span{gap:2.82vw;font-size:3vw}
   .as2-ctt svg{width:4.23vw;height:4.23vw}
-  .as2-s{padding:16.9vw 0}
-  .as2-cab{text-align:center}   /* os títulos das seções no meio (pedido do Luiz, 13/10/2026) */
+  /* cada seção com o mesmo respiro que o horário tem até a divisa, em cima e embaixo (pedido do Luiz, 14/10/2026); a última, embaixo,
+     conta o canto da folha azul, que sobe por cima */
+  .as2-s{padding:9.33vw 0 9.86vw}   /* em cima, 9,33: a folga da linha acima das letras completa os 9,86 */
+  .as2-s.as2-fim{padding-bottom:calc(9.86vw + var(--canto))}
+  .as2-cab{padding-bottom:0;border-bottom:0;text-align:center}   /* os títulos das seções no meio (pedido do Luiz, 13/10/2026), sem a linha embaixo (14/10/2026) */
   .as2-cab h2{font-size:9.86vw;letter-spacing:-.3vw}
   .as2-s p{font-size:3.73vw}
   /* a primeira seção: o texto em cima da foto e no meio, os três números numa linha só e a frase dos ramos menor (pedido do Luiz, 13/10/2026) */
@@ -849,7 +893,7 @@ body.lb-on{overflow:hidden}
   .as2-s .as2-todos{flex-direction:column;gap:2.11vw;margin-top:7.04vw;margin-bottom:0;font-size:3.47vw;text-align:center;text-wrap:balance}
   .as2-todos svg{width:5.63vw}
   /* benefícios bem menores e mais juntos; a rede credenciada no meio, com os quatro numa linha (pedido do Luiz, 13/10/2026) */
-  .as2-g3{gap:9.86vw;margin-top:7.04vw}
+  .as2-g3{gap:9.86vw;margin-top:5.63vw}
   .as2-bl{gap:4.93vw}
   .as2-bl>div{padding-left:6.34vw}
   .as2-bl>div::before{top:.32em;width:3.2vw;height:3.2vw;border-width:1px;background:radial-gradient(circle,var(--ink) 0 .7vw,#fff .85vw)}
@@ -861,7 +905,7 @@ body.lb-on{overflow:hidden}
   .as2-card svg{width:6.34vw;height:6.34vw}
   .as2-card h4{font-size:2.82vw;line-height:1.2}
   .as2-card small{font-size:2.25vw;line-height:1.2}
-  .as2-lojas{--gx:3.52vw;gap:6.34vw var(--gx);margin-top:8.45vw}
+  .as2-lojas{--gx:3.52vw;gap:6.34vw var(--gx);margin-top:5.63vw}
   .as2-lj{flex-basis:calc((100% - 2 * var(--gx)) / 3)}
   .as2-lf{aspect-ratio:16/10;border-radius:2.11vw}
   .as2-lf>span{font-size:4.23vw}
@@ -929,9 +973,7 @@ body.lb-on{overflow:hidden}
   .hero .inn{justify-content:flex-start!important;gap:0!important;padding:11.27vw 5.63vw 0!important}
   .hero .kick{font-size:1.87vw;letter-spacing:.35vw;font-weight:700;color:#C8862E}
   .hero .tit>[data-t="inicio.titulo"]{font-size:5.33vw!important}   /* celular: "Credibilidade que move" maior que o tamanho do modo de edição, e "desde 1998" bem menor */
-  /* o subtítulo termina em 70% da tela; o título e as descrições das categorias (que começam em 9,86vw) vão até o fim */
   .hero h1{font-size:6.93vw;line-height:1.14;letter-spacing:-.14vw;margin:1.87vw 0 0!important;max-width:none!important}   /* o título pode passar dos 70%: "A Intendente!" cabe numa linha só */
-  .hero .sub{font-size:3vw!important;margin-top:.43vw;max-width:64.37vw}   /* do tamanho das descrições das categorias (pedido do Luiz, 13/10/2026) */
   .vtl{margin-top:5.63vw}
   .vti{padding:3.87vw 0 3.87vw 4.23vw}
   .vti::before{top:3.17vw;bottom:3.17vw}
@@ -951,23 +993,22 @@ body.lb-on{overflow:hidden}
   .avq{font-size:5.33vw}
   .avc .avx{margin-top:2.13vw;font-size:3.07vw}
   .av-g{padding:0 5.63vw;margin-top:2.13vw;font-size:12px;line-height:1.4}   /* 12px é o mínimo do Google */
-  .hs{min-height:0!important;display:block!important;padding:5.63vw 0 6.34vw!important}
+  .hs{min-height:0!important;display:block!important;padding:5.63vw 0 12.68vw!important}   /* mais respiro entre o botão e o rodapé (pedido do Luiz, 14/10/2026) */
   .hs-grid{display:flex!important;flex-direction:column;align-items:stretch!important;gap:0!important;padding:0 5.63vw!important}
   .hs-grid>div:first-child{display:contents}
   /* o estoque da home: tudo no meio e o texto menor, com as linhas mais juntas (pedido do Luiz, 13/10/2026) */
   .hs .kick{order:1;font-size:2.82vw;letter-spacing:.56vw;font-weight:700;text-align:center}
-  .hs h2{order:2;font-size:5.75vw!important;line-height:1.22;letter-spacing:0;margin:2.46vw 0 4.23vw!important;text-align:center}
-  .hs .stag{order:3}
-  .hs p{order:4;margin-top:4.23vw;font-size:3vw!important;line-height:1.4;text-align:center}
+  .hs h2{order:2;font-size:5.75vw!important;line-height:1.22;letter-spacing:0;margin:2.46vw 0 2.82vw!important;text-align:center}
+  .hs p{order:3;margin:0 0 5.63vw;font-size:3vw!important;line-height:1.4;text-align:center}   /* o texto em cima das fotos (pedido do Luiz, 14/10/2026) */
+  .hs .stag{order:4}
   .btn{font-size:3.3vw;padding:2.82vw 5.63vw}
-  .hs .btns{order:5;flex-wrap:wrap;justify-content:center;gap:2.82vw!important}
+  .hs .btns{order:5;flex-wrap:wrap;justify-content:center;gap:2.82vw!important;margin-top:2.82vw}
   .stag{gap:2.82vw}
   .stag .col2{margin-top:0}
   .stag .c{margin-bottom:2.82vw;border-radius:3.52vw;border:0;box-shadow:none;background:#0A1A33}
   .stag .c .ph{aspect-ratio:auto!important;height:32.4vw}
   .stag .c:not(.perfeita) img{transform:scale(1.5)}
-  .stag .lb{left:0;right:0;bottom:0;border-radius:0;display:block;padding:5.63vw 2.46vw 2.11vw;background:linear-gradient(to top,rgba(0,8,22,.92),rgba(0,8,22,0));font-size:3.38vw;font-weight:700}
-  .stag .lb b{display:block;font-size:3.27vw;font-weight:800;margin-top:1px}
+  .stag .lb{left:2.67vw;bottom:2.67vw;max-width:calc(100% - 5.34vw);gap:1.6vw;padding:1.33vw 2.67vw;font-size:2.53vw}   /* o nome e o preço numa pílula, como no computador (pedido do Luiz, 14/10/2026) */
   /* bloco sobre a Aceima: a folha clara sobe por cima do topo (o lugar que era do estoque); o painel do empresário é escuro e o estoque sobe por cima dele */
   :root{--canto:4.93vw}
   .gl>.himg{background-position:var(--cel,center)}   /* celular: cada foto mostra a sua parte (a 1 o lado esquerdo, as outras o centro) */
@@ -980,17 +1021,16 @@ body.lb-on{overflow:hidden}
   .sob-d{margin-top:2.82vw}
   .sob-d p{font-size:3vw;line-height:1.45}
   .sob-n{gap:4.23vw;margin-top:7.04vw}
-  .sob-n b{font-size:16.9vw}
+  .sob-n b{font-size:11.27vw}   /* menores (pedido do Luiz, 14/10/2026) */
   .sob-n>div>span{margin-top:2.11vw;font-size:2.46vw;letter-spacing:.42vw}
   .emp{padding:9.86vw 0 16.2vw}   /* 16,2vw: 11,27vw de respiro + 4,93vw do canto do estoque, que sobe por cima */
-  /* Faça parte: textos menores, linhas mais juntas e tudo no meio (pedido do Luiz, 13/10/2026) */
+  /* Faça parte: textos menores, linhas mais juntas e tudo no meio (pedido do Luiz, 13/10/2026); os ícones e os textos dos benefícios
+     ainda menores (14/10/2026) */
   .emp-t p{margin-top:3.52vw;font-size:3vw;line-height:1.35}
   .btnp{gap:2.11vw;padding:3.17vw 5.63vw;font-size:3.3vw}
-  .emp-4{gap:7.04vw 5.63vw;margin-top:8.45vw;text-align:center}
-  .emp-4{--is:9.86vw}
-  .emp-4>div{display:flex;flex-direction:column;align-items:center}
-  .emp-4 h3{margin-top:2.82vw;font-size:3.73vw}
-  .emp-4 p{margin-top:1.41vw;font-size:3vw;line-height:1.35}
+  .emp-4{--is:7.04vw;gap:7.04vw 5.63vw;margin-top:8.45vw}
+  .emp-4 h3{margin-top:2.11vw;font-size:3.3vw}
+  .emp-4 p{margin-top:1.06vw;font-size:2.75vw;line-height:1.35}
   .emp-4 .btnp{margin-top:1.41vw;padding:3.52vw 5.63vw}
   /* folha azul do contato (página do veículo) */
   .ct{padding:9.86vw 0 11.27vw}
@@ -1014,8 +1054,8 @@ body.lb-on{overflow:hidden}
   .ancs{grid-template-columns:1fr;gap:3.2vw}
   .anc-f{--r:4.8vw;border-radius:2.67vw}
   .anc-t,.anc-p{font-size:3.73vw}
-  .anc-t{padding:2.13vw 4.27vw 3.2vw;max-width:calc(100% - 10.67vw)}
-  .anc-t.mede{padding-right:calc(4.27vw + 21px)}
+  .anc-t{padding:1.76vw 3.73vw 2.67vw;max-width:calc(100% - 10.67vw);font-size:3.04vw}   /* o nome bem menor (pedido do Luiz, 14/10/2026) */
+  .anc-t.mede{padding-right:calc(3.73vw + 21px)}
   .anc-p{padding:3.2vw 4.27vw 2.13vw}
   /* contador: embaixo, no centro; quando o rodapé aparece, ele para em cima dele */
   .gl>.est-cont-a{position:sticky;z-index:40;bottom:5.63vw}
@@ -1023,6 +1063,12 @@ body.lb-on{overflow:hidden}
   .est-cont{position:absolute;top:auto;right:auto;left:50%;bottom:0;transform:translateX(-50%);height:11.27vw;padding:1.41vw}
   .est-cont>span{gap:2.13vw;height:8.45vw;padding:0 3.73vw 0 3.2vw;font-size:3.47vw}
   .est-cont svg{width:4.53vw;height:4.53vw}
+  /* as setas das páginas, uma de cada lado do contador (pedido do Luiz, 14/10/2026) */
+  .ec-pg{position:absolute;top:50%;display:grid;place-items:center;width:11.27vw;height:11.27vw;margin-top:-5.63vw;border-radius:99px;background:#fff;border:1px solid #E5E5E5;
+    box-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);color:#171717;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+  .ec-ant{right:calc(100% + 2.11vw)}
+  .ec-prox{left:calc(100% + 2.11vw)}
+  .est-cont.pg-a .ec-ant,.est-cont.pg-p .ec-prox{opacity:1;visibility:visible}
   /* veículo */
   .vp{padding:4.23vw 0 calc(11.27vw + var(--canto))}
   .vp-volta{gap:1.41vw;margin-bottom:3.52vw;font-size:3.3vw}   /* menor no celular (pedido do Luiz, 30/09/2026) */
@@ -1090,14 +1136,18 @@ body.lb-on{overflow:hidden}
   /* associados: a mesma página do computador, ajustada (pedido do Luiz, 07/10/2026): o filtro embaixo do título, a estrada passando
      para o lado com o dedo, a lista numa coluna e a loja tocada logo abaixo da linha dela */
   .as3{padding-top:5.63vw;padding-bottom:11.27vw}
-  .as3-topo{flex-direction:column;align-items:flex-start;gap:4.23vw}
+  .as3-topo{position:relative;display:block}
   .as3-topo h2{font-size:6.76vw;letter-spacing:-.15vw;line-height:1.15}
-  .as3-cw{width:58vw;height:calc(10.92vw + 2px)}
-  .as3-cat{padding:1.06vw;border-radius:5.63vw}
-  .as3-cat button{font-size:3.52vw;line-height:5.28vw}
-  .as3-cat button.on,.as3-cat.aberto button{padding:1.76vw 3.52vw}
-  .as3-cat button>span{gap:2.11vw}
-  .as3-cat button svg{width:3.52vw;height:3.52vw}
+  /* o filtro bem menor, ao lado de "polo.", terminando onde termina a linha de cima (pedido do Luiz, 14/10/2026: posFiltroAssoc).
+     Sem lugar ao lado, fica embaixo do título */
+  .as3-cw{width:auto;height:calc(7.04vw + 2px);margin-top:3.52vw}
+  .as3-cw.lado{position:absolute;width:0;margin:0}
+  .as3-cat{right:auto;width:max-content;padding:.7vw;border-radius:4.23vw}
+  .as3-cw.lado .as3-cat{left:auto;right:0}
+  .as3-cat button{font-size:2.82vw;line-height:3.52vw}
+  .as3-cat button.on,.as3-cat.aberto button{padding:1.06vw 2.46vw}
+  .as3-cat button>span{gap:1.41vw}
+  .as3-cat button svg{width:2.82vw;height:2.82vw}
   .eixo{--et:4.93vw;--ep:2.82vw;--eo:4.23vw;--ea:.85vw;margin:7.04vw -5.63vw 4.23vw;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
   .eixo::-webkit-scrollbar{display:none}
   .eixo-ms{width:max-content;min-width:100%;gap:7.04vw;padding:0 5.63vw}
@@ -1111,7 +1161,7 @@ body.lb-on{overflow:hidden}
   .row.on .nm{color:var(--gold)}
   .row .g{font-size:3.38vw}
   .row .a{width:auto;max-width:30vw;font-size:3.17vw}
-  .as3-in{margin:2.82vw 0 4.23vw;padding:5.63vw;border-radius:4.93vw;background:var(--navy);color:#fff}
+  .as3-in{margin:0 -5.63vw;padding:7.04vw 5.63vw;background:var(--navy);color:#fff;box-shadow:inset 0 3.52vw 3.52vw -3.52vw rgba(0,0,0,.6),inset 0 -3.52vw 3.52vw -3.52vw rgba(0,0,0,.6)}   /* de ponta a ponta, como uma camada embaixo da página que se abre (pedido do Luiz, 14/10/2026) */
   .as3-cab{flex-wrap:wrap;gap:4.23vw 3.52vw}
   .as3-cab .vp-l-lg{height:11.27vw}
   .as3-cab .vp-l-lg.claro,.as3-cab .vp-l-lg.branco,.as3-cab .vp-l-lg.sem{height:11.27vw;padding:0 2.82vw}
@@ -1138,6 +1188,10 @@ body.lb-on{overflow:hidden}
   .bene{grid-template-columns:1fr}
   /* Publicações e Serviços: títulos e textos na proporção do resto do site (os tamanhos do computador estão no próprio elemento) */
   .pb-tit,.sv-tit{font-size:7.04vw!important;letter-spacing:-.2vw}
+  /* Publicações: a chamada e o título no meio, e os filtros numa linha só (pedido do Luiz, 14/10/2026) */
+  .pb-top{flex-direction:column;align-items:center!important;gap:4.23vw!important;text-align:center}
+  .pb-top .fbar{flex-wrap:nowrap!important;justify-content:center;gap:1.06vw}
+  .pb-top .fbar .fp{padding:1.41vw 2.11vw;font-size:2.53vw}
   .pb-foto{height:auto!important;aspect-ratio:16/10}
   .pb-dt{font-size:5.07vw!important}
   .pb-tx,.sv-sub{font-size:3.47vw!important}
@@ -1153,7 +1207,7 @@ body.lb-on{overflow:hidden}
 @media (min-width:1101px){
   .ct .kick{font-size:clamp(.68rem,.7vw,.82rem);letter-spacing:.2em;line-height:1.2}   /* contato da Aceima: a chamada do tamanho dos rótulos da direita, na mesma linha */
   /* a coluna da direita tem a altura da esquerda; os números crescem até ocupar o espaço embaixo do texto (sem espaço vazio) */
-  .sob-n{flex:1;container-type:size;align-items:end;margin-top:clamp(20px,1.6vw,32px)}
+  .sob-n{flex:1;container-type:size;align-items:end;margin-top:0}
   .sob-n b{font-size:clamp(3.6rem,100cqh - 14px - 1.2 * clamp(.8rem,1vw,1.2rem),10rem)}
   :root{--px:min(calc(100vh / 1021),calc(100vw / 1912));--fd:max(13px,calc(17.28*var(--px)))}
   header{padding:calc(32*var(--px)) calc(32*var(--px)) calc(20*var(--px))}
@@ -1162,7 +1216,6 @@ body.lb-on{overflow:hidden}
   .inn{gap:calc(28*var(--px))}
   .inn .kick{font-size:max(10px,calc(12.8*var(--px)));letter-spacing:calc(3*var(--px))}
   .inn h1{font-size:calc(70.4*var(--px));margin:calc(18*var(--px)) 0;max-width:calc(1080*var(--px));letter-spacing:calc(-1.7*var(--px))}
-  .inn .sub{font-size:max(14px,calc(19.2*var(--px)));max-width:calc(740*var(--px))}
   .vti{padding:calc(12*var(--px)) 0 calc(12*var(--px)) calc(30*var(--px))}
   .vti::before{top:calc(10*var(--px));bottom:calc(10*var(--px))}
   .vti h3{font-size:calc(31.2*var(--px));letter-spacing:calc(-.6*var(--px))}
@@ -1277,25 +1330,26 @@ const AMOSTRA_L=[[10,"AG Rio Car","Est. Intendente Magalhães, nº 731 - Vila Va
  .map(l=>({id:l[0],nome:l[1],endereco:l[2],telefone:l[3],whatsapp:l[4],google_nota:l[5],google_avaliacoes:l[6],_n:l[7]}));
 
 // serviços credenciados do polo (conteúdo da página antiga de Serviços). O robô lê a nota no Google e a logo de cada um pelo nome:
-// credenciado novo entra aqui e em PARCEIROS_ROBO, na API, com o mesmo nome
+// credenciado novo entra aqui e em PARCEIROS_ROBO, na API, com o mesmo nome. O ramo é o da lista do formulário (RAMOS): é o que o filtro
+// de Associados mostra
 const PARCEIROS=[
- {nome:'LaudoCar',cat:'Serviços',tipo:'Vistoria cautelar',num:503,tag:'Antes de fechar negócio',
+ {nome:'LaudoCar',cat:'Serviços',ramo:'Serviços Automotivos',tipo:'Vistoria cautelar',num:503,tag:'Antes de fechar negócio',
   txt:'Confere estrutura, numerações e o histórico do veículo (leilão, sinistro, recall, roubo e restrições) antes de você fechar negócio.',
   chips:['Estrutura e chassi','Numerações','Histórico completo','Motos e pesados'],
   inf:[['Endereço','Estrada Intendente Magalhães, 503, Vila Valqueire'],['Horário','Seg a sex 9h–18h · sáb 9h–14h'],['A partir de','R$ 270, três níveis de vistoria'],['E-mail','contato@laudocarrj.com.br']],
   wa:'5521988932124',waTxt:'quero fazer uma vistoria',site:'https://laudocarrj.com.br/'},
- {nome:'SISV Inspeção Veicular',cat:'Serviços',tipo:'Inspeção obrigatória',num:null,tag:'Exigida pelo Detran',
+ {nome:'SISV Inspeção Veicular',cat:'Serviços',ramo:'Serviços Automotivos',tipo:'Inspeção obrigatória',num:null,tag:'Exigida pelo Detran',
   txt:'A inspeção que o Detran exige quando o carro tem GNV, passou por sinistro, é blindado ou teve característica alterada.',
   chips:['GNV','Sinistrados','Blindados','Característica alterada'],
   inf:[['Endereço','Rua Mataura, 68, esquina com a Intendente Magalhães'],['Telefone','(21) 2454-9926'],['Credenciamento','Inmetro ISO/IEC 17020 e SENATRAN'],['E-mail','contato@sisvinspecao.com.br']],
   wa:'5521970193793',waTxt:'quero agendar uma inspeção',site:'https://grupovialog.com.br/sisv-vila-valqueire-rj/'},
- {nome:'Frioline',cat:'Serviços',tipo:'Ar-condicionado',num:413,tag:'Depois da compra',
-  txt:'Instalação e manutenção de ar-condicionado em linha nacional e importada. O carro sai da loja e já resolve o ar na mesma rua.',
+ {nome:'Frioline',cat:'Serviços',ramo:'Serviços Automotivos',tipo:'Ar-condicionado',num:413,tag:'Depois da compra',
+  txt:'Instalação e manutenção de ar-condicionado em linha nacional e importada.',
   chips:['Carga de gás','Higienização','Compressor','Instalação completa'],
   inf:[['Endereço','Estrada Intendente Magalhães, 413, Vila Valqueire'],['Horário','Seg a sex 8h–18h · sáb 8h–12h'],['Telefone','(21) 3359-8354 · (21) 3350-7909'],['Desde','1989, só peça original']],
   wa:'5521964677676',waTxt:'quero um orçamento de ar-condicionado',site:'https://www.frioline.com.br/'},
- {nome:'R21 Bar & Restaurante',curto:'R21',cat:'Comércio',tipo:'Bar e restaurante',num:799,tag:'Enquanto você procura',
-  txt:'Comprar carro leva tempo. A pausa fica a poucos metros das lojas: a família espera sentada e você volta para a negociação com a cabeça no lugar.',
+ {nome:'R21 Bar & Restaurante',curto:'R21',cat:'Comércio',ramo:'Alimentício',tipo:'Bar e restaurante',num:799,tag:'Enquanto você procura',
+  txt:'Gastronomia para todos os gostos no almoço e no jantar, num ambiente com o jeito carioca, música ao vivo e espaço kids.',
   chips:['Almoço e jantar','Música ao vivo','Espaço kids','Delivery'],
   inf:[['Endereço','Estrada Intendente Magalhães, 799, Vila Valqueire'],['Funciona','Almoço, jantar e delivery na região'],['Instagram','@r21barerestaurante']],
   wa:null,site:'https://nxp.digital/reserva/r21-vila-valqueire',siteTxt:'Reservar mesa'}
@@ -1378,9 +1432,12 @@ function montarMenu(){
   // cada página é um link de verdade (dá para abrir em outra guia); o de menu, que só abre e fecha, é um botão
   n.innerHTML=itens.map((p,i)=>{const at=`class="nb${p[0]===on?' on':''}" data-p="${p[0]}" style="--i:${i}" aria-label="${p[1]}" onclick="clicarMenu(event,'${p[0]}')" onmouseenter="passarMenu(this)"`,
     dentro=`<span class="nbi">${ic(ICONES[p[0]],22)}<span class="nl"><span>${p[1]}</span></span></span>`;
-    return p[0]==='menu'?`<button type="button" ${at}>${dentro}</button>`:`<a href="${hr(p[0])}" ${at}>${dentro}</a>`;}).join('');
+    return p[0]==='menu'?`<button type="button" ${at}>${dentro}</button>`:`<a href="${hr(p[0])}" ${at}>${dentro}</a>`;}).join('')
+    // as páginas do estoque, separadas do resto, uma de cada lado (no celular, ficam ao lado do contador)
+    +(c?'':`<button type="button" class="nb-pg nb-ant" aria-label="Página anterior" onclick="irPagina(-1)">${ic('<path d="m15 18-6-6 6-6"/>',20)}<span class="pt"><span>Página anterior</span></span></button>`
+      +`<button type="button" class="nb-pg nb-prox" aria-label="Próxima página" onclick="irPagina(1)"><span class="pt"><span>Próxima página</span></span>${ic('<path d="m9 18 6-6-6-6"/>',20)}</button>`);
   menuAberto=false;n.classList.remove('aberto');
-  abrirNomes();
+  abrirNomes();setasPagina();
 }
 // o nome da página ativa abre no tamanho dele: no computador, deitado (largura); no celular, em pé (altura), só com o menu aberto
 function abrirNomes(){
@@ -1432,7 +1489,7 @@ function home(){
     [T('inicio.caminho3','Seja um associado'),T('inicio.caminho3-texto','Faça parte de uma rede que fortalece sua marca, amplia sua visibilidade e responde junto com você.'),'associar','fotos-home/associar.webp'],
     [T('inicio.caminho4','Estoque Automotivo'),T('inicio.caminho4-texto','{veículos} Anúncios dentre {lojas} lojas associadas, acesse agora e garanta o seu!'),'estoque','fotos-home/estoque.webp']];
   const C=vitrine();
-  const cs=(c,asp)=>c?`<a class="c${VIT&&VIT[c.id]!=null?' perfeita':''}" href="${hrV(c)}"><div class="ph" style="aspect-ratio:${asp}"><img src="${esc(fotoVitrine(c))}" alt="${esc(nomeV(c))}" loading="lazy"></div><div class="lb">${esc(nomeV(c))} <b>${precoT(c.preco)}</b></div></a>`:'';
+  const cs=(c,asp)=>c?`<a class="c${VIT&&VIT[c.id]!=null?' perfeita':''}" href="${hrV(c)}"><div class="ph" style="aspect-ratio:${asp}"><img src="${esc(fotoVitrine(c))}" alt="${esc(nomeV(c))}" loading="lazy"></div><div class="lb"><span>${esc(nomeV(c))}</span><b>${precoT(c.preco)}</b></div></a>`:'';
   return `<div style="background:var(--navy)">
  <div class="gl hero" style="display:flex;flex-direction:column">${LUZ}
   ${tabs.map((t,i)=>`<div class="himg${i===abaHome?' on':''}"${t[3]?` style="background-image:url('${t[3]}')${t[4]?';--cel:'+t[4]:''}"`:''}></div>`).join('')}
@@ -1442,7 +1499,6 @@ function home(){
    <div>
      <div class="kick c">${T('inicio.chamada','Aceima · desde 1998')}</div>
      <h1 class="tit">${T('inicio.titulo','Somos o maior polo automotivo')}${T('inicio.titulo-dourado','da América Latina.')}</h1>
-     <p class="sub">${T('inicio.subtitulo','{associados} empresas associadas na Estrada Intendente Magalhães, sob um mesmo padrão de qualidade.')}</p>
    </div>
    <div class="vtl">
     ${tabs.map((t,i)=>`<a class="vti${i===abaHome?' on':''}" href="${hr(t[2])}" onmouseenter="destacar(${i})" onclick="clicarCategoria(event,${i},'${t[2]}')"><h3>${t[0]}</h3><div class="d"><div><p>${t[1]}</p><span class="acessar">${T('inicio.acessar','Acessar')}</span></div></div></a>`).join('')}
@@ -1470,6 +1526,7 @@ function home(){
  </div>
 </div>${rodape()}`;}
 // bloco sobre a Aceima e parte do empresário (estilo NexStudio). As formas são desenhos abstratos, como no modelo.
+// No computador, o bloco da Aceima fica só com o título e os números: a chamada e os dois textos saíram (pedido do Luiz, 14/10/2026)
 const FORMAS=[
   '<rect width="26" height="26" rx="7"/><rect x="30" width="26" height="26" rx="7"/><rect y="30" width="26" height="26" rx="7"/><rect x="30" y="30" width="26" height="26" rx="7"/>',   // quatro lojas, um bloco
   '<path d="M0 0h18l16 28-16 28H0l16-28zM22 0h18l16 28-16 28H22l16-28z"/>',   // anda sozinho
@@ -1483,13 +1540,13 @@ function sobre(){
            ['Rede Credenciada','Inúmeros serviços credenciados. Um clube de benefícios só seu.']];
   return `<section class="sob">
   <div class="wrap sob-a">
-   <div class="kick kn">${T('inicio.sobre-chamada','A Aceima')}</div>
+   <div class="kick kn so-cel">${T('inicio.sobre-chamada','A Aceima')}</div>
    <div class="sob-e">
      <h2>${T('inicio.sobre-titulo','Somos comerciantes que decidiram')} <em>${T('inicio.sobre-titulo-destaque','crescer juntos.')}</em></h2>
-     <p class="lead">${T('inicio.sobre-texto1','A Aceima nasceu em 1998 da união dos comerciantes da Estrada Intendente Magalhães. O objetivo continua o mesmo: um padrão de qualidade que o cliente reconhece em cada empresa associada.')}</p>
+     <p class="lead so-cel">${T('inicio.sobre-texto1','A Aceima nasceu em 1998 da união dos comerciantes da Estrada Intendente Magalhães. O objetivo continua o mesmo: um padrão de qualidade que o cliente reconhece em cada empresa associada.')}</p>
    </div>
    <div class="sob-d">
-     <p><b>${T('inicio.sobre-texto2-destaque','Em nome de todos os associados,')}</b> ${T('inicio.sobre-texto2','cuidamos do padrão de atendimento, conferimos a procedência dos veículos e mantemos um SAC próprio. Quem compra aqui sabe a quem recorrer.')}</p>
+     <p class="so-cel"><b>${T('inicio.sobre-texto2-destaque','Em nome de todos os associados,')}</b> ${T('inicio.sobre-texto2','cuidamos do padrão de atendimento, conferimos a procedência dos veículos e mantemos um SAC próprio. Quem compra aqui sabe a quem recorrer.')}</p>
      <div class="sob-n">
        <div><b>${new Date().getFullYear()-1998}</b><span>${T('inicio.sobre-numero1','anos na Intendente')}</span></div>
        <div><b>${nAssoc()}</b><span>${T('inicio.sobre-numero2','comércios associados')}</span></div>
@@ -1563,6 +1620,24 @@ function alturaCategorias(){
   const base=l.offsetHeight-ds.reduce((s,d)=>s+d.offsetHeight,0);
   l.style.minHeight=base+Math.max(...ds.map(d=>d.querySelector('p').offsetHeight))+'px';
 }
+// "desde 1998" e "Credibilidade que move" começam no primeiro pixel do topo do A de "A Intendente!" (pedido do Luiz, 14/10/2026).
+// A conta é feita com a letra desenhada: onde começa a tinta da primeira letra de cada um e onde começa a parte de cima do A
+function tintaEsq(el,topo){   // da beirada do elemento até o primeiro pixel da primeira letra (topo: só a parte de cima da letra)
+  const s=(el.textContent||'').trim();if(!s)return null;const cs=getComputedStyle(el),fs=parseFloat(cs.fontSize);
+  const ch=cs.textTransform==='uppercase'?s[0].toUpperCase():s[0],W=Math.ceil(fs*2),H=Math.ceil(fs*2),cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  const g=cv.getContext('2d',{willReadFrequently:true});g.font=`${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;g.fillText(ch,fs*.5,fs*1.5);
+  const d=g.getImageData(0,0,W,H).data;let y0=-1,x0=W;
+  for(let y=0;y<H;y++){if(topo&&y0>=0&&y>y0+Math.max(1,fs*.02))break;
+    for(let x=0;x<W;x++)if(d[(y*W+x)*4+3]>110){if(y0<0)y0=y;if(x<x0)x0=x;break;}}
+  return y0<0?null:x0-fs*.5;
+}
+function alinharA(){
+  const h=document.querySelector('.hero');if(!h)return;h.style.removeProperty('--ak');h.style.removeProperty('--at');
+  const a=h.querySelector('.tit>[data-t="inicio.titulo-dourado"]'),xa=a&&tintaEsq(a,true);if(xa==null)return;
+  const base=a.getBoundingClientRect().left+xa;
+  [[h.querySelector('.inn .kick'),'--ak'],[h.querySelector('.tit>[data-t="inicio.titulo"]'),'--at']].forEach(([el,v])=>{
+    const x=el&&tintaEsq(el,false);if(x!=null)h.style.setProperty(v,(base-el.getBoundingClientRect().left-x).toFixed(1)+'px');});
+}
 // computador: o clique leva à página. Celular: o toque só abre a categoria e mostra o botão Acessar; a troca automática continua
 function clicarCategoria(e,i,destino){
   if(nova(e))return;   // Ctrl, Shift ou botão do meio: abre em outra guia
@@ -1570,10 +1645,10 @@ function clicarCategoria(e,i,destino){
   if(!cel()||e.target.closest('.acessar')){if(destino==='estoque')estoqueNovo();else go(destino);return;}
   destacar(i);document.querySelectorAll('.vti')[i].classList.add('tocada');
 }
-// as categorias passam sozinhas a cada 4s; com o mouse em cima da lista, param
+// as categorias passam sozinhas a cada 5s (pedido do Luiz, 14/10/2026); com o mouse em cima da lista, param
 let giro;
 function girar(){clearTimeout(giro);if(EDIT||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  giro=setTimeout(()=>{if(pagAtual!=='home')return;if(document.querySelector('.vtl:hover'))girar();else destacar((abaHome+1)%document.querySelectorAll('.vti').length);},4000);}
+  giro=setTimeout(()=>{if(pagAtual!=='home')return;if(document.querySelector('.vtl:hover'))girar();else destacar((abaHome+1)%document.querySelectorAll('.vti').length);},5000);}
 
 /* ==================== ESTOQUE ==================== */
 const F={marca:'',modelo:'',ano:'',preco:'',loja:'',cambio:'',comb:'',q:'',ord:'Mais recentes'};
@@ -1581,7 +1656,8 @@ const PRECOS=[['Até R$ 50 mil',0,50000],['R$ 50 a 80 mil',50000,80000],['R$ 80 
 const ORDENS=['Mais recentes','Menor preço','Maior preço','Menor km','Mais novos'];
 const FILTROS=[['marca','Marca'],['modelo','Modelo'],['ano','Ano'],['preco','Preço'],['loja','Loja associada'],['cambio','Câmbio'],['comb','Combustível']];
 const LOTE=36;   // anúncios por vez: fecha as linhas de 2, 3 e 4 colunas
-let mostrar=LOTE,buscando=false;
+const PAG=100;   // anúncios por página (pedido do Luiz, 14/10/2026)
+let mostrar=LOTE,buscando=false,pagEst=0;
 function opcoes(k){
   if(k==='marca')return uniq(V.map(v=>v.b));
   if(k==='modelo')return uniq(V.filter(v=>!F.marca||v.b===F.marca).map(v=>v.mod));
@@ -1679,13 +1755,13 @@ function filtrar(){
 }
 const algumFiltro=()=>FILTROS.some(f=>F[f[0]])||F.q;
 function marcarTodos(){const t=document.getElementById('fp-todos');if(t){t.classList.toggle('on',!algumFiltro());t.classList.toggle('drk',!!algumFiltro());}}   // buscando, "Todos" apaga sem redesenhar a barra
-function limparFiltros(){FILTROS.forEach(f=>F[f[0]]='');F.q='';buscando=false;mostrar=LOTE;render(false);}
+function limparFiltros(){FILTROS.forEach(f=>F[f[0]]='');F.q='';buscando=false;mostrar=LOTE;pagEst=0;render(false);}
 function filtroLinha(){
   return `<div class="fbar">
    <span class="fp ${algumFiltro()?'drk':'on'}" id="fp-todos" onclick="limparFiltros()"><span>${T('estoque.todos','Todos')}<span class="so-desk"> ${T('estoque.todos-resto','os veículos')}</span></span></span>
    ${FILTROS.map(f=>`<span class="fp ${F[f[0]]?'on':'drk'}" id="fp-${f[0]}" onclick="abrirFiltro('${f[0]}')"><span>${F[f[0]]?esc(F[f[0]]):T('estoque.filtro-'+f[0],f[1])}</span>${ic(I_DOWN,13)}</span>`).join('')}
    <span class="fp drk so-desk" id="fp-ord" onclick="abrirFiltro('ord')"><span>${T('estoque.ordenar','Ordenar:')} ${esc(F.ord.toLowerCase())}</span>${ic(I_DOWN,13)}</span>
-   ${buscando||F.q?`<span class="fp drk" id="fp-busca">${ic(I_BUSCA,14)}<input id="busca" value="${esc(F.q)}" placeholder="Modelo, loja, ano ou preço" oninput="F.q=this.value;mostrar=LOTE;pintarAnuncios();marcarTodos()"></span>`
+   ${buscando||F.q?`<span class="fp drk" id="fp-busca">${ic(I_BUSCA,14)}<input id="busca" value="${esc(F.q)}" placeholder="Modelo, loja, ano ou preço" oninput="F.q=this.value;mostrar=LOTE;pagEst=0;pintarAnuncios();marcarTodos()"></span>`
      :`<span class="fp drk" id="fp-busca" onclick="buscando=true;render(false);setTimeout(()=>document.getElementById('busca').focus(),20)">${ic(I_BUSCA,14)}<span>${T('estoque.buscar','Buscar')}</span></span>`}
   </div>`;
 }
@@ -1718,7 +1794,7 @@ function extras(c){   // km, câmbio, combustível e loja, sem repetir o que o n
 // escrita (era a "embolada"). A seta só aparece com o nome todo escrito: andando com a última letra, ela fazia o recorte ir e voltar
 // (pedido do Luiz, 13/10/2026). O grupo .anc-u fica para quem não roda o JS
 const nomeComSeta=n=>{const i=n.lastIndexOf(' ')+1;return `${esc(n.slice(0,i))}<span class="anc-u">${esc(n.slice(i))}<span class="anc-s">${ic(SETA,14)}</span></span>`;};
-function linhasNome(a,t,l,n){   // as linhas do nome completo na largura da etiqueta, menos a seta; guarda também a altura da etiqueta com todas elas
+function linhasNome(a,t,l,n){   // as linhas do nome completo na largura da etiqueta, menos a seta
   const W=a.firstElementChild.offsetWidth;if(l._W===W&&l._ls)return l._ls;
   l.classList.remove('dg');l.textContent=n;t.style.minHeight='';t.style.minWidth='';t.classList.add('mede');
   const tx=l.firstChild,rg=document.createRange(),ls=[];let topo=null,ini=0;
@@ -1727,15 +1803,17 @@ function linhasNome(a,t,l,n){   // as linhas do nome completo na largura da etiq
     rg.setStart(tx,i);rg.setEnd(tx,i+1);const r=rg.getBoundingClientRect();if(!r.height)continue;
     if(topo===null)topo=r.top;else if(r.top>topo+r.height/2){ls.push(n.slice(ini,i).trimEnd());ini=i;topo=r.top;}
   }
-  ls.push(n.slice(ini));l._H=t.offsetHeight;t.classList.remove('mede');
+  ls.push(n.slice(ini));t.classList.remove('mede');
   l._W=W;return l._ls=ls;
 }
 function digitar(a){
   const t=a.querySelector('.anc-t'),l=a.querySelector('.anc-l');if(!t||!l)return;
-  cancelAnimationFrame(a._dg);
+  cancelAnimationFrame(a._dg);a._fim=0;if(a._s)a._s.ab=null;
   const n=l.dataset.n,ls=linhasNome(a,t,l,n),c=a.querySelector('.anc-c').textContent.split(' '),w=n.split(' ');
-  // nome de duas linhas: a etiqueta já nasce com a altura final, e o recorte abre a segunda linha logo no começo (pedido do Luiz, 13/10/2026)
-  t.style.minHeight=ls.length>1?l._H+'px':'';
+  // o recorte anda no tempo da escrita (pedido do Luiz, 14/10/2026): a largura cresce com cada letra, e a segunda linha começa a abrir
+  // quando a escrita chega nela e termina junto com a última letra (seguirRecorte, pelo a._fim). A letra escrita antes de o recorte chegar
+  // fica atrás dele até aparecer (desenharRecorte corta a etiqueta no tamanho do recorte)
+  t.style.minHeight='';
   // e não fica mais estreita que o nome curto: sem o ano, que só volta no fim, o recorte recuava antes de crescer
   if(a._w0){t.style.minWidth=a._w0+'px';a._w0=0;}
   let p=0;while(p<c.length&&p<w.length&&c[p]===w[p])p++;   // as palavras iguais às do nome curto (marca e modelo) ficam paradas
@@ -1750,14 +1828,15 @@ function digitar(a){
     if(feitas===pos.length&&!seta.isConnected)l.append(seta);};
   ate(fixas);
   const m=pos.length-fixas;if(!m)return;
-  const t0=performance.now(),dur=Math.min(1000,260+m*22);
+  const t0=performance.now(),dur=Math.min(880,230+m*19.5);   // um pouco mais rápido (pedido do Luiz, 14/10/2026)
+  a._fim=t0+dur*(1-Math.pow(m,-1/2.2));   // quando a última letra aparece (a escrita desacelera: as últimas chegam antes do fim de dur)
   const passo=agora=>{const x=Math.min(1,Math.max(0,(agora-t0)/dur)),k=fixas+Math.min(m,Math.max(1,Math.ceil((1-(1-x)**2.2)*m)));
     ate(k);if(k<pos.length)a._dg=requestAnimationFrame(passo);};
   a._dg=requestAnimationFrame(passo);
 }
 const comMouse=()=>matchMedia('(hover:hover)').matches;
 function acenderAnc(a){if(a.classList.contains('vivo'))return;a._w0=a._s&&a._s.dw||0;a.classList.add('vivo');a._vivo=performance.now();digitar(a);}
-function apagarAnc(a){if(!a.classList.contains('vivo'))return;a.classList.remove('vivo');a._vivo=performance.now();cancelAnimationFrame(a._dg);
+function apagarAnc(a){if(!a.classList.contains('vivo'))return;a.classList.remove('vivo');a._vivo=performance.now();cancelAnimationFrame(a._dg);a._fim=0;if(a._s)a._s.ab=null;
   const t=a.querySelector('.anc-t');if(t){t.style.minHeight='';t.style.minWidth='';}}
 const anuncio=c=>{const n=nomeTodo(c);return `<a class="anc" href="${hrV(c)}" onmouseenter="if(comMouse())acenderAnc(this)" onmouseleave="if(comMouse())apagarAnc(this)" onfocus="acenderAnc(this)" onblur="apagarAnc(this)">
   <div class="anc-f">${foto(c)?`<img src="${esc(foto(c))}" alt="${esc(n)}" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">`:''}<div class="anc-i">${extras(c).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>
@@ -1775,17 +1854,24 @@ function recorteAnc(a){
     +`V${n(th+rt)}A${n(rt)} ${n(rt)} 0 0 1 ${n(rt)} ${n(th)}H${n(tw-rt)}A${n(rt)} ${n(rt)} 0 0 0 ${n(tw)} ${n(th-rt)}V${n(rt)}A${n(rt)} ${n(rt)} 0 0 1 ${n(tw+rt)} 0Z')`;
 }
 // a etiqueta mudou de tamanho (o nome sendo escrito, uma linha a mais, a volta para o nome curto): o recorte vai até o tamanho novo
-// deslizando, rápido no começo e devagar no fim (pedido do Luiz, 07/10/2026: com duas linhas era um corte seco). Enquanto ele anda,
-// a etiqueta fica cortada no tamanho do recorte, para o texto nunca passar por cima da foto
+// deslizando, rápido no começo e devagar no fim (pedido do Luiz, 07/10/2026: com duas linhas era um corte seco). A segunda linha, aberta
+// enquanto o nome é escrito, termina de abrir junto com a última letra (pedido do Luiz, 14/10/2026). Enquanto o recorte anda, a etiqueta
+// fica cortada no tamanho dele, para o texto nunca passar por cima da foto
 function desenharRecorte(a){
   const s=a._s,x=s.tw-s.dw,y=s.th-s.dh;recorteAnc(a);
   a.children[1].style.clipPath=x>.4||y>.4?`inset(0 ${Math.max(0,x).toFixed(1)}px ${Math.max(0,y).toFixed(1)}px 0)`:'';
 }
 function seguirRecorte(a){
   const s=a._s;if(a._rq)return;let t0=performance.now();
-  // crescendo, a largura acompanha cada letra na hora (a seta e o texto nunca ficam cortados); diminuindo, desliza. A altura sempre desliza
+  // crescendo, a largura acompanha cada letra na hora (a seta e o texto nunca ficam cortados); diminuindo, desliza. A altura desliza; abrindo
+  // a linha nova enquanto o nome é escrito, no tempo que falta para a última letra
   const passo=agora=>{const dt=Math.min(64,Math.max(0,agora-t0));t0=agora;
-    s.dw=s.tw>s.dw?s.tw:s.dw+(s.tw-s.dw)*(1-Math.exp(-dt/60));s.dh+=(s.th-s.dh)*(1-Math.exp(-dt/85));
+    s.dw=s.tw>s.dw?s.tw:s.dw+(s.tw-s.dw)*(1-Math.exp(-dt/52));
+    const abrindo=s.ab&&s.ab.alvo===s.th;
+    if(abrindo||s.th>s.dh+.3&&a._fim>agora){
+      if(!abrindo)s.ab={de:s.dh,alvo:s.th,ini:agora,dur:Math.max(90,a._fim-agora)};
+      const x=Math.min(1,(agora-s.ab.ini)/s.ab.dur);s.dh=s.ab.de+(s.ab.alvo-s.ab.de)*(1-(1-x)*(1-x));if(x>=1)s.ab=null;
+    }else s.dh+=(s.th-s.dh)*(1-Math.exp(-dt/72));
     const fim=Math.abs(s.tw-s.dw)<.3&&Math.abs(s.th-s.dh)<.3;if(fim){s.dw=s.tw;s.dh=s.th;}
     desenharRecorte(a);a._rq=fim?0:requestAnimationFrame(passo);};
   a._rq=requestAnimationFrame(passo);
@@ -1810,21 +1896,42 @@ const roEtq=typeof ResizeObserver==='function'?new ResizeObserver(es=>{
 const recortar=el=>{if(roEtq)el.querySelectorAll('.anc-f,.anc-t,.anc-p').forEach(t=>{if(!t._ro){t._ro=1;roEtq.observe(t);}});};
 const jaCarregadas=el=>el.querySelectorAll('.anc-f img').forEach(i=>{if(i.complete&&i.naturalWidth)i.classList.add('ok','ja');});
 let totalEst=0;
-function pintarAnuncios(){   // desenha a lista de novo: filtros, ordem e busca
-  const l=filtrar(),el=document.getElementById('mos');if(!el)return;
+// páginas de 100 anúncios (pedido do Luiz, 14/10/2026): a lista mostra só a página aberta, e o contador conta até o fim dela ("12 de 100";
+// na segunda página, "112 de 200"). Dentro da página, os anúncios continuam chegando aos poucos, conforme a tela desce
+const fimPagina=()=>Math.min(totalEst,(pagEst+1)*PAG);
+function pintarAnuncios(){   // desenha a lista de novo: filtros, ordem, busca e página
+  const todos=filtrar(),el=document.getElementById('mos');if(!el)return;
+  totalEst=todos.length;pagEst=Math.max(0,Math.min(pagEst,Math.ceil(totalEst/PAG)-1));
+  const l=todos.slice(pagEst*PAG,fimPagina());
   if(roEtq)roEtq.disconnect();
   el.innerHTML=l.length?`<div class="ancs" id="ancs">${l.slice(0,mostrar).map(anuncio).join('')}</div>`:`<div class="vazio">${F.q.trim()?T('estoque.vazio-busca','Nenhum veículo encontrado para essa busca.'):T('estoque.vazio','Nenhum veículo com esses filtros.')} <a onclick="limparFiltros()">${T('estoque.limpar','Limpar filtros')}</a></div>`;
   jaCarregadas(el);recortar(el);
   const s=document.getElementById('mais');if(s)s.style.display=l.length>mostrar?'block':'none';
-  totalEst=l.length;const t=document.getElementById('ecT');if(t)t.textContent=fmt(totalEst);
+  const t=document.getElementById('ecT');if(t)t.textContent=fmt(fimPagina());
   const c=document.getElementById('ecC');if(c)c.classList.toggle('vazio',!l.length);
-  contarVistos(true);
+  setasPagina();contarVistos(true);
   document.fonts.ready.then(()=>requestAnimationFrame(anuncioDoMeio));   // as linhas do nome são medidas com a fonte do site
 }
-function maisAnuncios(){   // chegou ao fim da lista: acrescenta os próximos sem desenhar de novo os que já estão na tela
-  const l=filtrar(),g=document.getElementById('ancs');if(!g||l.length<=mostrar)return;
+function maisAnuncios(){   // chegou ao fim da lista: acrescenta os próximos da página sem desenhar de novo os que já estão na tela
+  const l=filtrar().slice(pagEst*PAG,fimPagina()),g=document.getElementById('ancs');if(!g||l.length<=mostrar)return;
   g.insertAdjacentHTML('beforeend',l.slice(mostrar,mostrar+LOTE).map(anuncio).join(''));mostrar+=LOTE;recortar(g);
   const s=document.getElementById('mais');if(s)s.style.display=l.length>mostrar?'block':'none';
+}
+// passa para a página seguinte (d=1) ou para a anterior (d=-1): os anúncios da página somem em fusão, a tela volta para o começo da lista
+// e os da outra página aparecem
+function irPagina(d){
+  const n=Math.max(0,Math.min(Math.ceil(totalEst/PAG)-1,pagEst+d)),m=document.getElementById('mos');if(n===pagEst||!m)return;
+  const troca=()=>{pagEst=n;mostrar=LOTE;pintarAnuncios();
+    const l=document.querySelector('.est-lista');if(l)scrollTo(0,Math.max(0,l.getBoundingClientRect().top+scrollY-(cel()?14:24)));
+    m.classList.remove('sai','troca');void m.offsetWidth;m.classList.add('troca');contarVistos(true);anuncioDoMeio();};
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){troca();return;}
+  clearTimeout(irPagina.t);m.classList.add('sai');irPagina.t=setTimeout(troca,260);
+}
+// as setas das páginas: no computador e no tablet, uma de cada lado do menu; no celular, uma de cada lado do contador. Só aparecem as que
+// levam a alguma página
+function setasPagina(){
+  const est=pagAtual==='estoque',ult=Math.ceil(totalEst/PAG)-1;
+  [document.getElementById('nav'),document.getElementById('ecC')].forEach(x=>{if(!x)return;x.classList.toggle('pg-a',est&&pagEst>0);x.classList.toggle('pg-p',est&&pagEst<ult);});
 }
 // a grade dos anúncios: o primeiro, quantas colunas e a distância entre as linhas
 function gradeAnc(){
@@ -1832,17 +1939,18 @@ function gradeAnc(){
   const cs=g.children,r0=cs[0].getBoundingClientRect();let cols=1;while(cols<cs.length&&Math.abs(cs[cols].getBoundingClientRect().top-r0.top)<2)cols++;
   return {cs,r0,cols,passo:cs[cols]?cs[cols].getBoundingClientRect().top-r0.top:r0.height+12};
 }
-// contador: quantos anúncios já passaram pelo meio da tela ("12 de 1.427"); no fim da página, todos
+// contador: quantos anúncios já passaram pelo meio da tela, contando as páginas de antes ("12 de 100", "112 de 200"); no fim da página, todos
 function contarVistos(novo){
   const n=document.getElementById('ecN');if(!n)return;
+  const ini=pagEst*PAG,fim=fimPagina();
   let k=1;const G=gradeAnc();
   if(G){
     const {cs,r0,cols,passo}=G;
     const filas=Math.floor((innerHeight*.55-(r0.top+r0.height/2))/passo)+1;
     k=Math.max(1,Math.min(cs.length,filas*cols));
-    if(cs.length>=totalEst&&innerHeight+scrollY>=document.documentElement.scrollHeight-4)k=totalEst;
+    if(cs.length>=fim-ini&&innerHeight+scrollY>=document.documentElement.scrollHeight-4)k=fim-ini;
   }
-  k=Math.min(k,Math.max(totalEst,1));
+  k=ini+Math.min(k,Math.max(fim-ini,1));
   const txt=fmt(k);if(n.textContent===txt)return;
   n.textContent=txt;if(!novo){n.classList.remove('sobe');void n.offsetWidth;n.classList.add('sobe');}
 }
@@ -1870,7 +1978,7 @@ function estoque(){
    <div class="est-f">${filtroLinha()}</div>
  </div>
  <section class="est-lista"><div class="wrap"><div id="mos"></div><div id="mais" style="height:1px"></div></div></section>
- <div class="est-cont-a"><div class="est-cont" id="ecC"><span>${ic(ICONES.estoque,18)}<span><b id="ecN">1</b> ${T('estoque.contador','de')} <span id="ecT">${fmt(filtrar().length)}</span></span></span></div></div>
+ <div class="est-cont-a"><div class="est-cont" id="ecC"><button type="button" class="ec-pg ec-ant" aria-label="Página anterior" onclick="irPagina(-1)">${ic('<path d="m15 18-6-6 6-6"/>',18)}</button><span>${ic(ICONES.estoque,18)}<span><b id="ecN">1</b> ${T('estoque.contador','de')} <span id="ecT">${fmt(Math.min(filtrar().length,(pagEst+1)*PAG))}</span></span></span><button type="button" class="ec-pg ec-prox" aria-label="Próxima página" onclick="irPagina(1)">${ic('<path d="m9 18 6-6-6-6"/>',18)}</button></div></div>
 </div>${rodape()}`;}
 // título do estoque numa linha só: se um texto editado não couber, a letra diminui até caber
 function caberTitulo(){const h=document.querySelector('.est-top h2');if(!h)return;h.style.fontSize='';if(cel())return;
@@ -1898,9 +2006,9 @@ function abrirFiltro(k){
   d.querySelectorAll('button[data-v]').forEach(b=>b.onclick=()=>setF(k,b.dataset.v));
   document.body.appendChild(d);
 }
-function setF(k,v){F[k]=v;if(k==='marca')F.modelo='';mostrar=LOTE;fecharDrop();render(false);}
+function setF(k,v){F[k]=v;if(k==='marca')F.modelo='';mostrar=LOTE;pagEst=0;fecharDrop();render(false);}
 // filtros, busca e ordem zeram quando se troca de página (pedido do Luiz, 30/09/2026); abrindo um carro e voltando, continuam
-function zerarFiltros(){FILTROS.forEach(f=>F[f[0]]='');F.q='';F.ord=ORDENS[0];buscando=false;mostrar=LOTE;}
+function zerarFiltros(){FILTROS.forEach(f=>F[f[0]]='');F.q='';F.ord=ORDENS[0];buscando=false;mostrar=LOTE;pagEst=0;}
 function estoqueDaLoja(n){zerarFiltros();F.loja=n;go('estoque',n);}   // "Estoque da loja": só a loja, sem os filtros de antes (endereço /estoque?loja=)
 // Estoque pelo menu ou por um link: o estoque geral, sem filtros e com outros carros na frente (pedido do Luiz, 07/10/2026)
 function estoqueNovo(){zerarFiltros();if(V.length)V=intercalar(V);go('estoque');}
@@ -1912,10 +2020,11 @@ function voltarEstoque(e){if(nova(e))return;e.preventDefault();
 /* ==================== ASSOCIADOS ==================== */
 // pedido do Luiz em 07/10/2026: filtro num botão só, estrada alinhada, lista em três colunas pela nota e a loja tocada numa folha azul
 let selAssoc=null,catAssoc='Todos',rolarAssoc=false;
-const CATS=[['Todos','associados.filtro-todos'],['Automóveis','associados.filtro-automoveis'],['Comércio Geral','associados.filtro-comercio']];
+// o filtro lista só os ramos que existem entre os associados, na ordem da lista de ramos do formulário (pedido do Luiz, 14/10/2026)
+function catsAssoc(E){return ['Todos',...[...new Set(E.map(e=>e.cat))].sort((a,b)=>(RAMOS.indexOf(a)+1||999)-(RAMOS.indexOf(b)+1||999))];}
 function entradasAssoc(){
-  const lojas=LJ.map(l=>({nome:l.nome,id:l.id,cor:l.cor,cat:'Automóveis',nota:Number(l.google_nota)||0,av:Number(l.google_avaliacoes)||0,n:contagem(l.nome),num:numRua(l.endereco),end:l.endereco,wa:l.whatsapp,tel:l.telefone}));
-  const parc=PARCEIROS.map(p=>({nome:p.nome,cat:'Comércio Geral',nota:p.nota||0,av:p.av||0,n:null,num:p.num,end:p.inf[0][1],wa:p.wa,tel:(p.inf.find(x=>x[0]==='Telefone')||[])[1],parc:p,logo:p.logo||''}));
+  const lojas=LJ.map(l=>({nome:l.nome,id:l.id,cor:l.cor,cat:'Loja de Automóveis',nota:Number(l.google_nota)||0,av:Number(l.google_avaliacoes)||0,n:contagem(l.nome),num:numRua(l.endereco),end:l.endereco,wa:l.whatsapp,tel:l.telefone}));
+  const parc=PARCEIROS.map(p=>({nome:p.nome,cat:p.ramo||'Outro ramo',nota:p.nota||0,av:p.av||0,n:null,num:p.num,end:p.inf[0][1],wa:p.wa,tel:(p.inf.find(x=>x[0]==='Telefone')||[])[1],parc:p,logo:p.logo||''}));
   return lojas.concat(parc).sort((a,b)=>b.nota-a.nota||b.av-a.av||a.nome.localeCompare(b.nome,'pt-BR'));   // da melhor nota no Google para a menor
 }
 const visivelAssoc=e=>catAssoc==='Todos'||e.cat===catAssoc;
@@ -1958,13 +2067,13 @@ function lojaAssoc(S){
    </div>`;
 }
 function associados(){
-  const E=entradasAssoc(),q={'Todos':E.length,'Automóveis':E.filter(e=>!e.parc).length,'Comércio Geral':E.filter(e=>e.parc).length};
+  const E=entradasAssoc(),cs=catsAssoc(E),q=c=>c==='Todos'?E.length:E.filter(e=>e.cat===c).length;if(!cs.includes(catAssoc))catAssoc='Todos';
   return `<div class="glc pg-assoc" style="min-height:100vh;display:flex;flex-direction:column">${LUZ}
  <div class="gl topo" style="flex:none">${LUZ}${hd()}</div>
  <div class="wrap as3">
   <div class="as3-topo">
    <h2>${T('associados.titulo','{associados} Empresas unificadas em um polo.')}</h2>
-   <div class="as3-cw"><div class="as3-cat" id="asCat">${CATS.map(c=>`<button type="button" class="${catAssoc===c[0]?'on':''}" data-c="${c[0]}" onclick="catA(this)"><span>${T(c[1],c[0])}<b>${q[c[0]]}</b>${ic(I_DOWN,15)}</span></button>`).join('')}</div></div>
+   <div class="as3-cw"><div class="as3-cat" id="asCat">${cs.map(c=>`<button type="button" class="${catAssoc===c?'on':''}" data-c="${esc(c)}" onclick="catA(this)"><span>${T(c==='Todos'?'associados.filtro-todos':'associados.filtro-'+slug(c),c)}<b>${q(c)}</b>${ic(I_DOWN,15)}</span></button>`).join('')}</div></div>
   </div>
   <div class="eixo" id="asEixo">${eixoAssoc(E)}</div>
   <div id="asLista">${listaAssoc(E)}</div>
@@ -1998,13 +2107,13 @@ function mostrarLoja(E,rolar){
   const fl=document.getElementById('asLoja');if(!fl)return;
   E=E||entradasAssoc();const S=E.find(e=>e.nome===selAssoc),rd=matchMedia('(prefers-reduced-motion: reduce)').matches,op={duration:420,easing:'cubic-bezier(.2,.8,.2,1)'};
   const tinha=document.querySelector('.as3-in');   // o bloco anterior fecha antes de medir para onde rolar
-  document.querySelectorAll('.as3-in').forEach(b=>{if(rd){b.remove();return;}b.style.overflow='hidden';b.animate([{height:b.offsetHeight+'px',opacity:1},{height:'0px',marginTop:'0px',marginBottom:'0px',paddingTop:'0px',paddingBottom:'0px',opacity:0}],{duration:300,easing:'ease-in'}).onfinish=()=>b.remove();});
+  document.querySelectorAll('.as3-in').forEach(b=>{if(rd){b.remove();return;}b.style.overflow='hidden';b.animate([{height:b.offsetHeight+'px'},{height:'0px',paddingTop:'0px',paddingBottom:'0px'}],{duration:300,easing:'ease-in'}).onfinish=()=>b.remove();});   // a camada fecha como abriu
   if(!S||cel()){
     if(!fl.hidden){if(rd){fl.hidden=true;}else fl.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translateY(24px)'}],{duration:260,easing:'ease-in'}).onfinish=()=>{if(!selAssoc||cel())fl.hidden=true;};}
     if(!S)return;
     const r=[...document.querySelectorAll('#asLista .row')].find(x=>x.dataset.n===S.nome);if(!r)return;
     const b=document.createElement('div');b.className='as3-in';b.innerHTML=lojaAssoc(S);r.after(b);
-    if(!rd){b.style.overflow='hidden';const h=b.offsetHeight;b.animate([{height:'0px',opacity:0},{height:h+'px',opacity:1}],op).onfinish=()=>{b.style.overflow='';};}
+    if(!rd){b.style.overflow='hidden';const h=b.offsetHeight;b.animate([{height:'0px',paddingTop:'0px',paddingBottom:'0px'},{height:h+'px'}],op).onfinish=()=>{b.style.overflow='';};}   // a página abre e mostra a camada de baixo
     if(rolar)setTimeout(()=>{const x=r.getBoundingClientRect();if(x.top<70||x.top>innerHeight*.45)scrollBy({top:x.top-80,behavior:'smooth'});},rd?0:tinha?340:60);
     return;
   }
@@ -2018,6 +2127,18 @@ function rolarParaLoja(){
   if(cel()){const r=[...document.querySelectorAll('#asLista .row')].find(x=>x.dataset.n===selAssoc);if(r)scrollTo({top:r.getBoundingClientRect().top+scrollY-80,behavior:'smooth'});return;}
   const fl=document.getElementById('asLoja');if(!fl||fl.hidden)return;
   const x=fl.getBoundingClientRect(),falta=x.bottom-(innerHeight-24);if(falta>0)scrollBy({top:Math.min(falta,x.top-90),behavior:'smooth'});
+}
+// celular: o filtro, pequeno, fica na última linha do título, ao lado de "polo.", e termina onde termina a linha de cima (pedido do Luiz,
+// 14/10/2026). Se não couber ao lado, fica embaixo do título
+function posFiltroAssoc(){
+  const tp=document.querySelector('.as3-topo'),h=tp&&tp.querySelector('h2'),w=tp&&tp.querySelector('.as3-cw');if(!w)return;
+  w.classList.remove('lado');w.style.left=w.style.top='';if(!cel())return;
+  const rg=document.createRange();rg.selectNodeContents(h);const ls=[];
+  [...rg.getClientRects()].filter(r=>r.width>1).forEach(r=>{const l=ls.find(x=>Math.abs(x.top-r.top)<r.height/2);if(l)l.right=Math.max(l.right,r.right);else ls.push({top:r.top,bottom:r.bottom,right:r.right});});
+  if(ls.length<2)return;ls.sort((a,b)=>a.top-b.top);
+  const p=ls[0],u=ls[ls.length-1],c=w.firstElementChild,T=tp.getBoundingClientRect();
+  if(p.right-u.right-innerWidth*.0282<c.offsetWidth)return;
+  w.classList.add('lado');w.style.left=(p.right-T.left).toFixed(1)+'px';w.style.top=((u.top+u.bottom)/2-w.offsetHeight/2-T.top).toFixed(1)+'px';
 }
 // o filtro: fechado, o toque abre as opções; aberto, o toque escolhe e o menu fecha em volta da escolhida
 function catA(b){
@@ -2071,6 +2192,7 @@ function veiculo(){
      <a class="vp-pill" onclick="document.getElementById('vpCt').scrollIntoView({behavior:'smooth'})">${T('veiculo.interesse','Tenho interesse')}<i>${ic('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',18)}</i></a>
     </div>
     <div class="vp-ficha">${ficha.map(f=>`<div><span>${f[0]}</span><b>${E('veiculo.ficha-valor',esc(f[1]))}</b></div>`).join('')}</div>
+    ${fotos.length>1?`<div class="vp-mini${fotos.length===2?' um':''}">${fotos.slice(1,5).map((f,i)=>`<button type="button" class="vp-mf${i===3?' vp-mt':''}" onclick="abrirFoto(${i+1})"><img src="${esc(f)}" alt="" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">${i===3?`<span>${T('veiculo.ver-todas-foto','Ver todas')}</span>`:''}</button>`).join('')}</div>`:''}
    </section>
    </div>
    ${fotos.length>1?`<section class="vp-g" id="vpG">
@@ -2079,7 +2201,7 @@ function veiculo(){
      <button type="button" class="vp-ga vp-gp off" aria-label="Fotos anteriores" onclick="passarGaleria(-1)">${ic('<path d="m15 18-6-6 6-6"/>',20)}</button>
      <button type="button" class="vp-ga vp-gn" aria-label="Próximas fotos" onclick="passarGaleria(1)">${ic('<path d="m9 18 6-6-6-6"/>',20)}</button>
     </div>
-    <button type="button" class="vp-gv" onclick="verTodas()"><span class="vt">${T('veiculo.ver-todas','Ver todas')}</span><span class="vm">${T('veiculo.ver-menos','Ver menos')}</span>${ic(I_DOWN,15)}</button>
+    <button type="button" class="vp-gv" onclick="abrirFoto(${Math.min(3,fotos.length-1)})">${T('veiculo.ver-todas','Ver todas')}${ic('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',15)}</button>
    </section>`:''}
    <section class="vp-s${car.length||opc.length?'':' so1'}">
     ${car.length||opc.length?`<div class="vp-c">
@@ -2148,22 +2270,37 @@ function tomLogo(img){
     if(branco){pai.classList.add('branco');pai.style.background=branco;}
     else if(!escuro&&/^#[0-9a-f]{6}$/i.test(c))pai.style.background=c;}
 }
-// fotos embaixo do nome: 4 por vez (2 no celular), as setas passam uma tela de fotos; "Ver todas" abre e fecha a grade inteira
+// fotos embaixo do nome (tablet e celular): 4 por vez (2 no celular), as setas passam uma tela de fotos; "Ver todas" abre a quarta foto em
+// tela cheia, de onde dá para passar por todas (pedido do Luiz, 14/10/2026)
 function setasGaleria(){
   const g=document.getElementById('vpG'),t=document.getElementById('vpGt');if(!g||!t)return;
-  if(!g.classList.contains('todas'))g.classList.toggle('cabe',t.scrollWidth<=t.clientWidth+2);
+  g.classList.toggle('cabe',t.scrollWidth<=t.clientWidth+2);
   g.querySelector('.vp-gp').classList.toggle('off',t.scrollLeft<4);
   g.querySelector('.vp-gn').classList.toggle('off',t.scrollLeft+t.clientWidth>=t.scrollWidth-4);
 }
 function passarGaleria(d){const t=document.getElementById('vpGt');if(!t)return;const gap=parseFloat(getComputedStyle(t).columnGap)||0;t.scrollBy({left:d*(t.clientWidth+gap),behavior:'smooth'});}
-function verTodas(){
-  const g=document.getElementById('vpG');if(!g)return;const w=g.querySelector('.vp-gw'),t=document.getElementById('vpGt');
-  const h0=w.offsetHeight,abrir=!g.classList.contains('todas');
-  g.classList.toggle('todas',abrir);if(!abrir)t.scrollLeft=0;
-  const h1=w.offsetHeight;
-  if(!matchMedia('(prefers-reduced-motion: reduce)').matches){w.style.overflow='hidden';w.animate([{height:h0+'px'},{height:h1+'px'}],{duration:480,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>{w.style.overflow='';};}
-  if(!abrir){const r=g.getBoundingClientRect();if(r.top<80)scrollBy({top:r.top-100,behavior:'smooth'});}
-  setasGaleria();
+// computador (pedido do Luiz, 14/10/2026): a foto, o nome, a ficha, as quatro fotos seguintes e o botão cabem na tela, acima do menu.
+// A foto (4:3) e a coluna têm a mesma altura (--fh). As quatro fotos, em 4:3 e duas por linha, crescem até a coluna ocupar a largura que
+// sobra ao lado da foto. Numa tela mais baixa, manda a altura que cabe acima do menu e a coluna fica mais estreita (--cw): aí a página
+// inteira fica no meio, na largura da foto com a coluna (--vpw), para tudo continuar alinhado (as fotos não são cortadas para encher)
+function ajustarTopo(){
+  const tp=document.querySelector('.vp-topo'),m=tp&&tp.querySelector('.vp-m'),app=document.getElementById('app');if(!m)return;
+  app.style.removeProperty('--vpw');tp.style.removeProperty('--fh');m.style.removeProperty('--cw');if(innerWidth<1101)return;
+  const mini=m.querySelector('.vp-mini'),k=mini?mini.children.length:0,um=k===1,linhas=um?1:Math.ceil(k/2);
+  const g=parseFloat(getComputedStyle(tp).columnGap)||0,gm=mini?parseFloat(getComputedStyle(mini).columnGap)||0:0,gs=parseFloat(getComputedStyle(m).rowGap)||0,Wt=tp.clientWidth;
+  const nav=document.getElementById('nav'),menu=nav?nav.offsetHeight+(parseFloat(getComputedStyle(nav).bottom)||0):76;
+  const Hmax=Math.max(420,innerHeight-menu-18-(tp.getBoundingClientRect().top+scrollY));   // 18px de folga em cima do menu
+  const semFotos=w=>{m.style.setProperty('--cw',w+'px');m.classList.add('mede');const h=m.offsetHeight;m.classList.remove('mede');return h;};
+  let H=Hmax,W=Wt-g-Hmax*4/3;
+  for(let i=0;i<3;i++){   // o nome pode quebrar de outro jeito na largura nova: a conta é refeita com ela
+    const N=semFotos(W);
+    if(!linhas){H=Math.min(Hmax,Math.max(N,(Wt-g-320)*.75));W=Wt-g-H*4/3;break;}
+    const a=um?.75:linhas*.375,C=N+gs-(um?0:a*gm)+(linhas-1)*gm,Hc=(C+a*(Wt-g))/(1+a*4/3);   // a coluna tem C + a·W de altura (W: a largura dela)
+    H=Math.min(Hc,Hmax);W=H<Hc?(H-C)/a:Wt-g-H*4/3;
+    if(W<260){W=260;H=C+a*W;}   // tela muito baixa: a coluna não fica estreita demais, e a foto acompanha a altura dela
+  }
+  tp.style.setProperty('--fh',H.toFixed(1)+'px');m.style.setProperty('--cw',W.toFixed(1)+'px');
+  const sobra=Wt-g-H*4/3-W;if(sobra>1)app.style.setProperty('--vpw',(Wt-sobra).toFixed(1)+'px');
 }
 // características e descrição: a que ocupar mais espaço na página vem primeiro (pedido do Luiz, 30/09/2026), medida com os opcionais
 // no corte padrão. Quando a descrição é a maior e as duas estão lado a lado, os opcionais vão até a penúltima linha dela e o "Ver mais"
@@ -2207,6 +2344,7 @@ function verOpcionais(b){
 // a descrição vem do site da loja (rota detalhe), depois que a página aparece
 const DESC={};
 function depoisVeiculo(){
+  ajustarTopo();document.fonts.ready.then(()=>{if(pagAtual==='veiculo')ajustarTopo();});
   setasGaleria();ordenarInfo();liberarBotao();
   const id=vAtual;if(!document.getElementById('vpDesc'))return;
   if(API===null){pintarDescricao('');return;}
@@ -2444,7 +2582,7 @@ function associar(){
    </div>
   </div>
  </section>
- <section class="as2-s cz">
+ <section class="as2-s cz as2-fim">
   <div class="wrap">
    <div class="as2-cab"><h2>${T('associar.s4-titulo','Quem já faz parte')}</h2></div>
    <div class="as2-lojas">${lojas.map(l=>{const n=Number(l.google_nota)||0,q=conta[l.nome]||0,lg=API!==null&&l.id?'/api/logo?path=logo&id='+l.id:'';return cartaoLj(l.nome,hr('associados',l.nome),lg,l.cor,n,q?fmt(q)+' veículos':'');}).join('')}${PARCEIROS.map(c=>cartaoLj(c.curto||c.nome,hr('associados',c.nome),c.logo,'',c.nota,c.tipo)).join('')}</div>
@@ -2513,7 +2651,7 @@ function publicacoes(){
   const lista=[['Conquistas','Título de uma conquista da associação','12 mar 2026'],['Comunicados','Comunicado da diretoria aos associados','04 mar 2026'],['Imprensa','O polo na imprensa do Rio de Janeiro','21 fev 2026'],['Ações no polo','Mutirão realizado na Intendente Magalhães','09 fev 2026']];
   return `<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--cl)">
  <div class="gl topo" style="flex:none">${LUZ}${hd()}</div>
- <div class="wrap" style="padding-top:28px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap">
+ <div class="wrap pb-top" style="padding-top:28px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap">
    <div><div class="kick">${T('publicacoes.chamada','Nosso trabalho')}</div><h2 class="pb-tit" style="margin-top:10px;font-size:2.3rem">${T('publicacoes.titulo','O que a Aceima faz pelo polo.')}</h2></div>
    <div class="fbar" style="flex-wrap:wrap">${['Tudo','Ações no polo','Conquistas','Comunicados','Imprensa'].map((f,i)=>`<span class="fp ${i?'lite':'on'}">${T(`publicacoes.filtro${i+1}`,f)}</span>`).join('')}</div>
  </div>
@@ -2661,12 +2799,12 @@ const POS=(()=>{try{return JSON.parse(sessionStorage.getItem('posicoes'))||{};}c
 const novaChave=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 let chaveAtual=history.state&&history.state.k;
 if(!chaveAtual){chaveAtual=novaChave();try{history.replaceState({...(history.state||{}),k:chaveAtual},'');}catch(e){}}
-function guardarPos(){const p=POS[chaveAtual]={pg:pagAtual,y:Math.round(scrollY)};if(pagAtual==='estoque'){p.f={...F};p.m=mostrar;}if(pagAtual==='associados')p.cat=catAssoc;}
+function guardarPos(){const p=POS[chaveAtual]={pg:pagAtual,y:Math.round(scrollY)};if(pagAtual==='estoque'){p.f={...F};p.m=mostrar;p.pe=pagEst;}if(pagAtual==='associados')p.cat=catAssoc;}
 function salvarPos(){guardarPos();try{Object.keys(POS).slice(0,-60).forEach(k=>delete POS[k]);sessionStorage.setItem('posicoes',JSON.stringify(POS));}catch(e){}}   // recarregar a página também volta ao lugar
 addEventListener('pagehide',salvarPos);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)salvarPos();});
 function voltarComo(p){   // o estado guardado da página, antes de desenhá-la de novo
-  if(pagAtual==='estoque'&&p.f){Object.assign(F,p.f);mostrar=Math.max(LOTE,p.m||LOTE);buscando=!!F.q;}
+  if(pagAtual==='estoque'&&p.f){Object.assign(F,p.f);mostrar=Math.max(LOTE,p.m||LOTE);pagEst=p.pe||0;buscando=!!F.q;}
   if(pagAtual==='associados'){rolarAssoc=false;if(p.cat)catAssoc=p.cat;}
 }
 // a página pode ainda estar crescendo (a descrição do carro chegando): tenta de novo por um tempo, sem brigar com quem já está rolando
@@ -2687,9 +2825,9 @@ function render(topo){
   const novos=[...app.querySelectorAll('video.luz')];if(velhos.length&&velhos.length===novos.length)novos.forEach((v,i)=>v.replaceWith(velhos[i]));
   if(pagAtual==='estoque'){depoisEstoque();if(filtrosAntes){animarFiltros(filtrosAntes);const m=document.getElementById('mos');if(m)m.classList.add('troca');}}
   if(pagAtual==='veiculo')depoisVeiculo();
-  if(pagAtual==='associados'&&selAssoc)mostrarLoja();
+  if(pagAtual==='associados'){posFiltroAssoc();document.fonts.ready.then(()=>{if(pagAtual==='associados')posFiltroAssoc();});if(selAssoc)mostrarLoja();}
   if(pagAtual==='aceima'){alturaAcordeao();document.fonts.ready.then(()=>{if(pagAtual==='aceima')alturaAcordeao();});}
-  if(pagAtual==='home'){girar();alturaCategorias();faixaAvaliacoes();document.fonts.ready.then(()=>{if(pagAtual==='home')alturaCategorias();});}
+  if(pagAtual==='home'){girar();alturaCategorias();alinharA();faixaAvaliacoes();document.fonts.ready.then(()=>{if(pagAtual==='home'){alturaCategorias();alinharA();}});}
   if(EDIT){sel=null;pintarBarra();}
   document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});v.play().catch(()=>{});});
   if(typeof topo==='number')irPara(topo);else if(topo)scrollTo(0,0);   // voltando pelo histórico, a página abre onde estava
@@ -2697,7 +2835,7 @@ function render(topo){
   if(TITULOS[pagAtual])document.title=TITULOS[pagAtual];
   else if(pagAtual==='veiculo'){const v=V.find(x=>String(x.id)===String(vAtual));if(v)document.title=nomeV(v)+' '+(v.ano||'')+' | Aceima';}
   if(pagAtual==='estoque'){const u=urlDe('estoque',F.loja);if(caminho()!==u)try{history.replaceState(history.state,'',(HASH?'#':'')+u);}catch(e){}}   // o endereço acompanha a loja do filtro
-  menuNoRodape();
+  setasPagina();menuNoRodape();
 }
 function go(pg,arg){
   const de=pagAtual;
@@ -2759,12 +2897,13 @@ if(typeof ResizeObserver==='function')new ResizeObserver(menuNoRodape).observe(d
 // aba volta a ficar visível: o navegador pode ter pausado o vídeo do fundo
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)document.querySelectorAll('video.luz').forEach(v=>v.play().catch(()=>{}));});
 let largAnt=matchMedia('(max-width:760px)').matches;
-addEventListener('resize',()=>{AV.P=0;if(pagAtual==='home')alturaCategorias();const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;montarMenu();if(pagAtual==='associados'&&selAssoc)mostrarLoja();}
-  if(pagAtual==='veiculo'){setasGaleria();clearTimeout(ordenarInfo.t);ordenarInfo.t=setTimeout(ordenarInfo,200);}
+addEventListener('resize',()=>{AV.P=0;if(pagAtual==='home'){alturaCategorias();alinharA();}const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;montarMenu();if(pagAtual==='associados'&&selAssoc)mostrarLoja();}
+  if(pagAtual==='veiculo'){ajustarTopo();setasGaleria();clearTimeout(ordenarInfo.t);ordenarInfo.t=setTimeout(ordenarInfo,200);}
   if(document.getElementById('lb'))posFotos(true);
   if(pagAtual==='estoque'){contarVistos(true);caberTitulo();anuncioDoMeio();
     document.querySelectorAll('#ancs .anc.vivo').forEach(a=>{const l=a.querySelector('.anc-l');if(l._W!==a.firstElementChild.offsetWidth)digitar(a);});}   // outra largura: o nome é medido de novo
   if(pagAtual==='aceima'){clearTimeout(alturaAcordeao.t);alturaAcordeao.t=setTimeout(alturaAcordeao,150);}
+  if(pagAtual==='associados')posFiltroAssoc();
   menuNoRodape();});
 
 rota();
