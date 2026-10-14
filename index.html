@@ -217,16 +217,12 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
    títulos finos com o fim em itálico, muito respiro, números grandes e o painel escuro de cantos redondos */
 .sob{position:relative;background:var(--cl);padding-top:clamp(72px,7vw,136px);margin-top:calc(-1 * var(--canto));border-radius:var(--canto) var(--canto) 0 0}
 .sob-a{display:grid;grid-template-columns:1fr 1fr;column-gap:clamp(40px,6vw,120px);padding-bottom:clamp(72px,7vw,136px)}
-.sob-a>.kick{grid-column:1/-1;margin-bottom:16px}
 /* as duas colunas começam e terminam na mesma linha: à esquerda, título em cima e texto embaixo; à direita, texto em cima e números embaixo */
 .sob-e{display:flex;flex-direction:column;justify-content:space-between}
 .sob-d{display:flex;flex-direction:column;justify-content:space-between;margin-top:-.12vw;padding-bottom:3.5px}   /* acerto fino: o topo dos números na linha do topo das letras do título, e a base dos rótulos na base da última linha */
 .sob h2,.emp h2{font-size:clamp(2.4rem,3.3vw,4rem);font-weight:400;letter-spacing:-.04em;line-height:1.04;color:var(--ink)}
 .sob h2 em,.emp h2 em{font-style:italic}
 .sob h2 em{color:var(--gold)}
-.sob .lead{margin-top:clamp(20px,1.7vw,32px);font-size:clamp(1.12rem,1.3vw,1.55rem);font-weight:400;color:var(--ink);line-height:1.42}
-.sob-d p{font-size:clamp(.95rem,1vw,1.15rem);line-height:1.55}
-.sob p b{font-weight:500;color:var(--ink)}
 .sob-n{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:clamp(36px,3.4vw,64px)}
 .sob-n b{display:block;font-size:clamp(3.6rem,7vw,5.6rem);font-weight:400;letter-spacing:-.04em;line-height:1;color:var(--ink)}
 .sob-n>div>span{display:block;margin-top:14px;font-family:var(--f2);font-size:clamp(.8rem,1vw,1.2rem);font-weight:600;letter-spacing:.2em;line-height:1.2;text-transform:uppercase;color:var(--mut)}
@@ -288,6 +284,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .as3{flex:1;padding-top:clamp(20px,1.6vw,30px);padding-bottom:clamp(48px,4vw,80px)}
 .as3-topo{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
 .as3-topo h2{font-size:clamp(1.8rem,2.2vw,2.6rem)}
+@media (min-width:761px){.as3-topo h2 br{display:none}}   /* a quebra antes de "em" é só do celular (pedido do Luiz, 14/10/2026) */
 /* filtro num botão só: fechado mostra a escolha; aberto, as três opções, cada uma sempre no seu lugar (o menu só cresce para baixo) */
 .as3-cw{position:relative;flex:none;width:clamp(240px,15.5vw,280px);height:48px}   /* guarda o lugar do botão fechado: abrir não empurra nada */
 .as3-cat{position:absolute;z-index:30;top:0;left:0;right:0;display:flex;flex-direction:column;padding:5px;border-radius:24px;background:#fff;border:1px solid #E5E5E5;box-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1)}
@@ -297,9 +294,11 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .as3-cat button svg{flex:none;width:15px;height:15px;transition:transform .3s var(--ease)}
 .as3-cat button:not(.on) svg{visibility:hidden}
 .as3-cat button.on,.as3-cat.aberto button{grid-template-rows:1fr;padding:9px 14px;opacity:1}
-.as3-cat button:hover{background:#F5F5F5;color:#171717}
+@media (hover:hover){.as3-cat button:hover{background:#F5F5F5;color:#171717}}   /* no celular, o toque deixava a primeira opção marcada ao abrir */
+.as3-cat button{-webkit-tap-highlight-color:transparent}
 .as3-cat button.on{background:rgba(23,23,23,.1);color:#171717}
 .as3-cat.aberto button.on svg{transform:rotate(180deg)}
+.as3-cat.aberto button.on{background:none;font-weight:600}   /* aberta, a escolhida não fica com o fundo cinza: parecia o mouse em cima */
 /* a estrada: cada loja com o nome, o ponto (no meio da faixa) e o número; as das pontas encostam no começo e no fim da linha do texto */
 .eixo{--et:18px;--ep:10px;--eo:16px;--ea:3px;margin:clamp(22px,2vw,36px) 0 clamp(16px,1.6vw,28px)}
 .eixo-ms{position:relative;display:flex;justify-content:space-between;gap:16px}
@@ -409,26 +408,34 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-mt img{filter:blur(5px) brightness(.7);transform:scale(1.12)}
 .vp-mt:hover img{filter:blur(4px) brightness(.6)}
 .vp-mt>span{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font:500 clamp(.85rem,.9vw,1.05rem)/1.2 var(--f2)}
-/* computador (pedido do Luiz, 14/10/2026): a foto e, ao lado, o nome, a ficha de dois em dois (como no celular), as quatro fotos seguintes,
-   duas por linha, e o botão no meio, embaixo de tudo. Tudo cabe na tela, acima do menu: ajustarTopo() acha a altura da foto (--fh) e a
-   largura da coluna (--cw). A coluna tem a altura da foto: o topo das letras do nome na linha de cima da foto (-.16em: a folga da fonte
-   acima das letras) e a base do botão na linha de baixo. As fotos embaixo da foto (.vp-g) ficam só no tablet e no celular */
+.vp-pd{display:none}
+/* computador (pedido do Luiz, 14/10/2026): a foto e, ao lado, o nome, a ficha de dois em dois (como no celular) e as quatro fotos seguintes,
+   duas por linha, com a base delas na base da foto grande; embaixo de tudo, no meio da tela, o "Tenho interesse" (.vp-pd). Tudo cabe na
+   tela, acima do menu, sem espaço vazio: ajustarTopo() acha a altura da foto (--fh) e a largura da coluna (--cw). O topo das letras do
+   nome fica na linha de cima da foto (-.16em: a folga da fonte acima das letras). As fotos embaixo da foto (.vp-g) ficam só no tablet e
+   no celular */
 @media (min-width:1101px){
+  .vp{padding-top:clamp(14px,1vw,20px)}
+  .vp-volta{margin-bottom:clamp(10px,.75vw,14px)}
   .vp-topo{--fh:clamp(380px,100vh - 260px,880px);display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(30px,2.6vw,52px);align-items:start}
   .vp-hero{width:calc(var(--fh) * 4 / 3);height:var(--fh);aspect-ratio:auto}
-  .vp-m{width:var(--cw,auto);max-width:100%;height:var(--fh);display:flex;flex-direction:column;gap:clamp(16px,1.3vw,26px);margin:0}
+  .vp-m{width:var(--cw,auto);max-width:100%;height:var(--fh);display:flex;flex-direction:column;gap:clamp(14px,1.05vw,20px);margin:0}
   .vp-m.mede{height:auto}
   .vp-m.mede .vp-mini{display:none}
   .vp-m>div:first-child{display:contents}
   .vp-m h1{margin-top:-.16em;font-size:clamp(1.5rem,2.1vw,2.6rem)}
-  .vp-ficha{order:1;gap:clamp(12px,1vw,18px) clamp(18px,1.6vw,30px)}
-  .vp-ficha>div{padding-top:clamp(8px,.7vw,12px);border-top-color:rgba(11,26,51,.11)}
-  .vp-ficha>div>span{font-size:clamp(.58rem,.6vw,.72rem)}
-  .vp-ficha b{margin-top:clamp(3px,.3vw,6px);font-size:clamp(1.05rem,1.35vw,1.65rem)}
-  .vp-mini{--gm:clamp(8px,.7vw,12px);order:2;display:flex;flex-wrap:wrap;justify-content:center;gap:var(--gm)}   /* com três, a última fica no meio */
+  .vp-ficha{order:1;gap:clamp(10px,.65vw,12px) clamp(18px,1.6vw,30px)}
+  .vp-ficha>div{padding-top:clamp(7px,.5vw,9px);border-top-color:rgba(11,26,51,.11)}
+  .vp-ficha>div>span{font-size:clamp(.56rem,.58vw,.7rem)}
+  .vp-ficha b{margin-top:clamp(2px,.2vw,4px);font-size:clamp(.98rem,1.15vw,1.4rem)}
+  /* a base das fotos na base da foto grande; com três, a última fica no meio */
+  .vp-mini{--gm:clamp(8px,.7vw,12px);order:2;display:flex;flex-wrap:wrap;justify-content:center;gap:var(--gm);margin-top:auto}
   .vp-mf{flex:0 0 calc(50% - var(--gm) / 2)}
   .vp-mini.um .vp-mf{flex-basis:100%}   /* uma só: na largura da coluna */
-  .vp-pill{order:3;align-self:center;margin-top:auto}
+  .vp-m .vp-pill{display:none}
+  .vp-pd{display:flex;justify-content:center;margin-top:clamp(12px,.85vw,16px)}
+  .vp-pd .vp-pill{margin:0;padding:6px 6px 6px 24px}
+  .vp-pd .vp-pill i{width:clamp(32px,2.2vw,40px)}
   .vp-g{display:none}
   .vp>.wrap,#vpCt>.wrap{max-width:calc(var(--vpw,1660px) + 120px)}
 }
@@ -488,6 +495,11 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
    (--pf e --nf: tamanhos do valor e do nome; .146 e .35 são as folgas da fonte). Embaixo, a linha da loja (logo, endereço, telefone, nota e botões) */
 .vp-ct .kick{margin-bottom:clamp(10px,.9vw,16px)}
 .vp-ct-t{--pf:clamp(3rem,5.2vw,6.2rem);--nf:clamp(1rem,1.1vw,1.25rem);display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px clamp(36px,3.6vw,68px)}
+#vpCt .vp-ct-t{--pf:clamp(2.3rem,3.7vw,4.4rem);--nf:clamp(.88rem,.92vw,1.08rem)}   /* a parte do valor menor (pedido do Luiz, 14/10/2026) */
+#vpCt .campo input,#vpCt .seg button{font-size:.8rem}
+#vpCt .vp-form .btnp{font-size:.88rem}
+#vpCt .vp-ct-i p{font-size:clamp(.82rem,.84vw,.98rem)}
+#vpCt .vp-ct-i .btno{font-size:.8rem}
 .vp-v{align-self:center;max-width:clamp(300px,34vw,640px)}   /* no financiamento o formulário fica mais alto: o valor e o nome ficam no meio dele (pedido do Luiz, 06/10/2026) */
 .vp-preco{font:700 var(--pf)/1 var(--f1);letter-spacing:-.045em;color:#fff}   /* valor com a fonte mais pesada (pedido do Luiz, 30/09/2026) */
 .vp-v p{margin-top:clamp(10px,.9vw,16px);color:#93A3B9;font-size:var(--nf);line-height:1.4}
@@ -1013,14 +1025,11 @@ body.lb-on{overflow:hidden}
   :root{--canto:4.93vw}
   .gl>.himg{background-position:var(--cel,center)}   /* celular: cada foto mostra a sua parte (a 1 o lado esquerdo, as outras o centro) */
   .sob{padding-top:8.45vw}
-  /* o bloco da Aceima: todo o texto no meio e os textos menores, do tamanho das descrições das categorias (pedido do Luiz, 13/10/2026) */
+  /* o bloco da Aceima: o título e os números, no meio (pedido do Luiz, 13 e 14/10/2026) */
   .sob-a{padding-bottom:11.27vw;text-align:center}
-  .sob-a>.kick{margin-bottom:2.46vw}
   .sob h2,.emp h2{font-size:8.1vw;letter-spacing:-.25vw}
-  .sob .lead{margin-top:4.23vw;font-size:3vw;line-height:1.45}
-  .sob-d{margin-top:2.82vw}
-  .sob-d p{font-size:3vw;line-height:1.45}
-  .sob-n{gap:4.23vw;margin-top:7.04vw}
+  .sob-d{margin-top:0}
+  .sob-n{gap:4.23vw;margin-top:6.34vw}
   .sob-n b{font-size:11.27vw}   /* menores (pedido do Luiz, 14/10/2026) */
   .sob-n>div>span{margin-top:2.11vw;font-size:2.46vw;letter-spacing:.42vw}
   .emp{padding:9.86vw 0 16.2vw}   /* 16,2vw: 11,27vw de respiro + 4,93vw do canto do estoque, que sobe por cima */
@@ -1128,6 +1137,13 @@ body.lb-on{overflow:hidden}
   .vp-l-lg img{max-width:28vw}
   .vp-ct-i .ct-b{flex-direction:column;gap:2.11vw}
   .vp-ct-i .btno{justify-content:center;padding:2.82vw 4.93vw;font-size:3.2vw;gap:2.11vw}
+  /* a parte do valor menor (pedido do Luiz, 14/10/2026) */
+  #vpCt .vp-ct-t{--pf:8.45vw;--nf:3vw}
+  #vpCt .vp-form input{font-size:3vw}
+  #vpCt .seg button{font-size:2.82vw}
+  #vpCt .vp-form .btnp{font-size:3vw}
+  #vpCt .vp-ct-i p{font-size:3.2vw}
+  #vpCt .vp-ct-i .btno{font-size:3vw}
   #lb button{width:11.27vw;height:11.27vw}
   #lb .lb-a,#lb .lb-p{display:none}   /* celular: passa deslizando para cima e para baixo, ou tocando na foto de cima ou de baixo */
   #lb .lb-x{top:4.23vw;right:4.23vw}
@@ -1135,19 +1151,18 @@ body.lb-on{overflow:hidden}
   .lb-s{border-radius:2.67vw}
   /* associados: a mesma página do computador, ajustada (pedido do Luiz, 07/10/2026): o filtro embaixo do título, a estrada passando
      para o lado com o dedo, a lista numa coluna e a loja tocada logo abaixo da linha dela */
-  .as3{padding-top:5.63vw;padding-bottom:11.27vw}
-  .as3-topo{position:relative;display:block}
+  .as3{padding-top:5.63vw;padding-bottom:11.27vw;transition:padding-bottom .3s ease}
+  .as3.fim{padding-bottom:0}   /* a última loja aberta encosta no rodapé (pedido do Luiz, 14/10/2026) */
+  /* o título no meio, com a quebra antes de "em", e embaixo dele o filtro, pequeno, também no meio (pedido do Luiz, 14/10/2026).
+     .as3-cw guarda o lugar do botão fechado; aberto, a lista passa por cima do que vem embaixo */
+  .as3-topo{display:flex;flex-direction:column;align-items:center;gap:3.52vw;text-align:center}
   .as3-topo h2{font-size:6.76vw;letter-spacing:-.15vw;line-height:1.15}
-  /* o filtro bem menor, ao lado de "polo.", terminando onde termina a linha de cima (pedido do Luiz, 14/10/2026: posFiltroAssoc).
-     Sem lugar ao lado, fica embaixo do título */
-  .as3-cw{width:auto;height:calc(7.04vw + 2px);margin-top:3.52vw}
-  .as3-cw.lado{position:absolute;width:0;margin:0}
-  .as3-cat{right:auto;width:max-content;padding:.7vw;border-radius:4.23vw}
-  .as3-cw.lado .as3-cat{left:auto;right:0}
-  .as3-cat button{font-size:2.82vw;line-height:3.52vw}
-  .as3-cat button.on,.as3-cat.aberto button{padding:1.06vw 2.46vw}
+  .as3-cw{width:0;height:calc(5.93vw + 2px)}
+  .as3-cat{left:50%;right:auto;width:max-content;padding:.53vw;border-radius:3.52vw;transform:translateX(-50%)}
+  .as3-cat button{font-size:2.53vw;line-height:3.17vw}
+  .as3-cat button.on,.as3-cat.aberto button{padding:.85vw 2.11vw}
   .as3-cat button>span{gap:1.41vw}
-  .as3-cat button svg{width:2.82vw;height:2.82vw}
+  .as3-cat button svg{width:2.53vw;height:2.53vw}
   .eixo{--et:4.93vw;--ep:2.82vw;--eo:4.23vw;--ea:.85vw;margin:7.04vw -5.63vw 4.23vw;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
   .eixo::-webkit-scrollbar{display:none}
   .eixo-ms{width:max-content;min-width:100%;gap:7.04vw;padding:0 5.63vw}
@@ -1162,6 +1177,7 @@ body.lb-on{overflow:hidden}
   .row .g{font-size:3.38vw}
   .row .a{width:auto;max-width:30vw;font-size:3.17vw}
   .as3-in{margin:0 -5.63vw;padding:7.04vw 5.63vw;background:var(--navy);color:#fff;box-shadow:inset 0 3.52vw 3.52vw -3.52vw rgba(0,0,0,.6),inset 0 -3.52vw 3.52vw -3.52vw rgba(0,0,0,.6)}   /* de ponta a ponta, como uma camada embaixo da página que se abre (pedido do Luiz, 14/10/2026) */
+  .as3-in.fim{box-shadow:inset 0 3.52vw 3.52vw -3.52vw rgba(0,0,0,.6)}
   .as3-cab{flex-wrap:wrap;gap:4.23vw 3.52vw}
   .as3-cab .vp-l-lg{height:11.27vw}
   .as3-cab .vp-l-lg.claro,.as3-cab .vp-l-lg.branco,.as3-cab .vp-l-lg.sem{height:11.27vw;padding:0 2.82vw}
@@ -1526,7 +1542,7 @@ function home(){
  </div>
 </div>${rodape()}`;}
 // bloco sobre a Aceima e parte do empresário (estilo NexStudio). As formas são desenhos abstratos, como no modelo.
-// No computador, o bloco da Aceima fica só com o título e os números: a chamada e os dois textos saíram (pedido do Luiz, 14/10/2026)
+// O bloco da Aceima fica só com o título e os números: a chamada e os dois textos saíram, nas duas versões (pedido do Luiz, 14/10/2026)
 const FORMAS=[
   '<rect width="26" height="26" rx="7"/><rect x="30" width="26" height="26" rx="7"/><rect y="30" width="26" height="26" rx="7"/><rect x="30" y="30" width="26" height="26" rx="7"/>',   // quatro lojas, um bloco
   '<path d="M0 0h18l16 28-16 28H0l16-28zM22 0h18l16 28-16 28H22l16-28z"/>',   // anda sozinho
@@ -1540,13 +1556,10 @@ function sobre(){
            ['Rede Credenciada','Inúmeros serviços credenciados. Um clube de benefícios só seu.']];
   return `<section class="sob">
   <div class="wrap sob-a">
-   <div class="kick kn so-cel">${T('inicio.sobre-chamada','A Aceima')}</div>
    <div class="sob-e">
      <h2>${T('inicio.sobre-titulo','Somos comerciantes que decidiram')} <em>${T('inicio.sobre-titulo-destaque','crescer juntos.')}</em></h2>
-     <p class="lead so-cel">${T('inicio.sobre-texto1','A Aceima nasceu em 1998 da união dos comerciantes da Estrada Intendente Magalhães. O objetivo continua o mesmo: um padrão de qualidade que o cliente reconhece em cada empresa associada.')}</p>
    </div>
    <div class="sob-d">
-     <p class="so-cel"><b>${T('inicio.sobre-texto2-destaque','Em nome de todos os associados,')}</b> ${T('inicio.sobre-texto2','cuidamos do padrão de atendimento, conferimos a procedência dos veículos e mantemos um SAC próprio. Quem compra aqui sabe a quem recorrer.')}</p>
      <div class="sob-n">
        <div><b>${new Date().getFullYear()-1998}</b><span>${T('inicio.sobre-numero1','anos na Intendente')}</span></div>
        <div><b>${nAssoc()}</b><span>${T('inicio.sobre-numero2','comércios associados')}</span></div>
@@ -2072,7 +2085,7 @@ function associados(){
  <div class="gl topo" style="flex:none">${LUZ}${hd()}</div>
  <div class="wrap as3">
   <div class="as3-topo">
-   <h2>${T('associados.titulo','{associados} Empresas unificadas em um polo.')}</h2>
+   <h2>${T('associados.titulo','{associados} Empresas unificadas \nem um polo.')}</h2>
    <div class="as3-cw"><div class="as3-cat" id="asCat">${cs.map(c=>`<button type="button" class="${catAssoc===c?'on':''}" data-c="${esc(c)}" onclick="catA(this)"><span>${T(c==='Todos'?'associados.filtro-todos':'associados.filtro-'+slug(c),c)}<b>${q(c)}</b>${ic(I_DOWN,15)}</span></button>`).join('')}</div></div>
   </div>
   <div class="eixo" id="asEixo">${eixoAssoc(E)}</div>
@@ -2106,13 +2119,15 @@ function trocarEixo(E){
 function mostrarLoja(E,rolar){
   const fl=document.getElementById('asLoja');if(!fl)return;
   E=E||entradasAssoc();const S=E.find(e=>e.nome===selAssoc),rd=matchMedia('(prefers-reduced-motion: reduce)').matches,op={duration:420,easing:'cubic-bezier(.2,.8,.2,1)'};
-  const tinha=document.querySelector('.as3-in');   // o bloco anterior fecha antes de medir para onde rolar
+  const tinha=document.querySelector('.as3-in'),as3=document.querySelector('.as3');   // o bloco anterior fecha antes de medir para onde rolar
+  if(as3)as3.classList.remove('fim');   // a última loja aberta encosta no rodapé (pedido do Luiz, 14/10/2026); fechando, o respiro volta
   document.querySelectorAll('.as3-in').forEach(b=>{if(rd){b.remove();return;}b.style.overflow='hidden';b.animate([{height:b.offsetHeight+'px'},{height:'0px',paddingTop:'0px',paddingBottom:'0px'}],{duration:300,easing:'ease-in'}).onfinish=()=>b.remove();});   // a camada fecha como abriu
   if(!S||cel()){
     if(!fl.hidden){if(rd){fl.hidden=true;}else fl.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translateY(24px)'}],{duration:260,easing:'ease-in'}).onfinish=()=>{if(!selAssoc||cel())fl.hidden=true;};}
     if(!S)return;
     const r=[...document.querySelectorAll('#asLista .row')].find(x=>x.dataset.n===S.nome);if(!r)return;
     const b=document.createElement('div');b.className='as3-in';b.innerHTML=lojaAssoc(S);r.after(b);
+    if(!b.nextElementSibling){b.classList.add('fim');if(as3)as3.classList.add('fim');}
     if(!rd){b.style.overflow='hidden';const h=b.offsetHeight;b.animate([{height:'0px',paddingTop:'0px',paddingBottom:'0px'},{height:h+'px'}],op).onfinish=()=>{b.style.overflow='';};}   // a página abre e mostra a camada de baixo
     if(rolar)setTimeout(()=>{const x=r.getBoundingClientRect();if(x.top<70||x.top>innerHeight*.45)scrollBy({top:x.top-80,behavior:'smooth'});},rd?0:tinha?340:60);
     return;
@@ -2127,18 +2142,6 @@ function rolarParaLoja(){
   if(cel()){const r=[...document.querySelectorAll('#asLista .row')].find(x=>x.dataset.n===selAssoc);if(r)scrollTo({top:r.getBoundingClientRect().top+scrollY-80,behavior:'smooth'});return;}
   const fl=document.getElementById('asLoja');if(!fl||fl.hidden)return;
   const x=fl.getBoundingClientRect(),falta=x.bottom-(innerHeight-24);if(falta>0)scrollBy({top:Math.min(falta,x.top-90),behavior:'smooth'});
-}
-// celular: o filtro, pequeno, fica na última linha do título, ao lado de "polo.", e termina onde termina a linha de cima (pedido do Luiz,
-// 14/10/2026). Se não couber ao lado, fica embaixo do título
-function posFiltroAssoc(){
-  const tp=document.querySelector('.as3-topo'),h=tp&&tp.querySelector('h2'),w=tp&&tp.querySelector('.as3-cw');if(!w)return;
-  w.classList.remove('lado');w.style.left=w.style.top='';if(!cel())return;
-  const rg=document.createRange();rg.selectNodeContents(h);const ls=[];
-  [...rg.getClientRects()].filter(r=>r.width>1).forEach(r=>{const l=ls.find(x=>Math.abs(x.top-r.top)<r.height/2);if(l)l.right=Math.max(l.right,r.right);else ls.push({top:r.top,bottom:r.bottom,right:r.right});});
-  if(ls.length<2)return;ls.sort((a,b)=>a.top-b.top);
-  const p=ls[0],u=ls[ls.length-1],c=w.firstElementChild,T=tp.getBoundingClientRect();
-  if(p.right-u.right-innerWidth*.0282<c.offsetWidth)return;
-  w.classList.add('lado');w.style.left=(p.right-T.left).toFixed(1)+'px';w.style.top=((u.top+u.bottom)/2-w.offsetHeight/2-T.top).toFixed(1)+'px';
 }
 // o filtro: fechado, o toque abre as opções; aberto, o toque escolhe e o menu fecha em volta da escolhida
 function catA(b){
@@ -2195,6 +2198,7 @@ function veiculo(){
     ${fotos.length>1?`<div class="vp-mini${fotos.length===2?' um':''}">${fotos.slice(1,5).map((f,i)=>`<button type="button" class="vp-mf${i===3?' vp-mt':''}" onclick="abrirFoto(${i+1})"><img src="${esc(f)}" alt="" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">${i===3?`<span>${T('veiculo.ver-todas-foto','Ver todas')}</span>`:''}</button>`).join('')}</div>`:''}
    </section>
    </div>
+   <div class="vp-pd"><a class="vp-pill" onclick="document.getElementById('vpCt').scrollIntoView({behavior:'smooth'})">${T('veiculo.interesse','Tenho interesse')}<i>${ic('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',18)}</i></a></div>
    ${fotos.length>1?`<section class="vp-g" id="vpG">
     <div class="vp-gw">
      <div class="vp-gt" id="vpGt" onscroll="setasGaleria()">${fotos.slice(1).map((f,i)=>`<button type="button" class="vp-f" onclick="abrirFoto(${i+1})"><img src="${esc(f)}" alt="" loading="lazy" onload="this.classList.add('ok')" onerror="this.parentNode.remove();setasGaleria()"></button>`).join('')}</div>
@@ -2279,17 +2283,19 @@ function setasGaleria(){
   g.querySelector('.vp-gn').classList.toggle('off',t.scrollLeft+t.clientWidth>=t.scrollWidth-4);
 }
 function passarGaleria(d){const t=document.getElementById('vpGt');if(!t)return;const gap=parseFloat(getComputedStyle(t).columnGap)||0;t.scrollBy({left:d*(t.clientWidth+gap),behavior:'smooth'});}
-// computador (pedido do Luiz, 14/10/2026): a foto, o nome, a ficha, as quatro fotos seguintes e o botão cabem na tela, acima do menu.
-// A foto (4:3) e a coluna têm a mesma altura (--fh). As quatro fotos, em 4:3 e duas por linha, crescem até a coluna ocupar a largura que
-// sobra ao lado da foto. Numa tela mais baixa, manda a altura que cabe acima do menu e a coluna fica mais estreita (--cw): aí a página
-// inteira fica no meio, na largura da foto com a coluna (--vpw), para tudo continuar alinhado (as fotos não são cortadas para encher)
+// computador (pedido do Luiz, 14/10/2026): a foto, o nome, a ficha, as quatro fotos seguintes e, embaixo de tudo, o botão cabem na tela,
+// acima do menu. A foto (4:3) e a coluna têm a mesma altura (--fh): a base das fotos da coluna na base da foto grande. As quatro fotos, em 4:3
+// e duas por linha, crescem até a coluna ocupar a largura que sobra ao lado da foto. Numa tela mais baixa, manda a altura que cabe acima do
+// menu e a coluna fica mais estreita (--cw): aí a página inteira fica no meio, na largura da foto com a coluna (--vpw), para tudo continuar
+// alinhado (as fotos não são cortadas para encher)
 function ajustarTopo(){
   const tp=document.querySelector('.vp-topo'),m=tp&&tp.querySelector('.vp-m'),app=document.getElementById('app');if(!m)return;
   app.style.removeProperty('--vpw');tp.style.removeProperty('--fh');m.style.removeProperty('--cw');if(innerWidth<1101)return;
   const mini=m.querySelector('.vp-mini'),k=mini?mini.children.length:0,um=k===1,linhas=um?1:Math.ceil(k/2);
   const g=parseFloat(getComputedStyle(tp).columnGap)||0,gm=mini?parseFloat(getComputedStyle(mini).columnGap)||0:0,gs=parseFloat(getComputedStyle(m).rowGap)||0,Wt=tp.clientWidth;
   const nav=document.getElementById('nav'),menu=nav?nav.offsetHeight+(parseFloat(getComputedStyle(nav).bottom)||0):76;
-  const Hmax=Math.max(420,innerHeight-menu-18-(tp.getBoundingClientRect().top+scrollY));   // 18px de folga em cima do menu
+  const pd=document.querySelector('.vp-pd'),botao=pd?pd.offsetHeight+(parseFloat(getComputedStyle(pd).marginTop)||0):0;   // a linha do botão, embaixo
+  const Hmax=Math.max(360,innerHeight-menu-14-botao-(tp.getBoundingClientRect().top+scrollY));   // 14px de folga em cima do menu
   const semFotos=w=>{m.style.setProperty('--cw',w+'px');m.classList.add('mede');const h=m.offsetHeight;m.classList.remove('mede');return h;};
   let H=Hmax,W=Wt-g-Hmax*4/3;
   for(let i=0;i<3;i++){   // o nome pode quebrar de outro jeito na largura nova: a conta é refeita com ela
@@ -2825,7 +2831,7 @@ function render(topo){
   const novos=[...app.querySelectorAll('video.luz')];if(velhos.length&&velhos.length===novos.length)novos.forEach((v,i)=>v.replaceWith(velhos[i]));
   if(pagAtual==='estoque'){depoisEstoque();if(filtrosAntes){animarFiltros(filtrosAntes);const m=document.getElementById('mos');if(m)m.classList.add('troca');}}
   if(pagAtual==='veiculo')depoisVeiculo();
-  if(pagAtual==='associados'){posFiltroAssoc();document.fonts.ready.then(()=>{if(pagAtual==='associados')posFiltroAssoc();});if(selAssoc)mostrarLoja();}
+  if(pagAtual==='associados'&&selAssoc)mostrarLoja();
   if(pagAtual==='aceima'){alturaAcordeao();document.fonts.ready.then(()=>{if(pagAtual==='aceima')alturaAcordeao();});}
   if(pagAtual==='home'){girar();alturaCategorias();alinharA();faixaAvaliacoes();document.fonts.ready.then(()=>{if(pagAtual==='home'){alturaCategorias();alinharA();}});}
   if(EDIT){sel=null;pintarBarra();}
@@ -2903,7 +2909,6 @@ addEventListener('resize',()=>{AV.P=0;if(pagAtual==='home'){alturaCategorias();a
   if(pagAtual==='estoque'){contarVistos(true);caberTitulo();anuncioDoMeio();
     document.querySelectorAll('#ancs .anc.vivo').forEach(a=>{const l=a.querySelector('.anc-l');if(l._W!==a.firstElementChild.offsetWidth)digitar(a);});}   // outra largura: o nome é medido de novo
   if(pagAtual==='aceima'){clearTimeout(alturaAcordeao.t);alturaAcordeao.t=setTimeout(alturaAcordeao,150);}
-  if(pagAtual==='associados')posFiltroAssoc();
   menuNoRodape();});
 
 rota();
