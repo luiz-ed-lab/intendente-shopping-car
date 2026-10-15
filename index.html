@@ -399,51 +399,43 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-ficha>div{border-top:1px solid var(--line);padding-top:clamp(12px,1vw,18px)}
 .vp-ficha>div>span{display:block;font:600 clamp(.66rem,.68vw,.8rem)/1.2 var(--f2);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
 .vp-ficha b{display:block;margin-top:8px;font:300 clamp(1.5rem,2.2vw,2.6rem)/1.15 var(--f2);letter-spacing:-.02em;color:#3E4C62}
-/* as quatro fotos seguintes, ao lado da foto (só no computador), uma por cima da outra (pedidos do Luiz, 15/10/2026): uma inteira e só um
-   pedaço de cada uma das outras, que ficam por trás. Com o mouse em cima de um pedaço, a foto abre por inteiro, deslizando, e as outras
-   recolhem (fotoAtiva); na quarta, aparece o "Ver todas". O clique abre a tela cheia na foto, de onde dá para passar por todas */
+/* as quatro fotos seguintes, ao lado da foto (só no computador), pequenas, numa linha (pedido do Luiz, 15/10/2026): com o mouse em cima, a
+   foto cresce bem pouco, só para mostrar que dá para clicar; a quarta fica sempre desfocada, com "Ver mais". O clique abre a tela cheia na
+   foto, de onde dá para passar por todas */
 .vp-mini{display:none}
-.vp-mf{display:block;position:relative;aspect-ratio:4/3;border-radius:clamp(10px,.8vw,14px);overflow:hidden;background:#E9E4DD;cursor:zoom-in}
-.vp-mf img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease-in-out,transform .55s var(--ease),filter .55s var(--ease)}
+.vp-mf{display:block;position:relative;aspect-ratio:4/3;border-radius:clamp(8px,.6vw,12px);overflow:hidden;background:#E9E4DD;cursor:zoom-in;transition:transform .3s var(--ease),box-shadow .3s}
+.vp-mf:hover,.vp-mf:focus-visible{transform:scale(1.04);box-shadow:0 12px 24px -12px rgba(11,26,51,.45)}
+.vp-mf img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease-in-out}
 .vp-mf img.ok{opacity:1}
-.vp-mt.ativa img{filter:blur(5px) brightness(.65);transform:scale(1.1)}
-.vp-mt>span{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font:500 clamp(.85rem,.9vw,1.05rem)/1.2 var(--f2);opacity:0;transition:opacity .35s}
-.vp-mt.ativa>span{opacity:1}
+.vp-mt img{filter:blur(4px) brightness(.65);transform:scale(1.12)}
+.vp-mt>span{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font:500 clamp(.8rem,.82vw,.98rem)/1.2 var(--f2)}
 /* computador (pedidos do Luiz, 14 e 15/10/2026): o foco é a foto grande e o nome com a versão. A foto e, ao lado, o nome, a ficha de dois
-   em dois (como no celular, pequena), as quatro fotos seguintes, uma por cima da outra, e embaixo delas o "Tenho interesse", com a base dele na
-   base da foto grande. A página ocupa a largura do rodapé e tudo cabe na tela acima do menu: ajustarTopo() acha a altura da foto (--fh) e a
-   largura da coluna (--cw). O topo das letras do nome fica na linha de cima da foto (-.16em: a folga da fonte acima das letras). As fotos
-   embaixo da foto (.vp-g) ficam só no tablet e no celular */
+   em dois (como no celular), o "Tenho interesse", no meio, e as quatro fotos seguintes, pequenas, numa linha, com a base delas na base da
+   foto grande. A página ocupa a largura do rodapé e tudo cabe na tela acima do menu: ajustarTopo() acha a altura da foto (--fh) e a largura
+   da coluna (--cw). O topo das letras do nome fica na linha de cima da foto (-.16em: a folga da fonte acima das letras). As fotos embaixo
+   da foto (.vp-g) ficam só no tablet e no celular */
 @media (min-width:1101px){
   .vp{padding-top:clamp(16px,1.25vw,26px)}   /* o "Nosso estoque" com respiro em cima e embaixo (pedido do Luiz, 15/10/2026) */
   .vp-volta{margin-bottom:clamp(14px,1.05vw,22px)}
   .vp-topo{--fh:clamp(380px,100vh - 260px,880px);display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(18px,1.4vw,28px);align-items:start}   /* a foto mais perto da coluna (pedido do Luiz, 14/10/2026) */
   .vp-hero{width:calc(var(--fh) * 4 / 3);height:var(--fh);aspect-ratio:auto}
-  .vp-m{width:var(--cw,auto);max-width:100%;height:var(--fh);display:flex;flex-direction:column;justify-content:space-between;gap:calc(16px * var(--vk,1));margin:0}   /* o mesmo espaço entre o nome, a ficha, as fotos e o botão */
+  .vp-m{width:var(--cw,auto);max-width:100%;height:var(--fh);display:flex;flex-direction:column;justify-content:space-between;gap:calc(16px * var(--vk,1));margin:0}   /* o mesmo espaço entre o nome, a ficha, o botão e as fotos */
   .vp-m.mede{height:auto}
   .vp-m.mede .vp-mini{display:none}
   .vp-m>div:first-child{display:contents}
-  /* o nome e a versão grandes e a ficha pequena (pedido do Luiz, 15/10/2026: o foco é a foto grande e o nome com a versão). Os tamanhos
-     acompanham a altura da foto (--vk, 1 na tela do Luiz, ajustarTopo): numa tela mais baixa, tudo diminui junto, na mesma proporção */
+  /* o nome e a versão grandes e a ficha menor (pedido do Luiz, 15/10/2026: o foco é a foto grande e o nome com a versão). Os tamanhos
+     acompanham o espaço da tela (--vk, 1 na tela do Luiz, ajustarTopo): numa tela mais baixa, tudo diminui junto, na mesma proporção */
   .vp-m h1{margin-top:-.16em;font-size:max(1.8rem,calc(60px * var(--vk,1)))}
   .vp-m h1 .vp-n2{color:#46556E}
   .vp-ficha{order:1;gap:calc(10px * var(--vk,1)) calc(30px * var(--vk,1))}
   .vp-ficha>div{padding-top:calc(7px * var(--vk,1));border-top-color:rgba(11,26,51,.11)}
-  .vp-ficha>div>span{font-size:max(.56rem,calc(11px * var(--vk,1)))}
-  .vp-ficha b{margin-top:calc(3px * var(--vk,1));font-size:max(1rem,calc(22px * var(--vk,1)))}
-  /* as fotos uma por cima da outra: cada uma tem 1 / --tot da largura delas, e de cada foto de trás aparece --f da largura de uma foto
-     (--n: quantas são). A da frente (.ativa) aparece inteira; as de trás, só o pedaço, recortado (clip-path): as da esquerda (.esq) mostram o
-     lado esquerdo, as da direita, o direito. Trocar a da frente desliza os recortes, e os pedaços sempre se encostam, sem buraco nem
-     sobreposição. A altura delas e o --f vêm de ajustarTopo() */
-  .vp-mini{--f:.28;--tot:calc(1 + (var(--n,1) - 1) * var(--f));--cr:calc((1 - var(--f)) * 100%);order:2;position:relative;display:block;width:100%;align-self:center}
-  .vp-mini::before{content:'';display:block;padding-top:calc(75% / var(--tot))}
-  .vp-mf{position:absolute;top:0;bottom:0;left:calc(var(--i) * var(--f) * 100% / var(--tot));width:calc(100% / var(--tot));aspect-ratio:auto;z-index:calc(4 - var(--i));clip-path:inset(0 0 0 var(--cr) round clamp(8px,.6vw,12px));transition:clip-path .55s var(--ease)}
-  .vp-mf.esq{z-index:calc(1 + var(--i));clip-path:inset(0 var(--cr) 0 0 round clamp(8px,.6vw,12px))}
-  .vp-mf.ativa{z-index:6;clip-path:inset(0 0 0 0 round clamp(8px,.6vw,12px))}
-  .vp-mf:not(.ativa) img{filter:brightness(.8)}   /* os pedaços um pouco mais escuros: a da frente se destaca */
-  /* o "Tenho interesse" embaixo das fotos, no meio da coluna, com a base na base da foto grande (pedido do Luiz, 15/10/2026) */
-  .vp-m .vp-pill{order:3;align-self:center;margin-top:0;padding:5px 5px 5px 22px}
-  .vp-m .vp-pill i{width:clamp(30px,2vw,36px)}
+  .vp-ficha>div>span{font-size:max(.56rem,calc(11.5px * var(--vk,1)))}
+  .vp-ficha b{margin-top:calc(3px * var(--vk,1));font-size:max(1rem,calc(25px * var(--vk,1)))}
+  /* o "Tenho interesse" no meio da coluna, em cima das fotos (pedido do Luiz, 15/10/2026) */
+  .vp-m .vp-pill{order:2;align-self:center;margin-top:0}
+  /* as quatro fotos numa linha, na largura da coluna, com a base na base da foto grande; com menos fotos, elas ficam no meio */
+  .vp-mini{--gm:clamp(8px,.6vw,12px);order:3;display:flex;justify-content:center;gap:var(--gm);width:100%;align-self:center}
+  .vp-mf{flex:0 0 calc((100% - 3 * var(--gm)) / 4)}
   /* da base da foto ao menu e ao topo das letras do título de baixo (a .15em do topo da caixa dele), a mesma distância (ajustarTopo) */
   .vp{--dp:clamp(24px,calc(56 * var(--px)),64px)}
   .vp .vp-s{margin-top:calc(var(--dp) - .15 * clamp(2.2rem,3.3vw,4rem))}
@@ -2209,7 +2201,7 @@ function veiculo(){
      <a class="vp-pill" onclick="document.getElementById('vpCt').scrollIntoView({behavior:'smooth'})">${T('veiculo.interesse','Tenho interesse')}<i>${ic('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',18)}</i></a>
     </div>
     <div class="vp-ficha">${ficha.map(f=>`<div><span>${f[0]}</span><b>${E('veiculo.ficha-valor',esc(f[1]))}</b></div>`).join('')}</div>
-    ${fotos.length>1?`<div class="vp-mini" style="--n:${Math.min(4,fotos.length-1)}" onmouseleave="fotoAtiva(this.firstElementChild)">${fotos.slice(1,5).map((f,i)=>`<button type="button" class="vp-mf${i?'':' ativa'}${i===3?' vp-mt':''}" style="--i:${i}" onmouseenter="fotoAtiva(this)" onfocus="fotoAtiva(this)" onclick="abrirFoto(${i+1})"><img src="${esc(f)}" alt="" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">${i===3?`<span>${T('veiculo.ver-todas-foto','Ver todas')}</span>`:''}</button>`).join('')}</div>`:''}
+    ${fotos.length>1?`<div class="vp-mini">${fotos.slice(1,5).map((f,i)=>`<button type="button" class="vp-mf${i===3?' vp-mt':''}" onclick="abrirFoto(${i+1})"><img src="${esc(f)}" alt="" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">${i===3?`<span>${T('veiculo.ver-todas-foto','Ver mais')}</span>`:''}</button>`).join('')}</div>`:''}
    </section>
    </div>
    ${fotos.length>1?`<section class="vp-g" id="vpG">
@@ -2296,31 +2288,33 @@ function setasGaleria(){
   g.querySelector('.vp-gn').classList.toggle('off',t.scrollLeft+t.clientWidth>=t.scrollWidth-4);
 }
 function passarGaleria(d){const t=document.getElementById('vpGt');if(!t)return;const gap=parseFloat(getComputedStyle(t).columnGap)||0;t.scrollBy({left:d*(t.clientWidth+gap),behavior:'smooth'});}
-// computador (pedidos do Luiz, 14 e 15/10/2026): o foco é a foto grande, tão alta quanto cabe acima do menu (a --dp dele), e a página ocupa
-// a largura do rodapé. Ao lado, a coluna tem a altura da foto (--fh): o nome em cima (o topo das letras na linha de cima da foto), a ficha, as
-// quatro fotos seguintes e o botão embaixo (a base dele na base da foto), com o mesmo espaço entre eles. As fotos ao lado têm pouco mais de um
-// terço da altura da foto grande, e o pedaço que aparece das de trás (--f) preenche a largura da coluna. As fotos nunca são cortadas
+// computador (pedidos do Luiz, 14 e 15/10/2026): o foco é a foto grande, e a página ocupa a largura do rodapé. Ao lado, a coluna tem a altura
+// da foto (--fh): o nome em cima (o topo das letras na linha de cima da foto), a ficha, o botão e as quatro fotos seguintes numa linha (a base
+// delas na base da foto), com o mesmo espaço entre eles. A foto é tão alta quanto cabe acima do menu (a --dp dele), sem deixar os espaços da
+// coluna maiores que 80px na tela do Luiz: nesse caso, ela diminui e a coluna alarga. As fotos nunca são cortadas
 function ajustarTopo(){
   const tp=document.querySelector('.vp-topo'),m=tp&&tp.querySelector('.vp-m');if(!m)return;
   const mini=m.querySelector('.vp-mini');
-  tp.style.removeProperty('--fh');tp.style.removeProperty('--vk');m.style.removeProperty('--cw');if(mini){mini.style.removeProperty('--f');mini.style.width='';}
+  tp.style.removeProperty('--fh');tp.style.removeProperty('--vk');m.style.removeProperty('--cw');if(mini)mini.style.width='';
   if(innerWidth<1101)return;
   const k=mini?mini.children.length:0,g=parseFloat(getComputedStyle(tp).columnGap)||0,Wt=tp.clientWidth;
   const nav=document.getElementById('nav'),menu=nav?nav.offsetHeight+(parseFloat(getComputedStyle(nav).bottom)||0):76;
   const px=Math.min(innerHeight/1021,innerWidth/1912),dp=Math.min(64,Math.max(24,56*px));   // o mesmo --dp do CSS
   const Hmax=Math.max(300,innerHeight-menu-dp-(tp.getBoundingClientRect().top+scrollY));
-  const H=Math.min(Hmax,(Wt-g)*.62*.75),W=Wt-g-H*4/3;   // a coluna fica com pelo menos 38% da largura
-  tp.style.setProperty('--vk',Math.max(.5,Math.min(1.1,H/713)).toFixed(3));   // os textos na proporção da foto: 1 na tela do Luiz (1912×1021)
+  const vk=Math.max(.5,Math.min(1.1,Hmax/713));tp.style.setProperty('--vk',vk.toFixed(3));   // os textos na proporção do espaço: 1 na tela do Luiz (1912×1021)
+  const gm=mini?parseFloat(getComputedStyle(mini).columnGap)||0:0,a=k?.1875:0,n=k?3:2,Gmax=80*vk;   // as fotos, quatro por linha, têm a·(W - 3·gm) de altura
+  let H=Math.min(Hmax,(Wt-g)*.62*.75),W=Wt-g-H*4/3,itens=0,gs=0;
+  for(let i=0;i<3;i++){   // o nome pode quebrar de outro jeito na largura nova: a conta é refeita com ela
+    tp.style.setProperty('--fh',H+'px');m.style.setProperty('--cw',W+'px');   // a foto no tamanho da conta, senão a coluna mede mais estreita
+    m.classList.add('mede');const N=m.offsetHeight;gs=parseFloat(getComputedStyle(m).rowGap)||0;m.classList.remove('mede');
+    itens=N-2*gs;   // o nome, a ficha e o botão, sem os espaços entre eles
+    if(!k)break;
+    const Hc=(itens+n*Gmax+a*(Wt-g-3*gm))/(1+a*4/3);   // a foto mais alta que deixa os espaços da coluna em Gmax
+    H=Math.min(Hmax,(Wt-g)*.62*.75,Hc);W=Wt-g-H*4/3;
+  }
   tp.style.setProperty('--fh',H.toFixed(1)+'px');m.style.setProperty('--cw',W.toFixed(1)+'px');
-  if(!k)return;
-  m.classList.add('mede');const N=m.offsetHeight,gs=parseFloat(getComputedStyle(m).rowGap)||0;m.classList.remove('mede');
-  const sh=Math.max(60,Math.min(.36*H,H-N-gs,.75*W/(1+(k-1)*.15))),w=sh*4/3;   // a altura das fotos ao lado; das de trás aparece ao menos 15%
-  const f=k>1?Math.min(.6,(W/w-1)/(k-1)):0;mini.style.setProperty('--f',f.toFixed(4));
-  const larg=w*(1+(k-1)*f);if(larg<W-1)mini.style.width=larg.toFixed(1)+'px';   // não chegam à largura da coluna: ficam no meio dela
+  if(k){const t=H-itens-n*gs,lin=t/.75*4+3*gm;if(a*(W-3*gm)>t&&lin<W)mini.style.width=Math.max(120,lin).toFixed(1)+'px';}   // tela baixa: as fotos não cabem na largura toda; ficam menores, no meio
 }
-// fotos ao lado (computador): o mouse em cima de uma foto abre ela por inteiro, deslizando, e as outras recolhem, as da esquerda mostrando o
-// lado esquerdo e as da direita, o direito (pedido do Luiz, 15/10/2026). Saindo das fotos, volta a primeira
-function fotoAtiva(b){if(!b)return;const cs=[...b.parentNode.children],k=cs.indexOf(b);cs.forEach((c,i)=>{c.classList.toggle('ativa',i===k);c.classList.toggle('esq',i<k);});}
 // características e descrição: a que ocupar mais espaço na página vem primeiro (pedido do Luiz, 30/09/2026), medida com os opcionais
 // no corte padrão. Quando a descrição é a maior e as duas estão lado a lado, os opcionais vão até a penúltima linha dela e o "Ver mais"
 // fica na linha de base da última (pedido do Luiz, 06/10/2026)
