@@ -395,8 +395,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-pill i{display:grid;place-items:center;width:clamp(36px,2.6vw,44px);aspect-ratio:1;border-radius:99px;background:#fff;color:var(--navy)}
 .vp-pill svg{transition:transform .3s var(--ease)}
 .vp-pill:hover svg{transform:translateY(2px)}
-.vp-ficha{display:grid;grid-template-columns:1fr 1fr;gap:clamp(22px,2vw,36px) clamp(24px,3vw,56px);align-content:start}
-.vp-ficha>div{border-top:1px solid var(--line);padding-top:clamp(12px,1vw,18px)}
+.vp-ficha{display:grid;grid-template-columns:1fr 1fr;gap:clamp(22px,2vw,36px) clamp(24px,3vw,56px);align-content:start}   /* sem as linhas em cima de cada dado (pedido do Luiz, 15/10/2026) */
 .vp-ficha>div>span{display:block;font:600 clamp(.66rem,.68vw,.8rem)/1.2 var(--f2);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
 .vp-ficha b{display:block;margin-top:8px;font:300 clamp(1.5rem,2.2vw,2.6rem)/1.15 var(--f2);letter-spacing:-.02em;color:#3E4C62}
 /* as quatro fotos seguintes, ao lado da foto (só no computador), pequenas, numa linha (pedido do Luiz, 15/10/2026): com o mouse em cima, a
@@ -427,8 +426,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
      acompanham o espaço da tela (--vk, 1 na tela do Luiz, ajustarTopo): numa tela mais baixa, tudo diminui junto, na mesma proporção */
   .vp-m h1{margin-top:-.16em;font-size:max(1.8rem,calc(60px * var(--vk,1)))}
   .vp-m h1 .vp-n2{color:#46556E}
-  .vp-ficha{order:1;gap:calc(10px * var(--vk,1)) calc(30px * var(--vk,1))}
-  .vp-ficha>div{padding-top:calc(7px * var(--vk,1));border-top-color:rgba(11,26,51,.11)}
+  .vp-ficha{order:1;gap:calc(16px * var(--vk,1)) calc(30px * var(--vk,1))}
   .vp-ficha>div>span{font-size:max(.56rem,calc(11.5px * var(--vk,1)))}
   .vp-ficha b{margin-top:calc(3px * var(--vk,1));font-size:max(1rem,calc(25px * var(--vk,1)))}
   /* o "Tenho interesse" no meio da coluna, em cima das fotos (pedido do Luiz, 15/10/2026) */
@@ -1095,8 +1093,7 @@ body.lb-on{overflow:hidden}
   .vp-m h1{font-size:7.04vw;letter-spacing:-.25vw}
   .vp-pill{gap:2.82vw;margin-top:4.93vw;padding:1.41vw 1.41vw 1.41vw 4.93vw;font-size:3.52vw}
   .vp-pill i{width:8.45vw}
-  .vp-ficha{gap:4.23vw 5.63vw}
-  .vp-ficha>div{padding-top:2.82vw}
+  .vp-ficha{gap:5.63vw}
   .vp-ficha>div>span{font-size:2.46vw;letter-spacing:.42vw}
   .vp-ficha b{margin-top:1.41vw;font-size:5.07vw}
   .vp-g{--gg:2.13vw;--gn:2;margin-top:8.45vw}
