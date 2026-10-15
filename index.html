@@ -210,8 +210,10 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .avt small{font-family:var(--f2);font-size:.68rem;color:var(--mut)}
 .avq{margin-left:auto;align-self:flex-start;font:900 1.9rem/.8 var(--f1);color:#E8A048}
 .avc .avx{margin-top:8px;font-size:.75rem;font-weight:400;line-height:1.45;color:#3B4A63;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-/* o Google exige "Google Maps" quando as avaliações aparecem fora de um mapa: peso 400, de 12 a 16px, branco */
-.av-g{display:block;text-align:right;padding:0 60px;margin-top:14px;font:400 12px/18px Roboto,Arial,sans-serif;color:#fff}
+/* o Google exige "Google Maps" quando as avaliações aparecem fora de um mapa: peso 400, de 12 a 16px, branco (preto ou cinza só em fundo
+   claro), sempre visível e legível; esconder ou deixar da cor do fundo é proibido (o Luiz perguntou em 15/10/2026). A fonte pode ser a
+   do site, que a regra aceita no lugar da Roboto */
+.av-g{display:block;text-align:right;padding:0 60px;margin-top:14px;font:400 12px/18px var(--f2);color:#fff}
 
 /* início: bloco sobre a Aceima e parte do empresário, no estilo do NexStudio (tailgrids), a pedido do Luiz (29/09/2026):
    títulos finos com o fim em itálico, muito respiro, números grandes e o painel escuro de cantos redondos */
@@ -1633,7 +1635,7 @@ function avaliacoes(){
     <p class="avx">${esc(a.texto)}</p></a>`;
   const h=lista.map(card).join('');
   return `<div class="av${AVAL?'':' espera'}"><div class="kick c">${T('inicio.avaliacoes','Avaliações dos associados no Google')}</div>
-   <div class="av-janela"><div class="av-trilho" style="transform:translate3d(${(-AV.x).toFixed(2)}px,0,0)"><div>${h}</div><div aria-hidden="true">${h.replace(/<a /g,'<a tabindex="-1" ')}</div></div></div><span class="av-g">Google Maps</span></div>`;
+   <div class="av-janela"><div class="av-trilho" style="transform:translate3d(${(-AV.x).toFixed(2)}px,0,0)"><div>${h}</div><div aria-hidden="true">${h.replace(/<a /g,'<a tabindex="-1" ')}</div></div></div><span class="av-g" translate="no">Google Maps</span></div>`;
 }
 // as avaliações chegaram: a faixa entra no lugar guardado (ou o lugar some, se não veio nenhuma)
 function pintarAvaliacoes(){const a=document.querySelector('.av');if(!a)return;a.outerHTML=avaliacoes();const n=document.querySelector('.av');if(n)n.classList.add('chegou');faixaAvaliacoes();}
