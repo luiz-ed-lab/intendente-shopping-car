@@ -427,13 +427,25 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .vp-m{--vn:max(1.8rem,calc(60px * var(--vk,1)))}   /* o tamanho do nome; a versão tem .56 dele */
   .vp-m h1{margin-top:-.16em;font-size:var(--vn)}
   .vp-m h1 .vp-n2{color:#46556E}
-  .vp-ficha{order:1;gap:calc(16px * var(--vk,1)) calc(30px * var(--vk,1))}
+  .vp-ficha{order:3;gap:calc(16px * var(--vk,1)) calc(30px * var(--vk,1))}
   .vp-ficha>div>span{font-size:max(.56rem,calc(12.5px * var(--vk,1)))}
   .vp-ficha b{margin-top:calc(4px * var(--vk,1));font-size:calc(var(--vn) * .56)}   /* os dados do tamanho da versão (pedido do Luiz, 15/10/2026) */
-  /* o "Tenho interesse" no meio da coluna, em cima das fotos (pedido do Luiz, 15/10/2026) */
+  /* embaixo da versão, os blocos (IPVA pago, Manual do proprietário...), depois o "Tenho interesse", no meio da coluna, e os dados do carro
+     (pedidos do Luiz, 15/10/2026) */
+  .vp-m .vp-tt{order:1;display:flex;margin-top:0;gap:calc(8px * var(--vk,1))}
+  .vp-m .vp-tt>span{gap:calc(7px * var(--vk,1));padding:calc(8px * var(--vk,1)) calc(14px * var(--vk,1));font-size:max(.72rem,calc(15px * var(--vk,1)))}
+  .vp-m .vp-tt svg{width:calc(15px * var(--vk,1));height:calc(15px * var(--vk,1))}
   .vp-m .vp-pill{order:2;align-self:center;margin-top:0}
+  /* embaixo: a descrição à esquerda e os opcionais à direita, começando na linha da primeira linha dela (ordenarInfo); os blocos já estão
+     em cima */
+  .vp-s .vp-d{order:-1!important}
+  .vp-s .vp-tags{display:none}
+  .vp-c>.kick{margin-top:0}
+  .vp-s.sem-opc{grid-template-columns:1fr}
+  .vp-s.sem-opc .vp-c{display:none}
+  .vp-s.so1.sem-opc{display:none}
   /* as quatro fotos numa linha, na largura da coluna, com a base na base da foto grande; com menos fotos, elas ficam no meio */
-  .vp-mini{--gm:clamp(8px,.6vw,12px);order:3;display:flex;justify-content:center;gap:var(--gm);width:100%;align-self:center}
+  .vp-mini{--gm:clamp(8px,.6vw,12px);order:4;display:flex;justify-content:center;gap:var(--gm);width:100%;align-self:center}
   .vp-mf{flex:0 0 calc((100% - 3 * var(--gm)) / 4)}
   /* da base da foto ao menu e ao topo das letras do título de baixo (a .15em do topo da caixa dele), a mesma distância (ajustarTopo) */
   .vp{--dp:clamp(24px,calc(56 * var(--px)),64px)}
@@ -460,13 +472,16 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-gv:hover{color:var(--ink)}
 .vp-gv svg{transition:transform .3s var(--ease)}
 .vp-gv:hover svg{transform:translateX(2px)}
-/* características e descrição, lado a lado com os títulos na mesma linha; a que for maior vem primeiro (ordenarInfo) */
+/* características (os blocos e os opcionais, sem o título desde 15/10/2026) e descrição, lado a lado; a que for maior vem primeiro
+   (ordenarInfo). No computador, a descrição fica sempre à esquerda e os opcionais começam na primeira linha dela */
 .vp-s{display:grid;grid-template-columns:1fr 1fr;gap:40px clamp(40px,5vw,96px);align-items:start;margin-top:clamp(64px,6.4vw,124px)}
 .vp-s h2{font-size:clamp(2.2rem,3.3vw,4rem);font-weight:500;letter-spacing:-.045em;line-height:1.02;color:var(--ink)}
 .vp-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:clamp(20px,1.8vw,32px)}
 .vp-tags>span{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:99px;background:#fff;border:1px solid var(--line);font:500 clamp(.8rem,.82vw,.95rem)/1 var(--f2);color:var(--ink)}
 .vp-tags svg{color:var(--gold)}
 .vp-c>.kick{margin-top:clamp(28px,2.4vw,44px)}
+.vp-c>.vp-tags:first-child{margin-top:0}   /* sem o título "Características" (pedido do Luiz, 15/10/2026), os blocos abrem a coluna */
+.vp-tt{display:none}   /* os blocos embaixo da versão: só no computador */
 /* opcionais bem juntos e, de começo, só as primeiras linhas: "Ver mais" abre o resto (pedido do Luiz, 01/10/2026). Em grade, linha
    por linha, para abrir sem tirar do lugar os que já aparecem; quantos ficam à mostra, cortarOpcionais() calcula pelas colunas */
 .vp-opc{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(24px,2.4vw,44px);margin-top:8px}
@@ -670,22 +685,17 @@ body.lb-on{overflow:hidden}
 .ac2-t>p{margin-top:clamp(16px,1.5vw,26px)}
 .ac2-f{border-radius:var(--rm);overflow:hidden;background:#E9E4DD}
 .ac2-f img{width:100%;height:100%;object-fit:cover}
-/* topo: o título em degradê e a mídia com o entalhe (um recorte com cantos redondos, pintado na cor da página) */
-.ac2-hero{padding-top:clamp(30px,3vw,56px)}
-.ac2-tit{max-width:1000px;margin:0 auto;text-align:center;font:400 clamp(1.6rem,2.3vw,2.8rem)/1.22 var(--f1);letter-spacing:-.02em;background:linear-gradient(90deg,#1E3E70 15%,#C8862E 85%);-webkit-background-clip:text;background-clip:text;color:transparent}
-@media (min-width:761px){.ac2-tit br{display:none}}   /* a quebra de linha antes de "A Intendente" é só do celular (pedido do Luiz, 13/10/2026): no computador, o título fica numa linha */
-/* a Intendente antiga, vista do alto (foto enviada pelo Luiz em 15/10/2026, sem o nome que vinha em cima e virada para a esquerda), deitada
-   e inteira: a mídia tem a proporção exata da foto (1614×937), sem recorte */
-.ac2-m{position:relative;aspect-ratio:1614/937;margin-top:clamp(30px,3vw,56px);border-radius:var(--rm);overflow:hidden;background:var(--navy);isolation:isolate}
+/* topo (pedido do Luiz, 15/10/2026): a foto antiga em pé, inteira, e ao lado dela o título em degradê e o subtítulo, no meio da altura da
+   foto. A foto cabe na primeira tela (--fw: a largura dela; no máximo 42% da página) */
+.ac2-hero{--fw:clamp(244px,calc((100vh - 230px) * .5806),500px);display:grid;grid-template-columns:min(42%,var(--fw)) minmax(0,1fr);align-items:center;gap:clamp(36px,4.2vw,80px);padding-top:clamp(30px,3vw,56px)}
+.ac2-tit{width:fit-content;max-width:100%;margin:0;font:400 clamp(2.2rem,4vw,5rem)/1.12 var(--f1);letter-spacing:-.02em;background:linear-gradient(90deg,#1E3E70 15%,#C8862E 85%);-webkit-background-clip:text;background-clip:text;color:transparent}   /* o degradê na largura do texto; a quebra antes de "A Intendente" vale nas duas versões */
+/* a Intendente antiga, vista do alto (foto enviada pelo Luiz em 15/10/2026, sem o nome que vinha em cima), em pé e inteira: a mídia tem a
+   proporção exata da foto (937×1614), sem recorte */
+.ac2-m{position:relative;width:100%;aspect-ratio:937/1614;border-radius:var(--rm);overflow:hidden;background:var(--navy);isolation:isolate}
 .ac2-mf{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .ac2-m>video.luz{opacity:.2;mix-blend-mode:screen;filter:brightness(4) contrast(2.4) saturate(0)}   /* o vidro da home por cima da foto antiga, só a luz que passa: o vídeo é quase todo azul-escuro, então o filtro apaga o fundo e deixa as faixas claras (pedido do Luiz, 13/10/2026); bem transparente, o efeito estava muito aparente (14/10/2026) */
 .ac2-selo{position:absolute;z-index:2;top:clamp(16px,1.7vw,28px);left:clamp(16px,1.7vw,28px);padding:10px 18px;border-radius:99px;background:rgba(246,244,241,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font:500 clamp(.8rem,.85vw,.95rem)/1.3 var(--f2);color:var(--ink)}
-.ac2-ent{--r:clamp(20px,2.2vw,36px);position:absolute;z-index:2;top:0;left:50%;transform:translateX(-50%);width:min(460px,36%);padding:clamp(20px,2vw,34px) clamp(22px,2vw,36px) clamp(24px,2.3vw,40px);border-radius:0 0 var(--r) var(--r);background:var(--cl);text-align:center}
-.ac2-ent::before,.ac2-ent::after{content:'';position:absolute;top:0;width:var(--r);height:var(--r)}
-.ac2-ent::before{right:100%;background:radial-gradient(circle at 0 100%,#0000 calc(var(--r) - .6px),var(--cl) calc(var(--r) + .4px))}
-.ac2-ent::after{left:100%;background:radial-gradient(circle at 100% 100%,#0000 calc(var(--r) - .6px),var(--cl) calc(var(--r) + .4px))}
-.ac2 .ac2-ent p,.ac2 .ac2-sub{color:var(--ink);font-size:clamp(.92rem,1vw,1.1rem);line-height:1.55}
-.ac2 .ac2-sub{display:none}
+.ac2 .ac2-sub{max-width:30em;margin-top:clamp(18px,1.7vw,32px);color:var(--ink);font-size:clamp(1rem,1.2vw,1.45rem);line-height:1.5}
 /* história: o texto e a foto da sede com a mesma altura, alinhados em cima e embaixo com qualquer aba aberta (pedido do Luiz, 07/10/2026):
    o acordeão guarda a altura que tem com a aba mais longa aberta (alturaAcordeao) e a foto acompanha a coluna do texto */
 .ac2-a .ac2-t{grid-column:1}
@@ -729,24 +739,17 @@ body.lb-on{overflow:hidden}
 .ac2-ct-g{display:flex;flex-direction:column;justify-content:space-between;gap:clamp(16px,1.4vw,22px);justify-self:end;width:min(100%,410px)}
 .ac2 .ac2-ct-g p{margin-top:6px;color:var(--ink)}
 .ac2 .ac2-ct-g>div:last-child p{margin-bottom:-.43em}   /* a linha de base do último dado na base dos botões */
-@media (max-width:1100px){
-  .ac2-ent{width:min(460px,48%)}
-}
 @media (max-width:760px){
   /* celular (pedido do Luiz, 13/10/2026): cantos bem menos redondos, textos menores e as seções no meio */
   .ac2{--g:5.63vw;--rm:2.82vw;padding-bottom:16.9vw}
   .ac2 h2{font-size:7.04vw;letter-spacing:-.15vw}
   .ac2 p{font-size:3.73vw}
   .ac2-pill{gap:2.82vw;margin-top:5.63vw;padding:2.46vw 4.23vw 2.46vw 4.93vw;font-size:3.3vw}
-  .ac2-hero{padding-top:8.45vw}   /* o título com respiro embaixo do cabeçalho */
-  .ac2-tit{font-size:6.76vw}
-  .ac2-m{margin-top:7.04vw}
-  /* "Desde 1998" num entalhe no meio de cima da foto, como o subtítulo no computador */
-  .ac2-selo{display:none}
-  .ac2-ent{--r:2.82vw;width:auto;padding:1.76vw 4.93vw 2.46vw}
-  .ac2 .ac2-ent p{display:none}
-  .ac2-ent .so-cel{display:block;font:500 3.17vw/1.2 var(--f2);color:var(--ink);white-space:nowrap}
-  .ac2 .ac2-sub{display:block;max-width:none;margin:5.63vw auto 0;text-align:center;font-size:3vw;line-height:1.45;text-wrap:balance}   /* no máximo duas linhas */
+  /* o topo como no computador: a foto em pé e, ao lado, o título e o subtítulo (pedido do Luiz, 15/10/2026) */
+  .ac2-hero{grid-template-columns:42% minmax(0,1fr);gap:4.23vw;padding-top:8.45vw}
+  .ac2-tit{font-size:5.63vw;line-height:1.18;text-wrap:balance}
+  .ac2-selo{top:1.76vw;left:1.76vw;padding:.88vw 2.11vw;font-size:2.46vw}
+  .ac2 .ac2-sub{margin-top:2.82vw;font-size:3vw;line-height:1.45}
   .ac2-g{grid-template-columns:1fr;margin-top:19.7vw}
   .ac2-a .ac2-t,.ac2-a .ac2-f{grid-column:1}
   .ac2-t{padding:0}
@@ -1071,6 +1074,10 @@ body.lb-on{overflow:hidden}
   .anc-t{padding:1.76vw 3.73vw 2.67vw;max-width:calc(100% - 10.67vw);font-size:3.04vw}   /* o nome bem menor (pedido do Luiz, 14/10/2026) */
   .anc-t.mede{padding-right:calc(3.73vw + 21px)}
   .anc-p{padding:3.2vw 4.27vw 2.13vw}
+  /* a quilometragem, o câmbio, o combustível e a loja bem menores, no canto de baixo à esquerda da foto (pedido do Luiz, 15/10/2026); o preço
+     fica no canto da direita */
+  .anc-i{inset:auto auto 2.67vw 2.67vw;max-width:60%;align-content:flex-end;justify-content:flex-start;gap:1.06vw;padding:0}
+  .anc-i span{padding:1.06vw 2.13vw;font-size:2.4vw}
   /* contador: embaixo, no centro; quando o rodapé aparece, ele para em cima dele */
   .gl>.est-cont-a{position:sticky;z-index:40;bottom:5.63vw}
   .gl.fix{overflow:clip}   /* com hidden, a folha vira a área de rolagem e o contador não gruda na tela */
@@ -2196,6 +2203,7 @@ function veiculo(){
    <section class="vp-m">
     <div>
      <h1><span>${E('veiculo.nome',esc(nomeV(v)))}</span>${ver?`<span class="vp-n2">${E('veiculo.versao',esc(ver))}</span>`:''}</h1>
+     ${car.length?`<div class="vp-tags vp-tt">${car.map(c=>`<span>${ic(I_OK,15)}${E('veiculo.caracteristica',esc(c))}</span>`).join('')}</div>`:''}
      <a class="vp-pill" onclick="document.getElementById('vpCt').scrollIntoView({behavior:'smooth'})">${T('veiculo.interesse','Tenho interesse')}<i>${ic('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',18)}</i></a>
     </div>
     <div class="vp-ficha">${ficha.map(f=>`<div><span>${f[0]}</span><b>${E('veiculo.ficha-valor',esc(f[1]))}</b></div>`).join('')}</div>
@@ -2210,9 +2218,8 @@ function veiculo(){
     </div>
     <button type="button" class="vp-gv" onclick="abrirFoto(${Math.min(3,fotos.length-1)})">${T('veiculo.ver-todas','Ver todas')}${ic('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',15)}</button>
    </section>`:''}
-   <section class="vp-s${car.length||opc.length?'':' so1'}">
+   <section class="vp-s${car.length||opc.length?'':' so1'}${opc.length?'':' sem-opc'}">
     ${car.length||opc.length?`<div class="vp-c">
-     <h2>${T('veiculo.caracteristicas','Características')}</h2>
      ${car.length?`<div class="vp-tags">${car.map(c=>`<span>${ic(I_OK,15)}${E('veiculo.caracteristica',esc(c))}</span>`).join('')}</div>`:''}
      ${opc.length?`<div class="kick">${T('veiculo.opcionais','Opcionais')}</div><ul class="vp-opc curta">${opc.map(o=>`<li>${E('veiculo.opcional',esc(o))}</li>`).join('')}</ul><button type="button" class="vp-mais" onclick="verOpcionais(this)"><span class="vt">${T('veiculo.ver-mais','Ver mais')}</span><span class="vm">${T('veiculo.ver-menos-opcionais','Ver menos')}</span>${ic(I_DOWN,15)}</button>`:''}
     </div>`:''}
@@ -2300,12 +2307,13 @@ function ajustarTopo(){
   const px=Math.min(innerHeight/1021,innerWidth/1912),dp=Math.min(64,Math.max(24,56*px));   // o mesmo --dp do CSS
   const Hmax=Math.max(300,innerHeight-menu-dp-(tp.getBoundingClientRect().top+scrollY));
   const vk=Math.max(.5,Math.min(1.1,Hmax/713));tp.style.setProperty('--vk',vk.toFixed(3));   // os textos na proporção do espaço: 1 na tela do Luiz (1912×1021)
-  const gm=mini?parseFloat(getComputedStyle(mini).columnGap)||0:0,a=k?.1875:0,n=k?3:2,Gmax=80*vk;   // as fotos, quatro por linha, têm a·(W - 3·gm) de altura
+  const nIt=m.querySelector('.vp-tt')?4:3;   // o nome, os blocos (quando tem), o botão e a ficha
+  const gm=mini?parseFloat(getComputedStyle(mini).columnGap)||0:0,a=k?.1875:0,n=k?nIt:nIt-1,Gmax=80*vk;   // as fotos, quatro por linha, têm a·(W - 3·gm) de altura
   let H=Math.min(Hmax,(Wt-g)*.62*.75),W=Wt-g-H*4/3,itens=0,gs=0;
   for(let i=0;i<3;i++){   // o nome pode quebrar de outro jeito na largura nova: a conta é refeita com ela
     tp.style.setProperty('--fh',H+'px');m.style.setProperty('--cw',W+'px');   // a foto no tamanho da conta, senão a coluna mede mais estreita
     m.classList.add('mede');const N=m.offsetHeight;gs=parseFloat(getComputedStyle(m).rowGap)||0;m.classList.remove('mede');
-    itens=N-2*gs;   // o nome, a ficha e o botão, sem os espaços entre eles
+    itens=N-(nIt-1)*gs;   // o nome, os blocos, o botão e a ficha, sem os espaços entre eles
     if(!k)break;
     const Hc=(itens+n*Gmax+a*(Wt-g-3*gm))/(1+a*4/3);   // a foto mais alta que deixa os espaços da coluna em Gmax
     H=Math.min(Hmax,(Wt-g)*.62*.75,Hc);W=Wt-g-H*4/3;
@@ -2319,6 +2327,7 @@ function ajustarTopo(){
 function ordenarInfo(){
   cortarOpcionais();
   const d=document.getElementById('vpDesc'),c=document.querySelector('.vp-s .vp-c');if(!d||!c)return;
+  alinharOpcionais(d,c);
   const maior=d.offsetHeight>c.offsetHeight;d.style.order=maior?'-1':'';
   const ul=c.querySelector('.vp-opc'),ps=d.querySelectorAll('.vp-dt p');
   if(!maior||!ul||!ps.length||!ul.classList.contains('curta')||getComputedStyle(c.parentNode).gridTemplateColumns.split(' ').length<2)return;
@@ -2334,6 +2343,14 @@ function ordenarInfo(){
   if(fundo[fundo.length-1]<=alvo||li.length-lim<=2){li.forEach(l=>l.classList.remove('oc'));b.classList.remove('tem');return;}   // cabem todos
   li.forEach((l,i)=>l.classList.toggle('oc',i>=lim));
   b.style.marginTop=Math.max(0,parseFloat(getComputedStyle(b).marginTop)+alvo-base(b.querySelector('.vt')))+'px';
+}
+// computador: sem o título "Características", os opcionais começam na linha da primeira linha da descrição (pedido do Luiz, 15/10/2026): o
+// topo das letras de "Opcionais" no topo das letras da primeira linha (Figtree: as maiúsculas têm .7 da letra)
+function alinharOpcionais(d,c){
+  c.style.paddingTop='';const k=c.querySelector('.kick'),p=d.querySelector('.vp-dt p');
+  if(innerWidth<1101||!k||!p||getComputedStyle(c.parentNode).gridTemplateColumns.split(' ').length<2)return;
+  const topo=el=>{const x=document.createElement('span');x.style.cssText='display:inline-block;width:0;height:0';el.prepend(x);const y=x.getBoundingClientRect().top;x.remove();return y-.7*parseFloat(getComputedStyle(el).fontSize);};
+  c.style.paddingTop=Math.max(0,topo(p)-topo(k)).toFixed(1)+'px';
 }
 // opcionais: de começo só as primeiras linhas (5 no computador, 8 no celular); "Ver mais" abre o resto deslizando (pedido do Luiz, 01/10/2026).
 // Só corta quando sobram 3 ou mais: um "Ver mais" para mostrar um item só não vale o clique
@@ -2374,7 +2391,7 @@ function pintarDescricao(txt){
 let fotosLB=[],iLB=0;
 function abrirFoto(i){
   const v=V.find(x=>String(x.id)===String(vAtual));if(!v||!(v.fotos||[]).length)return;
-  fotosLB=v.fotos;iLB=Math.min(i,fotosLB.length-1);fecharFoto();
+  fotosLB=v.fotos;iLB=Math.min(i,fotosLB.length-1);fecharFoto(true);
   const lb=document.createElement('div');lb.id='lb';
   lb.innerHTML=fotosLB.map((f,j)=>`<figure class="lb-s" data-i="${j}"><img alt=""></figure>`).join('')
     +`<button type="button" class="lb-x" aria-label="Fechar" onclick="fecharFoto()">${ic('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',22)}</button>`
@@ -2407,8 +2424,15 @@ function posFotos(semAnimacao){
   const c=document.getElementById('lbN');if(c)c.textContent=(iLB+1)+' / '+n;
 }
 function passarFoto(d){if(fotosLB.length<2)return;iLB=(iLB+d+fotosLB.length)%fotosLB.length;posFotos();}
-function fecharFoto(){const lb=document.getElementById('lb');if(lb)lb.remove();document.body.classList.remove('lb-on');}
-document.addEventListener('keydown',e=>{if(!document.getElementById('lb'))return;if(e.key==='Escape')fecharFoto();else if(e.key==='ArrowRight'||e.key==='ArrowDown')passarFoto(1);else if(e.key==='ArrowLeft'||e.key==='ArrowUp')passarFoto(-1);});
+// sai em fusão, como entra (pedido do Luiz, 15/10/2026); ja: some na hora (abrindo outra ou trocando de página)
+function fecharFoto(ja){
+  const lb=document.getElementById('lb');if(!lb)return;
+  if(ja){lb.remove();document.body.classList.remove('lb-on');return;}
+  if(lb.classList.contains('sai'))return;
+  lb.classList.add('sai');lb.classList.remove('vis');lb.style.pointerEvents='none';
+  setTimeout(()=>{if(lb.isConnected)lb.remove();if(!document.getElementById('lb'))document.body.classList.remove('lb-on');},280);
+}
+document.addEventListener('keydown',e=>{const lb=document.getElementById('lb');if(!lb||lb.classList.contains('sai'))return;if(e.key==='Escape')fecharFoto();else if(e.key==='ArrowRight'||e.key==='ArrowDown')passarFoto(1);else if(e.key==='ArrowLeft'||e.key==='ArrowUp')passarFoto(-1);});
 // forma de compra: no financiamento abre a entrada (em dinheiro ou com um carro na troca), como no formulário do site antigo
 function formaDeCompra(f,b){formaCompra=f;b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));mexerForm(fm=>fm.classList.toggle('fin',f==='Financiamento'));liberarBotao();}
 function entradaDe(e,b){entradaCompra=e;b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));mexerForm(fm=>fm.classList.toggle('troca',e==='carro'));liberarBotao();}
@@ -2428,7 +2452,14 @@ function mexerForm(fn){
   fn(fm);
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const h1=fm.offsetHeight,op={duration:420,easing:'cubic-bezier(.2,.8,.2,1)'};
-  if(Math.abs(h1-h0)>.5){fm.style.overflow='hidden';fm.animate([{height:h0+'px'},{height:h1+'px'}],op).onfinish=()=>{fm.style.overflow='';};}
+  // as linhas ficam no tamanho final enquanto a altura desliza: com 1fr, elas esticavam junto com a altura (era o "bugado" da volta para
+  // "À vista", pedido do Luiz, 15/10/2026); os campos que saem somem em fusão no lugar onde estavam
+  if(Math.abs(h1-h0)>.5){fm.style.gridTemplateRows=getComputedStyle(fm).gridTemplateRows;fm.style.overflow='hidden';
+    fm.animate([{height:h0+'px'},{height:h1+'px'}],op).onfinish=()=>{fm.style.overflow='';fm.style.gridTemplateRows='';};}
+  const F=fm.getBoundingClientRect();
+  antes.forEach((a,c)=>{if(vis(c))return;const g=c.cloneNode(true);g.removeAttribute('id');g.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));
+    g.style.cssText=`position:absolute;left:${a.left-F.left}px;top:${a.top-F.top}px;width:${a.width}px;height:${a.height}px;margin:0;grid-area:auto;display:${c.tagName==='INPUT'?'block':'flex'};pointer-events:none`;
+    fm.style.position='relative';fm.appendChild(g);g.animate([{opacity:1},{opacity:0}],{duration:200,easing:'ease-out',fill:'forwards'}).onfinish=()=>g.remove();});
   kids.filter(vis).forEach(c=>{const r=c.getBoundingClientRect(),a=antes.get(c);
     if(!a){c.animate([{opacity:0,transform:'translateY(-8px)'},{opacity:1,transform:'none'}],{...op,delay:90,fill:'backwards'});return;}
     const dx=a.left-r.left,dy=a.top-r.top;if(Math.abs(dx)>.5||Math.abs(dy)>.5)c.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:'none'}],op);});
@@ -2468,12 +2499,13 @@ function aceima(){
   return `<div class="ac2">
  <div class="gl topo">${LUZ}${hd()}</div>
  <section class="wrap ac2-hero">
-  <h1 class="ac2-tit">${T('aceima.titulo','A associação que faz o maior polo automotivo da América Latina funcionar.')}</h1>
   <div class="ac2-m"><img class="ac2-mf" src="fotos-aceima/intendente-antiga.webp" alt="Foto aérea antiga da Estrada Intendente Magalhães">${LUZ}
    <div class="ac2-selo">${T('aceima.chamada','Desde 1998')}</div>
-   <div class="ac2-ent"><p>${T('aceima.subtitulo','Tradição, segurança e credibilidade, reunindo os comércios da Estrada Intendente Magalhães com um só propósito.')}</p><span class="so-cel">${T('aceima.chamada','Desde 1998')}</span></div>
   </div>
-  <p class="ac2-sub">${T('aceima.subtitulo','Tradição, segurança e credibilidade, reunindo os comércios da Estrada Intendente Magalhães com um só propósito.')}</p>
+  <div>
+   <h1 class="ac2-tit">${T('aceima.titulo','A associação que faz o maior polo automotivo da América Latina funcionar.')}</h1>
+   <p class="ac2-sub">${T('aceima.subtitulo','Tradição, segurança e credibilidade, reunindo os comércios da Estrada Intendente Magalhães com um só propósito.')}</p>
+  </div>
  </section>
  <section class="wrap ac2-g ac2-a">
   <div class="ac2-t">
@@ -2828,7 +2860,7 @@ function irPara(y){
   irPara.r=requestAnimationFrame(passo);
 }
 function render(topo){
-  fecharDrop();fecharFoto();
+  fecharDrop();fecharFoto(true);
   const filtrosAntes=pagAtual==='estoque'&&document.querySelector('#app .fbar')?medirFiltros():null;   // mesma página: os filtros mudam de tamanho sem pular
   if(roEtq)roEtq.disconnect();
   const app=document.getElementById('app'),velhos=pagAtual===render.pg?[...app.querySelectorAll('video.luz')]:[];
