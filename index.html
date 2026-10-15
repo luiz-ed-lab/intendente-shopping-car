@@ -227,7 +227,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .sob-n b{display:block;font-size:clamp(3.6rem,7vw,5.6rem);font-weight:400;letter-spacing:-.04em;line-height:1;color:var(--ink)}
 .sob-n>div>span{display:block;margin-top:14px;font-family:var(--f2);font-size:clamp(.8rem,1vw,1.2rem);font-weight:600;letter-spacing:.2em;line-height:1.2;text-transform:uppercase;color:var(--mut)}
 .emp{background:var(--navy);border-radius:var(--canto) var(--canto) 0 0;padding:clamp(64px,5.8vw,112px) 0 calc(clamp(64px,5.8vw,112px) + var(--canto))}
-.hs{margin-top:calc(-1 * var(--canto));border-radius:var(--canto) var(--canto) 0 0}
+.hs{display:flex;align-items:center;margin-top:calc(-1 * var(--canto));border-radius:var(--canto) var(--canto) 0 0;padding:clamp(56px,4.8vw,92px) 0}   /* o respiro do bloco da Aceima, sem a altura da tela (pedido do Luiz, 15/10/2026: muito espaço vazio) */
 .hs h2{margin:14px 0 16px;font-size:2.7rem}
 .hs p{font-size:1rem;max-width:470px}
 .hs .btns{display:flex;gap:12px;margin-top:26px}
@@ -238,6 +238,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .hs p{font-size:clamp(1rem,1.2vw,1.45rem);max-width:30em}
   .hs .btns{margin-top:clamp(26px,2.2vw,42px)}
   .hs .btn{font-size:clamp(.85rem,.95vw,1.1rem);padding:clamp(12px,1vw,18px) clamp(24px,1.9vw,36px);border-radius:clamp(8px,.6vw,11px)}
+  .stag .c:last-child{margin-bottom:0}   /* a base da vitrine é a base da última foto */
 }
 .emp h2{color:#fff}
 .emp h2 em{color:var(--gold3)}
@@ -419,23 +420,27 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .vp-volta{margin-bottom:clamp(8px,.55vw,10px)}
   .vp-topo{--fh:clamp(380px,100vh - 260px,880px);display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(18px,1.4vw,28px);align-items:start}   /* a foto mais perto da coluna (pedido do Luiz, 14/10/2026) */
   .vp-hero{width:calc(var(--fh) * 4 / 3);height:var(--fh);aspect-ratio:auto}
-  .vp-m{width:var(--cw,auto);max-width:100%;height:var(--fh);display:flex;flex-direction:column;gap:clamp(12px,.85vw,16px);margin:0}
+  .vp-m{width:var(--cw,auto);max-width:100%;height:var(--fh);display:flex;flex-direction:column;gap:calc(21px * var(--vk,1));margin:0}
   .vp-m.mede{height:auto}
   .vp-m.mede .vp-mini{display:none}
   .vp-m>div:first-child{display:contents}
-  .vp-m h1{margin-top:-.16em;font-size:clamp(1.4rem,1.85vw,2.3rem)}
-  .vp-ficha{order:1;gap:clamp(8px,.55vw,10px) clamp(18px,1.6vw,30px)}
-  .vp-ficha>div{padding-top:clamp(6px,.4vw,7px);border-top-color:rgba(11,26,51,.11)}
-  .vp-ficha>div>span{font-size:clamp(.56rem,.58vw,.7rem)}
-  .vp-ficha b{margin-top:clamp(2px,.2vw,4px);font-size:clamp(.98rem,1.15vw,1.4rem)}
+  /* o nome e a ficha maiores, e as fotos menores, para o começo da página ficar equilibrado (pedido do Luiz, 15/10/2026). Os tamanhos
+     acompanham o espaço que a foto tem (--vk, 1 na tela do Luiz, ajustarTopo): numa tela mais baixa, tudo diminui junto, na mesma
+     proporção, e continua cabendo acima do menu */
+  .vp-m h1{margin-top:-.16em;font-size:max(1.6rem,calc(50px * var(--vk,1)))}
+  .vp-ficha{order:1;gap:calc(13px * var(--vk,1)) calc(34px * var(--vk,1))}
+  .vp-ficha>div{padding-top:calc(9px * var(--vk,1));border-top-color:rgba(11,26,51,.11)}
+  .vp-ficha>div>span{font-size:max(.58rem,calc(12.6px * var(--vk,1)))}
+  .vp-ficha b{margin-top:calc(4px * var(--vk,1));font-size:max(1.1rem,calc(30px * var(--vk,1)))}
   /* a base das fotos na base da foto grande; com três, a última fica no meio */
   .vp-mini{--gm:clamp(8px,.7vw,12px);order:2;display:flex;flex-wrap:wrap;justify-content:center;gap:var(--gm);margin-top:auto}
   .vp-mf{flex:0 0 calc(50% - var(--gm) / 2)}
   .vp-mini.um .vp-mf{flex-basis:100%}   /* uma só: na largura da coluna */
   .vp-m .vp-pill{display:none}
   /* o "Tenho interesse" no meio do caminho entre as fotos e os textos de baixo (pedido do Luiz, 14/10/2026): a mesma distância (--dp) até a
-     base das fotos e até o topo das letras do título de baixo, que fica a .15em do topo da caixa dele */
-  .vp{--dp:clamp(24px,1.7vw,32px)}
+     base das fotos e até o topo das letras do título de baixo, que fica a .15em do topo da caixa dele. Em 15/10/2026, com mais espaço, e o
+     menu também fica a essa distância do botão (ajustarTopo) */
+  .vp{--dp:clamp(24px,calc(56 * var(--px)),64px)}
   .vp-pd{display:flex;justify-content:center;margin-top:var(--dp)}
   .vp .vp-s{margin-top:calc(var(--dp) - .15 * clamp(2.2rem,3.3vw,4rem))}
   .vp-pd .vp-pill{margin:0;padding:5px 5px 5px 22px}
@@ -510,8 +515,10 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-form{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(2,minmax(30px,1fr));grid-template-areas:"nome forma" "tel bt";gap:clamp(8px,.75vw,14px) clamp(10px,.8vw,14px);margin:calc(var(--pf) * .146) 0 calc(var(--nf) * .35)}
 .vp-form input{height:100%}
 .vp-form .seg button{height:100%;padding:0}
-.vp-form .btnp{height:100%;padding:0 22px;justify-content:center;transition:opacity .25s,filter .25s}
-.vp-form .btnp:disabled{opacity:.38;filter:saturate(.4);cursor:not-allowed}   /* só libera com tudo preenchido (pedido do Luiz, 06/10/2026) */
+.vp-form .btnp{height:100%;padding:0 22px;justify-content:center;transition:color .25s,box-shadow .25s}
+/* só libera com tudo preenchido (pedido do Luiz, 06/10/2026). Travado, fica no tom dos campos, com o texto apagado (pedido de 15/10/2026: o
+   dourado apagado ficava com uma cor ruim) */
+.vp-form .btnp:disabled{background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);color:#61718C;cursor:not-allowed}
 .vp-form .btnp:disabled svg{transform:none}
 .vp-f-nome{grid-area:nome}
 .vp-f-tel{grid-area:tel}
@@ -675,8 +682,10 @@ body.lb-on{overflow:hidden}
 .ac2-hero{padding-top:clamp(30px,3vw,56px)}
 .ac2-tit{max-width:1000px;margin:0 auto;text-align:center;font:400 clamp(1.6rem,2.3vw,2.8rem)/1.22 var(--f1);letter-spacing:-.02em;background:linear-gradient(90deg,#1E3E70 15%,#C8862E 85%);-webkit-background-clip:text;background-clip:text;color:transparent}
 @media (min-width:761px){.ac2-tit br{display:none}}   /* a quebra de linha antes de "A Intendente" é só do celular (pedido do Luiz, 13/10/2026): no computador, o título fica numa linha */
-.ac2-m{position:relative;height:clamp(380px,38.5vw,720px);margin-top:clamp(30px,3vw,56px);border-radius:var(--rm);overflow:hidden;background:var(--navy);isolation:isolate}
-.ac2-mf{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 94%}   /* a Intendente antiga, vista de cima (foto enviada pelo Luiz em 13/10/2026): o recorte mostra a rua que sai à esquerda */
+/* a Intendente antiga, vista de cima (foto enviada pelo Luiz em 13/10/2026), deitada e inteira: a mídia tem a proporção exata da foto
+   (2000×1532), sem recorte (pedido do Luiz, 15/10/2026) */
+.ac2-m{position:relative;aspect-ratio:2000/1532;margin-top:clamp(30px,3vw,56px);border-radius:var(--rm);overflow:hidden;background:var(--navy);isolation:isolate}
+.ac2-mf{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .ac2-m>video.luz{opacity:.2;mix-blend-mode:screen;filter:brightness(4) contrast(2.4) saturate(0)}   /* o vidro da home por cima da foto antiga, só a luz que passa: o vídeo é quase todo azul-escuro, então o filtro apaga o fundo e deixa as faixas claras (pedido do Luiz, 13/10/2026); bem transparente, o efeito estava muito aparente (14/10/2026) */
 .ac2-selo{position:absolute;z-index:2;top:clamp(16px,1.7vw,28px);left:clamp(16px,1.7vw,28px);padding:10px 18px;border-radius:99px;background:rgba(246,244,241,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font:500 clamp(.8rem,.85vw,.95rem)/1.3 var(--f2);color:var(--ink)}
 .ac2-ent{--r:clamp(20px,2.2vw,36px);position:absolute;z-index:2;top:0;left:50%;transform:translateX(-50%);width:min(460px,36%);padding:clamp(20px,2vw,34px) clamp(22px,2vw,36px) clamp(24px,2.3vw,40px);border-radius:0 0 var(--r) var(--r);background:var(--cl);text-align:center}
@@ -739,8 +748,7 @@ body.lb-on{overflow:hidden}
   .ac2-pill{gap:2.82vw;margin-top:5.63vw;padding:2.46vw 4.23vw 2.46vw 4.93vw;font-size:3.3vw}
   .ac2-hero{padding-top:8.45vw}   /* o título com respiro embaixo do cabeçalho */
   .ac2-tit{font-size:6.76vw}
-  .ac2-m{height:auto;aspect-ratio:4/3;margin-top:7.04vw}   /* deitada, como no computador */
-  .ac2-mf{object-position:50% 100%}
+  .ac2-m{margin-top:7.04vw}
   /* "Desde 1998" num entalhe no meio de cima da foto, como o subtítulo no computador */
   .ac2-selo{display:none}
   .ac2-ent{--r:2.82vw;width:auto;padding:1.76vw 4.93vw 2.46vw}
@@ -1529,7 +1537,7 @@ function home(){
   ${avaliacoes()}
  </div>
  ${sobre()}
- <div class="glc hs" style="min-height:100vh;display:flex;align-items:center;padding:40px 0">${LUZ}
+ <div class="glc hs">${LUZ}
   <div class="wrap hs-grid" style="display:grid;grid-template-columns:1fr 1.02fr;gap:64px;align-items:center">
    <div>
      <div class="kick">${T('inicio.estoque-chamada','Estoque dos associados')}</div>
@@ -2289,18 +2297,21 @@ function setasGaleria(){
 }
 function passarGaleria(d){const t=document.getElementById('vpGt');if(!t)return;const gap=parseFloat(getComputedStyle(t).columnGap)||0;t.scrollBy({left:d*(t.clientWidth+gap),behavior:'smooth'});}
 // computador (pedido do Luiz, 14/10/2026): a foto, o nome, a ficha, as quatro fotos seguintes e, embaixo de tudo, o botão cabem na tela,
-// acima do menu. A foto (4:3) e a coluna têm a mesma altura (--fh): a base das fotos da coluna na base da foto grande. As quatro fotos, em 4:3
+// acima do menu, com a mesma distância (--dp) das fotos ao botão e do botão ao menu (15/10/2026). A foto (4:3) e a coluna têm a mesma altura
+// (--fh): a base das fotos da coluna na base da foto grande. As quatro fotos, em 4:3
 // e duas por linha, crescem até a coluna ocupar a largura que sobra ao lado da foto. Numa tela mais baixa, manda a altura que cabe acima do
 // menu e a coluna fica mais estreita (--cw): aí a página inteira fica no meio, na largura da foto com a coluna (--vpw), para tudo continuar
 // alinhado (as fotos não são cortadas para encher)
 function ajustarTopo(){
   const tp=document.querySelector('.vp-topo'),m=tp&&tp.querySelector('.vp-m'),app=document.getElementById('app');if(!m)return;
-  app.style.removeProperty('--vpw');tp.style.removeProperty('--fh');m.style.removeProperty('--cw');if(innerWidth<1101)return;
+  app.style.removeProperty('--vpw');tp.style.removeProperty('--fh');tp.style.removeProperty('--vk');m.style.removeProperty('--cw');if(innerWidth<1101)return;
   const mini=m.querySelector('.vp-mini'),k=mini?mini.children.length:0,um=k===1,linhas=um?1:Math.ceil(k/2);
   const g=parseFloat(getComputedStyle(tp).columnGap)||0,gm=mini?parseFloat(getComputedStyle(mini).columnGap)||0:0,gs=parseFloat(getComputedStyle(m).rowGap)||0,Wt=tp.clientWidth;
   const nav=document.getElementById('nav'),menu=nav?nav.offsetHeight+(parseFloat(getComputedStyle(nav).bottom)||0):76;
-  const pd=document.querySelector('.vp-pd'),botao=pd?pd.offsetHeight+(parseFloat(getComputedStyle(pd).marginTop)||0):0;   // a linha do botão, embaixo
-  const Hmax=Math.max(360,innerHeight-menu-10-botao-(tp.getBoundingClientRect().top+scrollY));   // 10px de folga em cima do menu
+  const pd=document.querySelector('.vp-pd'),dp=pd?parseFloat(getComputedStyle(pd).marginTop)||0:0,botao=pd?pd.offsetHeight+dp:0;   // a linha do botão, embaixo
+  const Hmax=Math.max(300,innerHeight-menu-dp-botao-(tp.getBoundingClientRect().top+scrollY));   // do botão ao menu, a mesma distância das fotos ao botão
+  // os textos do começo na proporção do espaço da foto: na tela do Luiz (1912×1021) a foto tem 633px de altura e a página 1630px de largura
+  tp.style.setProperty('--vk',Math.max(.5,Math.min(1.15,Hmax/633,Wt/1418)).toFixed(3));
   const semFotos=w=>{m.style.setProperty('--cw',w+'px');m.classList.add('mede');const h=m.offsetHeight;m.classList.remove('mede');return h;};
   let H=Hmax,W=Wt-g-Hmax*4/3;
   for(let i=0;i<3;i++){   // o nome pode quebrar de outro jeito na largura nova: a conta é refeita com ela
@@ -2308,7 +2319,7 @@ function ajustarTopo(){
     if(!linhas){H=Math.min(Hmax,Math.max(N,(Wt-g-320)*.75));W=Wt-g-H*4/3;break;}
     const a=um?.75:linhas*.375,C=N+gs-(um?0:a*gm)+(linhas-1)*gm,Hc=(C+a*(Wt-g))/(1+a*4/3);   // a coluna tem C + a·W de altura (W: a largura dela)
     H=Math.min(Hc,Hmax);W=H<Hc?(H-C)/a:Wt-g-H*4/3;
-    if(W<260){W=260;H=C+a*W;}   // tela muito baixa: a coluna não fica estreita demais, e a foto acompanha a altura dela
+    if(W<240){W=240;H=C+a*W;}   // tela muito baixa: a coluna não fica estreita demais, e a foto acompanha a altura dela
   }
   tp.style.setProperty('--fh',H.toFixed(1)+'px');m.style.setProperty('--cw',W.toFixed(1)+'px');
   const sobra=Wt-g-H*4/3-W;if(sobra>1)app.style.setProperty('--vpw',(Wt-sobra).toFixed(1)+'px');
@@ -2641,17 +2652,18 @@ function abrirRamo(){
   const r=alvo.getBoundingClientRect(),d=document.createElement('div');d.className='drop';dropDe='ramo';
   d.style.left=(r.left+scrollX)+'px';d.style.top=(r.bottom+scrollY+8)+'px';d.style.width=Math.max(220,r.width)+'px';
   d.innerHTML=RAMOS.map(o=>`<button class="${alvo.dataset.v===o?'on':''}" data-v="${esc(o)}">${esc(o)}</button>`).join('');
-  d.querySelectorAll('button').forEach(b=>b.onclick=()=>{alvo.dataset.v=b.dataset.v;alvo.firstElementChild.textContent=b.dataset.v;alvo.classList.add('on');fecharDrop();});
+  d.querySelectorAll('button').forEach(b=>b.onclick=()=>{alvo.dataset.v=b.dataset.v;alvo.firstElementChild.textContent=b.dataset.v;alvo.classList.add('on');fecharDrop();liberarAssoc();});
   document.body.appendChild(d);alvo.classList.add('aberto');
   const on=d.querySelector('.on');if(on)d.scrollTop=on.offsetTop-d.clientHeight/2;
 }
-// o botão só libera com o nome e o WhatsApp preenchidos, como no formulário da página do carro
-function liberarAssoc(){const b=document.querySelector('.as2-f-bt');if(!b)return;const v=id=>(document.getElementById(id)||{}).value||'';b.disabled=!(v('asNome').trim()&&v('asTel').replace(/\D/g,'').length>=10);}
+// o botão só libera com o nome, o WhatsApp e o ramo (pedido do Luiz, 15/10/2026), como no formulário da página do carro
+function liberarAssoc(){const b=document.querySelector('.as2-f-bt');if(!b)return;const v=id=>(document.getElementById(id)||{}).value||'';b.disabled=!(v('asNome').trim()&&v('asTel').replace(/\D/g,'').length>=10&&(document.getElementById('fp-ramo')||{dataset:{}}).dataset.v);}
 function enviarAssoc(){
   const g=id=>document.getElementById(id),nome=g('asNome').value.trim(),emp=g('asEmp').value.trim(),tel=g('asTel').value.replace(/\D/g,'');
-  g('asNome').classList.toggle('bad',!nome);g('asTel').classList.toggle('bad',tel.length<10);if(!nome||tel.length<10)return;
+  const ramo=(g('fp-ramo')||{dataset:{}}).dataset.v||'';
+  g('asNome').classList.toggle('bad',!nome);g('asTel').classList.toggle('bad',tel.length<10);if(!nome||tel.length<10||!ramo)return;
   // a mensagem não leva o WhatsApp: ele fica no lead, que vai para o painel e por e-mail para a Aceima (pedido do Luiz, 13/10/2026)
-  const ramo=(g('fp-ramo')||{dataset:{}}).dataset.v||'',rr=ramo&&ramo!=='Outro ramo'?(RAMOS_ADJ.includes(ramo)?ramo.toLowerCase():'de '+ramo):'';
+  const rr=ramo&&ramo!=='Outro ramo'?(RAMOS_ADJ.includes(ramo)?ramo.toLowerCase():'de '+ramo):'';
   const msg=`Olá! Meu nome é ${nome}${emp?`, represento a empresa ${emp}`:''}${rr?` e faço parte do ramo ${rr}`:''}. Quero saber mais sobre a Aceima e como me associar.`;
   window.open('https://wa.me/'+WA_ACEIMA+'?text='+encodeURIComponent(msg),'_blank');
   if(API!==null)fetch('/api/leads?path=leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'associacao',canal:'formulario',cliente_nome:nome,cliente_telefone:tel,detalhes:{empresa:emp||null,ramo:ramo||null}})}).catch(()=>{});
