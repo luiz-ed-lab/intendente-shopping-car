@@ -414,28 +414,28 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
    da coluna (--cw). O topo das letras do nome fica na linha de cima da foto (-.16em: a folga da fonte acima das letras). As fotos embaixo
    da foto (.vp-g) ficam só no tablet e no celular */
 @media (min-width:1101px){
-  .vp{padding-top:clamp(16px,1.25vw,26px)}   /* o "Nosso estoque" com respiro em cima e embaixo (pedido do Luiz, 15/10/2026) */
-  .vp-volta{margin-bottom:clamp(14px,1.05vw,22px)}
+  .vp{padding-top:clamp(24px,2vw,40px)}   /* o "Nosso estoque" com bastante respiro em cima e embaixo (pedidos do Luiz, 15/10/2026) */
+  .vp-volta{margin-bottom:clamp(20px,1.6vw,32px)}
   .vp-topo{--fh:clamp(380px,100vh - 260px,880px);display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(18px,1.4vw,28px);align-items:start}   /* a foto mais perto da coluna (pedido do Luiz, 14/10/2026) */
   .vp-hero{width:calc(var(--fh) * 4 / 3);height:var(--fh);aspect-ratio:auto}
   .vp-m{width:var(--cw,auto);max-width:100%;height:var(--fh);display:flex;flex-direction:column;justify-content:space-between;gap:calc(16px * var(--vk,1));margin:0}   /* o mesmo espaço entre o nome, a ficha, o botão e as fotos */
   .vp-m.mede{height:auto}
   .vp-m.mede .vp-mini{display:none}
-  .vp-m>div:first-child{display:contents}
+  .vp-m>div:first-child>.vp-pill{display:none}   /* o nome, a versão e os blocos ficam juntos; o botão vai para baixo dos dados */
   /* o nome e a versão grandes e a ficha menor (pedido do Luiz, 15/10/2026: o foco é a foto grande e o nome com a versão). Os tamanhos
      acompanham o espaço da tela (--vk, 1 na tela do Luiz, ajustarTopo): numa tela mais baixa, tudo diminui junto, na mesma proporção */
   .vp-m{--vn:max(1.8rem,calc(60px * var(--vk,1)))}   /* o tamanho do nome; a versão tem .56 dele */
   .vp-m h1{margin-top:-.16em;font-size:var(--vn)}
   .vp-m h1 .vp-n2{color:#46556E}
-  .vp-ficha{order:3;gap:calc(16px * var(--vk,1)) calc(30px * var(--vk,1))}
+  .vp-ficha{order:1;gap:calc(16px * var(--vk,1)) calc(30px * var(--vk,1))}
   .vp-ficha>div>span{font-size:max(.56rem,calc(12.5px * var(--vk,1)))}
   .vp-ficha b{margin-top:calc(4px * var(--vk,1));font-size:calc(var(--vn) * .56)}   /* os dados do tamanho da versão (pedido do Luiz, 15/10/2026) */
-  /* embaixo da versão, os blocos (IPVA pago, Manual do proprietário...), depois o "Tenho interesse", no meio da coluna, e os dados do carro
-     (pedidos do Luiz, 15/10/2026) */
-  .vp-m .vp-tt{order:1;display:flex;margin-top:0;gap:calc(8px * var(--vk,1))}
+  /* colados na versão, como se fizessem parte dela, os blocos (IPVA pago, Manual do proprietário...); depois os dados do carro e, embaixo
+     deles, à esquerda, o "Tenho interesse" (pedidos do Luiz, 15/10/2026) */
+  .vp-m .vp-tt{display:flex;margin-top:calc(14px * var(--vk,1));gap:calc(8px * var(--vk,1))}
   .vp-m .vp-tt>span{gap:calc(7px * var(--vk,1));padding:calc(8px * var(--vk,1)) calc(14px * var(--vk,1));font-size:max(.72rem,calc(15px * var(--vk,1)))}
   .vp-m .vp-tt svg{width:calc(15px * var(--vk,1));height:calc(15px * var(--vk,1))}
-  .vp-m .vp-pill{order:2;align-self:center;margin-top:0}
+  .vp-m .vp-pl{order:2;display:inline-flex;align-self:flex-start;margin-top:0}
   /* embaixo: a descrição à esquerda e os opcionais à direita, começando na linha da primeira linha dela (ordenarInfo); os blocos já estão
      em cima */
   .vp-s .vp-d{order:-1!important}
@@ -445,7 +445,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .vp-s.sem-opc .vp-c{display:none}
   .vp-s.so1.sem-opc{display:none}
   /* as quatro fotos numa linha, na largura da coluna, com a base na base da foto grande; com menos fotos, elas ficam no meio */
-  .vp-mini{--gm:clamp(8px,.6vw,12px);order:4;display:flex;justify-content:center;gap:var(--gm);width:100%;align-self:center}
+  .vp-mini{--gm:clamp(8px,.6vw,12px);order:3;display:flex;justify-content:center;gap:var(--gm);width:100%;align-self:center}
   .vp-mf{flex:0 0 calc((100% - 3 * var(--gm)) / 4)}
   /* da base da foto ao menu e ao topo das letras do título de baixo (a .15em do topo da caixa dele), a mesma distância (ajustarTopo) */
   .vp{--dp:clamp(24px,calc(56 * var(--px)),64px);padding-bottom:calc(var(--dp) + var(--canto))}   /* a folha do valor a --dp dos textos */
@@ -482,6 +482,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-c>.kick{margin-top:clamp(28px,2.4vw,44px)}
 .vp-c>.vp-tags:first-child{margin-top:0}   /* sem o título "Características" (pedido do Luiz, 15/10/2026), os blocos abrem a coluna */
 .vp-tt{display:none}   /* os blocos embaixo da versão: só no computador */
+.vp-pl{display:none}   /* o "Tenho interesse" embaixo dos dados: só no computador */
 /* opcionais bem juntos e, de começo, só as primeiras linhas: "Ver mais" abre o resto (pedido do Luiz, 01/10/2026). Em grade, linha
    por linha, para abrir sem tirar do lugar os que já aparecem; quantos ficam à mostra, cortarOpcionais() calcula pelas colunas */
 .vp-opc{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(24px,2.4vw,44px);margin-top:8px}
@@ -523,6 +524,9 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vp-form input{height:100%}
 .vp-form .seg button{height:100%;padding:0}
 .vp-form .btnp{height:100%;padding:0 22px;justify-content:center;transition:color .25s,box-shadow .25s}
+/* o formulário pisca bem de leve quando o "Tenho interesse" termina de descer até ele (pedido do Luiz, 15/10/2026, irAoFormulario) */
+@keyframes formPisca{0%,100%{background-color:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14)}40%{background-color:rgba(255,255,255,.14);border-color:rgba(244,176,92,.6)}}
+.vp-form.pisca input,.vp-form.pisca .seg button:not(.on){animation:formPisca 1s ease-in-out}
 /* só libera com tudo preenchido (pedido do Luiz, 06/10/2026). Travado, fica no tom dos campos, com o texto apagado (pedido de 15/10/2026: o
    dourado apagado ficava com uma cor ruim) */
 .vp-form .btnp:disabled{background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);color:#61718C;cursor:not-allowed}
@@ -669,10 +673,8 @@ body.lb-on{overflow:hidden}
 #edMsg{color:#F4B05C}
 
 /* ============ CELULAR: cópia das telas de celular aprovadas ============ */
-/* A Aceima (pedido do Luiz, 06/10/2026), no estilo do modelo YukoHealth Storefront (21st.dev, @larsen66), sem a parte dos produtos:
-   o título no meio, em degradê; a mídia grande e redonda (o vidro do fundo) com um entalhe no meio de cima para o subtítulo e um selo
-   no canto; a história com os benefícios em acordeão, ao lado da foto da sede; o nosso trabalho com três publicações; e o SAC num
-   bloco redondo. Em 07/10/2026 saíram a foto da união, os números e as perguntas, e o título ficou com menos respiro em cima e embaixo */
+/* A Aceima: o topo e a história num só bloco, como num arquivo histórico (pedido do Luiz, 15/10/2026: a opção 2, no lugar do modelo
+   YukoHealth Storefront de 06/10/2026); o nosso trabalho com três publicações; e o SAC num bloco redondo */
 .ac2{--g:clamp(24px,2.8vw,40px);--rm:clamp(24px,2.8vw,44px);--sec:clamp(64px,5.6vw,108px);background:var(--cl);color:var(--ink);padding-bottom:clamp(48px,4.2vw,80px)}   /* --sec: a distância entre as seções, sem espaço vazio (14/10/2026) */
 .ac2 h2{font:400 clamp(1.55rem,1.9vw,2.3rem)/1.18 var(--f1);letter-spacing:-.025em;color:var(--ink)}
 .ac2 p{font:400 clamp(.95rem,1vw,1.1rem)/1.6 var(--f2);color:#4A5870}
@@ -680,38 +682,36 @@ body.lb-on{overflow:hidden}
 .ac2-pill:hover{background:rgba(11,26,51,.11)}
 .ac2-pill svg{transition:transform .3s var(--ease)}
 .ac2-pill:hover svg{transform:translate(2px,-2px)}
-.ac2-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--g);margin-top:var(--sec)}
-.ac2-t{padding:0 clamp(0px,1.7vw,24px)}
-.ac2-t>p{margin-top:clamp(16px,1.5vw,26px)}
-.ac2-f{border-radius:var(--rm);overflow:hidden;background:#E9E4DD}
-.ac2-f img{width:100%;height:100%;object-fit:cover}
-/* topo (pedido do Luiz, 15/10/2026): a foto antiga em pé, inteira, e ao lado dela o título em degradê e o subtítulo, no meio da altura da
-   foto. A foto cabe na primeira tela (--fw: a largura dela; no máximo 42% da página) */
-.ac2-hero{--fw:clamp(244px,calc((100vh - 230px) * .5806),500px);display:grid;grid-template-columns:min(42%,var(--fw)) minmax(0,1fr);align-items:center;gap:clamp(36px,4.2vw,80px);padding-top:clamp(30px,3vw,56px)}
-.ac2-tit{width:fit-content;max-width:100%;margin:0;font:400 clamp(2.2rem,4vw,5rem)/1.12 var(--f1);letter-spacing:-.02em;background:linear-gradient(90deg,#1E3E70 15%,#C8862E 85%);-webkit-background-clip:text;background-clip:text;color:transparent}   /* o degradê na largura do texto; a quebra antes de "A Intendente" vale nas duas versões */
-/* a Intendente antiga, vista do alto (foto enviada pelo Luiz em 15/10/2026, sem o nome que vinha em cima), em pé e inteira: a mídia tem a
-   proporção exata da foto (937×1614), sem recorte */
-.ac2-m{position:relative;width:100%;aspect-ratio:937/1614;border-radius:var(--rm);overflow:hidden;background:var(--navy);isolation:isolate}
-.ac2-mf{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.ac2-m>video.luz{opacity:.2;mix-blend-mode:screen;filter:brightness(4) contrast(2.4) saturate(0)}   /* o vidro da home por cima da foto antiga, só a luz que passa: o vídeo é quase todo azul-escuro, então o filtro apaga o fundo e deixa as faixas claras (pedido do Luiz, 13/10/2026); bem transparente, o efeito estava muito aparente (14/10/2026) */
-.ac2-selo{position:absolute;z-index:2;top:clamp(16px,1.7vw,28px);left:clamp(16px,1.7vw,28px);padding:10px 18px;border-radius:99px;background:rgba(246,244,241,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font:500 clamp(.8rem,.85vw,.95rem)/1.3 var(--f2);color:var(--ink)}
-.ac2 .ac2-sub{max-width:30em;margin-top:clamp(18px,1.7vw,32px);color:var(--ink);font-size:clamp(1rem,1.2vw,1.45rem);line-height:1.5}
-/* história: o texto e a foto da sede com a mesma altura, alinhados em cima e embaixo com qualquer aba aberta (pedido do Luiz, 07/10/2026):
-   o acordeão guarda a altura que tem com a aba mais longa aberta (alturaAcordeao) e a foto acompanha a coluna do texto */
-.ac2-a .ac2-t{grid-column:1}
-.ac2-a h2{margin-top:-.26em;font-weight:600}   /* o topo das letras na linha de cima da foto (a folga da fonte acima delas); "Nossa história" com mais peso (pedido do Luiz, 13/10/2026) */
-.ac2-a .ac2-f{grid-column:2/4;position:relative}
-.ac2-a .ac2-f img{position:absolute;inset:0}
-.ac2-acc{margin-top:clamp(26px,2.4vw,42px);border-top:1px solid var(--line)}
-.ac2-ai{border-bottom:1px solid var(--line)}
-.ac2-ai>button{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;padding:clamp(16px,1.4vw,22px) 0;text-align:left;font:500 clamp(.88rem,.92vw,1rem)/1.3 var(--f2);color:var(--ink)}
-.ac2-ai>button i{position:relative;flex:none;width:10px;height:10px}
-.ac2-ai>button i::before,.ac2-ai>button i::after{content:'';position:absolute;left:0;top:50%;width:10px;height:1.5px;margin-top:-.75px;border-radius:1px;background:currentColor;transition:transform .3s var(--ease)}
-.ac2-ai>button i::after{transform:rotate(90deg)}
-.ac2-ai.on>button i::after{transform:rotate(0)}
-.ac2-ap{display:none;overflow:hidden}
-.ac2-ai.on>.ac2-ap{display:block}
-.ac2 .ac2-ap p{padding-bottom:clamp(16px,1.4vw,22px)}
+/* topo e história num só bloco, como num arquivo histórico (pedido do Luiz, 15/10/2026: a opção 2, inspirada no modelo Heritage do
+   21st.dev): no meio, "Desde 1998" entre dois fios dourados, o título em degradê e o subtítulo; embaixo, três colunas: a história, a foto
+   antiga em pé, inteira, como uma foto revelada (margem branca e legenda), e os benefícios com o "Seja um associado" */
+.ac2-arq{padding-top:clamp(40px,3.8vw,72px)}
+.ac2-k{display:flex;align-items:center;justify-content:center;gap:clamp(12px,1vw,18px);font:600 clamp(.7rem,.68vw,.82rem)/1.2 var(--f2);letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+.ac2-k::before,.ac2-k::after{content:'';width:clamp(36px,3.3vw,64px);height:1px;background:var(--gold)}
+.ac2-tit{width:fit-content;max-width:100%;margin:clamp(14px,1.2vw,22px) auto 0;text-align:center;font:400 clamp(2.2rem,3.6vw,4.6rem)/1.08 var(--f1);letter-spacing:-.02em;background:linear-gradient(90deg,#1E3E70 15%,#C8862E 85%);-webkit-background-clip:text;background-clip:text;color:transparent;text-wrap:balance}   /* o degradê na largura do texto; a quebra antes de "A Intendente" vale nas duas versões */
+.ac2 .ac2-sub{max-width:640px;margin:clamp(14px,1.2vw,22px) auto 0;text-align:center;color:#3E4C62;font-size:clamp(1rem,1.1vw,1.35rem);line-height:1.55}
+.ac2-tres{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:clamp(36px,4vw,80px);margin-top:clamp(40px,3.8vw,72px)}
+.ac2-hist h2{font-weight:600}
+.ac2-hist h2+p,.ac2-hist p+p{margin-top:clamp(14px,1.2vw,20px)}
+/* a Intendente antiga, vista do alto (foto enviada pelo Luiz em 15/10/2026, sem o nome que vinha em cima), em pé e inteira, na proporção
+   exata da foto (937×1614), sem recorte */
+.ac2-foto{margin:0;padding:clamp(10px,.8vw,14px) clamp(10px,.8vw,14px) 0;background:#fff;box-shadow:0 24px 50px -24px rgba(11,26,51,.45)}
+.ac2-foto img{display:block;width:clamp(240px,21vw,400px);aspect-ratio:937/1614;object-fit:cover}
+.ac2-foto figcaption{padding:clamp(10px,.8vw,14px) 0 clamp(12px,.9vw,16px);text-align:center;font:500 clamp(.74rem,.72vw,.86rem)/1.2 var(--f2);letter-spacing:.04em;color:var(--mut)}
+.ac2-bene{display:flex;flex-direction:column;gap:clamp(18px,1.4vw,26px)}
+.ac2-bene h3{display:flex;align-items:center;gap:10px;font:600 clamp(1rem,1.05vw,1.2rem)/1.3 var(--f1);color:var(--ink)}
+.ac2-bene h3::before{content:'';flex:none;width:8px;height:8px;background:var(--gold);transform:rotate(45deg)}
+.ac2 .ac2-bene p{margin:6px 0 0 18px;font-size:clamp(.88rem,.9vw,1rem);line-height:1.55;color:var(--mut)}
+.ac2-bene .btnp{align-self:flex-start;margin-top:4px}
+@media (max-width:1100px){
+  /* tablet e celular: a foto ao lado da história e, embaixo, os benefícios dois a dois */
+  .ac2-tres{grid-template-columns:40% minmax(0,1fr);grid-template-areas:"foto hist" "bene bene";row-gap:clamp(36px,5vw,56px)}
+  .ac2-foto{grid-area:foto}
+  .ac2-foto img{width:100%}
+  .ac2-hist{grid-area:hist}
+  .ac2-bene{grid-area:bene;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 36px}
+  .ac2-bene .btnp{grid-column:1/-1;justify-self:start}
+}
 /* nosso trabalho: o título e o texto de apoio no meio e, por último, três publicações lado a lado (pedido do Luiz, 07/10/2026) */
 .ac2-c{margin-top:var(--sec)}
 .ac2-ch{max-width:640px;margin:0 auto;text-align:center}
@@ -745,22 +745,24 @@ body.lb-on{overflow:hidden}
   .ac2 h2{font-size:7.04vw;letter-spacing:-.15vw}
   .ac2 p{font-size:3.73vw}
   .ac2-pill{gap:2.82vw;margin-top:5.63vw;padding:2.46vw 4.23vw 2.46vw 4.93vw;font-size:3.3vw}
-  /* o topo como no computador: a foto em pé e, ao lado, o título e o subtítulo (pedido do Luiz, 15/10/2026) */
-  .ac2-hero{grid-template-columns:42% minmax(0,1fr);gap:4.23vw;padding-top:8.45vw}
-  .ac2-tit{font-size:5.63vw;line-height:1.18;text-wrap:balance}
-  .ac2-selo{top:1.76vw;left:1.76vw;padding:.88vw 2.11vw;font-size:2.46vw}
-  .ac2 .ac2-sub{margin-top:2.82vw;font-size:3vw;line-height:1.45}
-  .ac2-g{grid-template-columns:1fr;margin-top:19.7vw}
-  .ac2-a .ac2-t,.ac2-a .ac2-f{grid-column:1}
-  .ac2-t{padding:0}
-  .ac2-a h2{margin-top:0}
-  .ac2-a .ac2-t>h2,.ac2-a .ac2-t>p{text-align:center}   /* "Nossa história" e o texto no meio */
-  .ac2-a .ac2-f{aspect-ratio:350/240}
-  .ac2-a>.ac2-pill{justify-self:center;margin-top:0}   /* "Seja um associado" embaixo da foto */
-  .ac2-acc{margin-top:11.27vw;border-top:0}   /* mais respiro entre a história e as abas, sem a linha em cima da primeira e embaixo da última (pedido do Luiz, 14/10/2026) */
-  .ac2-ai:last-child{border-bottom:0}
-  .ac2-ai>button{padding:4.23vw 0;font-size:3.52vw}
-  .ac2 .ac2-ap p{padding-bottom:4.23vw;font-size:3vw;line-height:1.45}   /* o texto da aba aberta bem menor */
+  /* o topo e a história mais juntos (pedido do Luiz, 15/10/2026): no meio, a chamada, o título e o subtítulo; a foto ao lado da história e,
+     embaixo, os benefícios dois a dois e o botão na largura toda */
+  .ac2-arq{padding-top:8.45vw}
+  .ac2-k{gap:2.82vw;font-size:2.67vw;letter-spacing:.56vw}
+  .ac2-k::before,.ac2-k::after{width:8.45vw}
+  .ac2-tit{margin-top:3.52vw;font-size:7.04vw;line-height:1.14}
+  .ac2 .ac2-sub{margin-top:3.52vw;font-size:3.38vw;line-height:1.45}
+  .ac2-tres{grid-template-columns:44% minmax(0,1fr);gap:8.45vw 4.23vw;margin-top:8.45vw}
+  .ac2-foto{padding:1.76vw 1.76vw 0;box-shadow:0 4.23vw 8.45vw -4.23vw rgba(11,26,51,.45)}
+  .ac2-foto figcaption{padding:1.76vw 0 2.11vw;font-size:2.25vw}
+  .ac2-hist h2{font-size:5.63vw}
+  .ac2-hist h2+p,.ac2-hist p+p{margin-top:2.46vw}
+  .ac2 .ac2-hist p{font-size:3vw;line-height:1.45}
+  .ac2-bene{gap:5.63vw 4.23vw}
+  .ac2-bene h3{gap:1.76vw;font-size:3.52vw;line-height:1.25}
+  .ac2-bene h3::before{width:1.6vw;height:1.6vw}
+  .ac2 .ac2-bene p{margin:1.41vw 0 0 3.38vw;font-size:3vw;line-height:1.4}
+  .ac2-bene .btnp{justify-self:stretch;justify-content:center}
   .ac2-c{margin-top:19.7vw}
   .ac2 .ac2-ch>p{margin-top:2.82vw;font-size:3vw;line-height:1.45}
   /* duas publicações por linha; a última, sozinha, no meio */
@@ -1091,8 +1093,8 @@ body.lb-on{overflow:hidden}
   .ec-prox{left:calc(100% + 2.11vw)}
   .est-cont.pg-a .ec-ant,.est-cont.pg-p .ec-prox{opacity:1;visibility:visible}
   /* veículo */
-  .vp{padding:4.23vw 0 calc(11.27vw + var(--canto))}
-  .vp-volta{gap:1.41vw;margin-bottom:4.93vw;font-size:3.3vw}   /* menor no celular (pedido do Luiz, 30/09/2026), com respiro até a foto (15/10/2026) */
+  .vp{padding:6.34vw 0 calc(11.27vw + var(--canto))}
+  .vp-volta{gap:1.41vw;margin-bottom:6.34vw;font-size:3.3vw}   /* menor no celular (pedido do Luiz, 30/09/2026), com bastante respiro até a foto (15/10/2026) */
   .vp-volta svg{width:3.4vw;height:3.4vw}
   .vp-hero{border-radius:3.52vw}
   .vp-lj::before{width:50%;height:44%}
@@ -2204,9 +2206,10 @@ function veiculo(){
     <div>
      <h1><span>${E('veiculo.nome',esc(nomeV(v)))}</span>${ver?`<span class="vp-n2">${E('veiculo.versao',esc(ver))}</span>`:''}</h1>
      ${car.length?`<div class="vp-tags vp-tt">${car.map(c=>`<span>${ic(I_OK,15)}${E('veiculo.caracteristica',esc(c))}</span>`).join('')}</div>`:''}
-     <a class="vp-pill" onclick="document.getElementById('vpCt').scrollIntoView({behavior:'smooth'})">${T('veiculo.interesse','Tenho interesse')}<i>${ic('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',18)}</i></a>
+     <a class="vp-pill" onclick="irAoFormulario()">${T('veiculo.interesse','Tenho interesse')}<i>${ic('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',18)}</i></a>
     </div>
     <div class="vp-ficha">${ficha.map(f=>`<div><span>${f[0]}</span><b>${E('veiculo.ficha-valor',esc(f[1]))}</b></div>`).join('')}</div>
+    <a class="vp-pill vp-pl" onclick="irAoFormulario()">${T('veiculo.interesse','Tenho interesse')}<i>${ic('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',18)}</i></a>
     ${fotos.length>1?`<div class="vp-mini">${fotos.slice(1,5).map((f,i)=>`<button type="button" class="vp-mf${i===3?' vp-mt':''}" onclick="abrirFoto(${i+1})"><img src="${esc(f)}" alt="" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">${i===3?`<span>${T('veiculo.ver-todas-foto','Ver mais')}</span>`:''}</button>`).join('')}</div>`:''}
    </section>
    </div>
@@ -2308,13 +2311,13 @@ function ajustarTopo(){
   const px=Math.min(innerHeight/1021,innerWidth/1912),dp=Math.min(64,Math.max(24,56*px));   // o mesmo --dp do CSS
   const Hmax=Math.max(300,innerHeight-menu-dp-(tp.getBoundingClientRect().top+scrollY));
   const vk=Math.max(.5,Math.min(1.1,Hmax/713));tp.style.setProperty('--vk',vk.toFixed(3));   // os textos na proporção do espaço: 1 na tela do Luiz (1912×1021)
-  const nIt=m.querySelector('.vp-tt')?4:3;   // o nome, os blocos (quando tem), o botão e a ficha
+  const nIt=3;   // o nome com a versão e os blocos, a ficha e o botão
   const gm=mini?parseFloat(getComputedStyle(mini).columnGap)||0:0,a=k?.1875:0,n=k?nIt:nIt-1,Gmax=44*vk;   // as fotos, quatro por linha, têm a·(W - 3·gm) de altura
   let H=Math.min(Hmax,(Wt-g)*.62*.75),W=Wt-g-H*4/3,itens=0,gs=0;
   for(let i=0;i<3;i++){   // o nome pode quebrar de outro jeito na largura nova: a conta é refeita com ela
     tp.style.setProperty('--fh',H+'px');m.style.setProperty('--cw',W+'px');   // a foto no tamanho da conta, senão a coluna mede mais estreita
     m.classList.add('mede');const N=m.offsetHeight;gs=parseFloat(getComputedStyle(m).rowGap)||0;m.classList.remove('mede');
-    itens=N-(nIt-1)*gs;   // o nome, os blocos, o botão e a ficha, sem os espaços entre eles
+    itens=N-(nIt-1)*gs;   // o nome com os blocos, a ficha e o botão, sem os espaços entre eles
     if(!k)break;
     const Hc=(itens+n*Gmax+a*(Wt-g-3*gm))/(1+a*4/3);   // a foto mais alta que deixa os espaços da coluna em Gmax
     H=Math.min(Hmax,(Wt-g)*.62*.75,Hc);W=Wt-g-H*4/3;
@@ -2344,6 +2347,15 @@ function ordenarInfo(){
   if(fundo[fundo.length-1]<=alvo||li.length-lim<=2){li.forEach(l=>l.classList.remove('oc'));b.classList.remove('tem');return;}   // cabem todos
   li.forEach((l,i)=>l.classList.toggle('oc',i>=lim));
   b.style.marginTop=Math.max(0,parseFloat(getComputedStyle(b).marginTop)+alvo-base(b.querySelector('.vt')))+'px';
+}
+// "Tenho interesse": desce até o valor e, quando a tela para, o formulário dá uma piscada bem de leve (pedido do Luiz, 15/10/2026)
+function irAoFormulario(){
+  const ct=document.getElementById('vpCt'),fm=document.getElementById('vpForm');if(!ct)return;
+  const piscar=()=>{if(!fm)return;fm.classList.remove('pisca');void fm.offsetWidth;fm.classList.add('pisca');setTimeout(()=>fm.classList.remove('pisca'),1100);};
+  if(Math.abs(ct.getBoundingClientRect().top)<4){piscar();return;}   // já está lá
+  let feito=false;const fim=()=>{if(feito)return;feito=true;removeEventListener('scrollend',fim);piscar();};
+  addEventListener('scrollend',fim);setTimeout(fim,1600);   // sem o scrollend (navegador antigo), pisca do mesmo jeito
+  ct.scrollIntoView({behavior:'smooth'});
 }
 // computador: sem o título "Características", os opcionais começam na linha da primeira linha da descrição (pedido do Luiz, 15/10/2026): o
 // topo das letras de "Opcionais" no topo das letras da primeira linha (Figtree: as maiúsculas têm .7 da letra)
@@ -2499,24 +2511,23 @@ function aceima(){
   const seta=ic(SETA_DIAG,15);
   return `<div class="ac2">
  <div class="gl topo">${LUZ}${hd()}</div>
- <section class="wrap ac2-hero">
-  <div class="ac2-m"><img class="ac2-mf" src="fotos-aceima/intendente-antiga.webp" alt="Foto aérea antiga da Estrada Intendente Magalhães">${LUZ}
-   <div class="ac2-selo">${T('aceima.chamada','Desde 1998')}</div>
-  </div>
-  <div>
-   <h1 class="ac2-tit">${T('aceima.titulo','A associação que faz o maior polo automotivo da América Latina funcionar.')}</h1>
-   <p class="ac2-sub">${T('aceima.subtitulo','Tradição, segurança e credibilidade, reunindo os comércios da Estrada Intendente Magalhães com um só propósito.')}</p>
+ <section class="wrap ac2-arq">
+  <div class="ac2-k">${T('aceima.chamada','Desde 1998')}</div>
+  <h1 class="ac2-tit">${T('aceima.titulo','A associação que faz o maior polo automotivo da América Latina funcionar.')}</h1>
+  <p class="ac2-sub">${T('aceima.subtitulo','Tradição, segurança e credibilidade, reunindo os comércios da Estrada Intendente Magalhães com um só propósito.')}</p>
+  <div class="ac2-tres">
+   <div class="ac2-hist">
+    <h2>${T('aceima.historia-titulo','Nossa história.')}</h2>
+    <p>${T('aceima.historia1','A Aceima nasceu em 1998 da união de comerciantes e lojistas da Estrada Intendente Magalhães, com um objetivo claro: manter um padrão de qualidade e de atendimento que dê ao cliente a mesma segurança em qualquer empresa associada.')}</p>
+    <p>${T('aceima.historia2','Hoje, A Intendente é um polo comercial que busca trazer segurança e credibilidade não só a lojas de automóveis como também a todas as empresas que completam esse segmento.')}</p>
+   </div>
+   <figure class="ac2-foto"><img src="fotos-aceima/intendente-antiga.webp" alt="Foto aérea antiga da Estrada Intendente Magalhães"><figcaption>${T('aceima.foto-legenda','Estrada Intendente Magalhães')}</figcaption></figure>
+   <div class="ac2-bene">
+    ${bene.map(b=>`<div><h3>${T(b[0],b[1])}</h3><p>${T(b[2],b[3])}</p></div>`).join('')}
+    <a class="btnp az" href="${hr('associar')}">${T('aceima.botao-associar','Seja um associado')}${ic('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',15)}</a>
+   </div>
   </div>
  </section>
- <section class="wrap ac2-g ac2-a">
-  <div class="ac2-t">
-   <h2>${T('aceima.historia-titulo','Nossa história.')}</h2>
-   <p>${T('aceima.historia1','A Aceima nasceu em 1998 da união de comerciantes e lojistas da Estrada Intendente Magalhães, com um objetivo claro: manter um padrão de qualidade e de atendimento que dê ao cliente a mesma segurança em qualquer empresa associada.')}</p>
-   <div class="ac2-acc">${bene.map((b,i)=>`<div class="ac2-ai${i?'':' on'}"><button type="button" onclick="abrirItem(this)">${T(b[0],b[1])}<i></i></button><div class="ac2-ap"><p>${T(b[2],b[3])}</p></div></div>`).join('')}</div>
-   <a class="ac2-pill so-desk" href="${hr('associar')}">${T('aceima.botao-associar','Seja um associado')}${ic('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',15)}</a>
-  </div>
-  <div class="ac2-f"><img src="fotos-aceima/sede.webp" alt="Sala de reuniões da Aceima" loading="lazy"></div>
-  <a class="ac2-pill so-cel" href="${hr('associar')}">${T('aceima.botao-associar','Seja um associado')}${ic('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',15)}</a>
  </section>
  <section class="wrap ac2-c">
   <div class="ac2-ch">
@@ -2545,24 +2556,6 @@ function aceima(){
   </div>
  </section>
 </div>${rodape()}`;}
-// acordeão da página da Aceima: abre e fecha deslizando, um aberto por vez em cada grupo
-function abrirItem(b){
-  const it=b.parentNode,abrir=!it.classList.contains('on'),rd=matchMedia('(prefers-reduced-motion: reduce)').matches,op={duration:340,easing:'cubic-bezier(.2,.8,.2,1)'};
-  const fechar=x=>{const p=x.querySelector('.ac2-ap');if(rd){x.classList.remove('on');return;}x.classList.add('fecha');
-    p.animate([{height:p.offsetHeight+'px',opacity:1},{height:'0px',opacity:0}],op).onfinish=()=>x.classList.remove('on','fecha');};
-  if(!abrir){fechar(it);return;}
-  it.parentNode.querySelectorAll('.ac2-ai.on:not(.fecha)').forEach(fechar);
-  it.classList.add('on');if(!rd){const p=it.querySelector('.ac2-ap');p.animate([{height:'0px',opacity:0},{height:p.scrollHeight+'px',opacity:1}],op);}
-}
-// história: o acordeão guarda a altura que tem com a aba mais longa aberta. Abrir outra aba não muda a altura da coluna, e a foto ao lado
-// continua alinhada ao texto em cima e embaixo (pedido do Luiz, 07/10/2026). No celular, sem a foto ao lado, não guarda: com as abas
-// fechadas, o espaço vazio some (pedido do Luiz, 13/10/2026)
-function alturaAcordeao(){
-  document.querySelectorAll('.ac2-a .ac2-acc').forEach(acc=>{
-    acc.style.minHeight='';if(cel())return;const its=[...acc.children],on=its.map(x=>x.classList.contains('on'));let m=0;
-    its.forEach((x,j)=>{its.forEach((y,k)=>y.classList.toggle('on',k===j));m=Math.max(m,acc.offsetHeight);});
-    its.forEach((y,k)=>y.classList.toggle('on',on[k]));acc.style.minHeight=m+'px';});
-}
 
 /* ==================== SEJA UM ASSOCIADO ==================== */
 function associar(){
@@ -2871,7 +2864,6 @@ function render(topo){
   if(pagAtual==='estoque'){depoisEstoque();if(filtrosAntes){animarFiltros(filtrosAntes);const m=document.getElementById('mos');if(m)m.classList.add('troca');}}
   if(pagAtual==='veiculo')depoisVeiculo();
   if(pagAtual==='associados'&&selAssoc)mostrarLoja();
-  if(pagAtual==='aceima'){alturaAcordeao();document.fonts.ready.then(()=>{if(pagAtual==='aceima')alturaAcordeao();});}
   if(pagAtual==='home'){girar();alturaCategorias();alinharA();faixaAvaliacoes();document.fonts.ready.then(()=>{if(pagAtual==='home'){alturaCategorias();alinharA();}});}
   if(EDIT){sel=null;pintarBarra();}
   document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});v.play().catch(()=>{});});
@@ -2947,7 +2939,6 @@ addEventListener('resize',()=>{AV.P=0;if(pagAtual==='home'){alturaCategorias();a
   if(document.getElementById('lb'))posFotos(true);
   if(pagAtual==='estoque'){contarVistos(true);caberTitulo();anuncioDoMeio();
     document.querySelectorAll('#ancs .anc.vivo').forEach(a=>{const l=a.querySelector('.anc-l');if(l._W!==a.firstElementChild.offsetWidth)digitar(a);});}   // outra largura: o nome é medido de novo
-  if(pagAtual==='aceima'){clearTimeout(alturaAcordeao.t);alturaAcordeao.t=setTimeout(alturaAcordeao,150);}
   menuNoRodape();});
 
 rota();
