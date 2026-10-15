@@ -1822,25 +1822,32 @@ function extras(c){   // km, câmbio, combustível e loja, sem repetir o que o n
 // escrita (era a "embolada"). A seta só aparece com o nome todo escrito: andando com a última letra, ela fazia o recorte ir e voltar
 // (pedido do Luiz, 13/10/2026). O grupo .anc-u fica para quem não roda o JS
 const nomeComSeta=n=>{const i=n.lastIndexOf(' ')+1;return `${esc(n.slice(0,i))}<span class="anc-u">${esc(n.slice(i))}<span class="anc-s">${ic(SETA,14)}</span></span>`;};
-function linhasNome(a,t,l,n){   // as linhas do nome completo na largura da etiqueta, menos a seta
+function linhasNome(a,t,l,n){   // as linhas do nome completo na largura da etiqueta, menos a seta, e onde fica cada letra (l._g)
   const W=a.firstElementChild.offsetWidth;if(l._W===W&&l._ls)return l._ls;
   l.classList.remove('dg');l.textContent=n;t.style.minHeight='';t.style.minWidth='';t.classList.add('mede');
-  const tx=l.firstChild,rg=document.createRange(),ls=[];let topo=null,ini=0;
+  const tx=l.firstChild,rg=document.createRange(),ls=[],inis=[0],rs=[],R=t.getBoundingClientRect();let topo=null,ini=0;
   for(let i=0;i<n.length;i++){
-    if(n[i]===' ')continue;
-    rg.setStart(tx,i);rg.setEnd(tx,i+1);const r=rg.getBoundingClientRect();if(!r.height)continue;
-    if(topo===null)topo=r.top;else if(r.top>topo+r.height/2){ls.push(n.slice(ini,i).trimEnd());ini=i;topo=r.top;}
+    rg.setStart(tx,i);rg.setEnd(tx,i+1);const r=rs[i]=rg.getBoundingClientRect();
+    if(n[i]===' '||!r.height)continue;
+    if(topo===null)topo=r.top;else if(r.top>topo+r.height/2){ls.push(n.slice(ini,i).trimEnd());ini=i;inis.push(i);topo=r.top;}
   }
   ls.push(n.slice(ini));t.classList.remove('mede');
-  l._W=W;return l._ls=ls;
+  // para a borda do recorte (borda): onde termina cada letra (xs) e em que linha ela está (ln); onde cada linha começa (x0) e termina (lw),
+  // e a altura em que ela começa (y); medidos a partir do canto da etiqueta
+  const g={xs:[],ln:[],x0:[],lw:[],y:[],pr:parseFloat(getComputedStyle(t).paddingRight)||0},cima=[],baixo=[];
+  ls.forEach((x,i)=>{cima[i]=1e9;baixo[i]=-1e9;g.x0[i]=rs[inis[i]].left-R.left;
+    for(let j=0;j<x.length;j++){const r=rs[inis[i]+j];g.xs.push(r.right-R.left);g.ln.push(i);
+      if(r.height){cima[i]=Math.min(cima[i],r.top-R.top);baixo[i]=Math.max(baixo[i],r.bottom-R.top);}}
+    g.lw[i]=g.xs[g.xs.length-1];g.y[i]=i?(baixo[i-1]+cima[i])/2:0;});
+  l._g=g;l._W=W;return l._ls=ls;
 }
 function digitar(a){
   const t=a.querySelector('.anc-t'),l=a.querySelector('.anc-l');if(!t||!l)return;
-  cancelAnimationFrame(a._dg);a._fim=0;if(a._s)a._s.ab=null;
+  cancelAnimationFrame(a._dg);a._fim=0;a._tp=0;a._tx=null;if(a._s)a._s.ab=null;
   const n=l.dataset.n,ls=linhasNome(a,t,l,n),c=a.querySelector('.anc-c').textContent.split(' '),w=n.split(' ');
-  // o recorte anda no tempo da escrita (pedido do Luiz, 14/10/2026): a largura cresce com cada letra, e a segunda linha começa a abrir
-  // quando a escrita chega nela e termina junto com a última letra (seguirRecorte, pelo a._fim). A letra escrita antes de o recorte chegar
-  // fica atrás dele até aparecer (desenharRecorte corta a etiqueta no tamanho do recorte)
+  // o recorte anda no tempo da escrita (pedidos do Luiz, 14 e 15/10/2026): a borda anda a cada quadro (borda), e cada letra aparece
+  // conforme a borda passa por ela; a segunda linha começa a abrir quando a escrita chega nela, e a borda corre nela enquanto ela abre,
+  // terminando as duas juntas (seguirRecorte, pelo a._fim). A seta só entra quando a borda chega ao fim
   t.style.minHeight='';
   // e não fica mais estreita que o nome curto: sem o ano, que só volta no fim, o recorte recuava antes de crescer
   if(a._w0){t.style.minWidth=a._w0+'px';a._w0=0;}
@@ -1852,19 +1859,34 @@ function digitar(a){
   let feitas=0;
   const ate=k=>{for(;feitas<k;feitas++){const [i,j]=pos[feitas];if(i&&!j)l.append(document.createElement('br'));
     let e;if(feitas<fixas)e=document.createTextNode(ls[i][j]);else{e=document.createElement('span');e.className='lt';e.textContent=ls[i][j];}
-    l.append(e);}
-    if(feitas===pos.length&&!seta.isConnected)l.append(seta);};
+    l.append(e);}};
   ate(fixas);
-  const m=pos.length-fixas;if(!m)return;
+  const m=pos.length-fixas;if(!m){l.append(seta);return;}
   const t0=performance.now(),dur=Math.min(880,230+m*19.5);   // um pouco mais rápido (pedido do Luiz, 14/10/2026)
-  a._fim=t0+dur*(1-Math.pow(m,-1/2.2));   // quando a última letra aparece (a escrita desacelera: as últimas chegam antes do fim de dur)
-  const passo=agora=>{const x=Math.min(1,Math.max(0,(agora-t0)/dur)),k=fixas+Math.min(m,Math.max(1,Math.ceil((1-(1-x)**2.2)*m)));
-    ate(k);if(k<pos.length)a._dg=requestAnimationFrame(passo);};
+  a._fim=t0+dur;a._g=l._g;a._tp=1;borda(a,fixas);   // a._fim: quando a borda chega ao fim da última letra
+  // q: quantas letras já apareceram, com a fração da que está aparecendo (começa rápido e desacelera até a última). A letra entra no
+  // texto quando a borda chega nela, então fica atrás do recorte até a borda passar
+  const passo=agora=>{const x=Math.min(1,Math.max(0,(agora-t0)/dur)),q=(1-(1-x)**2.2)*m;
+    ate(fixas+Math.min(m,Math.max(1,Math.ceil(q))));
+    if(x<1){borda(a,fixas+q);a._dg=requestAnimationFrame(passo);return;}
+    borda(a,pos.length);a._tp=0;a._tx=null;l.append(seta);
+    const s=a._s;if(s&&s.tw!=null){if(s.tw>s.dw||Math.abs(s.tw-s.dw)<1)s.dw=s.tw;desenharRecorte(a);if(s.dw!==s.tw||s.dh!==s.th)seguirRecorte(a);}};
   a._dg=requestAnimationFrame(passo);
+}
+// a borda do recorte acompanha a escrita a cada quadro (pedido do Luiz, 15/10/2026: crescendo uma letra por vez, o recorte andava aos
+// saltos e a animação parecia de 24 quadros por segundo). O recorte da foto vai até a borda mais o respiro da etiqueta, e a etiqueta
+// aparece até a borda; na segunda linha, a de cima fica inteira
+function borda(a,q){
+  const g=a._g,s=a._s;if(!g||!g.xs.length)return;
+  const N=g.xs.length;q=Math.max(0,Math.min(N,q));
+  const c=Math.min(N-1,Math.floor(q)),L=g.ln[c],x0=c&&g.ln[c-1]===L?g.xs[c-1]:g.x0[L],x=x0+(g.xs[c]-x0)*(q-c);
+  let w=x+g.pr;for(let i=0;i<L;i++)w=Math.max(w,g.lw[i]+g.pr);
+  a._tx={L,x,y:g.y[L]};
+  if(s&&s.tw!=null){if(w>s.dw)s.dw=w;desenharRecorte(a);}
 }
 const comMouse=()=>matchMedia('(hover:hover)').matches;
 function acenderAnc(a){if(a.classList.contains('vivo'))return;a._w0=a._s&&a._s.dw||0;a.classList.add('vivo');a._vivo=performance.now();digitar(a);}
-function apagarAnc(a){if(!a.classList.contains('vivo'))return;a.classList.remove('vivo');a._vivo=performance.now();cancelAnimationFrame(a._dg);a._fim=0;if(a._s)a._s.ab=null;
+function apagarAnc(a){if(!a.classList.contains('vivo'))return;a.classList.remove('vivo');a._vivo=performance.now();cancelAnimationFrame(a._dg);a._fim=0;a._tp=0;a._tx=null;if(a._s)a._s.ab=null;
   const t=a.querySelector('.anc-t');if(t){t.style.minHeight='';t.style.minWidth='';}}
 const anuncio=c=>{const n=nomeTodo(c);return `<a class="anc" href="${hrV(c)}" onmouseenter="if(comMouse())acenderAnc(this)" onmouseleave="if(comMouse())apagarAnc(this)" onfocus="acenderAnc(this)" onblur="apagarAnc(this)">
   <div class="anc-f">${foto(c)?`<img src="${esc(foto(c))}" alt="${esc(n)}" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">`:''}<div class="anc-i">${extras(c).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div>
@@ -1886,15 +1908,18 @@ function recorteAnc(a){
 // enquanto o nome é escrito, termina de abrir junto com a última letra (pedido do Luiz, 14/10/2026). Enquanto o recorte anda, a etiqueta
 // fica cortada no tamanho dele, para o texto nunca passar por cima da foto
 function desenharRecorte(a){
-  const s=a._s,x=s.tw-s.dw,y=s.th-s.dh;recorteAnc(a);
+  const s=a._s,e=a._tp&&a._tx;recorteAnc(a);
+  if(e){const x=e.x.toFixed(1),y=e.y.toFixed(1),h=s.dh.toFixed(1);   // sendo escrita: até a borda, com as linhas de cima inteiras
+    a.children[1].style.clipPath=e.L?`polygon(0 0,100% 0,100% ${y}px,${x}px ${y}px,${x}px ${h}px,0 ${h}px)`:`polygon(0 0,${x}px 0,${x}px ${h}px,0 ${h}px)`;return;}
+  const x=s.tw-s.dw,y=s.th-s.dh;
   a.children[1].style.clipPath=x>.4||y>.4?`inset(0 ${Math.max(0,x).toFixed(1)}px ${Math.max(0,y).toFixed(1)}px 0)`:'';
 }
 function seguirRecorte(a){
   const s=a._s;if(a._rq)return;let t0=performance.now();
-  // crescendo, a largura acompanha cada letra na hora (a seta e o texto nunca ficam cortados); diminuindo, desliza. A altura desliza; abrindo
-  // a linha nova enquanto o nome é escrito, no tempo que falta para a última letra
+  // enquanto o nome é escrito, a largura é da borda (borda); fora isso, crescendo (a seta entrando), acompanha a etiqueta na hora e,
+  // diminuindo, desliza. A altura desliza; abrindo a linha nova enquanto o nome é escrito, no tempo que falta para a borda chegar ao fim
   const passo=agora=>{const dt=Math.min(64,Math.max(0,agora-t0));t0=agora;
-    s.dw=s.tw>s.dw?s.tw:s.dw+(s.tw-s.dw)*(1-Math.exp(-dt/52));
+    if(!a._tp)s.dw=s.tw>s.dw?s.tw:s.dw+(s.tw-s.dw)*(1-Math.exp(-dt/52));
     const abrindo=s.ab&&s.ab.alvo===s.th;
     if(abrindo||s.th>s.dh+.3&&a._fim>agora){
       if(!abrindo)s.ab={de:s.dh,alvo:s.th,ini:agora,dur:Math.max(90,a._fim-agora)};
@@ -1919,7 +1944,7 @@ const roEtq=typeof ResizeObserver==='function'?new ResizeObserver(es=>{
   mudou.forEach((direto,a)=>{const s=a._s;s.r=r;s.R=R;
     if(s.tw==null)return;
     if(direto||!(performance.now()-(a._vivo||-1e9)<4000)){s.dw=s.tw;s.dh=s.th;}   // só desliza o que o mouse (ou o meio da tela) mexeu
-    if(s.tw>s.dw)s.dw=s.tw;
+    if(s.tw>s.dw&&!a._tp)s.dw=s.tw;   // sendo escrito, quem leva a largura é a borda
     desenharRecorte(a);if(s.dw!==s.tw||s.dh!==s.th)seguirRecorte(a);});}):null;
 const recortar=el=>{if(roEtq)el.querySelectorAll('.anc-f,.anc-t,.anc-p').forEach(t=>{if(!t._ro){t._ro=1;roEtq.observe(t);}});};
 const jaCarregadas=el=>el.querySelectorAll('.anc-f img').forEach(i=>{if(i.complete&&i.naturalWidth)i.classList.add('ok','ja');});
