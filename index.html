@@ -448,7 +448,7 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .vp-mini{--gm:clamp(8px,.6vw,12px);order:4;display:flex;justify-content:center;gap:var(--gm);width:100%;align-self:center}
   .vp-mf{flex:0 0 calc((100% - 3 * var(--gm)) / 4)}
   /* da base da foto ao menu e ao topo das letras do título de baixo (a .15em do topo da caixa dele), a mesma distância (ajustarTopo) */
-  .vp{--dp:clamp(24px,calc(56 * var(--px)),64px)}
+  .vp{--dp:clamp(24px,calc(56 * var(--px)),64px);padding-bottom:calc(var(--dp) + var(--canto))}   /* a folha do valor a --dp dos textos */
   .vp .vp-s{margin-top:calc(var(--dp) - .15 * clamp(2.2rem,3.3vw,4rem))}
   .vp-g{display:none}
 }
@@ -2294,9 +2294,10 @@ function setasGaleria(){
 }
 function passarGaleria(d){const t=document.getElementById('vpGt');if(!t)return;const gap=parseFloat(getComputedStyle(t).columnGap)||0;t.scrollBy({left:d*(t.clientWidth+gap),behavior:'smooth'});}
 // computador (pedidos do Luiz, 14 e 15/10/2026): o foco é a foto grande, e a página ocupa a largura do rodapé. Ao lado, a coluna tem a altura
-// da foto (--fh): o nome em cima (o topo das letras na linha de cima da foto), a ficha, o botão e as quatro fotos seguintes numa linha (a base
-// delas na base da foto), com o mesmo espaço entre eles. A foto é tão alta quanto cabe acima do menu (a --dp dele), sem deixar os espaços da
-// coluna maiores que 80px na tela do Luiz: nesse caso, ela diminui e a coluna alarga. As fotos nunca são cortadas
+// da foto (--fh): o nome em cima (o topo das letras na linha de cima da foto), os blocos, o botão, a ficha e as quatro fotos seguintes numa
+// linha (a base delas na base da foto), com o mesmo espaço entre eles. A foto é tão alta quanto cabe acima do menu (a --dp dele), sem deixar
+// os espaços da coluna maiores que 44px na tela do Luiz (pedido de 15/10/2026: sem espaço vazio): nesse caso, ela diminui e a coluna alarga.
+// As fotos nunca são cortadas
 function ajustarTopo(){
   const tp=document.querySelector('.vp-topo'),m=tp&&tp.querySelector('.vp-m');if(!m)return;
   const mini=m.querySelector('.vp-mini');
@@ -2308,7 +2309,7 @@ function ajustarTopo(){
   const Hmax=Math.max(300,innerHeight-menu-dp-(tp.getBoundingClientRect().top+scrollY));
   const vk=Math.max(.5,Math.min(1.1,Hmax/713));tp.style.setProperty('--vk',vk.toFixed(3));   // os textos na proporção do espaço: 1 na tela do Luiz (1912×1021)
   const nIt=m.querySelector('.vp-tt')?4:3;   // o nome, os blocos (quando tem), o botão e a ficha
-  const gm=mini?parseFloat(getComputedStyle(mini).columnGap)||0:0,a=k?.1875:0,n=k?nIt:nIt-1,Gmax=80*vk;   // as fotos, quatro por linha, têm a·(W - 3·gm) de altura
+  const gm=mini?parseFloat(getComputedStyle(mini).columnGap)||0:0,a=k?.1875:0,n=k?nIt:nIt-1,Gmax=44*vk;   // as fotos, quatro por linha, têm a·(W - 3·gm) de altura
   let H=Math.min(Hmax,(Wt-g)*.62*.75),W=Wt-g-H*4/3,itens=0,gs=0;
   for(let i=0;i<3;i++){   // o nome pode quebrar de outro jeito na largura nova: a conta é refeita com ela
     tp.style.setProperty('--fh',H+'px');m.style.setProperty('--cw',W+'px');   // a foto no tamanho da conta, senão a coluna mede mais estreita
