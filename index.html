@@ -424,11 +424,12 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
   .vp-m>div:first-child{display:contents}
   /* o nome e a versão grandes e a ficha menor (pedido do Luiz, 15/10/2026: o foco é a foto grande e o nome com a versão). Os tamanhos
      acompanham o espaço da tela (--vk, 1 na tela do Luiz, ajustarTopo): numa tela mais baixa, tudo diminui junto, na mesma proporção */
-  .vp-m h1{margin-top:-.16em;font-size:max(1.8rem,calc(60px * var(--vk,1)))}
+  .vp-m{--vn:max(1.8rem,calc(60px * var(--vk,1)))}   /* o tamanho do nome; a versão tem .56 dele */
+  .vp-m h1{margin-top:-.16em;font-size:var(--vn)}
   .vp-m h1 .vp-n2{color:#46556E}
   .vp-ficha{order:1;gap:calc(16px * var(--vk,1)) calc(30px * var(--vk,1))}
-  .vp-ficha>div>span{font-size:max(.56rem,calc(11.5px * var(--vk,1)))}
-  .vp-ficha b{margin-top:calc(3px * var(--vk,1));font-size:max(1rem,calc(25px * var(--vk,1)))}
+  .vp-ficha>div>span{font-size:max(.56rem,calc(12.5px * var(--vk,1)))}
+  .vp-ficha b{margin-top:calc(4px * var(--vk,1));font-size:calc(var(--vn) * .56)}   /* os dados do tamanho da versão (pedido do Luiz, 15/10/2026) */
   /* o "Tenho interesse" no meio da coluna, em cima das fotos (pedido do Luiz, 15/10/2026) */
   .vp-m .vp-pill{order:2;align-self:center;margin-top:0}
   /* as quatro fotos numa linha, na largura da coluna, com a base na base da foto grande; com menos fotos, elas ficam no meio */
