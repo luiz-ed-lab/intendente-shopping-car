@@ -1281,6 +1281,103 @@ async function rotaConteudo(req, res) {
   res.json({ ok: true, ramo });
 }
 
+// ---------------- PUBLICAÇÕES (painel) ----------------
+// As publicações ficam em publicacoes.json, no próprio site, e as fotos em fotos-publicacoes/ (pedido do Luiz, 16/10/2026: a parte das
+// publicações no painel). O painel grava direto no GitHub, no mesmo ramo desta publicação, como o modo de edição: editar na prévia não
+// mexe no site no ar, e nada muda no banco. Cada gravação é um commit só, com a lista e a foto juntas, e a Vercel publica o site em
+// cerca de um minuto. Se outro commit entrar no meio (um texto salvo pelo modo de edição), a gravação é refeita em cima dele.
+const CATEGORIAS_PUB = ['Ações no polo', 'Conquistas', 'Comunicados', 'Imprensa'];
+const slugPub = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '') || 'publicacao';
+function limparPub(p) {
+  const txt = (v, n) => String(v == null ? '' : v).replace(/\r/g, '').trim().slice(0, n);
+  return {
+    titulo: txt(p.titulo, 160),
+    categoria: CATEGORIAS_PUB.includes(p.categoria) ? p.categoria : CATEGORIAS_PUB[0],
+    data: /^\d{4}-\d{2}-\d{2}$/.test(String(p.data || '')) ? p.data : new Date().toISOString().slice(0, 10),
+    resumo: txt(p.resumo, 400),
+    texto: txt(p.texto, 20000),
+    destaque: !!p.destaque,
+  };
+}
+async function rotaPublicacoes(req, res) {
+  const token = process.env.GITHUB_TOKEN, ramo = process.env.VERCEL_GIT_COMMIT_REF;
+  if (!token || !ramo || !/^[\w./-]+$/.test(ramo)) return res.status(500).json({ erro: 'falta configurar o GITHUB_TOKEN na Vercel' });
+  const repo = `${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}`;
+  const gh = (caminho, metodo, corpo) => fetch(`https://api.github.com/repos/${repo}/${caminho}`, { method: metodo || 'GET',
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'User-Agent': 'aceima-site', 'Content-Type': 'application/json' },
+    body: corpo ? JSON.stringify(corpo) : undefined });
+  // a lista como está num commit (o arquivo ainda pode não existir)
+  const lerLista = async ref => {
+    const r = await gh(`contents/publicacoes.json?ref=${encodeURIComponent(ref)}`);
+    if (r.status === 404) return [];
+    if (!r.ok) throw new Error(`o GitHub respondeu ${r.status} ao ler as publicações`);
+    const lista = JSON.parse(Buffer.from((await r.json()).content, 'base64').toString('utf8'));
+    return Array.isArray(lista) ? lista : [];
+  };
+  if (req.method === 'GET') return res.json({ ok: true, ramo, publicacoes: await lerLista(ramo) });
+  if (req.method !== 'POST') return res.status(405).json({ erro: 'método não permitido' });
+  const b = req.body || {};
+  // a foto chega já diminuída pelo painel (webp ou jpg, com no máximo 1600 px no lado maior)
+  let foto = null;
+  if (b.foto) {
+    const m = String(b.foto).match(/^data:image\/(webp|jpeg|png);base64,([A-Za-z0-9+/=]+)$/);
+    if (!m) return res.status(400).json({ erro: 'foto em formato inválido' });
+    if (m[2].length > 4e6) return res.status(413).json({ erro: 'foto grande demais' });
+    foto = { ext: m[1] === 'jpeg' ? 'jpg' : m[1], base64: m[2] };
+  }
+  for (let tentativa = 0; tentativa < 3; tentativa++) {
+    const ref = await gh(`git/ref/heads/${ramo}`);
+    if (!ref.ok) return res.status(502).json({ erro: `o GitHub respondeu ${ref.status} ao ler o ramo` });
+    const base = (await ref.json()).object.sha;
+    const lista = await lerLista(base);
+    const arquivos = [];   // { path, conteudo } (base64) ou { path, apagar: true }
+    const usada = (caminho, menos) => lista.some(x => x !== menos && x.foto === caminho);
+    let msg, pub = null;
+    if (b.acao === 'excluir') {
+      const i = lista.findIndex(x => x.id === b.id);
+      if (i < 0) return res.status(404).json({ erro: 'publicação não encontrada' });
+      const [velha] = lista.splice(i, 1);
+      if (velha.foto && !usada(velha.foto)) arquivos.push({ path: velha.foto, apagar: true });
+      msg = `Publicações: excluída "${velha.titulo}"`;
+    } else if (b.acao === 'salvar') {
+      const dados = limparPub(b.pub || {});
+      if (!dados.titulo) return res.status(400).json({ erro: 'falta o título' });
+      const velha = b.pub && b.pub.id ? lista.find(x => x.id === b.pub.id) : null;
+      if (b.pub && b.pub.id && !velha) return res.status(404).json({ erro: 'publicação não encontrada' });
+      let id = velha ? velha.id : `${dados.data}-${slugPub(dados.titulo)}`;
+      if (!velha) { const raiz = id; for (let n = 2; lista.some(x => x.id === id); n++) id = `${raiz}-${n}`; }
+      // a publicação editada deixa de ser exemplo; a foto antiga sai quando chega outra ou quando é tirada
+      pub = { id, ...dados, foto: velha && velha.foto || null };
+      if ((foto || b.tirarFoto) && pub.foto) { if (!usada(pub.foto, velha)) arquivos.push({ path: pub.foto, apagar: true }); pub.foto = null; }
+      if (foto) { pub.foto = `fotos-publicacoes/${id}-${Date.now().toString(36)}.${foto.ext}`; arquivos.push({ path: pub.foto, conteudo: foto.base64 }); }
+      if (pub.destaque) lista.forEach(x => { x.destaque = false; });   // um destaque só
+      if (velha) lista[lista.indexOf(velha)] = pub; else lista.push(pub);
+      msg = `Publicações: ${velha ? 'editada' : 'nova'} "${pub.titulo}"`;
+    } else return res.status(400).json({ erro: 'ação desconhecida' });
+    lista.sort((x, y) => String(y.data).localeCompare(String(x.data)) || String(x.titulo).localeCompare(String(y.titulo), 'pt-BR'));
+    arquivos.push({ path: 'publicacoes.json', conteudo: Buffer.from(JSON.stringify(lista, null, 2) + '\n').toString('base64') });
+    // um commit só: os arquivos novos viram blobs e a árvore nova parte da do commit atual
+    const arvore = [];
+    for (const a of arquivos) {
+      if (a.apagar) { arvore.push({ path: a.path, mode: '100644', type: 'blob', sha: null }); continue; }
+      const bl = await gh('git/blobs', 'POST', { content: a.conteudo, encoding: 'base64' });
+      if (!bl.ok) return res.status(502).json({ erro: `o GitHub respondeu ${bl.status} ao gravar um arquivo` });
+      arvore.push({ path: a.path, mode: '100644', type: 'blob', sha: (await bl.json()).sha });
+    }
+    const cm = await gh(`git/commits/${base}`);
+    if (!cm.ok) return res.status(502).json({ erro: `o GitHub respondeu ${cm.status} ao ler o commit` });
+    const tr = await gh('git/trees', 'POST', { base_tree: (await cm.json()).tree.sha, tree: arvore });
+    if (!tr.ok) return res.status(502).json({ erro: `o GitHub respondeu ${tr.status} ao montar a árvore` });
+    const nc = await gh('git/commits', 'POST', { message: msg.slice(0, 200), tree: (await tr.json()).sha, parents: [base] });
+    if (!nc.ok) return res.status(502).json({ erro: `o GitHub respondeu ${nc.status} ao criar o commit` });
+    const up = await gh(`git/refs/heads/${ramo}`, 'PATCH', { sha: (await nc.json()).sha, force: false });
+    if (up.ok) return res.json({ ok: true, ramo, publicacoes: lista, publicacao: pub });
+    if (up.status !== 422 && up.status !== 409) return res.status(502).json({ erro: `o GitHub respondeu ${up.status} ao gravar` });
+  }
+  res.status(409).json({ erro: 'o site mudou várias vezes seguidas enquanto gravava; tente de novo' });
+}
+
 // ---------------- AVALIAÇÕES DO GOOGLE (faixa da home e notas dos associados) ----------------
 // Avaliações reais de cada associado, pela API oficial do Google (Places API New): até 5 por associado.
 // Uma vez por dia atualiza até 30 associados, os mais antigos primeiro (uma consulta por associado). Associado que nunca foi
@@ -1478,6 +1575,7 @@ export default async function handler(req, res) {
     if (rota === 'refresh') return await rotaRefresh(req, res);
     if (rota === 'testeemail') return autorizado(req) ? await rotaTesteEmail(req, res) : negar(res);
     if (rota === 'conteudo') return autorizado(req) ? await rotaConteudo(req, res) : negar(res);
+    if (rota === 'publicacoes') return autorizado(req) ? await rotaPublicacoes(req, res) : negar(res);
     if (rota === 'avaliacoes') {
       const lista = await avaliacoesGoogle();
       // 1h nova; depois, por até 7 dias, a Vercel entrega a anterior na hora e busca a nova por trás
