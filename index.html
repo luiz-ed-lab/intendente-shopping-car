@@ -359,8 +359,32 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .campo input::placeholder{color:#61718c}
 .campo input.bad{border-color:#e0685a}
 .campo select option{color:#0B1A33}
-.foto{background:#E9E4DD;display:grid;place-items:center;color:#A9A198;font-family:var(--f2);font-size:.72rem;letter-spacing:1px;text-transform:uppercase}
+.foto{background:#E9E4DD;display:grid;place-items:center;color:#A9A198;font-family:var(--f2);font-size:.72rem;letter-spacing:1px;text-transform:uppercase;overflow:hidden}
+.foto>img{width:100%;height:100%;object-fit:cover;display:block}   /* a foto da publicação, quando tem, preenche o quadro */
 .aviso{background:#fff;border:1px dashed #D6CEC4;border-radius:12px;padding:13px 20px;font-family:var(--f2);font-size:.85rem;color:var(--mut)}
+/* Publicações (16/10/2026): os filtros separam por categoria e cada publicação abre na sua página */
+button.fp{border:1px solid transparent;cursor:pointer}
+.pb-dest,.pb-item{color:inherit}
+.pb-dest{display:block}
+.pb-dest .pb-dt,.pb-item .pb-it{transition:color .25s}
+.pb-dest:hover .pb-dt,.pb-item:hover .pb-it{color:var(--gold)}
+.pb-vazio{font-family:var(--f2);color:var(--mut)}
+/* o texto numa coluna de leitura, a foto mais larga, e as "Outras publicações" começando na mesma linha da esquerda */
+.pbd,.pbd-o{max-width:1240px}
+.pbd{padding-top:clamp(24px,2vw,40px);padding-bottom:clamp(40px,3.6vw,72px)}
+.pbd>*{max-width:780px}
+.pbd>.pbd-f{max-width:none}
+.pbd-k{display:flex;flex-wrap:wrap;align-items:center;gap:12px;font:500 clamp(.82rem,.86vw,.95rem)/1.2 var(--f2);color:var(--mut)}
+.pbd-k .fp{padding:5px 13px;font-size:.72rem;cursor:default}
+.pbd-t{margin-top:16px;font:500 clamp(2rem,3vw,3.2rem)/1.08 var(--f1);letter-spacing:-.02em;color:var(--ink)}
+.pbd-r{margin-top:16px;font:400 clamp(1.05rem,1.15vw,1.3rem)/1.55 var(--f2);color:#3E4C62}
+.pbd-f{margin:clamp(24px,2.2vw,40px) 0 0;border-radius:clamp(18px,1.8vw,28px);overflow:hidden;background:#E9E4DD}
+.pbd-f img{display:block;width:100%;height:auto}
+.pbd-x{margin-top:clamp(20px,1.8vw,32px)}
+.pbd-x p{font:400 clamp(1rem,1.02vw,1.15rem)/1.7 var(--f2);color:#24324A}
+.pbd-x p+p{margin-top:1em}
+.pbd-o{--rm:clamp(24px,2.8vw,44px);--g:clamp(24px,2.8vw,40px);padding-top:clamp(8px,1vw,16px);padding-bottom:clamp(56px,4.8vw,92px)}
+.pbd-o h2{font:500 clamp(1.6rem,2vw,2.4rem)/1.1 var(--f1);letter-spacing:-.02em;color:var(--ink)}
 .aviso b{color:#0B1A33}
 .parc{display:grid;grid-template-columns:1.25fr .75fr;gap:46px;padding:30px 0;border-top:1px solid var(--line)}
 .parc .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
@@ -1227,6 +1251,18 @@ body.lb-on{overflow:hidden}
   .pb-dt{font-size:5.07vw!important}
   .pb-tx,.sv-sub{font-size:3.47vw!important}
   .pb-it{font-size:3.73vw!important}
+  .pb-vazio{font-size:3.47vw;text-align:center}
+  /* página de uma publicação */
+  .pbd{padding-top:6.34vw;padding-bottom:11.27vw}
+  .pbd-k{gap:2.82vw;font-size:3vw}
+  .pbd-k .fp{padding:1.41vw 2.82vw;font-size:2.53vw}
+  .pbd-t{margin-top:3.52vw;font-size:7.04vw;letter-spacing:-.14vw}
+  .pbd-r{margin-top:3.52vw;font-size:3.47vw;line-height:1.5}
+  .pbd-f{margin-top:5.63vw;border-radius:4.23vw}
+  .pbd-x{margin-top:4.93vw}
+  .pbd-x p{font-size:3.47vw;line-height:1.6}
+  .pbd-o{--rm:2.82vw;--g:5.63vw;padding-top:2.82vw;padding-bottom:16.9vw}
+  .pbd-o h2{font-size:5.63vw;text-align:center}
   .sv-h{font-size:5.63vw!important}
   .parc{grid-template-columns:1fr;gap:18px}
   .parc .inf{font-size:3.47vw;line-height:1.7}
@@ -1400,7 +1436,9 @@ function baralhar(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.rando
 // nenhuma loja domina a vitrine: rodízio entre as lojas, ordem nova a cada visita
 function intercalar(lista){const g={};lista.forEach(v=>(g[v.loja]=g[v.loja]||[]).push(v));const ks=baralhar(Object.keys(g));ks.forEach(k=>baralhar(g[k]));
   const out=[];for(let i=0,f=true;f;i++){f=false;for(const k of ks){const v=g[k][i];if(v){out.push(v);f=true;}}}return out;}
+let PUBS=[];   // as publicações (publicacoes.json, que o painel grava)
 async function carregar(){
+  const pubsP=fetch('publicacoes.json').then(r=>r.ok?r.json():null).catch(()=>null);   // arquivo do próprio site: também sem a API
   if(API!==null){
     try{
       // as avaliações vêm sozinhas: não esperam as lojas e o estoque, que são bem mais pesados
@@ -1419,6 +1457,7 @@ async function carregar(){
   }
   if(!V.length)V=AMOSTRA_V.slice();
   if(!LJ.length)LJ=AMOSTRA_L.slice();
+  const pj=await pubsP;if(Array.isArray(pj))PUBS=pj.filter(x=>x&&x.id&&x.titulo);
   pronto=true;rota(true);
   // recarregou a página (ou voltou de outro site e ela abriu do zero): volta ao lugar onde estava, se ainda não rolou
   const nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0],p=POS[chaveAtual];
@@ -1449,7 +1488,7 @@ const ICONES={home:'<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path 
   associar:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
   menu:'<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>'};
 const cel=()=>matchMedia('(max-width:760px)').matches;
-const menuDe=()=>pagAtual==='veiculo'?'estoque':pagAtual;   // a página do veículo acende o Estoque
+const menuDe=()=>pagAtual==='veiculo'?'estoque':pagAtual==='publicacao'?'publicacoes':pagAtual;   // a página do veículo acende o Estoque; a de uma publicação, as Publicações
 let menuAberto=false,menuTrocando=false;
 // monta a barra; no celular, fechado, só aparece o ícone da página aberta, e cada ícone tem sempre o seu lugar
 function montarMenu(){
@@ -2534,7 +2573,6 @@ function aceima(){
               ['aceima.beneficio2','Selo de qualidade','aceima.beneficio2-texto','O selo leva para a fachada de cada associado a reputação de {anos} anos do polo. Para o cliente, é a certeza de que a empresa tem um nome a zelar.'],
               ['aceima.beneficio4','Rede Credenciada','aceima.beneficio4-texto','Uma vasta rede de comércios que completam todo o ecossistema de uma venda.'],
               ['aceima.beneficio3','SAC da associação','aceima.beneficio3-texto','Segunda a sexta, das 9h às 17h.']];
-  const pubs=[['Conquistas','Título de uma conquista da associação','12 mar 2026'],['Comunicados','Comunicado da diretoria aos associados','04 mar 2026'],['Imprensa','O polo na imprensa do Rio de Janeiro','21 fev 2026']];
   const seta=ic(SETA_DIAG,15);
   return `<div class="ac2">
  <div class="gl topo">${LUZ}${hd()}</div>
@@ -2561,7 +2599,7 @@ function aceima(){
    <h2>${T('aceima.publicacoes-titulo','Nosso trabalho.')}</h2>
    <p>${T('aceima.publicacoes-texto','O que a Aceima faz pelo polo: ações junto ao poder público, campanhas na rua e encontros que unem os associados.')}</p>
   </div>
-  <div class="ac2-cards">${pubs.map((l,i)=>`<a class="ac2-card" href="${hr('publicacoes')}"><div class="foto">Foto da ação</div><h3>${T(`publicacoes.item${i+1}-titulo`,l[1])}${seta}</h3><small>${T(`publicacoes.item${i+1}-categoria`,l[0])} · ${T(`publicacoes.item${i+1}-data`,l[2])}</small></a>`).join('')}</div>
+  ${PUBS.length?`<div class="ac2-cards">${PUBS.slice(0,3).map(x=>cartaoPub(x,seta)).join('')}</div>`:''}
  </section>
  <section class="wrap">
   <div class="ac2-ct">
@@ -2712,29 +2750,58 @@ function enviarAssoc(){
 }
 
 /* ==================== PUBLICAÇÕES ==================== */
+// as publicações vêm de publicacoes.json, que o painel grava no próprio site (pedido do Luiz, 16/10/2026): a marcada como destaque (ou a
+// mais nova) em cima, as outras na lista ao lado. Os filtros separam por categoria e cada publicação abre na sua página (/publicacoes/id).
+// Título, resumo e texto vêm do painel: o modo de edição muda o estilo deles (E), não o texto
+const CATS_PUB=['Ações no polo','Conquistas','Comunicados','Imprensa'];
+let catPub='Tudo',pubAtual=null;
+const diaPub=d=>new Date(String(d)+'T12:00:00');
+const dataPub=d=>{const x=diaPub(d);return isNaN(x)?'':x.toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'});};   // 18 de março de 2026
+const dataPubCurta=d=>{const x=diaPub(d);return isNaN(x)?'':`${String(x.getDate()).padStart(2,'0')} ${['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][x.getMonth()]} ${x.getFullYear()}`;};   // 12 mar 2026
+const fotoPub=(p,curta)=>p.foto?`<img src="${esc(p.foto)}" alt="" loading="lazy">`:(curta?T('publicacoes.sem-foto-curta','Foto'):T('publicacoes.sem-foto','Foto da ação'));
+const cartaoPub=(p,seta)=>`<a class="ac2-card" href="${hr('publicacao',p.id)}"><div class="foto">${fotoPub(p)}</div><h3>${E('publicacoes.cartao-titulo',esc(p.titulo))}${seta}</h3><small>${esc(p.categoria)} · ${dataPubCurta(p.data)}</small></a>`;
+function filtrarPub(c){catPub=c;render();}
 function publicacoes(){
-  const lista=[['Conquistas','Título de uma conquista da associação','12 mar 2026'],['Comunicados','Comunicado da diretoria aos associados','04 mar 2026'],['Imprensa','O polo na imprensa do Rio de Janeiro','21 fev 2026'],['Ações no polo','Mutirão realizado na Intendente Magalhães','09 fev 2026']];
+  const lista=PUBS.filter(p=>catPub==='Tudo'||p.categoria===catPub),dest=lista.find(p=>p.destaque)||lista[0],resto=lista.filter(p=>p!==dest);
   return `<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--cl)">
  <div class="gl topo" style="flex:none">${LUZ}${hd()}</div>
  <div class="wrap pb-top" style="padding-top:28px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap">
    <div><div class="kick">${T('publicacoes.chamada','Nosso trabalho')}</div><h2 class="pb-tit" style="margin-top:10px;font-size:2.3rem">${T('publicacoes.titulo','O que a Aceima faz pelo polo.')}</h2></div>
-   <div class="fbar" style="flex-wrap:wrap">${['Tudo','Ações no polo','Conquistas','Comunicados','Imprensa'].map((f,i)=>`<span class="fp ${i?'lite':'on'}">${T(`publicacoes.filtro${i+1}`,f)}</span>`).join('')}</div>
+   <div class="fbar" style="flex-wrap:wrap">${['Tudo',...CATS_PUB].map((f,i)=>`<button type="button" class="fp ${f===catPub?'on':'lite'}" onclick="filtrarPub('${f}')">${T(`publicacoes.filtro${i+1}`,f)}</button>`).join('')}</div>
  </div>
- <div class="wrap dup" style="padding-top:24px;flex:1;display:grid;grid-template-columns:1.32fr .68fr;gap:46px;align-items:start">
+ ${dest?`<div class="wrap dup" style="padding-top:24px;flex:1;display:grid;grid-template-columns:1.32fr .68fr;gap:46px;align-items:start">
+   <a class="pb-dest" href="${hr('publicacao',dest.id)}">
+     <div class="foto pb-foto" style="height:300px;border-radius:16px">${fotoPub(dest)}</div>
+     <div style="display:flex;align-items:center;gap:12px;margin-top:18px"><span class="fp on" style="padding:5px 13px;font-size:.72rem;cursor:inherit">${dest.destaque?T('publicacoes.destaque-selo','Destaque'):esc(dest.categoria)}</span><span style="font-family:var(--f2);font-size:.78rem;color:var(--mut)">${dataPub(dest.data)}</span></div>
+     <h2 class="pb-dt" style="font-size:1.85rem;margin-top:12px;max-width:760px">${E('publicacoes.destaque-titulo',esc(dest.titulo))}</h2>
+     ${dest.resumo?`<p class="pb-tx" style="margin-top:10px;max-width:760px;font-size:.96rem">${E('publicacoes.destaque-texto',esc(dest.resumo))}</p>`:''}
+   </a>
    <div>
-     <div class="foto pb-foto" style="height:300px;border-radius:16px">Foto da ação</div>
-     <div style="display:flex;align-items:center;gap:12px;margin-top:18px"><span class="fp on" style="padding:5px 13px;font-size:.72rem;cursor:default">${T('publicacoes.destaque-selo','Destaque')}</span><span style="font-family:var(--f2);font-size:.78rem;color:var(--mut)">${T('publicacoes.destaque-data','18 de março de 2026')}</span></div>
-     <h2 class="pb-dt" style="font-size:1.85rem;margin-top:12px;max-width:760px">${T('publicacoes.destaque-titulo','Título da matéria em destaque da associação')}</h2>
-     <p class="pb-tx" style="margin-top:10px;max-width:760px;font-size:.96rem">${T('publicacoes.destaque-texto','Espaço para a Aceima contar o que fez: ação junto ao poder público, mutirão de vistoria, campanha do polo, encontro dos associados.')}</p>
+     ${resto.length?`<div style="font-family:var(--f2);font-size:.68rem;letter-spacing:2px;color:var(--mut);padding-bottom:12px;border-bottom:2px solid #0B1A33">${T('publicacoes.recentes','MAIS RECENTES')}</div>`:''}
+     ${resto.map(p=>`<a class="pb-item" href="${hr('publicacao',p.id)}" style="display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--line);align-items:flex-start"><div class="foto" style="width:84px;height:64px;border-radius:9px;flex:none;font-size:.55rem">${fotoPub(p,true)}</div>
+       <div><div style="font-family:var(--f2);font-size:.68rem;color:#C8862E;font-weight:600;letter-spacing:.6px;text-transform:uppercase">${esc(p.categoria)}</div><h3 class="pb-it" style="font-size:.97rem;margin-top:5px;line-height:1.35">${E('publicacoes.item-titulo',esc(p.titulo))}</h3><div style="font-family:var(--f2);font-size:.74rem;color:var(--mut);margin-top:5px">${dataPubCurta(p.data)}</div></div></a>`).join('')}
    </div>
-   <div>
-     <div style="font-family:var(--f2);font-size:.68rem;letter-spacing:2px;color:var(--mut);padding-bottom:12px;border-bottom:2px solid #0B1A33">${T('publicacoes.recentes','MAIS RECENTES')}</div>
-     ${lista.map((l,i)=>`<div style="display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--line);align-items:flex-start"><div class="foto" style="width:84px;height:64px;border-radius:9px;flex:none;font-size:.55rem">Foto</div>
-       <div><div style="font-family:var(--f2);font-size:.68rem;color:#C8862E;font-weight:600;letter-spacing:.6px;text-transform:uppercase">${T(`publicacoes.item${i+1}-categoria`,l[0])}</div><h3 class="pb-it" style="font-size:.97rem;margin-top:5px;line-height:1.35">${T(`publicacoes.item${i+1}-titulo`,l[1])}</h3><div style="font-family:var(--f2);font-size:.74rem;color:var(--mut);margin-top:5px">${T(`publicacoes.item${i+1}-data`,l[2])}</div></div></div>`).join('')}
-   </div>
- </div>
- <div class="wrap" style="padding-top:18px;padding-bottom:40px"><div class="aviso"><b>Conteúdo ilustrativo.</b> Textos, fotos e datas serão levantados com a diretoria.</div></div>
+ </div>`:`<div class="wrap" style="padding-top:24px;flex:1"><p class="pb-vazio">${T('publicacoes.vazio','Ainda não há publicações nesta categoria.')}</p></div>`}
+ ${PUBS.some(p=>p.exemplo)?`<div class="wrap" style="padding-top:18px;padding-bottom:40px"><div class="aviso"><b>Conteúdo ilustrativo.</b> Textos, fotos e datas serão levantados com a diretoria.</div></div>`:'<div style="height:40px"></div>'}
 </div>${rodape()}`;}
+// a página de uma publicação: categoria e data, título, resumo, foto e o texto em parágrafos (linha em branco no painel = parágrafo novo)
+function publicacao(){
+  const p=PUBS.find(x=>x.id===pubAtual),outras=PUBS.filter(x=>x!==p).slice(0,3),seta=ic('<path d="M7 17 17 7"/><path d="M7 7h10v10"/>',18);
+  const volta=`<a class="vp-volta" href="${hr('publicacoes')}">${ic('<path d="m15 18-6-6 6-6"/>',18)}${T('publicacoes.voltar','Publicações')}</a>`;
+  const paras=p?String(p.texto||'').split(/\n\s*\n/).map(t=>t.trim()).filter(Boolean).map(t=>`<p>${E('publicacoes.pagina-texto',esc(t).replace(/\n/g,'<br>'))}</p>`).join(''):'';
+  return `<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--cl)">
+ <div class="gl topo" style="flex:none">${LUZ}${hd()}</div>
+ ${p?`<article class="wrap pbd">${volta}
+   <div class="pbd-k"><span class="fp on">${esc(p.categoria)}</span><span>${dataPub(p.data)}</span></div>
+   <h1 class="pbd-t">${E('publicacoes.pagina-titulo',esc(p.titulo))}</h1>
+   ${p.resumo?`<p class="pbd-r">${E('publicacoes.pagina-resumo',esc(p.resumo))}</p>`:''}
+   ${p.foto?`<figure class="pbd-f"><img src="${esc(p.foto)}" alt=""></figure>`:''}
+   ${paras?`<div class="pbd-x">${paras}</div>`:''}
+ </article>`:`<div class="wrap pbd">${volta}<h1 class="pbd-t">${T('publicacoes.nao-achada','Publicação não encontrada.')}</h1></div>`}
+ ${outras.length?`<section class="wrap pbd-o"><h2>${T('publicacoes.outras','Outras publicações')}</h2><div class="ac2-cards">${outras.map(x=>cartaoPub(x,seta)).join('')}</div></section>`:''}
+</div>${rodape()}`;}
+
+/* ==================== SERVIÇOS DO POLO ==================== */
 
 /* ==================== SERVIÇOS DO POLO ==================== */
 function servicos(){
@@ -2835,7 +2902,7 @@ function sairEdicao(){
 }
 
 /* ==================== ROTAS ==================== */
-const VIEWS={home,estoque,associados,veiculo,aceima,associar,publicacoes,servicos};
+const VIEWS={home,estoque,associados,veiculo,aceima,associar,publicacoes,publicacao,servicos};
 const ROTAS={home:'/',estoque:'/estoque',associados:'/associados',aceima:'/a-aceima',associar:'/seja-um-associado',publicacoes:'/publicacoes',servicos:'/servicos'};
 const ANTIGAS={'/lojas':'associados','/aceima':'aceima','/vender':'associar','/contato':'aceima'};
 const TITULOS={home:'Aceima | Intendente, Polo Comercial e Automotivo do Rio',estoque:'Nosso estoque | Aceima',associados:'Associados | Aceima',aceima:'A Aceima | Aceima',associar:'Seja um associado | Aceima',publicacoes:'Publicações | Aceima',servicos:'Serviços do polo | Aceima'};
@@ -2844,6 +2911,7 @@ const slug=s=>norm(s).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 const urlV=v=>'/veiculo/'+v.id+'-'+slug(nomeV(v)+' '+(v.ano||''));
 function urlDe(pg,arg){
   if(pg==='veiculo'){const v=V.find(x=>String(x.id)===String(arg));return v?urlV(v):'/veiculo/'+arg;}
+  if(pg==='publicacao')return '/publicacoes/'+encodeURIComponent(arg||'');   // a página de uma publicação
   if(pg==='estoque'&&arg)return '/estoque?loja='+encodeURIComponent(arg);   // estoque da loja: o endereço leva a loja (abre certo em outra guia)
   if(pg==='associados'&&arg)return '/associados?loja='+encodeURIComponent(arg);   // Associados com o associado aberto (a logo dele leva para lá)
   return ROTAS[pg]||'/';}
@@ -2854,6 +2922,7 @@ function caminho(){return HASH?(location.hash.slice(1)||'/'):location.pathname+l
 function rotaDe(p){
   const i=p.indexOf('?'),cam=decodeURIComponent(i<0?p:p.slice(0,i)).replace(/\/+$/,'')||'/',mv=cam.match(/^\/veiculo\/(\d+)/);
   if(mv)return {pg:'veiculo',arg:mv[1]};
+  const mp=cam.match(/^\/publicacoes\/([a-z0-9-]+)$/);if(mp)return {pg:'publicacao',arg:mp[1]};
   const pg=ANTIGAS[cam]||Object.keys(ROTAS).find(k=>ROTAS[k]===cam)||'home';
   return {pg,arg:(pg==='estoque'||pg==='associados')&&i>=0?new URLSearchParams(p.slice(i+1)).get('loja')||undefined:undefined};
 }
@@ -2898,6 +2967,7 @@ function render(topo){
   if(pagAtual==='associados'&&rolarAssoc&&selAssoc&&entradasAssoc().some(e=>e.nome===selAssoc)){rolarAssoc=false;setTimeout(rolarParaLoja,topo?500:80);}   // aberto pela logo: desce até a loja
   if(TITULOS[pagAtual])document.title=TITULOS[pagAtual];
   else if(pagAtual==='veiculo'){const v=V.find(x=>String(x.id)===String(vAtual));if(v)document.title=nomeV(v)+' '+(v.ano||'')+' | Aceima';}
+  else if(pagAtual==='publicacao'){const p=PUBS.find(x=>x.id===pubAtual);document.title=(p?p.titulo:'Publicações')+' | Aceima';}
   if(pagAtual==='estoque'){const u=urlDe('estoque',F.loja);if(caminho()!==u)try{history.replaceState(history.state,'',(HASH?'#':'')+u);}catch(e){}}   // o endereço acompanha a loja do filtro
   setasPagina();menuNoRodape();
 }
@@ -2906,6 +2976,7 @@ function go(pg,arg){
   guardarPos();   // a página que fica para trás guarda onde estava
   if(pg!=='estoque'&&pg!=='veiculo')zerarFiltros();
   if(pg==='veiculo')vAtual=arg;
+  if(pg==='publicacao')pubAtual=arg;
   if(pg==='associados'&&arg){selAssoc=arg;catAssoc='Todos';rolarAssoc=true;}   // pela logo de um associado: ele já vem aberto
   else if(pg==='associados'&&de!=='associados'){selAssoc=null;catAssoc='Todos';}   // entrando em Associados pelo menu, nenhuma loja vem aberta
   pagAtual=pg;const u=urlDe(pg,arg);
@@ -2929,6 +3000,7 @@ function trocarPagina(semAnimacao,de,y){
 }
 function lerRota(){
   const r=rotaDe(caminho());pagAtual=r.pg;
+  if(r.pg==='publicacao')pubAtual=r.arg;
   if(r.pg==='veiculo')vAtual=r.arg;
   else if(r.pg==='estoque'&&r.arg){zerarFiltros();F.loja=r.arg;}   // /estoque?loja=: o estoque da loja
   else if(r.pg==='associados'&&r.arg){selAssoc=r.arg;catAssoc='Todos';rolarAssoc=true;}   // /associados?loja=: o associado aberto
