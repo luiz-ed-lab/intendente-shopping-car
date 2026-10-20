@@ -120,7 +120,9 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
 .bt:not(.az):not(.ghost):hover{background:linear-gradient(135deg,#D3913A,#F5B866)}
 .app{display:none}.app.on{display:block}
 .topo{color:#fff;padding:24px var(--lado) calc(var(--canto) + 52px)}
-.topo-in{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;grid-template-areas:"busca logo acoes" "tit tit tit" "kpi kpi kpi";align-items:center;column-gap:20px}
+/* a mesma largura das páginas do site (.wrap do site: até 1780 px, com 60 px de cada lado): o painel vai até as bordas como elas
+   (pedido do Luiz, 20/10/2026: antes ficava numa coluna de 1320 px no meio da tela) */
+.topo-in{max-width:1660px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;grid-template-areas:"busca logo acoes" "tit tit tit" "kpi kpi kpi";align-items:center;column-gap:20px}
 .busca{grid-area:busca;justify-self:start;display:flex;align-items:center;gap:10px;width:300px;height:44px;padding:0 16px;border-radius:99px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);color:var(--clara)}
 .busca input{flex:1;min-width:0;border:0;background:none;color:#fff;font-size:14px}
 .busca input::placeholder{color:#8592AA}
@@ -144,14 +146,21 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
 .htit h1.data{width:max-content;max-width:100%}
 .htit .kk+h1{margin-top:14px}
 .htit h1 em{font-style:italic;color:var(--gold3)}
+/* na visão geral, a data fica no meio (pedido do Luiz, 20/10/2026) */
+.htit.centro{justify-content:center;text-align:center}
+.htit.centro h1.data{margin:0 auto}
+.htit.centro .hero-ac{display:none}
 .hres{margin-top:12px;font-size:15px;color:var(--clara)}
 .hres b{color:#fff;font-weight:600}
-.lnk-erro{color:#F5A193;font-weight:600;text-decoration:underline;text-decoration-color:rgba(245,161,147,.4);text-underline-offset:3px;transition:color .2s}
+.lnk-erro{color:#F5A193;font-weight:600;transition:color .2s}
 .lnk-erro:hover{color:#FFC6BD}
-/* os quatro números da visão geral, sem as linhas entre eles (pedido do Luiz, 20/10/2026) */
-.hkpi{grid-area:kpi;margin-top:48px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 32px}
+/* os quatro números da visão geral, sem as linhas entre eles, e alinhados com as bordas: o primeiro encosta na da esquerda, o último na da
+   direita, e os do meio ficam no meio (pedidos do Luiz, 20/10/2026) */
+.hkpi{grid-area:kpi;margin-top:48px;display:flex;justify-content:space-between;gap:24px 32px}
 .hkpi[hidden]{display:none}
-.hkpi>div{min-width:0}
+.hkpi>div{min-width:0;text-align:center}
+.hkpi>div:first-child{text-align:left}
+.hkpi>div:last-child{text-align:right}
 .hkpi .n{min-height:1em;font:500 64px/1 var(--f1);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .hkpi .n.ouro{color:var(--gold3)}
 .hkpi .r{min-height:1.5em;margin-top:12px;font-size:15px;font-weight:600}
@@ -189,7 +198,7 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
 
 /* ===== folha clara ===== */
 .folha{position:relative;margin-top:calc(-1 * var(--canto));padding:52px var(--lado) 140px;border-radius:var(--canto) var(--canto) 0 0;background:var(--cl);min-height:50vh}
-.wrap{max-width:1320px;margin:0 auto}
+.wrap{max-width:1660px;margin:0 auto}
 .view{display:none}
 .view.on{display:block}
 .sem-vt .view.on{animation:entra .35s var(--ease)}   /* navegador sem a transição de página: só a folha entra */
@@ -207,11 +216,11 @@ button.row:hover .row-tx b{color:var(--gold)}
 .row-q{width:62px;flex:none;text-align:right;font-size:13px;color:var(--mut)}
 .row-n{width:96px;flex:none;text-align:right;font-size:13px;color:var(--mut)}
 .row-n b{font:500 18px/1 var(--f1);color:var(--ink)}
-.row-st{width:96px;flex:none;display:flex;justify-content:flex-end}
+.row-st{min-width:96px;flex:none;display:flex;justify-content:flex-end}
 .tp{font-weight:600;color:var(--goldtx)}
 .av{width:38px;height:38px;border-radius:50%;background:#E9E4DD;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none;font:600 13px/1 var(--f2)}
 /* a entrada da visão geral: as linhas chegam uma depois da outra */
-.chega{animation:entra .45s var(--ease) both}
+.chega{animation:entra .45s var(--ease) backwards}
 /* etiquetas */
 .pl{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:99px;font:600 12.5px/1 var(--f2);white-space:nowrap}
 .pl::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
@@ -239,9 +248,10 @@ button.row:hover .row-tx b{color:var(--gold)}
 .rel-n{display:flex;flex-wrap:wrap;gap:20px 40px}
 .rel-n b{display:block;font:500 34px/1 var(--f1);font-variant-numeric:tabular-nums}
 .rel-n span{display:block;margin-top:6px;font-size:13px;color:var(--mut)}
-/* filtros */
-.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.chip{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:500 13.5px/1 var(--f2);transition:box-shadow .2s,background .2s,color .2s}
+/* filtros em pílulas: todas do mesmo tamanho, o da maior (pedido do Luiz, 20/10/2026); trocando, a pílula muda em fusão e a lista entra
+   em fusão, como os filtros do site */
+.chips{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;width:max-content;max-width:100%}
+.chip{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 16px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:500 13.5px/1 var(--f2);white-space:nowrap;transition:box-shadow .25s,background .25s,color .25s}
 .chip:hover{box-shadow:inset 0 0 0 1px var(--ink)}
 .chip.on{background:var(--navy);color:#fff;box-shadow:none}
 .chip.erro:not(.on){color:#9A2F22}
@@ -257,7 +267,8 @@ button.row:hover .row-tx b{color:var(--gold)}
    novo surgindo. A barra de rolagem fica dentro dos cantos redondos (antes, a do sistema deixava a lista quadrada) */
 .dd{position:relative;display:inline-block}
 .dd select{display:none}
-.dd-t{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;min-width:140px;height:42px;padding:0 14px 0 16px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:500 13.5px/1 var(--f2);color:var(--ink);white-space:nowrap;transition:box-shadow .2s,background .2s,color .2s}
+.dd-t{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;width:190px;height:42px;padding:0 14px 0 16px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:500 13.5px/1 var(--f2);color:var(--ink);white-space:nowrap;transition:box-shadow .2s,background .2s,color .2s}
+.dd-t>span{min-width:0;overflow:hidden;text-overflow:ellipsis}   /* os filtros têm todos a mesma largura: o nome comprido termina em reticências */
 .dd-t svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;flex:none;transition:transform .25s var(--ease)}
 .dd.on .dd-t{box-shadow:inset 0 0 0 1px var(--ink)}
 .dd.on .dd-t svg{transform:rotate(180deg)}
@@ -280,10 +291,10 @@ button.row:hover .row-tx b{color:var(--gold)}
 
 /* ===== listas com a camada que abre (Associados e Leads): uma linha por item; tocada, a página se abre embaixo dela e mostra uma camada
    azul de ponta a ponta, como em Associados no celular (pedido do Luiz, 20/10/2026) ===== */
-.lst{border-top:1px solid var(--line)}
-.lr{display:flex;align-items:center;gap:16px;width:100%;min-height:70px;padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;cursor:pointer;transition:background .2s}
-.lr:hover{background:rgba(255,255,255,.7)}
-.lr.on{background:#fff;border-bottom-color:transparent}
+/* sem linhas entre as empresas (pedido do Luiz, 20/10/2026): o fundo do mouse passa um pouco das bordas, e o conteúdo fica alinhado com elas */
+.lr{display:flex;align-items:center;gap:16px;width:calc(100% + 28px);min-height:70px;margin:0 -14px;padding:12px 14px;border-radius:14px;text-align:left;cursor:pointer;transition:background .2s}
+.lr:hover{background:rgba(255,255,255,.75)}
+.lr.on{background:#fff;border-radius:14px 14px 0 0}
 .lr .i{width:22px;flex:none;font-size:12px;color:#A9A198;font-variant-numeric:tabular-nums}
 .lr .nm{flex:1;min-width:0}
 .lr .nm b{display:block;font-size:15.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
@@ -375,10 +386,12 @@ button.row:hover .row-tx b{color:var(--gold)}
 .modo button{width:36px;height:34px;border-radius:99px;display:flex;align-items:center;justify-content:center;color:var(--mut);transition:background .2s,color .2s}
 .modo button:hover{color:var(--ink)}
 .modo button.on{background:var(--navy);color:#fff}
-#veicLista.troca{animation:entra .4s var(--ease) both}
+#veicLista.troca{animation:entra .4s var(--ease) backwards}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+.vgrid>.cam{grid-column:1/-1}   /* na grade, as informações abrem embaixo da fileira do carro, de ponta a ponta */
 .vc{display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:#fff;box-shadow:var(--sombra);cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s}
-.vc:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(11,26,51,.04),0 22px 40px -24px rgba(11,26,51,.38)}
+.vc:hover,.vc.on{transform:translateY(-2px);box-shadow:0 1px 0 rgba(11,26,51,.04),0 22px 40px -24px rgba(11,26,51,.38)}
+.vc.on{box-shadow:0 0 0 2px var(--gold2),0 22px 40px -24px rgba(11,26,51,.38)}
 .vc .ft{position:relative;aspect-ratio:4/3;background:#E9E4DD center/cover no-repeat}
 .vc .ft .pl{position:absolute;top:10px;left:10px}
 .vc .b{flex:1;display:flex;flex-direction:column;gap:4px;padding:14px 16px}
@@ -388,8 +401,10 @@ button.row:hover .row-tx b{color:var(--gold)}
 .vc .mt span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* a segunda visualização: em lista (pedido do Luiz, 20/10/2026) */
 .vl{border-top:1px solid var(--line)}
-.vli{display:grid;grid-template-columns:96px minmax(0,2.2fr) 70px 100px 112px minmax(0,1.2fr) 92px 42px;gap:16px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .2s}
-.vli:hover{background:rgba(255,255,255,.7)}
+.vli{display:grid;grid-template-columns:96px minmax(0,2.2fr) 70px 100px 112px minmax(0,1.2fr) 92px 42px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.vli .nm b{transition:color .2s}
+.vli:hover .nm b,.vli.on .nm b{color:var(--goldtx)}
+.vli.on{border-bottom-color:transparent}
 .vli .ft{width:96px;aspect-ratio:4/3;border-radius:10px;background:#E9E4DD center/cover no-repeat}
 .vli .nm{min-width:0}
 .vli .nm b{display:block;font:500 15.5px/1.25 var(--f1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -398,7 +413,6 @@ button.row:hover .row-tx b{color:var(--gold)}
 .vli .pr{font:600 15px/1.2 var(--f1);white-space:nowrap}
 .vli .st{display:flex;justify-content:flex-end}
 .vli-h{padding-top:0;padding-bottom:12px;border-bottom:1px solid var(--ink);cursor:default;font:600 11px/1 var(--f2);letter-spacing:.16em;text-transform:uppercase;color:#5E6B80}
-.vli-h:hover{background:none}
 .switch{position:relative;width:42px;height:24px;border-radius:99px;background:#D7D1C9;flex:none;transition:background .2s}
 .switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s var(--ease)}
 .switch.on{background:var(--gold2)}
@@ -407,11 +421,10 @@ button.row:hover .row-tx b{color:var(--gold)}
 .pager{display:none}
 /* leads */
 .ll-h,.ll{display:grid;grid-template-columns:10px 96px 118px minmax(0,1.1fr) minmax(0,1.3fr) minmax(0,.9fr) 18px;gap:14px;align-items:center}
-.ll-h{padding:0 14px 12px;border-bottom:1px solid var(--ink);font:600 11px/1 var(--f2);letter-spacing:.16em;text-transform:uppercase;color:#5E6B80}
-.ll{padding:13px 14px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .2s}
-.ll:hover{background:rgba(255,255,255,.7)}
-.ll.on{background:#fff;border-bottom-color:transparent}
-.ll.on .ll-c b{color:var(--goldtx)}
+.ll-h{padding:0 0 12px;border-bottom:1px solid var(--ink);font:600 11px/1 var(--f2);letter-spacing:.16em;text-transform:uppercase;color:#5E6B80}
+.ll{padding:13px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.ll:hover .ll-c b,.ll.on .ll-c b{color:var(--goldtx)}
+.ll.on{border-bottom-color:transparent}
 .ll .nv{width:8px;height:8px;border-radius:50%;background:var(--gold2);box-shadow:0 0 0 3px rgba(232,160,72,.2)}
 .ll-d{font-size:13px;color:var(--mut);white-space:nowrap}
 .ll-c{min-width:0}
@@ -473,7 +486,7 @@ button.row:hover .row-tx b{color:var(--gold)}
 .menu .pgs:hover{background:#F4F5F7}
 .menu .pg-ant{right:calc(100% + 12px)}
 .menu .pg-prox{left:calc(100% + 12px)}
-.menu.pa .pg-ant,.menu.pp .pg-prox{opacity:1;visibility:visible;transform:translateY(-50%)}
+.menu.ant-on .pg-ant,.menu.prox-on .pg-prox{opacity:1;visibility:visible;transform:translateY(-50%)}   /* nomes próprios: "pp" era o das pílulas do relatório e encolhia o menu */
 .menu .pgs .pt{display:block;overflow:hidden;max-width:0;opacity:0;transition:max-width .3s var(--ease),margin .3s var(--ease),opacity .2s}
 .menu .pgs:hover .pt{max-width:170px;opacity:1}
 .menu .pg-ant:hover .pt{margin-left:8px}
@@ -493,43 +506,24 @@ button.row:hover .row-tx b{color:var(--gold)}
 @keyframes vtSurge{from{opacity:0;transform:translateY(16px)}}
 @keyframes vtSai{to{opacity:0;transform:translateY(-8px)}}
 
-/* ===== janelas (a do anúncio) ===== */
-.modal{position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,9,26,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
-.modal.on{display:flex;animation:fundo .25s}
-@keyframes fundo{from{opacity:0}}
-.mbox{width:100%;max-width:560px;max-height:calc(100vh - 40px);overflow:auto;border-radius:28px;background:#fff;box-shadow:0 40px 90px -30px rgba(0,9,26,.6);animation:sobe .3s var(--ease)}
-.mbox.larga{max-width:1000px}
-@keyframes sobe{from{opacity:0;transform:translateY(14px) scale(.98)}}
-.mhead{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px 28px 0}
-.mhead h3{font:500 22px/1.2 var(--f1)}
-.x{width:40px;height:40px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:var(--mut)}
-.x:hover{background:#F4F1EC;color:var(--ink)}
-.mbody{padding:18px 28px 6px}
-/* anúncio */
-.fv{display:grid;grid-template-columns:1.25fr 1fr;gap:26px}
-.fv .foto{aspect-ratio:4/3;border-radius:18px;background:#E9E4DD center/cover no-repeat}
+/* ===== o anúncio, que abre embaixo do carro como as outras partes (pedido do Luiz, 20/10/2026; antes era uma janela) ===== */
+.cv{display:grid;grid-template-columns:minmax(0,620px) minmax(0,1fr);gap:28px 44px;align-items:start}
+.cv-foto{position:relative;aspect-ratio:4/3;border-radius:18px;background:#0A1A33 center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#8592AA;font-size:13.5px}
+.cv-d h3{margin-top:8px;font:600 30px/1.08 var(--f1);letter-spacing:-.03em}
+.cv-ver{margin-top:6px;color:#93A3B9;font-size:14px}
+.cv-preco{margin-top:16px;font:600 34px/1 var(--f1);letter-spacing:-.02em;color:var(--gold3)}
+.cv-o{margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.12)}
+.cv-o>span{display:block;font:600 10.5px/1.2 var(--f2);letter-spacing:.18em;text-transform:uppercase;color:var(--gold3)}
 .tirasbox{display:flex;align-items:center;gap:6px;margin-top:10px}
 .tiras{flex:1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-.tiras div{aspect-ratio:4/3;border-radius:8px;background:#E9E4DD center/cover;cursor:pointer;opacity:.7;transition:opacity .2s}
+.tiras div{aspect-ratio:4/3;border-radius:8px;background:#0A1A33 center/cover;cursor:pointer;opacity:.6;transition:opacity .2s}
 .tiras div.sel,.tiras div:hover{opacity:1}
 .tiras div.sel{box-shadow:0 0 0 2px var(--gold2)}
-.seta{width:32px;height:32px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px var(--line);font-size:18px;line-height:1}
+.seta{width:32px;height:32px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25);color:#fff;font-size:18px;line-height:1}
 .seta:disabled{opacity:.35;cursor:default}
-.pag{margin-top:6px;font-size:12px;color:var(--mut);text-align:center}
-.preco{font:600 32px/1 var(--f1)}
-.linhas{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.linhas>div{padding:10px 14px;border-radius:14px;background:var(--cl)}
-.linhas small{display:block;font:600 10.5px/1 var(--f2);letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
-.linhas b{display:block;margin-top:6px;font-size:14.5px;font-weight:600}
-.lojabox{margin-top:12px;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;box-shadow:inset 0 0 0 1px var(--line)}
-.lojabox b{display:block;font-size:14.5px}
-.lojabox small{display:block;font-size:12.5px;color:var(--mut)}
-.acoes{margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
-.estado{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
-.opc{grid-column:1/-1}
-.opc .kk{color:var(--mut)}
-.chipsx{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
-.chipsx span{padding:6px 12px;border-radius:99px;background:var(--cl);font-size:12.5px}
+.pag{margin-top:6px;font-size:12px;color:#8592AA;text-align:center}
+.chipsx{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.chipsx span{padding:6px 12px;border-radius:99px;background:rgba(255,255,255,.08);color:#CFD9E8;font-size:12.5px}
 /* aviso que aparece embaixo */
 .toast{position:fixed;left:50%;bottom:92px;z-index:300;transform:translate(-50%,16px);display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);padding:12px 20px 12px 14px;border-radius:99px;background:var(--navy);color:#fff;font-size:14px;font-weight:500;box-shadow:0 18px 40px -16px rgba(0,9,26,.6);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s var(--ease)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
@@ -543,10 +537,10 @@ button.row:hover .row-tx b{color:var(--gold)}
   .lr .st{min-width:120px}
   .vli{grid-template-columns:84px minmax(0,2fr) 60px 92px 104px 90px 42px}
   .vli .lj,.vli-h .lj{display:none}
-  .ed-g{grid-template-columns:1fr}
+  .ed-g,.cv{grid-template-columns:1fr}
 }
 @media (max-width:760px){
-  :root{--lado:18px;--canto:28px}
+  :root{--lado:5.63vw;--canto:28px}   /* as laterais do site no celular */
   body{font-size:14px}
   .topo{padding:18px var(--lado) calc(var(--canto) + 30px)}
   .topo-in{grid-template-columns:auto 1fr;grid-template-areas:"logo acoes" "tit tit" "busca busca" "kpi kpi";column-gap:12px}
@@ -563,7 +557,10 @@ button.row:hover .row-tx b{color:var(--gold)}
   .htit .hero-ac,.htit .hero-ac .bt{width:100%;justify-content:center}
   .busca{grid-area:busca;justify-self:stretch;width:auto;margin-top:20px}
   .pop,.avisos{width:auto}
-  .hkpi{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:26px;gap:22px 18px}
+  /* os números dois a dois: os da esquerda encostam na borda da esquerda, os da direita na da direita */
+  .hkpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:26px;gap:22px 18px}
+  .hkpi>div,.hkpi>div:first-child{text-align:left}
+  .hkpi>div:nth-child(2n),.hkpi>div:last-child{text-align:right}
   .hkpi .n{font-size:38px}
   .hkpi .r{margin-top:8px;font-size:13px}
   .hkpi .s{font-size:12px}
@@ -584,27 +581,33 @@ button.row:hover .row-tx b{color:var(--gold)}
   .rel-n{display:grid;grid-template-columns:1fr 1fr;width:100%}
   .rel-n b{font-size:28px}
   .rel .bt{width:100%;justify-content:center}
-  .lr{gap:12px;min-height:64px;padding:12px 4px}
+  /* os filtros em pílulas, dois por linha, todos do mesmo tamanho */
+  .chips{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+  .chip{padding:0 12px}
+  .lr{gap:12px;min-height:64px;width:calc(100% + 20px);margin:0 -10px;padding:12px 10px}
   .lr .i{display:none}
   .lr .q{min-width:0}
   .lr .st{display:none}
   .lr .lg{width:54px;height:36px}
   .cam{padding:28px calc(50vw - 50%) 26px}
   .cm-cab{flex-wrap:wrap;gap:16px}
-  .cm-v h3{font-size:24px}
+  .cm-v h3,.cv-d h3{font-size:24px}
+  .cv-preco{font-size:28px}
   .cm-n{flex-basis:100%;gap:36px}
   .cm-n b{font-size:24px}
   .cm-i{grid-template-columns:1fr 1fr;gap:16px 18px}
   .cm-b .bt,.cm-b .bto{flex:1 1 calc(50% - 5px);justify-content:center;padding:0 12px}
   .cm-b .x-p{margin:0 auto}
+  .cm-b .sw-l{flex-basis:100%}
   .cps{grid-template-columns:1fr}
+  .cps .dois{grid-column:auto}
   .cam-tit h3{font-size:26px}
   .ed-2{grid-template-columns:1fr}
   .vgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .vc{border-radius:16px}
   .vc .b{padding:10px 12px}
   .vc h4,.vc .pr{font-size:14px}
-  .vli{grid-template-columns:76px minmax(0,1fr) auto;gap:4px 12px;padding:10px 4px}
+  .vli{grid-template-columns:76px minmax(0,1fr) auto;gap:4px 12px;padding:10px 0}
   .vli .ft{width:76px;grid-row:span 2}
   .vli .c,.vli .st,.vli-h{display:none}
   .vli .pr{grid-column:2}
@@ -619,14 +622,10 @@ button.row:hover .row-tx b{color:var(--gold)}
   .filtros .dd-t{width:100%;min-width:0}
   .vbar{flex-wrap:wrap}
   .ll-h{display:none}
-  .ll{grid-template-columns:10px minmax(0,1fr) auto;grid-template-areas:"n c t" "n i i" "n l d";row-gap:5px;padding:12px 4px}
+  .ll{grid-template-columns:10px minmax(0,1fr) auto;grid-template-areas:"n c t" "n i i" "n l d";row-gap:5px;padding:12px 0}
   .ll>.nv,.ll>.nv0{grid-area:n;align-self:start;margin-top:7px}
   .ll-c{grid-area:c}.ll-t{grid-area:t}.ll-i{grid-area:i;font-size:13px}.ll-l{grid-area:l}.ll-d{grid-area:d;text-align:right}
   .ll .chev{display:none}
-  .fv{grid-template-columns:1fr}
-  .modal{padding:12px}
-  .mbox{border-radius:22px}
-  .mhead{padding:20px 20px 0}.mbody{padding:16px 20px 4px}
   .pgrid{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -765,14 +764,6 @@ button.row:hover .row-tx b{color:var(--gold)}
   </nav>
 </div>
 
-<!-- ===== JANELA: ANÚNCIO ===== -->
-<div class="modal" id="mVeic" onclick="if(event.target===this)closeM('mVeic')">
-  <div class="mbox larga" role="dialog" aria-modal="true" aria-labelledby="mvTitulo">
-    <div class="mhead"><h3 id="mvTitulo">Anúncio</h3><button type="button" class="x" aria-label="Fechar" onclick="closeM('mVeic')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
-    <div class="mbody" id="mvCorpo" style="padding-bottom:26px"></div>
-  </div>
-</div>
-
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 const F='https://www.autocerto.com/fotos/';
@@ -838,17 +829,9 @@ const hojeISO=()=>{const d=new Date();return `${d.getFullYear()}-${doisD(d.getMo
 function hojeTxt(){const t=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'}).replace('-feira','');return t.charAt(0).toUpperCase()+t.slice(1);}   // Terça, 20 de outubro
 function origemLabel(chave){const s=String(chave||'');if(/^https?:\/\//i.test(s)||/[a-z]\.[a-z]{2,}/i.test(s)){try{return new URL(/^https?:/i.test(s)?s:'https://'+s).hostname.replace(/^www\./,'');}catch(_){return s;}}return s?('Portal · '+s):'';}
 const urlSite=s=>/^https?:/i.test(s)?s:'https://'+s;
-// o que o robô devolve quando não consegue ler um site, em palavras do dia a dia
-function erroLegivel(e){
-  const s=String(e||'');
-  if(/sem site/i.test(s))return 'sem site cadastrado';
-  if(/HTTP 404/.test(s))return 'o site respondeu que a página não existe';
-  if(/HTTP 5\d\d/.test(s))return 'o site estava fora do ar';
-  if(/HTTP 40[13]/.test(s))return 'o site bloqueou a leitura';
-  if(/timeout|abort|demor/i.test(s))return 'o site demorou demais para responder';
-  if(/ENOTFOUND|getaddrinfo|fetch failed|ECONN/i.test(s))return 'não deu para abrir o site';
-  return s.length>120?s.slice(0,117)+'…':s;
-}
+// a falha do robô em duas palavras (pedido do Luiz, 20/10/2026): o endereço não existe (página 404, domínio que não existe ou sem site
+// cadastrado) ou o site não respondeu (fora do ar, lento, bloqueado)
+const erroLegivel=e=>/sem site|HTTP 404|ENOTFOUND|getaddrinfo/i.test(String(e||''))?'Site não existe':'Site indisponível';
 // nomes dos carros como no site: as lojas mandam tudo em maiúsculas; fica maiúscula só a primeira letra, e as siglas inteiras
 const SIGLAS=['BMW','BYD','JAC','RAM','GWM','GM','VW','GAC','KTM','CAOA','MV','DS','ABS','CBS','TSI','TFSI','MPI','MPFI','MI','MSI','SCE','TCE','DCI','TGDI','CGI','GDI','THP','HPE','VVT','VCT','VTEC','MIVEC','TDI','TD','CRDI','GNV','CVT','DCT','DSG','EDC','AT','MT','AWD','AWC','FWD','RWD','PHEV','HEV','DHT','KW','CV','CC','SUV',
   'LT','LTZ','LS','LX','LXL','LXR','EX','EXL','EXS','DX','SE','SEL','SR','SRV','SV','SL','GL','GLS','GLX','GLI','GT','GTI','GTS','RS','ST','XS','XL','XLS','XLT','XLI','XEI','XR','XRE','XRX','XTZ','XVS','YBR','YS','ZR','NK','NXR','PCX','CG','CB','NMAX','XMAX','ADV','TXS','VTI','HSE','CD','CS','STD','ED','EL','ELX','DI','SED','MHD','SFI','GS','GSX','XE','SRX','SW','CL','DLX','PDK','AMG','RT','ACT',
@@ -928,6 +911,7 @@ function pintarHero(animar){
   const dois=(a,b)=>animar?letras(a,60)+'<em>'+letras(b,60+22*a.replace(/ /g,'').length)+'</em>':esc(a)+'<em>'+esc(b)+'</em>';
   $('htT').innerHTML=v==='dash'?`<h1 class="data" aria-label="${esc(d1+d2)}">${dois(d1,d2)}</h1>`
     :`<div class="kk data">${esc(dt)}</div><h1 class="pg" aria-label="${esc(TIT[v].join(''))}">${dois(TIT[v][0],TIT[v][1])}</h1>`;
+  $('heroTit').classList.toggle('centro',v==='dash');   // na visão geral, a data no meio
   $('htA').innerHTML=v==='associados'?`<button type="button" class="bt" onclick="abrirNovo()">${sv(IC.mais,'sm')}Cadastrar Associado</button>`
     :v==='mural'?`<button type="button" class="bt" onclick="abrirPub()">${sv(IC.mais,'sm')}Nova publicação</button>`:'';
   pintarResumo();pintarKpis(false);
@@ -936,7 +920,7 @@ function pintarResumo(animar){
   const v=vistaAtual,r=$('htR');let res='';
   if(dadosProntos){
     const c=contas();
-    if(v==='associados')res=`${pl(c.empresas,'empresa no site','empresas no site')} ·${fmt(c.integradas)} com estoque integrado${c.falhas?` · <button type="button" class="lnk-erro" onclick="verFalhas()">${fmt(c.falhas)} com falha</button>`:''}`;
+    if(v==='associados')res=`${pl(c.empresas,'empresa no site','empresas no site')} · ${fmt(c.integradas)} com estoque integrado${c.falhas?` · <button type="button" class="lnk-erro" onclick="verFalhas()">${fmt(c.falhas)} com falha</button>`:''}`;
     if(v==='veiculos')res=`${pl(c.noAr,'no ar','no ar')} · ${fmt(c.ocultos)} ${c.ocultos===1?'oculto':'ocultos'} · ${fmt(c.semFoto)} sem foto`;
     if(v==='leads')res=`${pl(c.novos,'novo','novos')} · ${fmt(c.n7)} nos últimos 7 dias`;
     if(v==='mural'&&!pubsErro)res=`${pl(PUBS.length,'publicação','publicações')}${PUBS.some(p=>p.destaque)?' · 1 em destaque':''}`;
@@ -971,7 +955,7 @@ function renderDash(animar){
   $('dashImp').innerHTML=rec.length?rec.map((l,i)=>`<button type="button" class="row${cl}"${ch(i)} onclick="verAssoc(${l.id})">${lgHtml(l)}<span class="row-tx"><b>${esc(l.nome)}</b><small>${esc(l.origem||'sem site')}</small></span><span class="row-n"><b>${fmt(l.n)}</b> veículos</span><span class="row-q">${horaCurta(l.sync)}</span><span class="row-st">${situacao(l)}</span></button>`).join('')
     :'<p class="vazio">Nenhuma loja ainda.</p>';
 }
-const situacao=l=>l.erro?`<span class="pl erro" title="${esc(erroLegivel(l.erro))}">falhou</span>`:(l.sync?'<span class="pl ok">ok</span>':'<span class="pl cinza">aguardando</span>');
+const situacao=l=>l.erro?`<span class="pl erro">${erroLegivel(l.erro)}</span>`:(l.sync?'<span class="pl ok">ok</span>':'<span class="pl cinza">aguardando</span>');
 
 /* ---------- relatório de leads (PDF) ---------- */
 let REP={p:'semana',de:'',ate:''};
@@ -993,6 +977,10 @@ function pintarRel(animar){
     <div class="rel-n"><div>${num(lista.length)}<span>Leads no total</span></div><div>${num(c('venda'))}<span>Interesse em carros</span></div><div>${num(c('compra'))}<span>Querem vender</span></div><div>${num(c('associacao'))}<span>Seja um associado</span></div></div>
     <button type="button" class="bt az" onclick="gerarRelatorio()">${sv(IC.baixar,'sm')}Baixar PDF</button>`;
   ['relDash','relLeads'].forEach(id=>{const e=$(id);if(!e)return;e.innerHTML=html;if(animar)e.querySelectorAll('b[data-n]').forEach((b,i)=>setTimeout(()=>contar(b,+b.dataset.n,1200),500+i*90));});
+  // na visão geral, o relatório só aparece com os dados: antes, ele ficava em cima e descia quando as listas chegavam
+  const d=$('relDash');
+  if(!dadosProntos)d.hidden=true;
+  else if(d.hidden){d.hidden=false;if(!reduz())d.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:450,delay:animar?700:0,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'});}
 }
 // o PDF sai pela janela de impressão da própria página, num quadro escondido. Antes abria uma aba nova e mandava imprimir de lá: com a
 // janela de impressão aberta na outra aba, o painel ficava travado, sem aceitar clique (o que o Luiz viu em 20/10/2026)
@@ -1154,26 +1142,35 @@ function lerLogo(input,prevId){
   fr.readAsDataURL(f);
 }
 
-/* ---------- a camada que abre embaixo da linha (Associados e Leads), como em Associados no celular ---------- */
-// fecha a que estava aberta (a página fecha como abriu) e abre a nova logo abaixo da linha tocada, de ponta a ponta
-function abrirCamada(lista,linha,html,rolar){
+/* ---------- a camada que abre embaixo da linha (Associados, Veículos e Leads), como em Associados no celular ---------- */
+// fecha a que estava aberta (a página fecha como abriu) e abre a nova logo abaixo da linha tocada, de ponta a ponta. Na grade dos
+// veículos, ela entra depois do último carro da fileira (ancora)
+function abrirCamada(lista,linha,html,rolar,ancora){
   const rd=reduz(),tinha=lista.querySelector(':scope>.cam');
   lista.querySelectorAll(':scope>.cam').forEach(b=>{if(rd){b.remove();return;}b.style.overflow='hidden';
     b.animate([{height:b.offsetHeight+'px'},{height:'0px',paddingTop:'0px',paddingBottom:'0px'}],{duration:280,easing:'ease-in'}).onfinish=()=>b.remove();});
   lista.querySelectorAll(':scope>.on[data-k]').forEach(r=>{if(r!==linha){r.classList.remove('on');r.setAttribute('aria-expanded','false');}});
   if(!linha||!html)return null;
   linha.classList.add('on');linha.setAttribute('aria-expanded','true');
-  const b=document.createElement('div');b.className='cam';b.innerHTML=`<div class="wrap">${html}</div>`;linha.after(b);
+  const b=document.createElement('div');b.className='cam';b.innerHTML=`<div class="wrap">${html}</div>`;(ancora||linha).after(b);
   if(!rd){b.style.overflow='hidden';const h=b.offsetHeight;b.animate([{height:'0px',paddingTop:'0px',paddingBottom:'0px'},{height:h+'px'}],{duration:420,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>{b.style.overflow='';};}
   if(rolar!==false)setTimeout(()=>{const x=linha.getBoundingClientRect();if(x.top<90||x.top>innerHeight*.5)scrollBy({top:x.top-100,behavior:rd?'auto':'smooth'});},rd?0:tinha?320:60);
   return b;
 }
 // a camada aberta, desenhada de novo junto com a lista (sem animar)
-function reabrirCamada(lista,k,html){
+function reabrirCamada(lista,k,html,ancoraDe){
   const linha=lista.querySelector(`:scope>[data-k="${CSS.escape(String(k))}"]`);if(!linha||!html)return;
   linha.classList.add('on');linha.setAttribute('aria-expanded','true');
-  const b=document.createElement('div');b.className='cam';b.innerHTML=`<div class="wrap">${html}</div>`;linha.after(b);
+  const b=document.createElement('div');b.className='cam';b.innerHTML=`<div class="wrap">${html}</div>`;(ancoraDe?ancoraDe(lista,linha):linha).after(b);
 }
+// filtros em pílulas: com as mesmas opções, só a escolhida e as contas mudam (a troca anima em fusão); a lista entra em fusão
+function pintarChips(box,itens,atual,fn){
+  const k=itens.map(x=>x[0]).join('|');
+  if(box.dataset.k===k&&box.children.length===itens.length){[...box.children].forEach((b,i)=>{b.classList.toggle('on',itens[i][0]===atual);const n=b.querySelector('i');if(n)n.textContent=itens[i][2];});return;}
+  box.dataset.k=k;
+  box.innerHTML=itens.map(x=>`<button type="button" class="chip${x[0]===atual?' on':''}${x[3]?' '+x[3]:''}" data-c="${esc(x[0])}" onclick="${fn}(this.dataset.c)">${esc(x[1])}<i>${x[2]}</i></button>`).join('');
+}
+const entrarLista=el=>{if(el&&!reduz())el.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});};
 // o bloco do começo da lista (cadastro e editor do mural) abre e fecha como a camada
 function abrirBloco(b){b.hidden=false;if(reduz())return;b.style.overflow='hidden';const h=b.offsetHeight;
   b.animate([{height:'0px',paddingTop:'0px',paddingBottom:'0px',marginBottom:'0px'},{height:h+'px'}],{duration:440,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>{b.style.overflow='';};}
@@ -1196,19 +1193,19 @@ const FILTROS_ASSOC=[['todos','Todos',()=>true],['lojas','Lojas',e=>!e.cred],['c
 function renderAssoc(rolar){
   const E=entradasAssoc(),q=f=>E.filter(f[2]).length;
   if(assocFiltro==='falha'&&!q(FILTROS_ASSOC[3]))assocFiltro='todos';
-  $('assocChips').innerHTML=dadosProntos?FILTROS_ASSOC.filter(f=>f[0]!=='falha'||q(f)).map(f=>`<button type="button" class="chip${assocFiltro===f[0]?' on':''}${f[0]==='falha'?' erro':''}" onclick="filtAssoc('${f[0]}')">${f[1]}<i>${q(f)}</i></button>`).join(''):'';
+  pintarChips($('assocChips'),dadosProntos?FILTROS_ASSOC.filter(f=>f[0]!=='falha'||q(f)).map(f=>[f[0],f[1],q(f),f[0]==='falha'?'erro':'']):[],assocFiltro,'filtAssoc');
   const vis=E.filter(FILTROS_ASSOC.find(f=>f[0]===assocFiltro)[2]),lista=$('assocLista');
   if(assocAberto&&!vis.some(e=>e.k===assocAberto))assocAberto=null;
   lista.innerHTML=!dadosProntos?'':vis.length?vis.map(linhaAssoc).join(''):'<p class="vazio">Nenhum associado aqui.</p>';
   if(assocAberto){const e=vis.find(x=>x.k===assocAberto);reabrirCamada(lista,assocAberto,camAssoc(e));
     if(rolar)setTimeout(()=>{const r=lista.querySelector('.lr.on');if(r)scrollTo({top:r.getBoundingClientRect().top+scrollY-100,behavior:reduz()?'auto':'smooth'});},80);}
 }
-function filtAssoc(f){assocFiltro=f;assocAberto=null;renderAssoc();}
+function filtAssoc(f){if(f===assocFiltro)return;assocFiltro=f;assocAberto=null;renderAssoc();entrarLista($('assocLista'));}
 function linhaAssoc(e,i){
   const at=`class="lr${assocAberto===e.k?' on':''}" data-k="${esc(e.k)}" tabindex="0" role="button" aria-expanded="${assocAberto===e.k}" onclick="abrirAssoc(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirAssoc(this)}"`;
   if(e.cred){const c=e.c;
     return `<div ${at}><span class="i">${doisD(i+1)}</span>${lgCred(c)}<span class="nm"><b>${esc(c.nome)}</b><small><span class="cred">Credenciado</span></small></span><span class="q">${c.nota?`<b>${c.nota.toFixed(1).replace('.',',')}</b> ★`:''}</span><span class="st">${c.aval?fmt(c.aval)+' avaliações':''}</span>${sv(IC.chev,'chev')}</div>`;}
-  const l=e.l,st=l.erro?'<span class="pl erro">Falha na sincronização</span>':l.sync?esc('Sincronizado '+quando(l.sync)):'<span class="pl cinza">Aguardando o robô</span>';
+  const l=e.l,st=l.erro?`<span class="pl erro">${erroLegivel(l.erro)}</span>`:l.sync?esc('Sincronizado '+quando(l.sync)):'<span class="pl cinza">Aguardando o robô</span>';
   return `<div ${at}><span class="i">${doisD(i+1)}</span>${lgHtml(l)}<span class="nm"><b>${esc(l.nome)}</b><small>${esc(l.origem||'sem site')}${l.fora?' · fora do site':''}</small></span><span class="q"><b>${fmt(l.n)}</b> ${l.n===1?'veículo':'veículos'}</span><span class="st">${st}</span>${sv(IC.chev,'chev')}</div>`;
 }
 function abrirAssoc(el){
@@ -1228,7 +1225,7 @@ function camAssoc(e){
     <div class="cm-n"><div><b>${fmt(l.n)}</b><span>${l.n===1?'veículo':'veículos'}</span></div>${nota?`<div><b>${nota}<i>★</i></b><span>${fmt(l.aval)} avaliações</span></div>`:''}</div></div>
    <div class="cm-i" id="ci-${l.id}">
     ${info('Endereço',l.end)}${info('Telefone',l.tel&&fmtTel(l.tel))}${info('WhatsApp',l.wa&&fmtTel(l.wa))}${info('E-mail dos leads',l.email)}
-    <div><span>Sincronização</span><p class="${l.erro?'erro':''}">${l.erro?esc('Falhou '+quando(l.sync)+': '+erroLegivel(l.erro)):l.sync?esc('Sincronizado '+quando(l.sync)):'O robô ainda não leu o site'}</p></div>
+    <div><span>Sincronização</span><p class="${l.erro?'erro':''}">${l.erro?esc(erroLegivel(l.erro)+' · última tentativa '+quando(l.sync)):l.sync?esc('Sincronizado '+quando(l.sync)):'O robô ainda não leu o site'}</p></div>
    </div>
    <div class="cm-b" id="cb-${l.id}">
     <button type="button" class="bt" onclick="importarAgora(${l.id})">${sv(IC.sync,'sm')}Importar agora</button>
@@ -1445,7 +1442,9 @@ function modoVeic(m){VMODO=m;try{localStorage.setItem('painel_vmodo',m);}catch(e
 const precoV=v=>(v.preco&&+v.preco>0)?money(v.preco):'Consultar';
 const kmV=v=>v.km==null?'—':(Number(v.km)===0?'0 km':fmt(v.km)+' km');
 const etiquetaV=v=>!fotoV(v)?'<span class="pl erro">sem foto</span>':(v.oculto===true?'<span class="pl cinza">oculto</span>':'');
-const chave=v=>`<button type="button" class="switch${v.oculto===true?'':' on'}" role="switch" aria-checked="${v.oculto!==true}" aria-label="Aparece no site" title="${v.oculto===true?'Oculto no site':'Aparece no site'}" onclick="event.stopPropagation();toggleVeic(${v.id},this)"></button>`;
+const chave=v=>`<button type="button" class="switch${v.oculto===true?'':' on'}" data-sw="${v.id}" role="switch" aria-checked="${v.oculto!==true}" aria-label="Aparece no site" title="${v.oculto===true?'Oculto no site':'Aparece no site'}" onclick="event.stopPropagation();toggleVeic(${v.id})"></button>`;
+const tocar=id=>`data-k="${id}" tabindex="0" role="button" aria-expanded="false" onclick="abrirVeic(${id},this)" onkeydown="if((event.key==='Enter'||event.key===' ')&&event.target===this){event.preventDefault();abrirVeic(${id},this)}"`;
+let veicAberto=null;   // o carro com as informações abertas embaixo dele
 function renderVeic(trocou){
   const list=veicFiltrados,ini=VPAG*VPOR,pag=list.slice(ini,ini+VPOR),semFoto=veicAll.filter(v=>!fotoV(v)).length,pags=Math.ceil(list.length/VPOR);
   $('veicCount').innerHTML=!dadosProntos?'':list.length?`<b>${fmt(ini+1)}–${fmt(ini+pag.length)}</b> de ${fmt(list.length)} ${list.length===1?'veículo':'veículos'}${pags>1?` · página ${VPAG+1} de ${pags}`:''}${semFoto&&!$('fVBusca').value?` · <span class="alerta">${semFoto} sem foto</span>`:''}`:'Nenhum veículo';
@@ -1453,43 +1452,50 @@ function renderVeic(trocou){
   $('btnLimparVeic').classList.toggle('on',mexeu);
   document.querySelectorAll('.modo button').forEach(b=>b.classList.toggle('on',b.dataset.m===VMODO));
   const box=$('veicLista');
+  if(!pag.some(v=>v.id===veicAberto))veicAberto=null;
   if(!dadosProntos)box.innerHTML='';
   else if(!pag.length)box.innerHTML='<p class="vazio">Nenhum veículo encontrado.</p>';
-  else if(VMODO==='lista')box.innerHTML=`<div class="vl"><div class="vli vli-h"><span></span><span>Veículo</span><span>Ano</span><span>Km</span><span>Preço</span><span class="lj">Loja</span><span></span><span></span></div>${pag.map(v=>`<div class="vli" onclick="abrirVeic(${v.id})">
+  else if(VMODO==='lista')box.innerHTML=`<div class="vl"><div class="vli vli-h"><span></span><span>Veículo</span><span>Ano</span><span>Km</span><span>Preço</span><span class="lj">Loja</span><span></span><span></span></div>${pag.map(v=>`<div class="vli" ${tocar(v.id)}>
      <span class="ft" style="background-image:url('${esc(fotoV(v))}')"></span>
      <span class="nm"><b>${esc(nomeV(v))}</b><small>${esc(titulo(v.versao)||'')}</small></span>
      <span class="c">${esc(v.ano_modelo||'—')}</span><span class="c">${esc(kmV(v))}</span><span class="pr">${precoV(v)}</span><span class="c lj">${esc(v.loja_nome||'')}</span>
-     <span class="st">${etiquetaV(v)}</span>${chave(v)}</div>`).join('')}</div>`;
-  else box.innerHTML=`<div class="vgrid">${pag.map(v=>`<div class="vc" onclick="abrirVeic(${v.id})">
-     <div class="ft" style="background-image:url('${esc(fotoV(v))}')">${etiquetaV(v)}</div>
+     <span class="st etq">${etiquetaV(v)}</span>${chave(v)}</div>`).join('')}</div>`;
+  else box.innerHTML=`<div class="vgrid">${pag.map(v=>`<div class="vc" ${tocar(v.id)}>
+     <div class="ft" style="background-image:url('${esc(fotoV(v))}')"><span class="etq">${etiquetaV(v)}</span></div>
      <div class="b"><h4>${esc(nomeV(v))}</h4><div class="pr">${precoV(v)}</div>
       <div class="mt"><span>${esc(v.loja_nome||'')}${v.ano_modelo?' · '+v.ano_modelo:''}</span>${chave(v)}</div></div>
     </div>`).join('')}</div>`;
+  if(veicAberto&&box.firstElementChild){reabrirCamada(box.firstElementChild,veicAberto,camVeic(veicAberto),ancoraGrade);mvTiras();}
   if(trocou&&!reduz()){box.classList.remove('troca');void box.offsetWidth;box.classList.add('troca');}
   const pg=$('veicPager');
   pg.innerHTML=pags>1?`<button type="button" ${VPAG?'':'disabled'} onclick="irPaginaVeic(-1)">Anterior</button><span>${VPAG+1} de ${pags}</span><button type="button" ${VPAG<pags-1?'':'disabled'} onclick="irPaginaVeic(1)">Próxima</button>`:'';
   setasVeic();
 }
 // as setas do lado do menu só aparecem no estoque e só as que levam a alguma página
-function setasVeic(){const m=$('menu'),pags=Math.ceil(veicFiltrados.length/VPOR),aqui=vistaAtual==='veiculos';m.classList.toggle('pa',aqui&&VPAG>0);m.classList.toggle('pp',aqui&&VPAG<pags-1);}
+function setasVeic(){const m=$('menu'),pags=Math.ceil(veicFiltrados.length/VPOR),aqui=vistaAtual==='veiculos';m.classList.toggle('ant-on',aqui&&VPAG>0);m.classList.toggle('prox-on',aqui&&VPAG<pags-1);}
 // trocando de página, a lista some, a tela volta para o começo dela e a nova aparece
 function irPaginaVeic(d){
   const pags=Math.ceil(veicFiltrados.length/VPOR),n=Math.min(Math.max(0,VPAG+d),pags-1);if(n===VPAG)return;
   VPAG=n;renderVeic(true);
   const y=$('v-veiculos').getBoundingClientRect().top+scrollY-24;if(scrollY>y)scrollTo({top:y,behavior:reduz()?'auto':'smooth'});
 }
-async function toggleVeic(id,el){
-  const ocultarAgora=el.classList.contains('on');   // estava no site: vai ocultar
-  el.classList.toggle('on');el.setAttribute('aria-checked',!ocultarAgora);el.title=ocultarAgora?'Oculto no site':'Aparece no site';
-  const v=veicAll.find(x=>x.id===id);if(v)v.oculto=ocultarAgora;
-  try{await jsonPost('/api/veiculos?path=veiculos',{id,oculto:ocultarAgora});
-    toast(ocultarAgora?'Veículo ocultado do site':'Veículo publicado no site');pintarResumo();pintarKpis(false);}
-  catch(e){toast('Não deu para atualizar');}
+// liga e desliga do site: todas as chaves do mesmo carro (a da lista e a da camada) andam juntas
+async function toggleVeic(id){
+  const v=veicAll.find(x=>x.id===id);if(!v)return;
+  const ocultar=v.oculto!==true,pinta=o=>{
+    document.querySelectorAll(`[data-sw="${id}"]`).forEach(s=>{s.classList.toggle('on',!o);s.setAttribute('aria-checked',!o);s.title=o?'Oculto no site':'Aparece no site';});
+    document.querySelectorAll(`#veicLista [data-k="${id}"] .etq`).forEach(e=>e.innerHTML=etiquetaV(v));
+    const t=$('mvEstadoTxt');if(t&&veicAberto===id)t.textContent=o?'Oculto no site':'Aparece no site';};
+  v.oculto=ocultar;pinta(ocultar);
+  try{const r=await jsonPost('/api/veiculos?path=veiculos',{id,oculto:ocultar});if(!r.ok)throw new Error('erro '+r.status);
+    toast(ocultar?'Veículo ocultado do site':'Veículo publicado no site');pintarResumo();pintarKpis(false);}
+  catch(e){v.oculto=!ocultar;pinta(!ocultar);toast('Não deu para atualizar');}
 }
-/* janela do anúncio: a foto, as outras em tiras de 10, os dados, a loja e o liga e desliga do site */
+/* o anúncio abre embaixo do carro, como as outras partes do painel (pedido do Luiz, 20/10/2026; antes era uma janela por cima): a foto,
+   as outras em tiras de 10, os dados, o liga e desliga do site e os opcionais. Na grade, abre embaixo da fileira do carro */
 let mvFotos=[],mvPag=0,mvAtual=0;
 const MV_POR_PAG=10;
-function mvTrocar(i){mvAtual=i;$('mvPrincipal').style.backgroundImage=`url('${esc(mvFotos[i])}')`;mvTiras();}
+function mvTrocar(i){mvAtual=i;const p=$('mvPrincipal');if(p)p.style.backgroundImage=`url('${esc(mvFotos[i])}')`;mvTiras();}
 function mvVirar(d){const pags=Math.ceil(mvFotos.length/MV_POR_PAG);mvPag=Math.min(Math.max(0,mvPag+d),pags-1);mvTiras();}
 function mvTiras(){
   const box=$('mvTiras');if(!box)return;
@@ -1499,51 +1505,62 @@ function mvTiras(){
   if(a)a.disabled=mvPag===0;if(p)p.disabled=mvPag>=pags-1;
   if(t)t.textContent=pags>1?`fotos ${ini+1} a ${Math.min(ini+MV_POR_PAG,mvFotos.length)} de ${mvFotos.length}`:'';
 }
-function abrirVeic(id){
-  const v=veicAll.find(x=>x.id===id);if(!v)return;
-  const loja=lojas.find(l=>l.id===v.loja_id),lojaRaw=lojasApi.find(l=>l.id===v.loja_id)||{};
-  mvFotos=(v.fotos&&v.fotos.length)?v.fotos:[];mvPag=0;mvAtual=0;
-  const oc=v.oculto===true,km=(v.km==null)?'Não informado':(Number(v.km)===0?'Zero km':fmt(v.km)+' km'),ano=[v.ano_fabricacao,v.ano_modelo].filter(Boolean).join('/')||'—';
-  const opcionais=[...new Set((v.opcionais||[]).map(o=>String(o).trim()).filter(Boolean))];
-  const url='/veiculo/'+v.id+'-'+slugify([v.marca,v.modelo,v.versao,v.ano_modelo].filter(Boolean).join(' '));
-  $('mvTitulo').textContent=nomeCompleto(v)||'Anúncio';
-  $('mvCorpo').innerHTML=`<div class="fv">
-    <div>
-      <div class="foto" id="mvPrincipal" style="background-image:url('${esc(mvFotos[0]||'')}')"></div>
-      ${mvFotos.length>1?`<div class="tirasbox">${mvFotos.length>MV_POR_PAG?'<button type="button" class="seta" id="mvAnt" aria-label="Fotos anteriores" onclick="mvVirar(-1)">‹</button>':''}<div class="tiras" id="mvTiras"></div>${mvFotos.length>MV_POR_PAG?'<button type="button" class="seta" id="mvProx" aria-label="Próximas fotos" onclick="mvVirar(1)">›</button>':''}</div><div class="pag" id="mvPagTxt"></div>`:''}
-      ${!mvFotos.length?'<p class="mut" style="font-size:13.5px;margin-top:10px">Este anúncio ainda não tem foto publicada pela loja.</p>':''}
-    </div>
-    <div>
-      <div class="preco">${(v.preco&&+v.preco>0)?money(v.preco):'Preço sob consulta'}</div>
-      <div class="linhas">
-        <div><small>Ano</small><b>${esc(ano)}</b></div>
-        <div><small>Quilometragem</small><b>${esc(km)}</b></div>
-        <div><small>Câmbio</small><b>${esc(titulo(v.cambio)||'—')}</b></div>
-        <div><small>Combustível</small><b>${esc(titulo(v.combustivel)||'—')}</b></div>
-        <div><small>Categoria</small><b>${({carro:'Carro',moto:'Moto',caminhao:'Comercial'})[v.tipo]||'Carro'}</b></div>
-        <div><small>Fotos</small><b>${mvFotos.length}</b></div>
-      </div>
-      <div class="lojabox">${loja?lgHtml(loja):`<span class="lg">${esc(initials(v.loja_nome))}</span>`}<div><b>${esc(v.loja_nome||'—')}</b><small>${esc(lojaRaw.endereco||'Estrada Intendente Magalhães')}</small></div></div>
-      <div class="acoes">
-        <div class="estado"><button type="button" class="switch${oc?'':' on'}" role="switch" aria-checked="${!oc}" aria-label="Aparece no site" onclick="toggleVeic(${v.id},this);mvEstado(${v.id})"></button><span id="mvEstadoTxt">${oc?'Oculto no site':'Aparece no site'}</span></div>
-        ${mvFotos.length?`<a class="bt az sm" href="${url}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a>`:''}
-      </div>
-    </div>
-    ${opcionais.length?`<div class="opc"><div class="kk">Opcionais</div><div class="chipsx">${opcionais.map(o=>`<span>${esc(o)}</span>`).join('')}</div></div>`:''}
-  </div>`;
-  mvTiras();openM('mVeic');
+// na grade, a camada entra depois do último carro da fileira do tocado
+function ancoraGrade(lista,el){
+  if(!lista.classList.contains('vgrid'))return el;
+  let a=el;lista.querySelectorAll(':scope>.vc').forEach(c=>{if(c.offsetTop===el.offsetTop)a=c;});return a;
 }
-function mvEstado(id){const v=veicAll.find(x=>x.id===id),t=$('mvEstadoTxt');if(v&&t)t.textContent=v.oculto?'Oculto no site':'Aparece no site';filtrarVeic();}
+// tocado, o carro abre as informações embaixo; tocar de novo fecha
+function abrirVeic(id,el){
+  const lista=$('veicLista').firstElementChild;if(!lista)return;
+  el=el||lista.querySelector(`:scope>[data-k="${id}"]`);
+  veicAberto=veicAberto===id||!el?null:id;
+  abrirCamada(lista,veicAberto?el:null,veicAberto?camVeic(id):'',true,veicAberto?ancoraGrade(lista,el):null);
+  if(veicAberto)mvTiras();
+}
+function camVeic(id){
+  const v=veicAll.find(x=>x.id===id);if(!v)return '';
+  const loja=lojas.find(l=>l.id===v.loja_id),oc=v.oculto===true;
+  mvFotos=(v.fotos&&v.fotos.length)?v.fotos:[];mvPag=0;mvAtual=0;
+  const km=(v.km==null)?'':(Number(v.km)===0?'Zero km':fmt(v.km)+' km'),ano=[v.ano_fabricacao,v.ano_modelo].filter(Boolean).join('/');
+  const opcionais=[...new Set((v.opcionais||[]).map(o=>String(o).trim()).filter(Boolean))],muitas=mvFotos.length>MV_POR_PAG;
+  const url='/veiculo/'+v.id+'-'+slugify([v.marca,v.modelo,v.versao,v.ano_modelo].filter(Boolean).join(' '));
+  return `<div class="cv">
+    <div>
+      <div class="cv-foto" id="mvPrincipal" style="background-image:url('${esc(mvFotos[0]||'')}')">${mvFotos.length?'':'Este anúncio ainda não tem foto publicada pela loja'}</div>
+      ${mvFotos.length>1?`<div class="tirasbox">${muitas?'<button type="button" class="seta" id="mvAnt" aria-label="Fotos anteriores" onclick="mvVirar(-1)">‹</button>':''}<div class="tiras" id="mvTiras"></div>${muitas?'<button type="button" class="seta" id="mvProx" aria-label="Próximas fotos" onclick="mvVirar(1)">›</button>':''}</div><div class="pag" id="mvPagTxt"></div>`:''}
+    </div>
+    <div class="cv-d">
+      <div class="kk">${esc(v.loja_nome||'')}</div>
+      <h3>${esc(nomeV(v))}</h3>${v.versao?`<p class="cv-ver">${esc(titulo(v.versao))}</p>`:''}
+      <div class="cv-preco">${(v.preco&&+v.preco>0)?money(v.preco):'Preço sob consulta'}</div>
+      <div class="cm-i">${info('Ano',ano)}${info('Quilometragem',km)}${info('Câmbio',titulo(v.cambio))}${info('Combustível',titulo(v.combustivel))}${info('Categoria',({carro:'Carro',moto:'Moto',caminhao:'Comercial'})[v.tipo]||'Carro')}${info('Fotos',String(mvFotos.length))}</div>
+      <div class="cm-b">
+        <label class="sw-l">${chave(v)}<span id="mvEstadoTxt">${oc?'Oculto no site':'Aparece no site'}</span></label>
+        ${mvFotos.length?`<a class="bto" href="${url}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a>`:''}
+        ${loja?`<button type="button" class="bto" onclick="verAssoc(${loja.id})">Ver a loja</button>`:''}
+      </div>
+    </div>
+   </div>
+   ${opcionais.length?`<div class="cv-o"><span>Opcionais</span><div class="chipsx">${opcionais.map(o=>`<span>${esc(o)}</span>`).join('')}</div></div>`:''}`;
+}
+// mudando a largura da tela, a grade muda de colunas: a camada vai para o fim da fileira certa
+addEventListener('resize',()=>{clearTimeout(abrirVeic.t);abrirVeic.t=setTimeout(()=>{
+  if(vistaAtual!=='veiculos'||VMODO!=='grade'||!veicAberto)return;
+  const lista=$('veicLista').firstElementChild,c=lista&&lista.querySelector(':scope>.cam'),el=lista&&lista.querySelector(`:scope>[data-k="${veicAberto}"]`);
+  if(c&&el){c.remove();ancoraGrade(lista,el).after(c);}
+},150);});
 
 /* ---------- leads ---------- */
 // sem o sistema de atendimento (pedido do Luiz, 20/10/2026): lead novo é o que ainda não foi visto. Tocado, abre embaixo dele, como os
 // associados no celular, e fica visto
 let leadFiltro='todos',leadAberto=null;
 const FILTROS_LEAD=[['todos','Todos',()=>true],['novos','Novos',l=>l.novo],['venda','Interesse em carros',l=>l.tipo==='venda'],['compra','Querem vender',l=>l.tipo==='compra'],['associacao','Associação',l=>l.tipo==='associacao']];
-function filtLead(t){leadFiltro=t;leadAberto=null;renderLeads();}
+function filtLead(t){if(t===leadFiltro)return;leadFiltro=t;leadAberto=null;renderLeads();entrarLista($('leadsLista'));}
+const chipsLeads=()=>pintarChips($('leadChips'),dadosProntos?FILTROS_LEAD.filter(f=>f[0]!=='novos'||leads.some(f[2])||leadFiltro==='novos').map(f=>[f[0],f[1],leads.filter(f[2]).length]):[],leadFiltro,'filtLead');
 function renderLeads(){
   const q=f=>leads.filter(f[2]).length;
-  $('leadChips').innerHTML=dadosProntos?FILTROS_LEAD.filter(f=>f[0]!=='novos'||q(f)||leadFiltro==='novos').map(f=>`<button type="button" class="chip${leadFiltro===f[0]?' on':''}" onclick="filtLead('${f[0]}')">${f[1]}<i>${q(f)}</i></button>`).join(''):'';
+  chipsLeads();
   const fil=(FILTROS_LEAD.find(f=>f[0]===leadFiltro)||FILTROS_LEAD[0])[2],list=leads.filter(fil),box=$('leadsLista');
   if(leadAberto&&!list.some(l=>l.id===leadAberto))leadAberto=null;
   box.innerHTML=!dadosProntos?'':list.length?list.map(l=>{const t=tipoDe(l);return `<div class="ll${l.novo?' novo':''}${leadAberto===l.id?' on':''}" data-k="${l.id}" tabindex="0" role="button" aria-expanded="${leadAberto===l.id}" onclick="abrirLeadLista(${l.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirLeadLista(${l.id})}">
@@ -1571,7 +1588,7 @@ function marcarVisto(id){
   l.novo=false;const raw=leadsRaw.find(x=>x.id===id);if(raw)raw.status='visto';
   const r=$('leadsLista').querySelector(`.ll[data-k="${id}"]`);if(r){r.classList.remove('novo');const d=r.querySelector('.nv');if(d){d.className='nv0';d.removeAttribute('title');}}
   atualizaLeadBadge();pintarAvisos();pintarResumo();renderDash();
-  const ch=$('leadChips');if(ch)ch.innerHTML=FILTROS_LEAD.filter(f=>f[0]!=='novos'||leads.some(f[2])||leadFiltro==='novos').map(f=>`<button type="button" class="chip${leadFiltro===f[0]?' on':''}" onclick="filtLead('${f[0]}')">${f[1]}<i>${leads.filter(f[2]).length}</i></button>`).join('');
+  chipsLeads();
   jsonPost('/api/leads?path=leads',{id,status:'visto'},'PATCH').catch(()=>{});
 }
 // os avisos: todos os leads novos de uma vez ficam vistos
@@ -1650,11 +1667,12 @@ function cartaoPub(p,prev){const f=prev?(pubFoto||(pubTirar?'':(pubEdit?fotoPub(
     ${prev?'':`<div class="pc-a"><a class="lk" href="/publicacoes/${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a>
      <div class="pc-ed"><button type="button" class="pc-x" title="Excluir" aria-label="Excluir a publicação" onclick="excluirPub('${p.id}')">${sv(IC.lixo,'sm')}</button><button type="button" class="pc-e" title="Editar" aria-label="Editar a publicação" onclick="abrirPub('${p.id}')">${sv(IC.lapis,'sm')}</button></div></div>`}
   </article>`;}
+function filtPub(c){if(c===pubFiltro)return;pubFiltro=c;renderPubs();entrarLista($('pubsGrid'));}
 function renderPubs(){
   const g=$('pubsGrid'),ch=$('pubChips');
   if(pubsErro){ch.innerHTML='';g.innerHTML=`<p class="vazio" style="grid-column:1/-1">Não deu para abrir as publicações: ${esc(pubsErro)}</p>`;return;}
   const cont={Todas:PUBS.length};PUBS.forEach(p=>{cont[p.categoria]=(cont[p.categoria]||0)+1;});
-  ch.innerHTML=['Todas',...CATS_PUB].map(c=>`<button type="button" class="chip${pubFiltro===c?' on':''}" onclick="pubFiltro=this.dataset.c;renderPubs()" data-c="${c}">${c}<i>${cont[c]||0}</i></button>`).join('');
+  pintarChips(ch,['Todas',...CATS_PUB].map(c=>[c,c,cont[c]||0]),pubFiltro,'filtPub');
   const lista=PUBS.filter(p=>pubFiltro==='Todas'||p.categoria===pubFiltro);
   g.innerHTML=lista.length?lista.map(p=>cartaoPub(p)).join(''):`<p class="vazio" style="grid-column:1/-1">${PUBS.length?'Nenhuma publicação nesta categoria.':'Nenhuma publicação ainda. Use "Nova publicação" para começar.'}</p>`;
 }
@@ -1800,14 +1818,7 @@ document.addEventListener('click',e=>{
 addEventListener('scroll',()=>{if($('gPop').classList.contains('on')||$('avisos').classList.contains('on')){$('gPop').classList.remove('on');$('avisos').classList.remove('on');const bt=$('avisosBt');if(bt)bt.classList.remove('on');}},{passive:true});
 addEventListener('resize',()=>{abrirNomes();setasVeic();});
 document.fonts&&document.fonts.ready.then(abrirNomes);   // o nome medido com a letra do site, senão corta a última letra
-document.addEventListener('keydown',e=>{
-  if(e.key!=='Escape')return;
-  const m=[...document.querySelectorAll('.modal.on')].pop();
-  if(m){closeM(m.id);return;}
-  fecharPops();
-});
-function openM(id){$(id).classList.add('on');document.body.style.overflow='hidden';}
-function closeM(id){$(id).classList.remove('on');if(!document.querySelector('.modal.on'))document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharPops();});
 function toast(msg){const t=$('toast');t.innerHTML='<span class="ok">'+check+'</span>'+esc(msg);t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),3800);}
 
 /* ---------- entrada: a saudação da hora e o arco do dia ---------- */
