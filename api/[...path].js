@@ -1199,7 +1199,7 @@ async function enviarResumo() {
     aviso: lojasErro.length
       ? '<b>Sincronização com falha:</b> ' + lojasErro.map(l => esc(l.nome)).join(', ') + '. O estoque dessas lojas pode estar desatualizado no site — vale checar se o site delas está no ar.'
       : null,
-    botao: { url: SITE_URL + '/painel.html', texto: 'Abrir o painel da Aceima' },
+    botao: { url: SITE_URL + '/painel', texto: 'Abrir o painel da Aceima' },
     rodape: null
   });
 
