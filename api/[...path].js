@@ -746,7 +746,8 @@ async function rotaLojas(req, res) {
   if (req.method !== 'GET' && !autorizado(req)) return negar(res);
   if (req.method === 'GET') {
     const { rows } = await query('select * from lojas where ativa = true order by nome');
-    return res.json(rows);
+    // o painel conta as empresas como o site: sem as lojas que ficam fora dele
+    return res.json(rows.map(l => ({ ...l, fora_do_site: FORA_DO_SITE.includes(l.nome) })));
   }
   if (req.method === 'POST') {
     const b = req.body || {};
@@ -761,13 +762,14 @@ async function rotaLojas(req, res) {
   if (req.method === 'PATCH') {
     const b = req.body || {};
     if (!b.id) return res.status(400).json({ erro: 'id obrigatório' });
+    // a nota do Google vem do robô das avaliações: sem ela no pedido (o painel não manda), fica a que está
     const { rows: [loja] } = await query(
       `update lojas set nome=coalesce($2,nome), endereco=coalesce($3,endereco),
          telefone=coalesce($4,telefone), whatsapp=coalesce($5,whatsapp),
          email=coalesce($6,email), autocerto_id=coalesce($7,autocerto_id),
          logo_url=coalesce($8,logo_url),
          cor = case when $9::text is null then cor when $9 = '' then null else $9 end,
-         google_nota = $10, google_avaliacoes = $11
+         google_nota = coalesce($10, google_nota), google_avaliacoes = coalesce($11, google_avaliacoes)
        where id=$1 returning *`,
       [b.id, b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id, b.logo_url || null,
        (b.cor === undefined ? null : String(b.cor)),
@@ -794,7 +796,7 @@ async function rotaParceiros(req, res) {
     const g = rows.find(r => r.chave === 'avaliacoes_google'), av = g && g.valor ? JSON.parse(g.valor) : {};
     const comLogo = new Set(rows.filter(r => r.chave.startsWith('logo_parceiro:') && r.tem).map(r => r.chave.slice(14)));
     res.setHeader('Cache-Control', CACHE_SITE);
-    return res.json(PARCEIROS_ROBO.map(p => ({ nome: p.nome, nota: (av[p.nome] || {}).nota || null, total: (av[p.nome] || {}).total || null, logo: comLogo.has(p.nome) })));
+    return res.json(PARCEIROS_ROBO.map(p => ({ nome: p.nome, nota: (av[p.nome] || {}).nota || null, total: (av[p.nome] || {}).total || null, logo: comLogo.has(p.nome), site: p.site || null })));
   }
   await migra();
   if (req.method === 'GET') {
