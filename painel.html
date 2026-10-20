@@ -49,21 +49,68 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
 .lk{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--ink);transition:color .2s}
 .lk:hover{color:var(--gold)}
 
-/* ===== entrada ===== */
-#login{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
-.lbox{width:100%;max-width:400px;padding:40px 34px 34px;border-radius:28px;background:rgba(10,26,51,.72);border:1px solid rgba(255,255,255,.1);color:#fff;text-align:center;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-.lbox .lg-a{height:30px;width:auto;margin:0 auto}
-.lbox .kk{margin-top:30px;color:var(--gold3)}
-.lbox h2{margin-top:10px;font:400 30px/1.1 var(--f1)}
-.lbox h2 em{font-style:italic;color:var(--gold3)}
-.lbox .campo{position:relative;margin-top:24px}
-.lbox input{width:100%;height:52px;padding:0 54px 0 22px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:15px;transition:border-color .2s}
-.lbox input::placeholder{color:#8592AA}
-.lbox input:focus{border-color:rgba(244,176,92,.65)}
-.olho{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;color:var(--clara);display:flex;align-items:center;justify-content:center}
+/* ===== entrada (a opção 4 que o Luiz escolheu, 20/10/2026): a saudação da hora, com o sol no arco do dia, das 6h às 18h (de noite, a
+   lua faz o mesmo caminho, das 18h às 6h). A data e a hora ficam alinhadas com o campo da senha e o botão: a data começa na borda do
+   campo e a hora termina na borda do botão. No celular, a senha e o botão vêm logo embaixo do desenho ===== */
+#login{position:fixed;inset:0;z-index:200;overflow:auto;color:#fff}
+.ent{min-height:100%;max-width:1240px;margin:0 auto;padding:40px var(--lado) 34px;display:flex;flex-direction:column}
+.ent-topo{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.ent-topo img{height:30px;width:auto}
+.ent-volta{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--clara);transition:color .2s,background .2s}
+.ent-volta:hover{color:var(--gold3)}
+.ent-volta .ext{display:none}
+.ent-meio{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 0}
+/* o desenho: no computador, a saudação fica dentro do arco, apoiada na linha das pontas; numa tela baixa, o arco diminui para tudo caber */
+.dia{position:relative;width:min(760px,100%,max(440px,calc((100vh - 320px)*1.9)));aspect-ratio:760/400;container-type:inline-size}
+.dia svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.dia .trilho{fill:none;stroke:rgba(255,255,255,.16);stroke-width:1.5;vector-effect:non-scaling-stroke}
+.dia .feito{fill:none;stroke:var(--gold2);stroke-width:2;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.dia .brilho{fill:rgba(244,176,92,.18);animation:brilha 3s ease-in-out infinite}
+.dia .disco{fill:var(--gold3)}
+.dia text{fill:#8592AA;font-family:var(--f2);text-anchor:middle}
+.dia .noite .feito{stroke:rgba(185,198,218,.55)}
+.dia .noite .brilho{fill:rgba(220,228,240,.13)}
+.dia .noite .disco{fill:#E6ECF5}
+@keyframes brilha{50%{opacity:.55}}
+.saud{position:absolute;left:0;right:0;bottom:3.6%;text-align:center}
+.saud .kk{color:var(--gold3)}
+.saud h1{margin-top:10px;font:300 112px/1 var(--f1);font-size:min(112px,14.74cqw);letter-spacing:-.04em}
+.saud h1 em{font-style:italic;font-weight:400;color:var(--gold3)}
+.ent-form{width:min(540px,100%);margin-top:30px}
+.ent-hora{display:flex;justify-content:space-between;gap:16px;font-size:15px;line-height:20px;color:var(--clara)}
+.ent-hora b{font-weight:500;color:#fff;font-variant-numeric:tabular-nums}
+.ent-linha{display:flex;gap:10px;margin-top:12px}
+.ent .campo{position:relative;flex:1}
+.ent input{width:100%;height:54px;padding:0 54px 0 22px;border-radius:99px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#fff;font-size:15px;transition:border-color .2s}
+.ent input::placeholder{color:#8592AA}
+.ent input:focus{border-color:rgba(244,176,92,.65)}
+.olho{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;color:var(--clara);display:flex;align-items:center;justify-content:center}
 .olho:hover{color:#fff;background:rgba(255,255,255,.08)}
+.ent-linha .bt{height:54px;padding:0 28px;font-size:15px}
 #lerr{display:none;margin-top:12px;color:#F7A89B;font-size:13.5px;font-weight:600}
-.lbox .bt{width:100%;justify-content:center;margin-top:16px;height:52px}
+.ent-rod{text-align:center;font-size:12px;line-height:1.5;color:#8592AA}
+@media (max-width:760px){
+  .ent{padding:22px 20px 18px}
+  .ent-topo img{height:22px}
+  .ent-volta{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;justify-content:center}
+  .ent-volta:hover{color:#fff;background:rgba(255,255,255,.15)}
+  .ent-volta span,.ent-volta .vol{display:none}
+  .ent-volta .ext{display:block}
+  .ent-meio{padding:20px 0}
+  /* no celular, o arco fica em cima e a saudação embaixo dele, como no exemplo; a senha e o botão vêm logo depois */
+  .dia{width:100%;aspect-ratio:auto;container-type:normal}
+  .dia svg{position:static;display:block;width:min(330px,100%);height:auto;margin:0 auto}
+  .saud{position:static;margin-top:18px}
+  .saud .kk{font-size:10.5px}
+  .saud h1{margin-top:8px;font-size:58px}
+  .ent-form{margin-top:26px}
+  .ent-hora{font-size:13.5px}
+  .ent-linha{flex-direction:column}
+  .ent input{height:50px;padding:0 50px 0 20px;font-size:14.5px}
+  .olho{right:6px}
+  .ent-linha .bt{height:50px;justify-content:center;font-size:14.5px}
+  .ent-rod{font-size:11px}
+}
 
 /* ===== topo azul ===== */
 .app{display:none}.app.on{display:block}
@@ -410,20 +457,34 @@ button.row:hover .row-tx b{color:var(--gold)}
 
 <!-- ===== ENTRADA ===== -->
 <div id="login" class="vidro">
-  <div class="lbox">
-    <img class="lg-a" src="marca-nova/aceima-nova.png" alt="Aceima">
-    <div class="kk">Painel</div>
-    <h2>Entrar no <em>painel.</em></h2>
-    <form onsubmit="entrar();return false" autocomplete="on">
-      <input type="text" name="username" autocomplete="username" value="Aceima" hidden>
-      <div class="campo">
-        <label for="lpass" class="so-leitor">Senha do painel</label>
-        <input id="lpass" type="password" placeholder="Senha" autocomplete="current-password">
-        <button type="button" id="lolho" class="olho" title="Mostrar senha" aria-label="Mostrar senha" onclick="verSenha()"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+  <div class="ent">
+    <div class="ent-topo">
+      <img src="marca-nova/aceima-nova.png" alt="Aceima">
+      <a class="ent-volta" href="/" aria-label="Voltar para o site"><svg class="ic sm vol" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg><svg class="ic sm ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span>Voltar para o site</span></a>
+    </div>
+    <div class="ent-meio">
+      <div class="dia">
+        <svg id="arco" aria-hidden="true"></svg>
+        <div class="saud">
+          <div class="kk">Painel</div>
+          <h1 id="saud"></h1>
+        </div>
       </div>
-      <div id="lerr" role="alert">Senha incorreta.</div>
-      <button type="submit" class="bt">Entrar no painel</button>
-    </form>
+      <form class="ent-form" onsubmit="entrar();return false" autocomplete="on">
+        <div class="ent-hora"><span id="entData"></span><b id="entHora"></b></div>
+        <input type="text" name="username" autocomplete="username" value="Aceima" hidden>
+        <div class="ent-linha">
+          <div class="campo">
+            <label for="lpass" class="so-leitor">Senha do painel</label>
+            <input id="lpass" type="password" placeholder="Senha do painel" autocomplete="current-password">
+            <button type="button" id="lolho" class="olho" title="Mostrar senha" aria-label="Mostrar senha" onclick="verSenha()"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
+          <button type="submit" class="bt">Entrar</button>
+        </div>
+        <div id="lerr" role="alert">Senha incorreta.</div>
+      </form>
+    </div>
+    <p class="ent-rod">© <span id="entAno"></span> Aceima · aceima.com.br</p>
   </div>
 </div>
 
@@ -1255,7 +1316,48 @@ function openM(id){$(id).classList.add('on');document.body.style.overflow='hidde
 function closeM(id){$(id).classList.remove('on');if(!document.querySelector('.modal.on'))document.body.style.overflow='';}
 function toast(msg){const t=$('toast');t.innerHTML='<span class="ok">'+check+'</span>'+esc(msg);t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),3400);}
 
-/* ---------- entrada ---------- */
+/* ---------- entrada: a saudação da hora e o arco do dia ---------- */
+const SEMANA=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],
+  MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+// medidas do desenho no computador e no celular (as dos exemplos): o arco, o sol (a: disco, b: brilho) e os rótulos das pontas
+const ARCO={pc:{w:760,h:400,cx:380,cy:370,r:350,a:9,b:22,f:13,ty:396},cel:{w:330,h:182,cx:165,cy:160,r:150,a:7,b:16,f:11,ty:178}};
+const telaArco=()=>innerWidth<=760?'cel':'pc';
+function montarArco(){
+  const s=$('arco'),k=telaArco(),g=ARCO[k];
+  s.dataset.g=k;s.setAttribute('viewBox',`0 0 ${g.w} ${g.h}`);
+  s.innerHTML=`<defs><mask id="lua"><circle r="${g.a}" fill="#fff"/><circle r="${g.a*.82}" cx="${g.a*.48}" cy="${-g.a*.36}" fill="#000"/></mask></defs>
+    <path class="trilho" d="M${g.cx-g.r} ${g.cy}A${g.r} ${g.r} 0 0 1 ${g.cx+g.r} ${g.cy}"/><path class="feito"/>
+    <g class="astro"><circle class="brilho" r="${g.b}"/><circle class="disco" r="${g.a}"/></g>
+    <text x="${g.cx-g.r}" y="${g.ty}" font-size="${g.f}"></text><text x="${g.cx+g.r}" y="${g.ty}" font-size="${g.f}"></text>`;
+}
+// f: quanto do caminho já foi (0 na ponta da esquerda, 1 na da direita). De dia, das 6h às 18h; de noite, das 18h às 6h, com a lua
+function pintarArco(f,noite){
+  const s=$('arco'),g=ARCO[s.dataset.g],ang=Math.PI*Math.min(Math.max(f,0),.9999),
+    x=(g.cx-g.r*Math.cos(ang)).toFixed(1),y=(g.cy-g.r*Math.sin(ang)).toFixed(1),[t1,t2]=s.querySelectorAll('text');
+  s.classList.toggle('noite',noite);
+  s.querySelector('.feito').setAttribute('d',`M${g.cx-g.r} ${g.cy}A${g.r} ${g.r} 0 0 1 ${x} ${y}`);
+  s.querySelector('.astro').setAttribute('transform',`translate(${x} ${y})`);
+  const d=s.querySelector('.disco');if(noite)d.setAttribute('mask','url(#lua)');else d.removeAttribute('mask');
+  t1.textContent=noite?'18h':'6h';t2.textContent=noite?'6h':'18h';
+}
+// a saudação, a data e a hora de agora; devolve onde o sol (ou a lua) está no arco
+function relogio(){
+  const d=new Date(),h=d.getHours(),m=d.getMinutes(),t=h+m/60,noite=t<6||t>=18;
+  $('saud').innerHTML=h<5||h>=18?'Boa <em>noite.</em>':h<12?'Bom <em>dia.</em>':'Boa <em>tarde.</em>';
+  $('entData').textContent=SEMANA[d.getDay()]+', '+d.getDate()+' de '+MESES[d.getMonth()];
+  $('entHora').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  $('entAno').textContent=d.getFullYear();
+  return {f:noite?((t+6)%24)/12:(t-6)/12,noite};
+}
+// abrindo a entrada, o sol sai da ponta do arco e anda até a hora de agora; depois acompanha o relógio
+function mostrarEntrada(){
+  montarArco();
+  const a=relogio(),ini=performance.now(),dur=matchMedia('(prefers-reduced-motion: reduce)').matches?0:1600;
+  const passo=agora=>{const k=dur?Math.min(1,(agora-ini)/dur):1;pintarArco(a.f*(1-Math.pow(1-k,3)),a.noite);if(k<1)requestAnimationFrame(passo);};
+  requestAnimationFrame(passo);
+  clearInterval(mostrarEntrada.t);mostrarEntrada.t=setInterval(()=>{const b=relogio();pintarArco(b.f,b.noite);},15000);
+}
+addEventListener('resize',()=>{if(mostrarEntrada.t&&$('arco').dataset.g!==telaArco()){montarArco();const b=relogio();pintarArco(b.f,b.noite);}});
 function verSenha(){
   const i=$('lpass'),b=$('lolho'),mostrando=i.type==='text';
   i.type=mostrando?'password':'text';b.title=mostrando?'Mostrar senha':'Ocultar senha';b.setAttribute('aria-label',b.title);
@@ -1274,13 +1376,14 @@ async function entrar(){
 }
 function abrirPainel(token){
   PAINEL_TOKEN=token;
+  clearInterval(mostrarEntrada.t);mostrarEntrada.t=0;
   $('login').style.display='none';$('app').classList.add('on');
   abrirSecaoDoEndereco();pintarRel();carregarPainel();
   const s=lerSessao();
   if(s)setTimeout(()=>{alert('A sessão terminou. Entre de novo.');sair();},Math.max(1000,s.exp-Date.now()));
 }
 /* sessão de 1 hora: ainda valendo, entra direto */
-(function(){const s=lerSessao();if(s&&s.t)abrirPainel(s.t);else setTimeout(()=>$('lpass').focus(),100);})();
+(function(){const s=lerSessao();if(s&&s.t)abrirPainel(s.t);else{mostrarEntrada();setTimeout(()=>$('lpass').focus(),100);}})();
 </script>
 </body>
 </html>
