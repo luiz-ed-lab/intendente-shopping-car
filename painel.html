@@ -115,57 +115,84 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
 }
 
 /* ===== topo azul ===== */
+/* o botão principal com o dourado do site, em degradê */
+.bt{background:linear-gradient(135deg,#C8862E,#F0AD57)}
+.bt:not(.az):not(.ghost):hover{background:linear-gradient(135deg,#D3913A,#F5B866)}
 .app{display:none}.app.on{display:block}
 .topo{color:#fff;padding:24px var(--lado) calc(var(--canto) + 52px)}
 .topo-in{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;grid-template-areas:"busca logo acoes" "tit tit tit" "kpi kpi kpi";align-items:center;column-gap:20px}
-.busca{grid-area:busca;justify-self:start;position:relative;display:flex;align-items:center;gap:10px;width:300px;height:44px;padding:0 16px;border-radius:99px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);color:var(--clara)}
+.busca{grid-area:busca;justify-self:start;display:flex;align-items:center;gap:10px;width:300px;height:44px;padding:0 16px;border-radius:99px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);color:var(--clara)}
 .busca input{flex:1;min-width:0;border:0;background:none;color:#fff;font-size:14px}
 .busca input::placeholder{color:#8592AA}
 .tlogo{grid-area:logo;height:34px;width:auto}
 .tacoes{grid-area:acoes;justify-self:end;display:flex;align-items:center;gap:10px}
 .cir{position:relative;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;display:flex;align-items:center;justify-content:center;transition:background .2s}
-.cir:hover{background:rgba(255,255,255,.15)}
-.cir .dot{position:absolute;top:10px;right:11px;width:8px;height:8px;border-radius:50%;background:var(--gold2);box-shadow:0 0 0 2px var(--navy)}
+.cir:hover,.cir.on{background:rgba(255,255,255,.16)}
+.cir .num{position:absolute;top:1px;right:-2px;min-width:19px;height:19px;padding:0 5px;border-radius:99px;background:var(--gold2);color:var(--navy);font:700 11px/19px var(--f2);text-align:center;box-shadow:0 0 0 2px var(--navy)}
 .uchip{display:flex;align-items:center;gap:10px;height:44px;padding:0 5px;border-radius:99px;background:rgba(255,255,255,.08)}
 .uchip .av{width:34px;height:34px;border-radius:50%;background:var(--gold2);color:var(--navy);display:flex;align-items:center;justify-content:center;font:600 14px/1 var(--f1)}
 .uchip b{font-size:14px;font-weight:600}
 .uchip button{width:34px;height:34px;border-radius:50%;color:var(--clara);display:flex;align-items:center;justify-content:center}
 .uchip button:hover{color:#fff}
 .menuBt{display:none}
+/* o título de cada parte: na visão geral, a data grande; nas outras, a data pequena em cima e o nome da parte embaixo (pedido do Luiz,
+   20/10/2026). Trocando de parte, a data diminui e sobe (ou cresce, voltando) e o nome da parte surge: é a transição de página do
+   navegador, com nomes próprios para a data e o título (data-topo e titulo-pg). A caixa da data abraça o texto, para a troca não esticar */
 .htit{grid-area:tit;margin-top:56px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px}
-.htit .kk{color:var(--gold3)}
-.htit h1{margin-top:14px;font:400 58px/1.05 var(--f1);letter-spacing:-.02em}
+.htit .kk{display:block;width:max-content;max-width:100%;color:var(--gold3)}
+.htit h1{font:500 58px/1.05 var(--f1);letter-spacing:-.02em}
+.htit h1.data{width:max-content;max-width:100%}
+.htit .kk+h1{margin-top:14px}
 .htit h1 em{font-style:italic;color:var(--gold3)}
 .hres{margin-top:12px;font-size:15px;color:var(--clara)}
 .hres b{color:#fff;font-weight:600}
-.hres .erro{color:#F5A193}
-.hkpi{grid-area:kpi;margin-top:44px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid rgba(255,255,255,.14)}
+.lnk-erro{color:#F5A193;font-weight:600;text-decoration:underline;text-decoration-color:rgba(245,161,147,.4);text-underline-offset:3px;transition:color .2s}
+.lnk-erro:hover{color:#FFC6BD}
+/* os quatro números da visão geral, sem as linhas entre eles (pedido do Luiz, 20/10/2026) */
+.hkpi{grid-area:kpi;margin-top:48px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 32px}
 .hkpi[hidden]{display:none}
-.hkpi>div{padding:26px 28px 0;border-left:1px solid rgba(255,255,255,.14);min-width:0}
-.hkpi>div:first-child{padding-left:0;border-left:0}
-.hkpi>div:last-child{padding-right:0}
-.hkpi .n{font:300 64px/1 var(--f1);letter-spacing:-.03em}
+.hkpi>div{min-width:0}
+.hkpi .n{min-height:1em;font:500 64px/1 var(--f1);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .hkpi .n.ouro{color:var(--gold3)}
-.hkpi .r{margin-top:12px;font-size:15px;font-weight:600}
-.hkpi .s{margin-top:4px;font-size:13.5px;color:var(--clara)}
-.hkpi .s.erro{color:#F5A193}
-/* busca e avisos: listas brancas que abrem embaixo */
-.pop{position:absolute;top:calc(100% + 8px);z-index:80;width:340px;max-height:60vh;overflow:auto;padding:8px;border-radius:20px;background:#fff;color:var(--ink);box-shadow:0 24px 60px -20px rgba(0,9,26,.5);display:none;text-align:left}
-.pop.on{display:block}
-.busca .pop{left:0}
-#notifWrap{position:relative}
-#notifPop{right:0}
+.hkpi .r{min-height:1.5em;margin-top:12px;font-size:15px;font-weight:600}
+.hkpi .s{min-height:1.5em;margin-top:4px;font-size:13.5px;color:var(--clara)}
+/* escrita: cada letra entra em fusão, uma depois da outra (o atraso vem em cada letra) */
+.lt{animation:letra .22s ease-out both}
+@keyframes letra{from{opacity:0}}
+/* busca e avisos: ficam fora do topo, presos à tela e por cima da folha clara (dentro do topo, ficavam atrás dela) */
+.pop{position:fixed;z-index:210;width:340px;max-height:60vh;overflow:auto;padding:8px;border-radius:20px;background:#fff;color:var(--ink);box-shadow:0 24px 60px -20px rgba(0,9,26,.5),0 0 0 1px rgba(11,26,51,.05);display:none;text-align:left}
+.pop.on{display:block;animation:dropEntra .2s var(--ease) both}
 .pop .ph{padding:10px 12px 6px;font:600 11px/1 var(--f2);letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
 .pop .pi{display:block;width:100%;padding:10px 12px;border-radius:12px;text-align:left}
 .pop button.pi:hover{background:#F4F1EC}
 .pop .pi b{display:block;font-size:14px;font-weight:600}
 .pop .pi span{display:block;margin-top:2px;font-size:12.5px;color:var(--mut)}
+.avisos{position:fixed;z-index:210;width:380px;max-height:min(72vh,600px);overflow:auto;border-radius:26px;background:#fff;color:var(--ink);box-shadow:0 30px 70px -24px rgba(0,9,26,.55),0 0 0 1px rgba(11,26,51,.05);display:none;transform-origin:top right}
+.avisos.on{display:block;animation:dropEntra .22s var(--ease) both}
+.av-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:22px 24px 6px}
+.av-h b{font:500 22px/1.1 var(--f1);letter-spacing:-.02em}
+.av-h span{font-size:13px;color:var(--mut)}
+.av-g{padding:4px 10px 8px}
+.av-g+.av-g{border-top:1px solid var(--line2)}
+.av-t{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px 6px;font:600 11px/1 var(--f2);letter-spacing:.16em;text-transform:uppercase;color:var(--goldtx)}
+.av-t button{font:600 12.5px/1 var(--f2);letter-spacing:0;text-transform:none;color:var(--mut)}
+.av-t button:hover{color:var(--ink)}
+.av-i{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;border-radius:16px;text-align:left;transition:background .2s}
+.av-i:hover{background:#F4F1EC}
+.av-i .tx{flex:1;min-width:0}
+.av-i b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av-i small{display:block;margin-top:2px;font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av-i time{flex:none;font-size:12px;color:var(--mut)}
+.av-i.erro small{color:#9A2F22}
+.av-ok{display:flex;align-items:center;gap:12px;padding:10px 24px 26px;color:var(--mut);font-size:14px}
+.av-ok i{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:#E0F0E8;color:#1F6146}
 
 /* ===== folha clara ===== */
 .folha{position:relative;margin-top:calc(-1 * var(--canto));padding:52px var(--lado) 140px;border-radius:var(--canto) var(--canto) 0 0;background:var(--cl);min-height:50vh}
 .wrap{max-width:1320px;margin:0 auto}
 .view{display:none}
-.view.on{display:block;animation:entra .35s var(--ease)}
+.view.on{display:block}
+.sem-vt .view.on{animation:entra .35s var(--ease)}   /* navegador sem a transição de página: só a folha entra */
 @keyframes entra{from{opacity:0;transform:translateY(8px)}}
 .sh{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 16px;margin-bottom:18px}
 .sh h2{font:400 30px/1.1 var(--f1)}
@@ -180,21 +207,23 @@ button.row:hover .row-tx b{color:var(--gold)}
 .row-q{width:62px;flex:none;text-align:right;font-size:13px;color:var(--mut)}
 .row-n{width:96px;flex:none;text-align:right;font-size:13px;color:var(--mut)}
 .row-n b{font:500 18px/1 var(--f1);color:var(--ink)}
-.row-st{width:130px;flex:none;display:flex;justify-content:flex-end}
+.row-st{width:96px;flex:none;display:flex;justify-content:flex-end}
 .tp{font-weight:600;color:var(--goldtx)}
 .av{width:38px;height:38px;border-radius:50%;background:#E9E4DD;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none;font:600 13px/1 var(--f2)}
+/* a entrada da visão geral: as linhas chegam uma depois da outra */
+.chega{animation:entra .45s var(--ease) both}
 /* etiquetas */
 .pl{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:99px;font:600 12.5px/1 var(--f2);white-space:nowrap}
 .pl::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
 .pl.sem::before{display:none}
-.pl.novo,.pl.ouro{background:#FBEBD5;color:#8A5410}.pl.atendimento{background:#E2E9F5;color:#1E3E70}.pl.finalizado,.pl.ok{background:#E0F0E8;color:#1F6146}
-.pl.repescagem{background:#ECE6F6;color:#54428F}.pl.perdido,.pl.cinza{background:#ECEAE7;color:#5F5A55}.pl.erro{background:#F8E1DE;color:#9A2F22}
+.pl.novo,.pl.ouro{background:#FBEBD5;color:#8A5410}.pl.ok{background:#E0F0E8;color:#1F6146}
+.pl.cinza{background:#ECEAE7;color:#5F5A55}.pl.erro{background:#F8E1DE;color:#9A2F22}
 .tpp{display:inline-flex;align-items:center;padding:5px 10px;border-radius:99px;font:600 12px/1 var(--f2);white-space:nowrap}
 .tp-venda{background:#E2E9F5;color:#1E3E70}.tp-compra{background:#E0F0E8;color:#1F6146}.tp-assoc{background:#FBEBD5;color:#8A5410}
 /* logo das lojas: fundo branco; a logo clara ganha o azul (fundoDaLogo) */
 .lg{width:58px;height:36px;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;font:700 12px/1 var(--f2);color:var(--mut)}
 .lg img{max-width:46px;max-height:24px;object-fit:contain}
-.lg.g{width:76px;height:48px;border-radius:12px}.lg.g img{max-width:60px;max-height:32px}
+.lg.g{width:84px;height:54px;border-radius:14px}.lg.g img{max-width:66px;max-height:36px}
 /* relatório de leads */
 .rel{background:#fff;border-radius:26px;padding:26px 30px;display:flex;flex-wrap:wrap;align-items:center;gap:22px 44px;box-shadow:var(--sombra)}
 #relDash{margin-top:44px}
@@ -208,47 +237,145 @@ button.row:hover .row-tx b{color:var(--gold)}
 .rel-d{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--mut)}
 .rel-d input{height:36px;padding:0 12px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:13px}
 .rel-n{display:flex;flex-wrap:wrap;gap:20px 40px}
-.rel-n b{display:block;font:400 34px/1 var(--f1)}
+.rel-n b{display:block;font:500 34px/1 var(--f1);font-variant-numeric:tabular-nums}
 .rel-n span{display:block;margin-top:6px;font-size:13px;color:var(--mut)}
 /* filtros */
 .chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.chip{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:500 13.5px/1 var(--f2);transition:box-shadow .2s}
+.chip{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:500 13.5px/1 var(--f2);transition:box-shadow .2s,background .2s,color .2s}
 .chip:hover{box-shadow:inset 0 0 0 1px var(--ink)}
 .chip.on{background:var(--navy);color:#fff;box-shadow:none}
+.chip.erro:not(.on){color:#9A2F22}
 .chip i{font-style:normal;font-size:12px;opacity:.7}
 .filtros{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
-.fbusca{flex:0 1 300px;min-width:220px;display:flex;align-items:center;gap:10px;height:42px;padding:0 16px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);color:var(--mut)}
+.fbusca{flex:0 1 320px;min-width:230px;display:flex;align-items:center;gap:10px;height:42px;padding:0 16px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);color:var(--mut)}
 .fbusca input{flex:1;min-width:0;border:0;background:none;font-size:14px}
 .limpar{display:none;font-size:13.5px;font-weight:600;color:var(--mut)}
 .limpar.on{display:inline-block}.limpar:hover{color:var(--ink)}
 .vcount{margin-bottom:18px;font-size:13.5px;color:var(--mut)}
 .vcount b{color:var(--ink)}.vcount .alerta{color:#9A2F22;font-weight:600}
-/* lista suspensa própria: o select do sistema não arredonda */
+/* lista suspensa própria, com as animações dos filtros do site: abre e fecha em fusão, e o botão vai do tamanho antigo ao novo com o texto
+   novo surgindo. A barra de rolagem fica dentro dos cantos redondos (antes, a do sistema deixava a lista quadrada) */
 .dd{position:relative;display:inline-block}
 .dd select{display:none}
-.dd-t{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;min-width:140px;height:42px;padding:0 14px 0 16px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:500 13.5px/1 var(--f2);color:var(--ink);white-space:nowrap}
-.dd-t svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;flex:none}
+.dd-t{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;min-width:140px;height:42px;padding:0 14px 0 16px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:500 13.5px/1 var(--f2);color:var(--ink);white-space:nowrap;transition:box-shadow .2s,background .2s,color .2s}
+.dd-t svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;flex:none;transition:transform .25s var(--ease)}
 .dd.on .dd-t{box-shadow:inset 0 0 0 1px var(--ink)}
-.dd-p{display:none;padding:6px;border-radius:16px;background:#fff;box-shadow:0 22px 50px -18px rgba(0,9,26,.42),0 0 0 1px rgba(11,26,51,.06);overflow:auto}
-.dd.on .dd-p{display:block}
-.dd-o{padding:9px 12px;border-radius:10px;font-size:13.5px;white-space:nowrap;cursor:pointer}
+.dd.on .dd-t svg{transform:rotate(180deg)}
+.dd.marcado .dd-t{background:var(--navy);color:#fff;box-shadow:none}
+.dd-t.anda>span{animation:fpTexto .32s var(--ease) both}
+@keyframes fpTexto{from{opacity:0;transform:translateY(5px)}}
+.dd-p{display:none;padding:6px;border-radius:16px;background:#fff;box-shadow:0 22px 50px -18px rgba(0,9,26,.42),0 0 0 1px rgba(11,26,51,.06);overflow:auto;overscroll-behavior:contain}
+.dd.on .dd-p{display:block;animation:dropEntra .2s var(--ease) both;transform-origin:top left}
+.dd-p.sai{display:block;animation:dropSai .14s ease-in both;pointer-events:none}
+@keyframes dropEntra{from{opacity:0;transform:translateY(-6px) scale(.98)}}
+@keyframes dropSai{to{opacity:0;transform:translateY(-4px) scale(.98)}}
+.dd-p::-webkit-scrollbar,.pop::-webkit-scrollbar,.avisos::-webkit-scrollbar{width:12px}
+.dd-p::-webkit-scrollbar-track,.pop::-webkit-scrollbar-track,.avisos::-webkit-scrollbar-track{background:transparent;margin:10px 0}
+.dd-p::-webkit-scrollbar-thumb,.pop::-webkit-scrollbar-thumb,.avisos::-webkit-scrollbar-thumb{background:rgba(11,26,51,.18) padding-box;border:4px solid transparent;border-radius:99px}
+.dd-p::-webkit-scrollbar-thumb:hover{background-color:rgba(200,134,46,.6)}
+@supports not selector(::-webkit-scrollbar){.dd-p,.pop,.avisos{scrollbar-width:thin;scrollbar-color:rgba(11,26,51,.2) transparent}}
+.dd-o{padding:9px 12px;border-radius:10px;font-size:13.5px;white-space:nowrap;cursor:pointer;transition:background .15s}
 .dd-o:hover{background:#F4F1EC}.dd-o.sel{font-weight:700}
 .dd.cor .dd-t{min-width:0;height:34px;padding:0 10px 0 12px;font-size:12.5px}
-/* lojas */
-.ljgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
-.lj{display:flex;flex-direction:column;padding:20px 20px 16px;border-radius:22px;background:#fff;box-shadow:var(--sombra)}
-.lj-t{display:flex;align-items:center;gap:14px;min-width:0}
-.lj-t b{display:block;font:500 18px/1.2 var(--f1)}
-.lj-t a,.lj-t .sem{display:block;margin-top:2px;font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lj-t a:hover{color:var(--gold)}
-.lj-d{margin-top:16px;display:grid;gap:9px}
-.lj-d>div{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13.5px}
-.lj-d dt{color:var(--mut);flex:none}
-.lj-d dd{min-width:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ok-t{color:#1F6146;font-weight:600}
-.lj-a{margin-top:16px;padding-top:14px;border-top:1px solid var(--line2);display:flex;align-items:center;gap:8px}
-.lj-a .bt{margin-right:auto}
+
+/* ===== listas com a camada que abre (Associados e Leads): uma linha por item; tocada, a página se abre embaixo dela e mostra uma camada
+   azul de ponta a ponta, como em Associados no celular (pedido do Luiz, 20/10/2026) ===== */
+.lst{border-top:1px solid var(--line)}
+.lr{display:flex;align-items:center;gap:16px;width:100%;min-height:70px;padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;cursor:pointer;transition:background .2s}
+.lr:hover{background:rgba(255,255,255,.7)}
+.lr.on{background:#fff;border-bottom-color:transparent}
+.lr .i{width:22px;flex:none;font-size:12px;color:#A9A198;font-variant-numeric:tabular-nums}
+.lr .nm{flex:1;min-width:0}
+.lr .nm b{display:block;font-size:15.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
+.lr .nm small{display:block;margin-top:2px;font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lr.on .nm b{color:var(--goldtx)}
+.lr .q{flex:none;min-width:110px;text-align:right;font-size:13px;color:var(--mut);white-space:nowrap}
+.lr .q b{font:500 19px/1 var(--f1);color:var(--ink)}
+.lr .st{flex:none;min-width:150px;display:flex;justify-content:flex-end;font-size:13px;color:var(--mut);white-space:nowrap}
+.lr .chev{flex:none;width:18px;height:18px;color:#A9A198;transition:transform .35s var(--ease),color .2s}
+.lr.on .chev{transform:rotate(90deg);color:var(--goldtx)}
+.cam{position:relative;margin:0 calc(50% - 50vw);padding:36px calc(50vw - 50%) 34px;background:var(--navy);color:#fff;box-shadow:inset 0 16px 16px -16px rgba(0,0,0,.65),inset 0 -16px 16px -16px rgba(0,0,0,.65)}
+.cam .kk{color:var(--gold3)}
+.cm-cab{display:flex;align-items:center;gap:22px}
+.cm-cab .lg.g,.cm-cab .av{flex:none}
+.cm-cab .av{width:54px;height:54px;background:rgba(255,255,255,.08);color:var(--gold3);font-size:16px}
+.cm-v{flex:1;min-width:0}
+.cm-v h3{margin-top:6px;font:600 30px/1.08 var(--f1);letter-spacing:-.03em}
+.cm-v p{margin-top:6px;color:#93A3B9;font-size:14px}
+.cm-v p a{color:#B9C6DA;text-decoration:underline;text-underline-offset:3px}
+.cm-v p a:hover{color:var(--gold3)}
+.cm-n{flex:none;display:flex;gap:44px}
+.cm-n b{display:block;font:600 30px/1 var(--f1);letter-spacing:-.03em}
+.cm-n b i{margin-left:.1em;font-style:normal;font-size:.62em;color:var(--gold3)}
+.cm-n span{display:block;margin-top:8px;font:600 10.5px/1.3 var(--f2);letter-spacing:.18em;text-transform:uppercase;color:var(--gold3)}
+.cm-i{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px 34px;margin-top:26px;padding-top:24px;border-top:1px solid rgba(255,255,255,.12)}
+.cm-i span{display:block;font:600 10.5px/1.2 var(--f2);letter-spacing:.18em;text-transform:uppercase;color:var(--gold3)}
+.cm-i p{margin-top:7px;color:#fff;font-size:14.5px;line-height:1.45;overflow-wrap:anywhere}
+.cm-i p.mut{color:#8592AA}
+.cm-i p.erro{color:#F5A193}
+.cm-i a{color:#fff}
+.cm-i a:hover{color:var(--gold3)}
+.cm-b{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:26px}
+.cm-b .x-p{margin-left:auto}
+.cm-tx{margin-top:10px;max-width:640px;color:#B9C6DA;font-size:14.5px;line-height:1.55}
+/* botões sobre o azul: o contorno do site e o excluir só em texto */
+.bto{display:inline-flex;align-items:center;gap:9px;height:46px;padding:0 22px;border-radius:99px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);color:#fff;font:600 14.5px/1 var(--f2);white-space:nowrap;transition:box-shadow .2s,color .2s}
+.bto:hover{box-shadow:inset 0 0 0 1px var(--gold3);color:var(--gold3)}
+.bto.sm{height:38px;padding:0 16px;font-size:13.5px}
+.x-p{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 6px;color:#F5A193;font:600 14px/1 var(--f2);transition:color .2s}
+.x-p:hover{color:#FFC6BD}
+/* campos sobre o azul, no padrão dos formulários do site */
+.cp{display:block;min-width:0}
+.cp>span{display:block;margin-bottom:8px;font:600 10.5px/1.2 var(--f2);letter-spacing:.18em;text-transform:uppercase;color:var(--gold3)}
+.cp>span small{font-weight:500;letter-spacing:.04em;text-transform:none;color:#8592AA}
+.cp input,.cp textarea{width:100%;height:48px;padding:0 16px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:14.5px;color-scheme:dark;transition:border-color .2s,background .2s}
+.cp textarea{height:auto;padding:13px 16px;line-height:1.6;resize:vertical}
+.cp input::placeholder,.cp textarea::placeholder{color:#61718C}
+.cp input:focus,.cp textarea:focus{border-color:rgba(244,176,92,.65);background:rgba(255,255,255,.09)}
+.cp input.bad{border-color:#E0685A}
+.cps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px 20px;margin-top:22px}
+.cps .lg2{grid-column:1/-1}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg button{height:44px;padding:0 18px;border-radius:99px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);color:#CFD9E8;font:500 13.5px/1 var(--f2);transition:background .25s,box-shadow .25s,color .25s}
+.seg button:hover{box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);color:#fff}
+.seg button.on{background:rgba(244,176,92,.16);box-shadow:inset 0 0 0 1px rgba(244,176,92,.55);color:var(--gold3)}
+.sw-l{display:flex;align-items:center;gap:12px;height:48px;color:#CFD9E8;font-size:14px;cursor:pointer}
+/* o andamento do robô dentro da camada */
+.and{margin-top:24px;max-width:640px}
+.and .bar{height:6px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.and .bar i{display:block;width:0;height:100%;border-radius:99px;background:linear-gradient(90deg,#C8862E,#F0AD57);transition:width .6s var(--ease)}
+.and p{margin-top:12px;display:flex;align-items:center;gap:10px;color:#CFD9E8;font-size:14px}
+.and p svg{animation:gira 1s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+.ok-n{margin-top:22px;display:flex;align-items:center;gap:12px;font-size:15px}
+.ok-n i{width:30px;height:30px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(119,201,160,.16);color:#8FD6B0}
+.falta{margin-top:22px;padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);color:#CFD9E8;font-size:14px;line-height:1.5}
+.falta b{color:#fff}
+/* logo escolhida no formulário */
+.lgc{display:flex;align-items:center;gap:12px}
+.lgc .lg{width:84px;height:48px}
+.cam .lg:empty{background:rgba(255,255,255,.04);box-shadow:none;border:1px dashed rgba(255,255,255,.24)}
+.cps .dois{grid-column:span 2}
+.lgc label{cursor:pointer}
+/* o cadastro de um associado novo e o editor do mural abrem no começo da lista, também como a camada azul */
+.cam.topo-cam{margin-bottom:30px;border-radius:0}
+.cam-tit{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
+.cam-tit h3{margin-top:8px;font:500 34px/1.08 var(--f1);letter-spacing:-.025em}
+.cam-tit h3 em{font-style:italic;color:var(--gold3)}
+.xc{width:42px;height:42px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#B9C6DA;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);transition:color .2s,box-shadow .2s}
+.xc:hover{color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
+/* associados */
+.lr .lg{width:64px;height:40px}
+.lr .lg img{max-width:50px;max-height:26px}
+.cred{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--goldtx)}
 /* veículos */
+.vbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.vbar .vcount{margin:0}
+.modo{display:flex;gap:4px;padding:4px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
+.modo button{width:36px;height:34px;border-radius:99px;display:flex;align-items:center;justify-content:center;color:var(--mut);transition:background .2s,color .2s}
+.modo button:hover{color:var(--ink)}
+.modo button.on{background:var(--navy);color:#fff}
+#veicLista.troca{animation:entra .4s var(--ease) both}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
 .vc{display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:#fff;box-shadow:var(--sombra);cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s}
 .vc:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(11,26,51,.04),0 22px 40px -24px rgba(11,26,51,.38)}
@@ -259,23 +386,42 @@ button.row:hover .row-tx b{color:var(--gold)}
 .vc .pr{font:600 16px/1.2 var(--f1)}
 .vc .mt{margin-top:auto;padding-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--mut)}
 .vc .mt span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* a segunda visualização: em lista (pedido do Luiz, 20/10/2026) */
+.vl{border-top:1px solid var(--line)}
+.vli{display:grid;grid-template-columns:96px minmax(0,2.2fr) 70px 100px 112px minmax(0,1.2fr) 92px 42px;gap:16px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .2s}
+.vli:hover{background:rgba(255,255,255,.7)}
+.vli .ft{width:96px;aspect-ratio:4/3;border-radius:10px;background:#E9E4DD center/cover no-repeat}
+.vli .nm{min-width:0}
+.vli .nm b{display:block;font:500 15.5px/1.25 var(--f1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vli .nm small{display:block;margin-top:2px;font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vli .c{font-size:13.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vli .pr{font:600 15px/1.2 var(--f1);white-space:nowrap}
+.vli .st{display:flex;justify-content:flex-end}
+.vli-h{padding-top:0;padding-bottom:12px;border-bottom:1px solid var(--ink);cursor:default;font:600 11px/1 var(--f2);letter-spacing:.16em;text-transform:uppercase;color:#5E6B80}
+.vli-h:hover{background:none}
 .switch{position:relative;width:42px;height:24px;border-radius:99px;background:#D7D1C9;flex:none;transition:background .2s}
 .switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s var(--ease)}
 .switch.on{background:var(--gold2)}
 .switch.on::after{transform:translateX(18px)}
+.cam .switch{background:rgba(255,255,255,.18)}.cam .switch.on{background:var(--gold2)}
+.pager{display:none}
 /* leads */
-.ll-h,.ll{display:grid;grid-template-columns:96px 124px minmax(0,1.1fr) minmax(0,1.3fr) minmax(0,.9fr) 214px;gap:14px;align-items:center}
-.ll-h{padding:0 0 12px;border-bottom:1px solid var(--ink);font:600 11px/1 var(--f2);letter-spacing:.16em;text-transform:uppercase;color:#5E6B80}
-.ll{padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
-.ll:hover .ll-c b{color:var(--gold)}
+.ll-h,.ll{display:grid;grid-template-columns:10px 96px 118px minmax(0,1.1fr) minmax(0,1.3fr) minmax(0,.9fr) 18px;gap:14px;align-items:center}
+.ll-h{padding:0 14px 12px;border-bottom:1px solid var(--ink);font:600 11px/1 var(--f2);letter-spacing:.16em;text-transform:uppercase;color:#5E6B80}
+.ll{padding:13px 14px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .2s}
+.ll:hover{background:rgba(255,255,255,.7)}
+.ll.on{background:#fff;border-bottom-color:transparent}
+.ll.on .ll-c b{color:var(--goldtx)}
+.ll .nv{width:8px;height:8px;border-radius:50%;background:var(--gold2);box-shadow:0 0 0 3px rgba(232,160,72,.2)}
 .ll-d{font-size:13px;color:var(--mut);white-space:nowrap}
 .ll-c{min-width:0}
 .ll-c b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
+.ll.novo .ll-c b{font-weight:700}
 .ll-c small,.ll-l{font-size:13px;color:var(--mut)}
 .ll-i,.ll-l{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ll-a{display:flex;align-items:center;justify-content:flex-end;gap:6px}
-.ll-a .dd{flex:1}.ll-a .dd-t{width:100%}
-/* publicações */
+.ll .chev{width:18px;height:18px;color:#A9A198;transition:transform .35s var(--ease),color .2s}
+.ll.on .chev{transform:rotate(90deg);color:var(--goldtx)}
+/* mural */
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-top:20px}
 .pc{display:flex;flex-direction:column;border-radius:22px;overflow:hidden;background:#fff;box-shadow:var(--sombra)}
 .pc-f{aspect-ratio:16/10;background:#E9E4DD;display:flex;align-items:center;justify-content:center;color:#A9A198}
@@ -286,21 +432,68 @@ button.row:hover .row-tx b{color:var(--gold)}
 .pc h3{margin-top:6px;font:500 19px/1.25 var(--f1)}
 .pc p{margin-top:6px;font-size:13.5px;color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pc-tags{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
-.pc-a{display:flex;align-items:center;gap:10px;padding:14px 18px 16px}
-.pc-a .ib{margin-left:auto}
+/* "Ver no site" à esquerda e, à direita, só a bolinha de editar; com o mouse em cima, o excluir sai de baixo dela (pedido do Luiz, 20/10/2026) */
+.pc-a{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 16px 18px}
+.pc-ed{position:relative;display:flex}
+.pc-e,.pc-x{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.pc-e{position:relative;z-index:2;background:var(--navy);color:#fff;transition:background .2s}
+.pc-e:hover{background:#10264A}
+.pc-x{position:absolute;top:0;right:0;z-index:1;background:#F8E1DE;color:#9A2F22;opacity:0;transform:scale(.6);pointer-events:none;transition:transform .35s var(--ease),opacity .2s,background .2s}
+.pc-x:hover{background:#F2CDC8}
+.pc-ed:hover .pc-x,.pc-ed:focus-within .pc-x{opacity:1;transform:translateX(-48px);pointer-events:auto}
+@media (hover:none){.pc-x{display:none}}   /* sem mouse, o excluir fica no editor */
+/* o editor do mural, no padrão do site: folha azul, campos escuros e o botão dourado */
+.ed-g{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:28px 40px;margin-top:24px}
+.ed-c{display:grid;gap:20px;align-content:start}
+.ed-tit{height:62px!important;font:500 24px/1 var(--f1)!important;letter-spacing:-.01em}
+.ed-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.ed-foto{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;aspect-ratio:16/10;border-radius:16px;overflow:hidden;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);color:#8592AA;font-size:13.5px;cursor:pointer;transition:background .2s,box-shadow .2s}
+.ed-foto:hover{background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(244,176,92,.5)}
+.ed-foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ed-foto .ic{width:28px;height:28px}
+.ed-fa{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ed-prev{margin-top:22px}
+.ed-prev>span{display:block;margin-bottom:10px;font:600 10.5px/1.2 var(--f2);letter-spacing:.18em;text-transform:uppercase;color:var(--gold3)}
+.ed-prev .pc{box-shadow:none}
 
-/* ===== menu: a barra em pílula do site, fixa embaixo ===== */
-.menu{position:fixed;left:50%;bottom:22px;z-index:90;transform:translateX(-50%);display:flex;align-items:center;gap:4px;padding:6px;border-radius:99px;background:#fff;box-shadow:0 12px 30px -12px rgba(0,9,26,.45),0 0 0 1px rgba(11,26,51,.06)}
-.menu a,.menu button{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;min-width:40px;height:40px;border-radius:99px;color:var(--mut);font:600 14px/1 var(--f2);white-space:nowrap;transition:background .2s,color .2s}
-.menu .nm{display:none}
-.menu a.on{padding:0 16px 0 12px;background:#EEF0F3;color:var(--ink)}
-.menu a.on .nm{display:inline}
-.menu a:not(.on):hover,.menu button:hover{color:var(--ink);background:#F4F5F7}
+/* ===== menu: a barra em pílula do site, fixa embaixo. Como no site, a parte aberta mostra o nome, e o mouse em cima de outra abre o
+   nome dela também (pedido do Luiz, 20/10/2026) ===== */
+.menu{position:fixed;left:50%;bottom:22px;z-index:90;transform:translateX(-50%);display:flex;align-items:center;gap:4px;padding:6px;border-radius:99px;background:#fff;box-shadow:0 12px 30px -12px rgba(0,9,26,.45),0 0 0 1px rgba(11,26,51,.06);view-transition-name:menu}
+.menu a,.menu button{position:relative;display:flex;align-items:center;justify-content:center;min-width:40px;height:40px;padding:0 10px;border-radius:99px;color:var(--mut);font:600 14px/1 var(--f2);white-space:nowrap;transition:background .2s,color .2s}
+.menu .nl{display:block;overflow:hidden;width:0;opacity:0;transition:width .26s var(--ease),margin .26s var(--ease),opacity .2s}
+.menu .nl.vis{margin-left:8px;opacity:1;transition:width .26s var(--ease),margin .26s var(--ease),opacity .2s .12s}
+.menu .nl>span{display:block;white-space:nowrap;line-height:1.9}
+.menu a.on{background:#EEF0F3;color:var(--ink)}
+.menu a:not(.on):hover,.menu button:hover,.menu .hov{color:var(--ink);background:#F4F5F7}
 .menu .sep{width:1px;height:22px;margin:0 4px;background:var(--line)}
-.menu .bdg{position:absolute;top:2px;right:0;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--gold2);color:var(--navy);font:700 11px/18px var(--f2);text-align:center}
-.menu a.on .bdg{position:static;margin-left:2px}
+.menu .bdg{position:absolute;top:2px;right:2px;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--gold2);color:var(--navy);font:700 11px/18px var(--f2);text-align:center}
+.menu .nome .bdg{position:static;margin-left:6px}
+/* as páginas do estoque: uma seta de cada lado do menu, como no site; com o mouse em cima, aparece o texto */
+.menu .pgs{position:absolute;top:50%;height:52px;min-width:0;padding:0 15px;background:#fff;box-shadow:0 12px 30px -12px rgba(0,9,26,.45),0 0 0 1px rgba(11,26,51,.06);color:var(--ink);opacity:0;visibility:hidden;transform:translateY(-50%) scale(.85);transition:opacity .25s,visibility .25s,transform .35s var(--ease),background .2s}
+.menu .pgs:hover{background:#F4F5F7}
+.menu .pg-ant{right:calc(100% + 12px)}
+.menu .pg-prox{left:calc(100% + 12px)}
+.menu.pa .pg-ant,.menu.pp .pg-prox{opacity:1;visibility:visible;transform:translateY(-50%)}
+.menu .pgs .pt{display:block;overflow:hidden;max-width:0;opacity:0;transition:max-width .3s var(--ease),margin .3s var(--ease),opacity .2s}
+.menu .pgs:hover .pt{max-width:170px;opacity:1}
+.menu .pg-ant:hover .pt{margin-left:8px}
+.menu .pg-prox:hover .pt{margin-right:8px}
 
-/* ===== janelas ===== */
+/* ===== transição de página: tudo troca em fusão, também o topo (antes, só a folha clara). O menu fica de fora, parado na tela ===== */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.42s;animation-timing-function:ease}
+::view-transition-group(menu),::view-transition-image-pair(menu),::view-transition-new(menu){animation:none}
+::view-transition-old(menu){display:none}
+.htit .data{view-transition-name:data-topo}
+.htit h1.pg{view-transition-name:titulo-pg}
+.vt-simples .htit .data,.vt-simples .htit h1.pg{view-transition-name:none}
+::view-transition-group(data-topo){animation-duration:.55s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-old(data-topo),::view-transition-new(data-topo){animation-duration:.55s;height:100%;object-fit:fill}
+::view-transition-new(titulo-pg){animation:vtSurge .5s .12s cubic-bezier(.2,.8,.2,1) both}
+::view-transition-old(titulo-pg){animation:vtSai .22s ease-in both}
+@keyframes vtSurge{from{opacity:0;transform:translateY(16px)}}
+@keyframes vtSai{to{opacity:0;transform:translateY(-8px)}}
+
+/* ===== janelas (a do anúncio) ===== */
 .modal{position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,9,26,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .modal.on{display:flex;animation:fundo .25s}
 @keyframes fundo{from{opacity:0}}
@@ -312,18 +505,6 @@ button.row:hover .row-tx b{color:var(--gold)}
 .x{width:40px;height:40px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:var(--mut)}
 .x:hover{background:#F4F1EC;color:var(--ink)}
 .mbody{padding:18px 28px 6px}
-.mfoot{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;padding:18px 28px 26px}
-.mbody label{display:block;margin:16px 0 7px;font-size:13px;font-weight:600}
-.mbody label:first-child{margin-top:0}
-.mbody label small{font-weight:400;color:var(--mut)}
-.mbody input:not([type=file]):not([type=color]),.mbody textarea{width:100%;padding:12px 16px;border-radius:14px;border:1px solid var(--line);background:#fff;font-size:14.5px;transition:border-color .2s,box-shadow .2s}
-.mbody input:focus,.mbody textarea:focus{border-color:var(--gold2);box-shadow:0 0 0 3px rgba(232,160,72,.18)}
-.mbody textarea{resize:vertical;line-height:1.55}
-.mbody .dd{display:block}.mbody .dd-t{width:100%;height:46px;border-radius:14px}
-.duas{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.duas label{margin-top:16px}
-.lin{display:flex;gap:10px;align-items:center}
-.lin input[type=color]{width:50px;height:46px;padding:4px;border:1px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;flex:none}
 /* anúncio */
 .fv{display:grid;grid-template-columns:1.25fr 1fr;gap:26px}
 .fv .foto{aspect-ratio:4/3;border-radius:18px;background:#E9E4DD center/cover no-repeat}
@@ -349,34 +530,6 @@ button.row:hover .row-tx b{color:var(--gold)}
 .opc .kk{color:var(--mut)}
 .chipsx{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
 .chipsx span{padding:6px 12px;border-radius:99px;background:var(--cl);font-size:12.5px}
-/* lead */
-.fl-t{display:flex;align-items:center;gap:14px;margin-bottom:10px}
-.fl-t .av{width:48px;height:48px;background:var(--navy);color:var(--gold3);font-size:15px}
-.fl-t b{display:block;font:500 19px/1.2 var(--f1)}
-.fl-t small{display:block;margin-top:3px;font-size:13px;color:var(--mut)}
-.li{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--line2);font-size:14px}
-.li span{color:var(--mut)}
-.li b{font-weight:600;text-align:right}
-/* importação */
-.imp{padding:18px 28px 28px}
-.imp .store{display:flex;align-items:center;gap:14px}
-.imp .store b{display:block;font-size:15px}
-.imp .store small{display:block;font-size:12.5px;color:var(--mut)}
-.bar{height:8px;margin:20px 0 14px;border-radius:99px;background:#EEE9E2;overflow:hidden}
-.bar i{display:block;width:0;height:100%;border-radius:99px;background:var(--gold2);transition:width .5s var(--ease)}
-.istep{display:flex;align-items:center;gap:12px;padding:8px 0;font-size:14px;color:var(--mut)}
-.istep .d{width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:#F1EEEA;font-size:12px;font-weight:700}
-.istep.run{color:var(--ink);font-weight:600}.istep.run .d{background:var(--gold2);color:var(--navy)}.istep.run .d svg{animation:gira 1s linear infinite}
-.istep.done .d{background:#E0F0E8;color:#1F6146}
-@keyframes gira{to{transform:rotate(360deg)}}
-/* publicação */
-.pfoto{display:flex;align-items:center;gap:14px}
-.pprev{width:140px;aspect-ratio:16/10;border-radius:14px;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#E9E4DD;color:#A9A198}
-.pprev img{width:100%;height:100%;object-fit:cover}
-.pfoto-a{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0}
-.pfoto-a label.bt{margin:0;font-weight:600;cursor:pointer}
-.tira{font-size:13px;font-weight:600;color:var(--mut)}.tira:hover{color:#9A2F22}
-.chk{display:flex!important;align-items:center;gap:12px;margin-top:20px!important;cursor:pointer;font-weight:500!important}
 /* aviso que aparece embaixo */
 .toast{position:fixed;left:50%;bottom:92px;z-index:300;transform:translate(-50%,16px);display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);padding:12px 20px 12px 14px;border-radius:99px;background:var(--navy);color:#fff;font-size:14px;font-weight:500;box-shadow:0 18px 40px -16px rgba(0,9,26,.6);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s var(--ease)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
@@ -386,8 +539,11 @@ button.row:hover .row-tx b{color:var(--gold)}
   :root{--lado:28px}
   .busca{width:230px}
   .htit h1{font-size:48px}
-  .hkpi .n{font-size:48px}
-  .hkpi>div{padding:22px 18px 0}
+  .hkpi .n{font-size:50px}
+  .lr .st{min-width:120px}
+  .vli{grid-template-columns:84px minmax(0,2fr) 60px 92px 104px 90px 42px}
+  .vli .lj,.vli-h .lj{display:none}
+  .ed-g{grid-template-columns:1fr}
 }
 @media (max-width:760px){
   :root{--lado:18px;--canto:28px}
@@ -401,56 +557,77 @@ button.row:hover .row-tx b{color:var(--gold)}
   /* no celular, o botão do menu fica sempre à mão, no canto, como no site */
   .menuBt{display:flex;position:fixed;top:18px;right:var(--lado);z-index:95;width:40px;height:40px;border-radius:50%;align-items:center;justify-content:center;background:#fff;color:var(--ink);box-shadow:0 6px 18px -6px rgba(0,9,26,.4)}
   .htit{margin-top:30px;gap:16px}
-  .htit h1{margin-top:10px;font-size:36px}
+  .htit h1{font-size:36px}
+  .htit .kk+h1{margin-top:10px}
   .hres{font-size:13.5px}
   .htit .hero-ac,.htit .hero-ac .bt{width:100%;justify-content:center}
   .busca{grid-area:busca;justify-self:stretch;width:auto;margin-top:20px}
-  .busca .pop{width:100%}
-  .hkpi{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:24px}
-  .hkpi>div{padding:16px 12px 16px 0;border-left:0;border-bottom:1px solid rgba(255,255,255,.14)}
-  .hkpi>div:nth-child(2n){padding:16px 0 16px 16px;border-left:1px solid rgba(255,255,255,.14)}
-  .hkpi>div:nth-child(n+3){border-bottom:0;padding-bottom:0}
+  .pop,.avisos{width:auto}
+  .hkpi{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:26px;gap:22px 18px}
   .hkpi .n{font-size:38px}
   .hkpi .r{margin-top:8px;font-size:13px}
   .hkpi .s{font-size:12px}
-  #notifPop{right:-52px;width:calc(100vw - 2 * var(--lado))}
   .folha{padding:30px var(--lado) 48px}
   .menu{display:none;left:auto;right:var(--lado);top:66px;bottom:auto;transform:none;flex-direction:column;align-items:stretch;width:230px;padding:8px;border-radius:22px}
   .menu.aberto{display:flex;animation:entra .25s var(--ease)}
   .menu a,.menu button,.menu a.on{justify-content:flex-start;height:44px;padding:0 14px}
-  .menu .nm{display:inline}
+  .menu .nl,.menu .nl.vis{width:auto!important;margin-left:10px;opacity:1}
   .menu .sep{width:auto;height:1px;margin:4px 6px}
-  .menu .bdg{position:static;margin-left:auto}
+  .menu .bdg,.menu .nome .bdg{position:static;margin-left:auto}
+  .menu .pgs{display:none}
   .toast{bottom:20px}
   .sh h2{font-size:24px}
   .g2{gap:34px}
-  .row-q{width:auto}
-  .row-n{width:auto}
-  .row-st{width:auto}
+  .row-q,.row-n,.row-st{width:auto}
   .row .row-n{display:none}
   .rel{padding:20px 18px}
   .rel-n{display:grid;grid-template-columns:1fr 1fr;width:100%}
   .rel-n b{font-size:28px}
   .rel .bt{width:100%;justify-content:center}
-  .ljgrid,.pgrid{grid-template-columns:1fr}
+  .lr{gap:12px;min-height:64px;padding:12px 4px}
+  .lr .i{display:none}
+  .lr .q{min-width:0}
+  .lr .st{display:none}
+  .lr .lg{width:54px;height:36px}
+  .cam{padding:28px calc(50vw - 50%) 26px}
+  .cm-cab{flex-wrap:wrap;gap:16px}
+  .cm-v h3{font-size:24px}
+  .cm-n{flex-basis:100%;gap:36px}
+  .cm-n b{font-size:24px}
+  .cm-i{grid-template-columns:1fr 1fr;gap:16px 18px}
+  .cm-b .bt,.cm-b .bto{flex:1 1 calc(50% - 5px);justify-content:center;padding:0 12px}
+  .cm-b .x-p{margin:0 auto}
+  .cps{grid-template-columns:1fr}
+  .cam-tit h3{font-size:26px}
+  .ed-2{grid-template-columns:1fr}
   .vgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .vc{border-radius:16px}
   .vc .b{padding:10px 12px}
   .vc h4,.vc .pr{font-size:14px}
+  .vli{grid-template-columns:76px minmax(0,1fr) auto;gap:4px 12px;padding:10px 4px}
+  .vli .ft{width:76px;grid-row:span 2}
+  .vli .c,.vli .st,.vli-h{display:none}
+  .vli .pr{grid-column:2}
+  .vli .switch{grid-column:3;grid-row:1/span 2}
+  .vli .nm{grid-column:2}
+  .pager{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:22px}
+  .pager button{height:42px;padding:0 18px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:600 13.5px/1 var(--f2)}
+  .pager button:disabled{opacity:.4}
+  .pager span{font-size:13px;color:var(--mut)}
   .fbusca{flex:1 1 100%}
   .filtros .dd{flex:1 1 calc(50% - 5px)}
   .filtros .dd-t{width:100%;min-width:0}
+  .vbar{flex-wrap:wrap}
   .ll-h{display:none}
-  .ll{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"c t" "i i" "l l" "d a";row-gap:6px}
-  .ll-c{grid-area:c}.ll-t{grid-area:t}.ll-i{grid-area:i}.ll-l{grid-area:l}.ll-d{grid-area:d}.ll-a{grid-area:a}
-  .ll-a .dd{flex:none}
+  .ll{grid-template-columns:10px minmax(0,1fr) auto;grid-template-areas:"n c t" "n i i" "n l d";row-gap:5px;padding:12px 4px}
+  .ll>.nv,.ll>.nv0{grid-area:n;align-self:start;margin-top:7px}
+  .ll-c{grid-area:c}.ll-t{grid-area:t}.ll-i{grid-area:i;font-size:13px}.ll-l{grid-area:l}.ll-d{grid-area:d;text-align:right}
+  .ll .chev{display:none}
   .fv{grid-template-columns:1fr}
   .modal{padding:12px}
   .mbox{border-radius:22px}
-  .mhead{padding:20px 20px 0}.mbody{padding:16px 20px 4px}.mfoot{padding:16px 20px 20px}.imp{padding:16px 20px 22px}
-  .mfoot .bt{flex:1;justify-content:center}
-  .duas{grid-template-columns:1fr;gap:0}
-  .pprev{width:110px}
+  .mhead{padding:20px 20px 0}.mbody{padding:16px 20px 4px}
+  .pgrid{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -496,22 +673,21 @@ button.row:hover .row-tx b{color:var(--gold)}
     <div class="topo-in">
       <label class="busca" id="buscaBox">
         <svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input id="gBusca" placeholder="Buscar loja, veículo, lead ou publicação" aria-label="Buscar loja, veículo, lead ou publicação" oninput="buscaGlobal(this.value)" onkeydown="if(event.key==='Escape'){this.value='';buscaGlobal('');}">
-        <div class="pop" id="gPop"></div>
+        <input id="gBusca" placeholder="Buscar no painel" aria-label="Buscar associado, veículo, lead ou publicação" autocomplete="off" oninput="buscaGlobal(this.value)" onkeydown="if(event.key==='Escape'){this.value='';buscaGlobal('');}">
       </label>
       <img class="tlogo" src="marca-nova/aceima-nova.png" alt="Aceima">
       <div class="tacoes">
-        <div id="notifWrap">
-          <button type="button" class="cir" aria-label="Avisos" onclick="toggleNotif(event)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="dot" id="notifDot" style="display:none"></span></button>
-          <div class="pop" id="notifPop"><div class="ph">Avisos</div><div id="notifBody"></div></div>
-        </div>
+        <button type="button" class="cir" id="avisosBt" aria-label="Avisos" aria-expanded="false" onclick="toggleAvisos(event)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="num" id="avisosN" hidden></span></button>
         <div class="uchip"><span class="av">A</span><b>Administrador</b><button type="button" title="Sair" aria-label="Sair" onclick="sair()"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg></button></div>
         <button type="button" class="menuBt" id="menuBt" aria-label="Abrir o menu" aria-expanded="false" onclick="toggleMenu(event)"></button>
       </div>
-      <div class="htit" id="heroTit"></div>
+      <div class="htit" id="heroTit"><div><div id="htT"></div><div class="hres" id="htR"></div></div><div class="hero-ac" id="htA"></div></div>
       <div class="hkpi" id="heroKpi"></div>
     </div>
   </header>
+  <!-- a busca e os avisos ficam fora do topo, por cima da folha clara -->
+  <div class="pop" id="gPop"></div>
+  <div class="avisos" id="avisos" role="dialog" aria-label="Avisos"></div>
 
   <main class="folha">
     <div class="wrap">
@@ -519,105 +695,74 @@ button.row:hover .row-tx b{color:var(--gold)}
       <section class="view on" id="v-dash">
         <div class="g2">
           <div>
-            <div class="sh"><h2>Leads recentes</h2><a class="lk" href="#leads" onclick="nav('leads');return false">Ver todos<svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></div>
-            <div id="dashLeads"><p class="vazio">Carregando…</p></div>
+            <div class="sh"><h2>Últimos Leads</h2><a class="lk" href="#leads" onclick="nav('leads');return false">Ver todos<svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></div>
+            <div id="dashLeads"></div>
           </div>
           <div>
-            <div class="sh"><h2>Importações recentes</h2><a class="lk" href="#lojas" onclick="nav('lojas');return false">Ver lojas<svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></div>
-            <div id="dashImp"><p class="vazio">Carregando…</p></div>
+            <div class="sh"><h2>Importações recentes</h2><a class="lk" href="#associados" onclick="nav('associados');return false">Ver associados<svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></div>
+            <div id="dashImp"></div>
           </div>
         </div>
         <section class="rel" id="relDash"></section>
       </section>
 
-      <!-- ===== LOJAS ===== -->
-      <section class="view" id="v-lojas">
-        <div class="ljgrid" id="lojasGrid"></div>
+      <!-- ===== ASSOCIADOS ===== -->
+      <section class="view" id="v-associados">
+        <div class="cam topo-cam" id="novoAssoc" hidden></div>
+        <div class="chips" id="assocChips" style="margin-bottom:18px"></div>
+        <div class="lst" id="assocLista"></div>
       </section>
 
       <!-- ===== VEÍCULOS ===== -->
       <section class="view" id="v-veiculos">
         <div class="filtros">
-          <label class="fbusca"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="fVBusca" placeholder="Buscar modelo" aria-label="Buscar modelo" oninput="filtrarVeic()"></label>
-          <select id="fVLoja" onchange="filtrarVeic()" aria-label="Loja"><option value="">Todas as lojas</option></select>
-          <select id="fVMarca" onchange="filtrarVeic()" aria-label="Marca"><option value="">Todas as marcas</option></select>
-          <select id="fVOrd" onchange="filtrarVeic()" aria-label="Ordem"><option value="recentes">Mais recentes</option><option value="menor">Menor preço</option><option value="maior">Maior preço</option></select>
-          <select id="fVStatus" onchange="filtrarVeic()" aria-label="Situação"><option value="todos">Todos</option><option value="nosite">No site</option><option value="ocultos">Ocultos</option><option value="semfoto">Sem foto</option></select>
+          <label class="fbusca"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="fVBusca" placeholder="Modelo, loja, ano ou preço" aria-label="Buscar no estoque" autocomplete="off" oninput="VPAG=0;filtrarVeic()"></label>
+          <select id="fVLoja" data-padrao="" onchange="VPAG=0;filtrarVeic()" aria-label="Loja"><option value="">Todas as lojas</option></select>
+          <select id="fVMarca" data-padrao="" onchange="VPAG=0;filtrarVeic()" aria-label="Marca"><option value="">Todas as marcas</option></select>
+          <select id="fVStatus" data-padrao="todos" onchange="VPAG=0;filtrarVeic()" aria-label="Situação"><option value="todos">Todos</option><option value="nosite">No site</option><option value="ocultos">Ocultos</option><option value="semfoto">Sem foto</option></select>
+          <select id="fVOrd" onchange="VPAG=0;filtrarVeic()" aria-label="Ordem"><option value="recentes">Mais recentes</option><option value="menor">Menor preço</option><option value="maior">Maior preço</option><option value="km">Menor km</option><option value="novos">Mais novos</option></select>
           <button type="button" class="limpar" id="btnLimparVeic" onclick="limparFiltrosVeic()">Limpar filtros</button>
         </div>
-        <div class="vcount" id="veicCount"></div>
-        <div class="vgrid" id="veicGrid"></div>
+        <div class="vbar">
+          <div class="vcount" id="veicCount"></div>
+          <div class="modo" role="group" aria-label="Visualização">
+            <button type="button" data-m="grade" title="Em grade" aria-label="Em grade" onclick="modoVeic('grade')"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
+            <button type="button" data-m="lista" title="Em lista" aria-label="Em lista" onclick="modoVeic('lista')"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg></button>
+          </div>
+        </div>
+        <div id="veicLista"></div>
+        <div class="pager" id="veicPager"></div>
       </section>
 
       <!-- ===== LEADS ===== -->
       <section class="view" id="v-leads">
         <section class="rel" id="relLeads"></section>
         <div class="chips" id="leadChips" style="margin-bottom:22px"></div>
-        <div class="ll-h"><span>Data</span><span>Tipo</span><span>Cliente</span><span>Veículo ou empresa</span><span>Loja</span><span>Atendimento</span></div>
+        <div class="ll-h"><span></span><span>Data</span><span>Tipo</span><span>Cliente</span><span>Veículo ou empresa</span><span>Loja</span><span></span></div>
         <div id="leadsLista"></div>
       </section>
 
-      <!-- ===== PUBLICAÇÕES ===== -->
-      <section class="view" id="v-publicacoes">
+      <!-- ===== MURAL ===== -->
+      <section class="view" id="v-mural">
+        <div class="cam topo-cam" id="pubEd" hidden></div>
         <div class="chips" id="pubChips"></div>
-        <div class="pgrid" id="pubsGrid"><p class="vazio">Carregando…</p></div>
+        <div class="pgrid" id="pubsGrid"></div>
       </section>
     </div>
   </main>
 
-  <nav class="menu" id="menu" aria-label="Menu do painel">
-    <a href="#dash" data-v="dash" class="on" title="Visão geral" onclick="nav('dash');return false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span class="nm">Visão geral</span></a>
-    <a href="#lojas" data-v="lojas" title="Lojas" onclick="nav('lojas');return false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 7 4.4-4.4A2 2 0 0 1 7.8 2h8.4a2 2 0 0 1 1.4.6L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></svg><span class="nm">Lojas</span></a>
-    <a href="#veiculos" data-v="veiculos" title="Veículos" onclick="nav('veiculos');return false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9c-.1.4-.2.8-.2 1.2v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg><span class="nm">Veículos</span></a>
-    <a href="#leads" data-v="leads" title="Leads" onclick="nav('leads');return false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg><span class="nm">Leads</span><span class="bdg" id="leadBadge" style="display:none">0</span></a>
-    <a href="#publicacoes" data-v="publicacoes" title="Publicações" onclick="nav('publicacoes');return false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg><span class="nm">Publicações</span></a>
+  <nav class="menu" id="menu" aria-label="Menu do painel" onmouseleave="passarMenu(null)">
+    <a href="#dash" data-v="dash" class="on" aria-label="Visão geral" onmouseenter="passarMenu(this)" onclick="nav('dash');return false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span class="nl"><span>Visão geral</span></span></a>
+    <a href="#associados" data-v="associados" aria-label="Associados" onmouseenter="passarMenu(this)" onclick="nav('associados');return false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/></svg><span class="nl"><span>Associados</span></span></a>
+    <a href="#veiculos" data-v="veiculos" aria-label="Veículos" onmouseenter="passarMenu(this)" onclick="nav('veiculos');return false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9c-.1.4-.2.8-.2 1.2v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg><span class="nl"><span>Veículos</span></span></a>
+    <a href="#leads" data-v="leads" aria-label="Leads" onmouseenter="passarMenu(this)" onclick="nav('leads');return false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg><span class="nl"><span>Leads</span></span><span class="bdg" id="leadBadge" hidden></span></a>
+    <a href="#mural" data-v="mural" aria-label="Mural" onmouseenter="passarMenu(this)" onclick="nav('mural');return false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg><span class="nl"><span>Mural</span></span></a>
     <span class="sep"></span>
-    <a href="/" target="_blank" rel="noopener" title="Ver o site"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="nm">Ver o site</span></a>
-    <button type="button" title="Sair" onclick="sair()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg><span class="nm">Sair</span></button>
+    <a href="/" target="_blank" rel="noopener" aria-label="Ver o site" onmouseenter="passarMenu(this)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="nl"><span>Ver o site</span></span></a>
+    <button type="button" aria-label="Sair" onmouseenter="passarMenu(this)" onclick="sair()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg><span class="nl"><span>Sair</span></span></button>
+    <button type="button" class="pgs pg-ant" aria-label="Página anterior" onclick="irPaginaVeic(-1)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg><span class="pt"><span>Página anterior</span></span></button>
+    <button type="button" class="pgs pg-prox" aria-label="Próxima página" onclick="irPaginaVeic(1)"><span class="pt"><span>Próxima página</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
   </nav>
-</div>
-
-<!-- ===== JANELA: LOJA ===== -->
-<div class="modal" id="mAdd" onclick="if(event.target===this)closeM('mAdd')">
-  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="mAddTitle">
-    <div class="mhead"><h3 id="mAddTitle">Adicionar loja</h3><button type="button" class="x" aria-label="Fechar" onclick="closeM('mAdd')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
-    <div class="mbody">
-      <label for="fNome">Nome da loja</label>
-      <input id="fNome" placeholder="Ex.: Auto Prime Veículos">
-      <label for="fUrl">Endereço do site da loja</label>
-      <input id="fUrl" placeholder="Ex.: https://autobarra.com.br">
-      <label for="fEmail">E-mail da loja <small>(recebe os leads)</small></label>
-      <input id="fEmail" placeholder="contato@loja.com.br">
-      <div class="duas">
-        <div><label for="fGNota">Nota no Google</label><input id="fGNota" inputmode="decimal" placeholder="4,9"></div>
-        <div><label for="fGAval">Avaliações no Google</label><input id="fGAval" inputmode="numeric" placeholder="128"></div>
-      </div>
-      <label>Logo da loja</label>
-      <div class="pfoto"><span id="fLogoPrev" class="lg g"></span><div class="pfoto-a"><label class="bt ghost sm" for="fLogo">Escolher a logo</label><input type="file" id="fLogo" accept="image/*" hidden onchange="lerLogo(this)"><button type="button" class="tira" onclick="limparLogo()">Remover a logo</button></div></div>
-      <label for="fCorTxt">Cor de fundo da logo <small>(vazio: automático)</small></label>
-      <div class="lin">
-        <input type="color" id="fCor" aria-label="Escolher a cor" oninput="document.getElementById('fCorTxt').value=this.value">
-        <input id="fCorTxt" placeholder="automático" oninput="document.getElementById('fCor').value=/^#[0-9a-f]{6}$/i.test(this.value)?this.value:'#ffffff'">
-        <button type="button" class="bt ghost sm" onclick="document.getElementById('fCorTxt').value='';document.getElementById('fCor').value='#ffffff'">Automático</button>
-      </div>
-    </div>
-    <div class="mfoot">
-      <button type="button" class="bt ghost" onclick="closeM('mAdd')">Cancelar</button>
-      <button type="button" class="bt" id="fSalvar" onclick="addLoja()">Salvar e importar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== JANELA: IMPORTAÇÃO ===== -->
-<div class="modal" id="mImp">
-  <div class="mbox" role="dialog" aria-modal="true" aria-label="Importando o estoque">
-    <div class="mhead"><h3>Importando o estoque</h3><button type="button" class="x" aria-label="Fechar" onclick="closeM('mImp')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
-    <div class="imp">
-      <div class="store"><span class="lg g" id="impLg"></span><div><b id="impNome">Loja</b><small id="impUrl"></small></div></div>
-      <div class="bar"><i id="impBar"></i></div>
-      <div id="impSteps"></div>
-    </div>
-  </div>
 </div>
 
 <!-- ===== JANELA: ANÚNCIO ===== -->
@@ -628,54 +773,20 @@ button.row:hover .row-tx b{color:var(--gold)}
   </div>
 </div>
 
-<!-- ===== JANELA: LEAD ===== -->
-<div class="modal" id="mLead" onclick="if(event.target===this)closeM('mLead')">
-  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="mlTitulo">
-    <div class="mhead"><h3 id="mlTitulo">Lead</h3><button type="button" class="x" aria-label="Fechar" onclick="closeM('mLead')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
-    <div class="mbody" id="mlCorpo" style="padding-bottom:26px"></div>
-  </div>
-</div>
-
-<!-- ===== JANELA: PUBLICAÇÃO ===== -->
-<div class="modal" id="mPub" onclick="if(event.target===this)closeM('mPub')">
-  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="mpTitulo">
-    <div class="mhead"><h3 id="mpTitulo">Nova publicação</h3><button type="button" class="x" aria-label="Fechar" onclick="closeM('mPub')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
-    <div class="mbody">
-      <label for="pTitulo">Título</label>
-      <input id="pTitulo" maxlength="160" placeholder="O que a Aceima fez">
-      <div class="duas">
-        <div><label for="pCat">Categoria</label><select id="pCat"><option>Ações no polo</option><option>Conquistas</option><option>Comunicados</option><option>Imprensa</option></select></div>
-        <div><label for="pData">Data</label><input type="date" id="pData"></div>
-      </div>
-      <label for="pResumo">Resumo <small>(aparece no destaque e na lista)</small></label>
-      <textarea id="pResumo" rows="3" maxlength="400"></textarea>
-      <label for="pTexto">Texto <small>(deixe uma linha em branco entre os parágrafos)</small></label>
-      <textarea id="pTexto" rows="9"></textarea>
-      <label>Foto</label>
-      <div class="pfoto"><div class="pprev" id="pFotoPrev"></div><div class="pfoto-a"><label class="bt ghost sm" for="pFoto">Escolher a foto</label><input type="file" id="pFoto" accept="image/*" hidden onchange="lerFotoPub(this)"><button type="button" class="tira" id="pTirar" onclick="tirarFotoPub()">Remover a foto</button></div></div>
-      <label class="chk"><button type="button" class="switch" id="pDest" role="switch" aria-checked="false" onclick="this.classList.toggle('on');this.setAttribute('aria-checked',this.classList.contains('on'))"></button>Destaque na página de Publicações</label>
-    </div>
-    <div class="mfoot">
-      <button type="button" class="bt ghost" onclick="closeM('mPub')">Cancelar</button>
-      <button type="button" class="bt" id="pSalvar" onclick="salvarPub()">Publicar</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
 <script>
 const F='https://www.autocerto.com/fotos/';
 const L='https://static.autocerto.com/LogoClientesPortais/';
 const $=id=>document.getElementById(id);
 
-let lojasApi=[];   // lojas como a API manda (com o id do banco)
-let lojas=[];      // lojas para a tela
-let veicAll=[];    // veículos como a API manda
-let leadsRaw=[];   // leads como a API manda (detalhes, e-mail, forma de compra...)
-let leads=[];      // leads para a tela
-let PUBS=[],pubsErro=null;   // publicações (publicacoes.json, lido pela API no GitHub)
-let leadsVistos=false,editId=null,vistaAtual='dash';
+let lojasApi=[];       // lojas como a API manda (com o id do banco)
+let lojas=[];          // lojas para a tela
+let credenciados=[];   // os credenciados do site (não são lojas, não têm estoque): a nota no Google e a logo que o robô leu
+let veicAll=[];        // veículos como a API manda
+let leadsRaw=[];       // leads como a API manda (detalhes, e-mail, forma de compra...)
+let leads=[];          // leads para a tela
+let PUBS=[],pubsErro=null;   // publicações do mural (publicacoes.json, lido pela API no GitHub)
+let vistaAtual='dash',dadosProntos=false,primeiraVez=true;
 let PAINEL_TOKEN='';
 const SESSAO_HORAS=1;
 function salvarSessao(t){try{localStorage.setItem('aceima_sessao',JSON.stringify({t,exp:Date.now()+SESSAO_HORAS*3600000}));}catch(e){}}
@@ -683,31 +794,30 @@ function lerSessao(){try{const s=JSON.parse(localStorage.getItem('aceima_sessao'
 function sair(){try{localStorage.removeItem('aceima_sessao');}catch(e){}location.reload();}
 // toda chamada ao servidor leva a senha do painel
 function api(url,opts){opts=opts||{};opts.headers=Object.assign({},opts.headers||{},{'x-painel-token':PAINEL_TOKEN});return fetch(url,opts);}
+const jsonPost=(url,corpo,metodo)=>api(url,{method:metodo||'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(corpo)});
 
 /* ---------- utilidades ---------- */
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sv=(p,c)=>`<svg class="ic${c?' '+c:''}" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
 const IC={dash:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
-  lojas:'<path d="m2 7 4.4-4.4A2 2 0 0 1 7.8 2h8.4a2 2 0 0 1 1.4.6L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/>',
+  associados:'<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/>',
   veiculos:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9c-.1.4-.2.8-.2 1.2v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
   leads:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/>',
-  publicacoes:'<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>',
+  mural:'<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>',
   mais:'<path d="M12 5v14M5 12h14"/>',lapis:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',lixo:'<path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/>',
   sync:'<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',baixar:'<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>',
   fora:'<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
   foto:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
-  check:'<path d="M20 6 9 17l-5-5"/>'};
+  check:'<path d="M20 6 9 17l-5-5"/>',chev:'<path d="m9 18 6-6-6-6"/>',x:'<path d="M18 6 6 18M6 6l12 12"/>',carro:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9c-.1.4-.2.8-.2 1.2v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>'};
 const spin=sv(IC.sync,'sm'),check=sv(IC.check,'sm');
+const reduz=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 const fmt=n=>Number(n||0).toLocaleString('pt-BR');
 const money=n=>'R$ '+fmt(n);
 const initials=n=>String(n||'?').replace(/[^A-Za-zÀ-ú0-9 ]/g,' ').split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase()||'?';
 const avatar=n=>`<span class="av">${esc(initials(n))}</span>`;
 function fmtTel(w){const d=String(w||'').replace(/\D/g,'').replace(/^55(?=\d{10,11}$)/,'');return d.length>=10?`(${d.slice(0,2)}) ${d.slice(2,-4)}-${d.slice(-4)}`:String(w||'');}
-const ST_LEAD={novo:'Novo',atendimento:'Em atendimento',finalizado:'Finalizado',repescagem:'Repescagem',perdido:'Perdido'};
-const ST_COR={novo:['#FBEBD5','#8A5410'],atendimento:['#E2E9F5','#1E3E70'],finalizado:['#E0F0E8','#1F6146'],repescagem:['#ECE6F6','#54428F'],perdido:['#ECEAE7','#5F5A55']};
 const TIPOS={venda:['Interesse','tp-venda'],compra:['Quer vender','tp-compra'],associacao:['Associação','tp-assoc']};
 const tipoDe=l=>TIPOS[l.tipo]||TIPOS.venda;
-const pilula=st=>`<span class="pl ${ST_COR[st]?st:'novo'}">${ST_LEAD[st]||'Novo'}</span>`;
 function quando(iso,curto){
   if(!iso)return 'nunca';
   const d=new Date(iso);if(isNaN(d))return 'nunca';
@@ -725,8 +835,20 @@ function horaCurta(iso){if(!iso)return '—';const d=new Date(iso);if(isNaN(d))r
 function dataCurta(iso){const d=new Date(iso);return isNaN(d)?'—':`${doisD(d.getDate())}/${doisD(d.getMonth()+1)} ${doisD(d.getHours())}:${doisD(d.getMinutes())}`;}
 const dataLonga=s=>{const d=new Date(String(s)+'T12:00:00');return isNaN(d)?'':d.toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'});};
 const hojeISO=()=>{const d=new Date();return `${d.getFullYear()}-${doisD(d.getMonth()+1)}-${doisD(d.getDate())}`;};
-function hojeTxt(){const t=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'}).replace('-feira','');return t.charAt(0).toUpperCase()+t.slice(1);}   // Sexta, 16 de outubro
+function hojeTxt(){const t=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'}).replace('-feira','');return t.charAt(0).toUpperCase()+t.slice(1);}   // Terça, 20 de outubro
 function origemLabel(chave){const s=String(chave||'');if(/^https?:\/\//i.test(s)||/[a-z]\.[a-z]{2,}/i.test(s)){try{return new URL(/^https?:/i.test(s)?s:'https://'+s).hostname.replace(/^www\./,'');}catch(_){return s;}}return s?('Portal · '+s):'';}
+const urlSite=s=>/^https?:/i.test(s)?s:'https://'+s;
+// o que o robô devolve quando não consegue ler um site, em palavras do dia a dia
+function erroLegivel(e){
+  const s=String(e||'');
+  if(/sem site/i.test(s))return 'sem site cadastrado';
+  if(/HTTP 404/.test(s))return 'o site respondeu que a página não existe';
+  if(/HTTP 5\d\d/.test(s))return 'o site estava fora do ar';
+  if(/HTTP 40[13]/.test(s))return 'o site bloqueou a leitura';
+  if(/timeout|abort|demor/i.test(s))return 'o site demorou demais para responder';
+  if(/ENOTFOUND|getaddrinfo|fetch failed|ECONN/i.test(s))return 'não deu para abrir o site';
+  return s.length>120?s.slice(0,117)+'…':s;
+}
 // nomes dos carros como no site: as lojas mandam tudo em maiúsculas; fica maiúscula só a primeira letra, e as siglas inteiras
 const SIGLAS=['BMW','BYD','JAC','RAM','GWM','GM','VW','GAC','KTM','CAOA','MV','DS','ABS','CBS','TSI','TFSI','MPI','MPFI','MI','MSI','SCE','TCE','DCI','TGDI','CGI','GDI','THP','HPE','VVT','VCT','VTEC','MIVEC','TDI','TD','CRDI','GNV','CVT','DCT','DSG','EDC','AT','MT','AWD','AWC','FWD','RWD','PHEV','HEV','DHT','KW','CV','CC','SUV',
   'LT','LTZ','LS','LX','LXL','LXR','EX','EXL','EXS','DX','SE','SEL','SR','SRV','SV','SL','GL','GLS','GLX','GLI','GT','GTI','GTS','RS','ST','XS','XL','XLS','XLT','XLI','XEI','XR','XRE','XRX','XTZ','XVS','YBR','YS','ZR','NK','NXR','PCX','CG','CB','NMAX','XMAX','ADV','TXS','VTI','HSE','CD','CS','STD','ED','EL','ELX','DI','SED','MHD','SFI','GS','GSX','XE','SRX','SW','CL','DLX','PDK','AMG','RT','ACT',
@@ -740,24 +862,47 @@ const titulo=s=>String(s||'').trim().split(/\s+/).filter(Boolean).map((w,i)=>{
 const nomeV=v=>titulo([v.marca,v.modelo].filter(Boolean).join(' '));
 const nomeCompleto=v=>titulo([v.marca,v.modelo,v.versao].filter(Boolean).join(' '));
 const fotoV=v=>(v.fotos&&v.fotos[0])||'';
+const slugify=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+
+/* ---------- escrita e contagem: a entrada da página (pedido do Luiz, 20/10/2026) ---------- */
+// cada letra numa caixa que entra em fusão depois da anterior; ini: o atraso da primeira, em ms
+function letras(txt,ini,passo){passo=passo||22;let k=0;return [...String(txt)].map(c=>c===' '?' ':`<span class="lt" style="animation-delay:${Math.round((ini||0)+passo*k++)}ms">${esc(c)}</span>`).join('');}
+// o número sobe do zero até o valor, rápido no começo e devagar no fim
+function contar(el,alvo,dur){
+  if(!el)return;alvo=Number(alvo)||0;
+  if(reduz()||!dur){el.textContent=fmt(alvo);return;}
+  const ini=performance.now();el.textContent='0';
+  const passo=t=>{const k=Math.min(1,(t-ini)/dur);el.textContent=fmt(Math.round(alvo*(1-Math.pow(1-k,3))));if(k<1)requestAnimationFrame(passo);};
+  requestAnimationFrame(passo);
+}
 
 /* ---------- dados ---------- */
 async function carregarPainel(){
   const pega=u=>api(u).then(r=>r.ok?r.json():null).catch(()=>null);
-  const [lj,ve,le]=await Promise.all([pega('/api/lojas?path=lojas'),pega('/api/veiculos?path=veiculos'),pega('/api/leads?path=leads')]);
+  const [lj,ve,le,pc]=await Promise.all([pega('/api/lojas?path=lojas'),pega('/api/veiculos?path=veiculos'),pega('/api/leads?path=leads'),pega('/api/parceiros?path=parceiros&site=1')]);
   lojasApi=Array.isArray(lj)?lj:[];veicAll=Array.isArray(ve)?ve:[];leadsRaw=Array.isArray(le)?le:[];
-  const cont={};veicAll.forEach(v=>{cont[v.loja_id]=(cont[v.loja_id]||0)+1;});
-  lojas=lojasApi.map(l=>({id:l.id,nome:l.nome||'',wa:l.whatsapp||l.telefone||'',chave:l.autocerto_id||l.autocerto_url||'',logo:l.logo_url||null,n:cont[l.id]||0,
-    sync:l.ultima_sync||null,origem:origemLabel(l.autocerto_id||l.autocerto_url),erro:l.ultimo_erro||null,cor:l.cor||null,email:l.email||null,nota:l.google_nota||null,aval:l.google_avaliacoes||null}));
-  leads=leadsRaw.map(l=>{const det=l.detalhes||{},tipo=l.tipo||'venda';
-    let item=titulo((l.veiculo_nome||'').trim());
-    if(tipo==='compra')item=titulo([det.marca,det.modelo,det.versao,det.ano].filter(Boolean).join(' '))||item;
-    if(tipo==='associacao')item=[det.empresa,det.ramo].filter(Boolean).join(' · ');
-    return {id:l.id,criado:l.criado_em,nome:l.cliente_nome||'',tel:l.cliente_telefone||'',item,loja:l.loja_nome||'',canal:l.canal==='whatsapp'?'WhatsApp':'Formulário do site',status:l.status||'novo',tipo};});
-  montarFiltros();atualizaLeadBadge();
-  renderDash();renderLojas();filtrarVeic();renderLeads();renderNotif();pintarRel();pintarHero();
+  if(Array.isArray(pc))credenciados=pc.map(p=>({nome:p.nome,nota:Number(p.nota)||0,aval:Number(p.total)||0,site:p.site||'',logo:p.logo?'/api/logo?path=logo&parceiro='+encodeURIComponent(p.nome):''}));
+  montarDados();montarFiltros();
+  const primeira=!dadosProntos;dadosProntos=true;
+  pintarResumo(primeira);pintarKpis(primeira&&vistaAtual==='dash');
+  renderDash(primeira);renderAssoc();filtrarVeic();renderLeads();pintarAvisos();pintarRel(primeira);atualizaLeadBadge();
   aprimorarTodos();
   carregarPubs();
+}
+function montarDados(){
+  const cont={};veicAll.forEach(v=>{cont[v.loja_id]=(cont[v.loja_id]||0)+1;});
+  lojas=lojasApi.map(l=>({id:l.id,nome:l.nome||'',wa:l.whatsapp||'',tel:l.telefone||'',end:l.endereco||'',chave:l.autocerto_id||l.autocerto_url||'',logo:l.logo_url||null,n:cont[l.id]||0,
+    sync:l.ultima_sync||null,origem:origemLabel(l.autocerto_id||l.autocerto_url),erro:l.ultimo_erro||null,cor:l.cor||null,email:l.email||null,
+    nota:Number(l.google_nota)||0,aval:Number(l.google_avaliacoes)||0,fora:!!l.fora_do_site}));
+  leads=leadsRaw.map(mapLead);
+}
+// lead novo é o que ainda não foi visto no painel (pedido do Luiz, 20/10/2026): abriu, vira visto
+function mapLead(l){
+  const det=l.detalhes||{},tipo=l.tipo||'venda';
+  let item=titulo((l.veiculo_nome||'').trim());
+  if(tipo==='compra')item=titulo([det.marca,det.modelo,det.versao,det.ano].filter(Boolean).join(' '))||item;
+  if(tipo==='associacao')item=[det.empresa,det.ramo].filter(Boolean).join(' · ');
+  return {id:l.id,criado:l.criado_em,nome:l.cliente_nome||'',tel:l.cliente_telefone||'',item,loja:l.loja_nome||'',novo:(l.status||'novo')==='novo',tipo};
 }
 async function carregarPubs(){
   try{
@@ -765,44 +910,68 @@ async function carregarPubs(){
     if(!r.ok||!j.ok)throw new Error(j.erro||('erro '+r.status));
     PUBS=Array.isArray(j.publicacoes)?j.publicacoes:[];pubsErro=null;
   }catch(e){pubsErro=e.message;}
-  renderPubs();if(vistaAtual==='publicacoes')pintarHero();
+  renderPubs();if(vistaAtual==='mural')pintarResumo();
 }
 
-/* ---------- topo: título e números de cada parte ---------- */
-const TIT={dash:'O polo <em>hoje.</em>',lojas:'Lojas <em>cadastradas.</em>',veiculos:'Veículos <em>no ar.</em>',leads:'Central de <em>leads.</em>',publicacoes:'Nossas <em>publicações.</em>'};
+/* ---------- topo: a data, o título e os números de cada parte ---------- */
+const TIT={associados:['Empresas ','associadas.'],veiculos:['Veículos ','no ar.'],leads:['Central de ','leads.'],mural:['Mural ','Aceima.']};
 function contas(){
-  const noAr=veicAll.filter(v=>v.oculto!==true).length,semFoto=veicAll.filter(v=>!fotoV(v)).length,syncs=lojas.map(l=>l.sync).filter(Boolean).sort();
-  return {noAr,ocultos:veicAll.length-noAr,semFoto,novos:leads.filter(l=>l.status==='novo').length,n7:leads.filter(l=>Date.now()-new Date(l.criado)<7*864e5).length,
-    ult:syncs[syncs.length-1],falhas:lojas.filter(l=>l.erro).length,comEstoque:lojas.filter(l=>l.n>0).length};
+  const noSite=lojas.filter(l=>!l.fora),noAr=veicAll.filter(v=>v.oculto!==true).length,semFoto=veicAll.filter(v=>!fotoV(v)).length,syncs=lojas.map(l=>l.sync).filter(Boolean).sort(),agora=Date.now();
+  return {empresas:noSite.length+credenciados.length,integradas:noSite.filter(l=>l.n>0).length,noAr,ocultos:veicAll.length-noAr,semFoto,
+    novos:leads.filter(l=>l.novo).length,n7:leads.filter(l=>agora-new Date(l.criado)<7*864e5).length,n24:leads.filter(l=>agora-new Date(l.criado)<864e5).length,
+    ult:syncs[syncs.length-1],falhas:lojas.filter(l=>l.erro).length};
 }
-function pintarHero(){
-  const v=vistaAtual,c=contas(),lado=v==='lojas'?`<button type="button" class="bt" onclick="openAdd()">${sv(IC.mais,'sm')}Adicionar loja</button>`
-    :v==='publicacoes'?`<button type="button" class="bt" onclick="abrirPub()">${sv(IC.mais,'sm')}Nova publicação</button>`:'';
-  const pl=(n,um,varios)=>`<b>${fmt(n)}</b> ${n===1?um:varios}`;
-  let res='';
-  if(v==='lojas')res=`${pl(lojas.length,'loja','lojas')} · ${fmt(c.comEstoque)} com estoque no site${c.falhas?` · <span class="erro">${pl(c.falhas,'com falha na sincronização','com falha na sincronização')}</span>`:''}`;
-  if(v==='veiculos')res=`${pl(c.noAr,'no ar','no ar')} · ${fmt(c.ocultos)} ${c.ocultos===1?'oculto':'ocultos'} · ${fmt(c.semFoto)} sem foto`;
-  if(v==='leads')res=`${pl(c.novos,'sem atendimento','sem atendimento')} · ${fmt(c.n7)} nos últimos 7 dias`;
-  if(v==='publicacoes'){const ex=PUBS.filter(p=>p.exemplo).length;res=pubsErro?'':`${pl(PUBS.length,'publicação','publicações')}${PUBS.some(p=>p.destaque)?' · 1 em destaque':''}${ex?` · ${fmt(ex)} de exemplo, que saem quando entrarem as de verdade`:''}`;}
-  $('heroTit').innerHTML=`<div><div class="kk">${hojeTxt()}</div><h1>${TIT[v]}</h1>${res?`<div class="hres">${res}</div>`:''}</div>${lado?`<div class="hero-ac">${lado}</div>`:''}`;
-  const k=$('heroKpi');k.hidden=v!=='dash';
-  if(v==='dash')k.innerHTML=[
-    [fmt(lojas.length),'Lojas cadastradas',`${fmt(c.comEstoque)} com estoque no site`],
-    [fmt(c.noAr),'Veículos no ar',c.ocultos||c.semFoto?`${fmt(c.ocultos)} ocultos · ${fmt(c.semFoto)} sem foto`:'Todos com foto'],
-    [fmt(c.novos),'Leads sem atendimento',`${fmt(c.n7)} nos últimos 7 dias`,'ouro'],
-    [horaCurta(c.ult),'Última sincronização',c.falhas?`${fmt(c.falhas)} ${c.falhas===1?'loja':'lojas'} com falha`:'Todas as lojas ok',c.falhas?'erro':'']
-  ].map(x=>`<div><div class="n${x[3]==='ouro'?' ouro':''}">${x[0]}</div><div class="r">${x[1]}</div><div class="s${x[3]==='erro'?' erro':''}">${x[2]}</div></div>`).join('');
+const pl=(n,um,varios)=>`<b>${fmt(n)}</b> ${n===1?um:varios}`;
+// o título: na visão geral, a data grande ("Terça, 20 de outubro."); nas outras partes, a data pequena em cima e o nome da parte
+function pintarHero(animar){
+  const v=vistaAtual,dt=hojeTxt(),i=dt.indexOf(', '),d1=i>0?dt.slice(0,i+2):'',d2=(i>0?dt.slice(i+2):dt)+'.';
+  const dois=(a,b)=>animar?letras(a,60)+'<em>'+letras(b,60+22*a.replace(/ /g,'').length)+'</em>':esc(a)+'<em>'+esc(b)+'</em>';
+  $('htT').innerHTML=v==='dash'?`<h1 class="data" aria-label="${esc(d1+d2)}">${dois(d1,d2)}</h1>`
+    :`<div class="kk data">${esc(dt)}</div><h1 class="pg" aria-label="${esc(TIT[v].join(''))}">${dois(TIT[v][0],TIT[v][1])}</h1>`;
+  $('htA').innerHTML=v==='associados'?`<button type="button" class="bt" onclick="abrirNovo()">${sv(IC.mais,'sm')}Cadastrar Associado</button>`
+    :v==='mural'?`<button type="button" class="bt" onclick="abrirPub()">${sv(IC.mais,'sm')}Nova publicação</button>`:'';
+  pintarResumo();pintarKpis(false);
+}
+function pintarResumo(animar){
+  const v=vistaAtual,r=$('htR');let res='';
+  if(dadosProntos){
+    const c=contas();
+    if(v==='associados')res=`${pl(c.empresas,'empresa no site','empresas no site')} ·${fmt(c.integradas)} com estoque integrado${c.falhas?` · <button type="button" class="lnk-erro" onclick="verFalhas()">${fmt(c.falhas)} com falha</button>`:''}`;
+    if(v==='veiculos')res=`${pl(c.noAr,'no ar','no ar')} · ${fmt(c.ocultos)} ${c.ocultos===1?'oculto':'ocultos'} · ${fmt(c.semFoto)} sem foto`;
+    if(v==='leads')res=`${pl(c.novos,'novo','novos')} · ${fmt(c.n7)} nos últimos 7 dias`;
+    if(v==='mural'&&!pubsErro)res=`${pl(PUBS.length,'publicação','publicações')}${PUBS.some(p=>p.destaque)?' · 1 em destaque':''}`;
+  }
+  r.innerHTML=res;r.hidden=!res;
+  if(animar&&res&&!reduz())r.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:450,easing:'cubic-bezier(.2,.8,.2,1)'});
+}
+// os quatro números da visão geral. Abrindo o painel, contam do zero e os textos são escritos; antes dos dados, nada de zeros na tela
+function pintarKpis(animar){
+  const k=$('heroKpi');k.hidden=vistaAtual!=='dash';if(k.hidden)return;
+  if(!dadosProntos){k.innerHTML=[0,1,2,3].map(()=>'<div><div class="n"></div><div class="r"></div><div class="s"></div></div>').join('');return;}
+  const c=contas(),falha=c.falhas?`<button type="button" class="lnk-erro" onclick="verFalhas()">${fmt(c.falhas)} ${c.falhas===1?'loja com falha':'lojas com falha'}</button>`:'';
+  const itens=[
+    {n:c.empresas,r:'Empresas associadas',s:`${fmt(c.integradas)} com estoque integrado`},
+    {n:c.noAr,r:'Veículos no ar',s:c.ocultos||c.semFoto?`${fmt(c.ocultos)} ${c.ocultos===1?'oculto':'ocultos'} · ${fmt(c.semFoto)} sem foto`:'Todos com foto'},
+    {n:c.n7,r:'Leads na última semana',s:`${fmt(c.n24)} nas últimas 24h`,ouro:1},
+    {t:horaCurta(c.ult),r:'Última sincronização',s:falha||'Todas as lojas ok',html:!!falha}];
+  k.innerHTML=itens.map((x,i)=>{const d=i*110;
+    const n=x.t!=null?(animar?letras(x.t,d,40):esc(x.t)):(animar?'0':fmt(x.n));
+    const s=x.html?x.s:(animar?letras(x.s,420+d,12):esc(x.s));
+    return `<div><div class="n${x.ouro?' ouro':''}"${x.n!=null?` data-n="${x.n}"`:''}>${n}</div><div class="r">${animar?letras(x.r,200+d,16):esc(x.r)}</div><div class="s">${s}</div></div>`;}).join('');
+  if(animar)k.querySelectorAll('.n[data-n]').forEach((e,i)=>setTimeout(()=>contar(e,+e.dataset.n,1400),i*110));
 }
 
 /* ---------- visão geral ---------- */
-const situacao=l=>l.erro?`<span class="pl erro" title="${esc(l.erro)}">falhou</span>`:(l.sync?'<span class="pl ok">ok</span>':'<span class="pl cinza">aguardando</span>');
-function renderDash(){
-  $('dashLeads').innerHTML=leads.length?leads.slice(0,6).map(l=>`<button type="button" class="row" onclick="abrirLead(${l.id})">${avatar(l.nome)}<span class="row-tx"><b>${esc(l.nome||'Cliente')}</b><small><span class="tp">${tipoDe(l)[0]}</span>${l.item?' · '+esc(l.item):''}</small></span><span class="row-q">${quando(l.criado,true)}</span><span class="row-st">${pilula(l.status)}</span></button>`).join('')
+function renderDash(animar){
+  const ch=i=>animar?` style="animation-delay:${350+i*70}ms"`:'',cl=animar?' chega':'';
+  if(!dadosProntos){$('dashLeads').innerHTML=$('dashImp').innerHTML='';return;}
+  $('dashLeads').innerHTML=leads.length?leads.slice(0,6).map((l,i)=>`<button type="button" class="row${cl}"${ch(i)} onclick="verLead(${l.id})">${avatar(l.nome)}<span class="row-tx"><b>${esc(l.nome||'Cliente')}</b><small><span class="tp">${tipoDe(l)[0]}</span>${l.item?' · '+esc(l.item):''}</small></span><span class="row-q">${quando(l.criado,true)}</span><span class="row-st">${l.novo?'<span class="pl novo">Novo</span>':''}</span></button>`).join('')
     :'<p class="vazio">Nenhum lead ainda.</p>';
   const rec=lojas.slice().sort((a,b)=>String(b.sync||'').localeCompare(String(a.sync||''))).slice(0,6);
-  $('dashImp').innerHTML=rec.length?rec.map(l=>`<button type="button" class="row" onclick="nav('lojas')">${lgHtml(l)}<span class="row-tx"><b>${esc(l.nome)}</b><small>${esc(l.origem||'sem site')}</small></span><span class="row-n"><b>${l.n}</b> veículos</span><span class="row-q">${horaCurta(l.sync)}</span><span class="row-st">${situacao(l)}</span></button>`).join('')
+  $('dashImp').innerHTML=rec.length?rec.map((l,i)=>`<button type="button" class="row${cl}"${ch(i)} onclick="verAssoc(${l.id})">${lgHtml(l)}<span class="row-tx"><b>${esc(l.nome)}</b><small>${esc(l.origem||'sem site')}</small></span><span class="row-n"><b>${fmt(l.n)}</b> veículos</span><span class="row-q">${horaCurta(l.sync)}</span><span class="row-st">${situacao(l)}</span></button>`).join('')
     :'<p class="vazio">Nenhuma loja ainda.</p>';
 }
+const situacao=l=>l.erro?`<span class="pl erro" title="${esc(erroLegivel(l.erro))}">falhou</span>`:(l.sync?'<span class="pl ok">ok</span>':'<span class="pl cinza">aguardando</span>');
 
 /* ---------- relatório de leads (PDF) ---------- */
 let REP={p:'semana',de:'',ate:''};
@@ -816,14 +985,17 @@ function repIntervalo(){
   return {ini:i,fim:f,rotulo:'De '+i.toLocaleDateString('pt-BR')+' a '+f.toLocaleDateString('pt-BR')};
 }
 function repTroca(k){REP.p=k;if(k==='periodo'&&!REP.de){REP.de=new Date(Date.now()-6*864e5).toISOString().slice(0,10);REP.ate=hojeISO();}pintarRel();}
-function pintarRel(){
+function pintarRel(animar){
   const iv=repIntervalo(),lista=iv?leadsRaw.filter(l=>{const d=new Date(l.criado_em);return d>=iv.ini&&d<=iv.fim;}):[],c=t=>lista.filter(l=>(l.tipo||'venda')===t).length;
+  const num=n=>dadosProntos?`<b data-n="${n}">${animar?'0':fmt(n)}</b>`:'<b>&nbsp;</b>';
   const html=`<div class="rel-e"><div class="kk">Relatório de leads</div><div class="pps">${[['dia','Hoje'],['semana','7 dias'],['mes','30 dias'],['periodo','Período']].map(([k,t])=>`<button type="button" class="pp${REP.p===k?' on':''}" onclick="repTroca('${k}')">${t}</button>`).join('')}</div>
     ${REP.p==='periodo'?`<div class="rel-d"><input type="date" value="${REP.de}" aria-label="Do dia" onchange="REP.de=this.value;pintarRel()"> até <input type="date" value="${REP.ate}" aria-label="Até o dia" onchange="REP.ate=this.value;pintarRel()"></div>`:''}</div>
-    <div class="rel-n"><div><b>${lista.length}</b><span>Leads no total</span></div><div><b>${c('venda')}</b><span>Interesse em carros</span></div><div><b>${c('compra')}</b><span>Querem vender</span></div><div><b>${c('associacao')}</b><span>Seja um associado</span></div></div>
+    <div class="rel-n"><div>${num(lista.length)}<span>Leads no total</span></div><div>${num(c('venda'))}<span>Interesse em carros</span></div><div>${num(c('compra'))}<span>Querem vender</span></div><div>${num(c('associacao'))}<span>Seja um associado</span></div></div>
     <button type="button" class="bt az" onclick="gerarRelatorio()">${sv(IC.baixar,'sm')}Baixar PDF</button>`;
-  ['relDash','relLeads'].forEach(id=>{const e=$(id);if(e)e.innerHTML=html;});
+  ['relDash','relLeads'].forEach(id=>{const e=$(id);if(!e)return;e.innerHTML=html;if(animar)e.querySelectorAll('b[data-n]').forEach((b,i)=>setTimeout(()=>contar(b,+b.dataset.n,1200),500+i*90));});
 }
+// o PDF sai pela janela de impressão da própria página, num quadro escondido. Antes abria uma aba nova e mandava imprimir de lá: com a
+// janela de impressão aberta na outra aba, o painel ficava travado, sem aceitar clique (o que o Luiz viu em 20/10/2026)
 async function gerarRelatorio(){
   const iv=repIntervalo();
   if(!iv){toast('Escolha as duas datas do período');return;}
@@ -836,12 +1008,10 @@ async function gerarRelatorio(){
   lista.forEach(l=>{const k=l.loja_nome||((l.tipo==='associacao')?'Seja um associado (Aceima)':'Quer vender o carro (todas as lojas)');porLoja[k]=(porLoja[k]||0)+1;});
   const dt=d=>{const x=new Date(d);return isNaN(x)?'—':x.toLocaleDateString('pt-BR')+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});};
   const assunto=l=>{const det=l.detalhes||{};if(l.tipo==='associacao')return [det.empresa,det.ramo].filter(Boolean).join(' · ')||'—';return titulo((l.veiculo_nome||'').trim())||'—';};
-  const linhas=lista.map(l=>`<tr><td>${dt(l.criado_em)}</td><td><b>${esc(l.cliente_nome||'—')}</b></td><td>${esc(fmtTel(l.cliente_telefone)||'—')}</td><td>${(TIPOS[l.tipo]||TIPOS.venda)[0]}</td><td>${esc(assunto(l))}</td><td>${esc(l.loja_nome||'—')}</td><td>${ST_LEAD[l.status||'novo']||'Novo'}</td></tr>`).join('')
-    ||'<tr><td colspan="7" style="text-align:center;color:#5A6B85;padding:18px">Nenhum lead nesse período.</td></tr>';
+  const linhas=lista.map(l=>`<tr><td>${dt(l.criado_em)}</td><td><b>${esc(l.cliente_nome||'—')}</b></td><td>${esc(fmtTel(l.cliente_telefone)||'—')}</td><td>${(TIPOS[l.tipo]||TIPOS.venda)[0]}</td><td>${esc(assunto(l))}</td><td>${esc(l.loja_nome||'—')}</td></tr>`).join('')
+    ||'<tr><td colspan="6" style="text-align:center;color:#5A6B85;padding:18px">Nenhum lead nesse período.</td></tr>';
   const resumoLojas=Object.keys(porLoja).sort((a,b)=>porLoja[b]-porLoja[a]).map(k=>`<tr><td>${esc(k)}</td><td style="text-align:right"><b>${porLoja[k]}</b></td></tr>`).join('')||'<tr><td colspan="2" style="color:#5A6B85">—</td></tr>';
-  const w=window.open('','_blank');
-  if(!w){toast('Libere a janela nova para gerar o PDF');return;}
-  w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório de leads · Aceima</title>
+  imprimir(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório de leads · Aceima</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
   <style>
    @page{size:A4 landscape;margin:12mm}
@@ -860,8 +1030,6 @@ async function gerarRelatorio(){
    th{text-align:left;padding:7px 8px;border-bottom:1px solid #0B1A33;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:#5A6B85}
    td{padding:7px 8px;border-bottom:1px solid #ECE7E1}
    .peq{width:42%}
-   .aviso{margin:18px 0;padding:10px 14px;border:1px dashed #D6CEC4;border-radius:10px;font-size:12px;color:#5A6B85}
-   @media print{.aviso{display:none}}
   </style></head><body>
   <div class="top"><img src="${location.origin}/marca-nova/aceima-nova.png" alt="Aceima"><div><h1>Relatório de leads</h1><div class="sub">${iv.rotulo} · gerado em ${new Date().toLocaleString('pt-BR')}</div></div></div>
   <div class="cards">
@@ -873,51 +1041,65 @@ async function gerarRelatorio(){
   <h2>Por origem</h2>
   <table class="peq"><tr><th>Origem</th><th style="text-align:right">Leads</th></tr>${resumoLojas}</table>
   <h2>Leads do período</h2>
-  <table><tr><th>Data</th><th>Cliente</th><th>Contato</th><th>Tipo</th><th>Veículo ou empresa</th><th>Loja</th><th>Atendimento</th></tr>${linhas}</table>
-  <div class="aviso">Use <b>Imprimir › Salvar como PDF</b> para guardar este relatório.</div>
+  <table><tr><th>Data</th><th>Cliente</th><th>Contato</th><th>Tipo</th><th>Veículo ou empresa</th><th>Loja</th></tr>${linhas}</table>
   </body></html>`);
-  w.document.close();
-  setTimeout(()=>{try{w.focus();w.print();}catch(e){}},900);
-  toast('Relatório gerado: '+lista.length+' lead(s)');
+  toast('Relatório pronto: '+lista.length+' lead(s). Escolha "Salvar como PDF"');
+}
+function imprimir(html){
+  document.querySelectorAll('iframe.imprime').forEach(f=>f.remove());
+  const f=document.createElement('iframe');f.className='imprime';f.setAttribute('aria-hidden','true');f.tabIndex=-1;
+  f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none';
+  document.body.appendChild(f);
+  const w=f.contentWindow,d=w.document;d.open();d.write(html);d.close();
+  const vai=()=>{try{w.focus();w.print();}catch(e){toast('Não deu para abrir a impressão');}};
+  // espera a letra e a logo carregarem (no máximo 2,5 s)
+  const img=d.querySelector('img'),esperas=[d.fonts?d.fonts.ready:null,img&&!img.complete?new Promise(r=>{img.onload=img.onerror=r;}):null].filter(Boolean);
+  Promise.race([Promise.all(esperas),new Promise(r=>setTimeout(r,2500))]).then(()=>setTimeout(vai,60));
+  w.addEventListener('afterprint',()=>setTimeout(()=>f.remove(),500));
 }
 
-/* ---------- lista suspensa própria (troca o select do sistema, que não arredonda) ---------- */
+/* ---------- lista suspensa própria (o select do sistema não arredonda), com as animações dos filtros do site ---------- */
 const setaBaixo='<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>';
-function aprimorarSelect(sel,cores){
+function aprimorarSelect(sel){
   if(!sel)return null;
   if(sel.__dd){sel.__dd.atualizar();return sel.__dd;}
-  const wrap=document.createElement('div');wrap.className='dd'+(cores?' cor':'');
+  const wrap=document.createElement('div');wrap.className='dd';
   sel.parentNode.insertBefore(wrap,sel);wrap.appendChild(sel);
   const t=document.createElement('button');t.type='button';t.className='dd-t';if(sel.getAttribute('aria-label'))t.setAttribute('aria-label',sel.getAttribute('aria-label'));
   const p=document.createElement('div');p.className='dd-p';
   wrap.appendChild(t);wrap.appendChild(p);
-  const api={atualizar(){
-    const o0=sel.options[sel.selectedIndex];
+  const api_={atualizar(animar){
+    const w0=t.getBoundingClientRect().width,o0=sel.options[sel.selectedIndex];
     t.innerHTML='<span>'+esc(o0?o0.textContent:'')+'</span>'+setaBaixo;
-    if(cores){const c=cores[sel.value]||['#fff','#0B1A33'];t.style.background=c[0];t.style.color=c[1];t.style.boxShadow='none';t.style.fontWeight='600';}
+    wrap.classList.toggle('marcado',sel.dataset.padrao!=null&&sel.value!==sel.dataset.padrao);
     p.innerHTML='';
     [...sel.options].forEach(o=>{const d=document.createElement('div');d.className='dd-o'+(o.value===sel.value?' sel':'');d.textContent=o.textContent;
-      d.onclick=ev=>{ev.stopPropagation();sel.value=o.value;wrap.classList.remove('on');api.atualizar();sel.dispatchEvent(new Event('change',{bubbles:true}));};
+      d.onclick=ev=>{ev.stopPropagation();const mudou=sel.value!==o.value;sel.value=o.value;fecharDd(wrap);api_.atualizar(mudou);if(mudou)sel.dispatchEvent(new Event('change',{bubbles:true}));};
       p.appendChild(d);});
+    // escolhido: o botão vai do tamanho antigo ao novo e o texto novo surge (como os filtros do site)
+    if(animar&&!reduz()&&w0){const w1=t.getBoundingClientRect().width;t.classList.remove('anda');void t.offsetWidth;t.classList.add('anda');
+      if(Math.abs(w1-w0)>.5){t.style.overflow='hidden';t.animate([{width:w0+'px'},{width:w1+'px'}],{duration:420,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>{t.style.overflow='';};}}
   }};
-  t.onclick=ev=>{ev.stopPropagation();document.querySelectorAll('.dd.on').forEach(x=>{if(x!==wrap)x.classList.remove('on');});wrap.classList.toggle('on');if(wrap.classList.contains('on'))ddFlutuar(t,p);};
+  t.onclick=ev=>{ev.stopPropagation();const abre=!wrap.classList.contains('on');fecharDds();if(abre){wrap.classList.add('on');ddFlutuar(t,p);}};
   p.onclick=ev=>ev.stopPropagation();
-  sel.__dd=api;api.atualizar();return api;
+  sel.__dd=api_;api_.atualizar();return api_;
 }
+// fecha em fusão (a lista fica na tela enquanto some)
+function fecharDd(w){if(!w.classList.contains('on'))return;const p=w.querySelector('.dd-p');w.classList.remove('on');if(reduz()||!p)return;p.classList.add('sai');setTimeout(()=>p.classList.remove('sai'),150);}
+function fecharDds(){document.querySelectorAll('.dd.on').forEach(fecharDd);}
 // a lista abre presa à tela: nenhuma caixa com rolagem consegue cortá-la
 function ddFlutuar(t,p){
   const r=t.getBoundingClientRect(),cabe=innerHeight-r.bottom>200;
   p.style.position='fixed';p.style.left=Math.min(r.left,innerWidth-Math.max(r.width,180)-8)+'px';p.style.minWidth=r.width+'px';p.style.zIndex=300;
-  if(cabe){p.style.top=(r.bottom+6)+'px';p.style.bottom='auto';p.style.maxHeight=Math.min(262,innerHeight-r.bottom-16)+'px';}
-  else{p.style.bottom=(innerHeight-r.top+6)+'px';p.style.top='auto';p.style.maxHeight=Math.min(262,r.top-16)+'px';}
+  if(cabe){p.style.top=(r.bottom+6)+'px';p.style.bottom='auto';p.style.maxHeight=Math.min(300,innerHeight-r.bottom-16)+'px';p.style.transformOrigin='top left';}
+  else{p.style.bottom=(innerHeight-r.top+6)+'px';p.style.top='auto';p.style.maxHeight=Math.min(300,r.top-16)+'px';p.style.transformOrigin='bottom left';}
 }
-document.addEventListener('click',()=>document.querySelectorAll('.dd.on').forEach(x=>x.classList.remove('on')));
 // rolar ou mudar o tamanho reposiciona a lista em vez de fechar (o teclado do celular muda o tamanho)
 ['scroll','resize'].forEach(ev=>addEventListener(ev,e=>{
   if(e.target&&e.target.closest&&e.target.closest('.dd-p'))return;
   document.querySelectorAll('.dd.on').forEach(x=>{const t=x.querySelector('.dd-t'),p=x.querySelector('.dd-p');if(t&&p)ddFlutuar(t,p);});
 },true));
-function aprimorarTodos(){['fVLoja','fVMarca','fVOrd','fVStatus','pCat'].forEach(id=>aprimorarSelect($(id)));}
+function aprimorarTodos(){['fVLoja','fVMarca','fVStatus','fVOrd'].forEach(id=>aprimorarSelect($(id)));}
 
 /* ---------- logos das lojas ---------- */
 // fundo branco; a logo de traço claro (letra branca) ganha o azul do site, e a de fundo próprio, a cor desse fundo.
@@ -954,26 +1136,12 @@ function aplicar(cx,img,r,manual){
   if(cor){cx.style.background=cor;cx.style.boxShadow='none';}
   if(r&&r.escala>1.02){img.style.transform='scale('+r.escala.toFixed(2)+')';img.style.transformOrigin='center';}
 }
-const srcLogo=l=>(l.logo&&/^(data:|https?:)/.test(String(l.logo)))?l.logo:(L+(l.logo||l.chave+'_logo.png'));
+const srcLogo=l=>(l.logo&&/^(data:|https?:|\/api\/)/.test(String(l.logo)))?l.logo:(L+(l.logo||l.chave+'_logo.png'));
 const imgLogo=l=>`<img src="${esc(srcLogo(l))}" alt="" ${l.cor?`data-cor="${esc(l.cor)}"`:''} data-i="${esc(initials(l.nome))}" onload="fundoDaLogo(this)" onerror="this.parentNode.textContent=this.dataset.i">`;
-const lgHtml=(l,g)=>`<span class="lg${g?' g':''}">${imgLogo(l)}</span>`;
-
-/* ---------- lojas ---------- */
-function renderLojas(){
-  $('lojasGrid').innerHTML=lojas.length?lojas.map((l,i)=>`<div class="lj">
-   <div class="lj-t">${lgHtml(l,true)}<div style="min-width:0"><b>${esc(l.nome)}</b>${l.origem&&!/^Portal/.test(l.origem)?`<a href="https://${esc(l.origem)}" target="_blank" rel="noopener">${esc(l.origem)}</a>`:`<span class="sem">${esc(l.origem||'sem site')}</span>`}</div></div>
-   <dl class="lj-d">
-    <div><dt>Veículos</dt><dd><b>${l.n}</b></dd></div>
-    <div><dt>E-mail</dt><dd>${l.email?`<span class="ok-t" title="${esc(l.email)}">${esc(l.email)}</span>`:'<span class="pl erro sem">sem e-mail</span>'}</dd></div>
-    <div><dt>WhatsApp</dt><dd>${l.wa?esc(fmtTel(l.wa)):'<span class="mut">não informado</span>'}</dd></div>
-    <div><dt>Google</dt><dd>${l.nota?`<b>${String(l.nota).replace('.',',')}</b> ★${l.aval?` · ${fmt(l.aval)} avaliações`:''}`:'<span class="mut">sem nota</span>'}</dd></div>
-    <div><dt>Sincronizado</dt><dd>${l.erro?`<span class="pl erro" title="${esc(l.erro)}">falhou</span>`:esc(quando(l.sync))}</dd></div>
-   </dl>
-   <div class="lj-a"><button type="button" class="bt ghost sm" onclick="runImport(${i})">${sv(IC.sync,'sm')}Importar agora</button><button type="button" class="ib" title="Editar" aria-label="Editar ${esc(l.nome)}" onclick="openEdit(${i})">${sv(IC.lapis,'sm')}</button><button type="button" class="ib perigo" title="Excluir" aria-label="Excluir ${esc(l.nome)}" onclick="excluirLoja(${i})">${sv(IC.lixo,'sm')}</button></div>
-  </div>`).join(''):'<p class="vazio">Nenhuma loja cadastrada.</p>';
-}
-let logoData=null;   // data URI da logo escolhida na janela
-function lerLogo(input){
+const lgHtml=(l,g)=>`<span class="lg${g?' g':''}">${l.logo||l.chave?imgLogo(l):esc(initials(l.nome))}</span>`;
+const lgCred=(c,g)=>`<span class="lg${g?' g':''}">${c.logo?imgLogo({nome:c.nome,logo:c.logo}):esc(initials(c.nome))}</span>`;
+let logoData=null;   // data URI da logo escolhida no formulário
+function lerLogo(input,prevId){
   const f=input.files&&input.files[0];if(!f)return;
   const img=new Image(),fr=new FileReader();
   fr.onload=e=>{img.onload=()=>{
@@ -981,75 +1149,276 @@ function lerLogo(input){
     c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
     c.getContext('2d').drawImage(img,0,0,c.width,c.height);
     logoData=/png/i.test(f.type)?c.toDataURL('image/png'):c.toDataURL('image/jpeg',0.9);
-    const prev=$('fLogoPrev');prev.style.background='';prev.style.boxShadow='';prev.innerHTML=`<img src="${logoData}" alt="" onload="fundoDaLogo(this)">`;
-    toast('Logo pronta. Salve para aplicar');
+    const prev=$(prevId);if(prev){prev.style.background='';prev.style.boxShadow='';prev.innerHTML=`<img src="${logoData}" alt="" onload="fundoDaLogo(this)">`;}
   };img.src=e.target.result;};
   fr.readAsDataURL(f);
 }
-function limparLogo(){logoData=null;$('fLogo').value='';const p=$('fLogoPrev');p.innerHTML='';p.style.background='';p.style.boxShadow='';}
-function openAdd(){editId=null;$('mAddTitle').textContent='Adicionar loja';['fNome','fUrl','fEmail','fCorTxt','fGNota','fGAval'].forEach(id=>$(id).value='');$('fCor').value='#ffffff';$('fSalvar').textContent='Salvar e importar';limparLogo();openM('mAdd');}
-function openEdit(i){
-  const l=lojas[i];if(!l)return;editId=l.id;const raw=lojasApi.find(x=>x.id===editId)||{};
-  $('mAddTitle').textContent='Editar loja';$('fSalvar').textContent='Salvar';
-  $('fNome').value=l.nome;$('fUrl').value=raw.autocerto_id||raw.autocerto_url||l.chave||'';$('fEmail').value=raw.email||'';
-  $('fGNota').value=raw.google_nota?String(raw.google_nota).replace('.',','):'';$('fGAval').value=raw.google_avaliacoes||'';
-  $('fCorTxt').value=raw.cor||'';$('fCor').value=/^#[0-9a-f]{6}$/i.test(raw.cor||'')?raw.cor:'#ffffff';
-  limparLogo();if(raw.logo_url)$('fLogoPrev').innerHTML=imgLogo({...l,logo:raw.logo_url,cor:raw.cor});
-  openM('mAdd');
+
+/* ---------- a camada que abre embaixo da linha (Associados e Leads), como em Associados no celular ---------- */
+// fecha a que estava aberta (a página fecha como abriu) e abre a nova logo abaixo da linha tocada, de ponta a ponta
+function abrirCamada(lista,linha,html,rolar){
+  const rd=reduz(),tinha=lista.querySelector(':scope>.cam');
+  lista.querySelectorAll(':scope>.cam').forEach(b=>{if(rd){b.remove();return;}b.style.overflow='hidden';
+    b.animate([{height:b.offsetHeight+'px'},{height:'0px',paddingTop:'0px',paddingBottom:'0px'}],{duration:280,easing:'ease-in'}).onfinish=()=>b.remove();});
+  lista.querySelectorAll(':scope>.on[data-k]').forEach(r=>{if(r!==linha){r.classList.remove('on');r.setAttribute('aria-expanded','false');}});
+  if(!linha||!html)return null;
+  linha.classList.add('on');linha.setAttribute('aria-expanded','true');
+  const b=document.createElement('div');b.className='cam';b.innerHTML=`<div class="wrap">${html}</div>`;linha.after(b);
+  if(!rd){b.style.overflow='hidden';const h=b.offsetHeight;b.animate([{height:'0px',paddingTop:'0px',paddingBottom:'0px'},{height:h+'px'}],{duration:420,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>{b.style.overflow='';};}
+  if(rolar!==false)setTimeout(()=>{const x=linha.getBoundingClientRect();if(x.top<90||x.top>innerHeight*.5)scrollBy({top:x.top-100,behavior:rd?'auto':'smooth'});},rd?0:tinha?320:60);
+  return b;
 }
-async function excluirLoja(i){const l=lojas[i];if(!l||!confirm('Excluir a loja "'+l.nome+'"? Os veículos dela saem do site.'))return;
-  try{await api('/api/lojas?path=lojas&id='+l.id,{method:'DELETE'});toast(l.nome+' excluída');await carregarPainel();}catch(e){toast('Não deu para excluir');}}
-const steps=['Conectando ao estoque da loja','Lendo os anúncios (carros e motos)','Baixando as fotos dos veículos','Guardando as imagens','Publicando no site'];
-async function runImport(i,dbIdArg,nomeArg,idArg){
-  const l=(typeof i==='number'&&i>=0)?lojas[i]:null,nome=nomeArg||(l?l.nome:'Loja'),id=idArg||(l?l.chave:''),dbId=dbIdArg||(l?l.id:null);
-  $('impNome').textContent=nome;$('impUrl').textContent=origemLabel(id);
-  const lg=$('impLg');lg.style.background='';lg.style.boxShadow='';lg.innerHTML=imgLogo(l||{nome,chave:id,logo:null});
-  openM('mImp');
-  const box=$('impSteps');box.innerHTML=steps.map((s,j)=>`<div class="istep" id="st${j}"><span class="d">${j+1}</span>${s}</div>`).join('');
-  const bar=$('impBar');bar.style.width='0';
-  // a importação de verdade: o robô lê o site da loja e grava no banco
-  const req=dbId?api('/api/importar?path=importar&loja='+dbId).then(r=>r.json()).catch(e=>({erro:e.message})):Promise.resolve({erro:'sem id'});
-  let k=0;
-  await new Promise(res=>{(function next(){
-    if(k>0){const p=$('st'+(k-1));p.className='istep done';p.querySelector('.d').innerHTML=check;}
-    if(k<steps.length){const c=$('st'+k);c.className='istep run';c.querySelector('.d').innerHTML=spin;bar.style.width=((k+1)/steps.length*100)+'%';k++;setTimeout(next,760);}
-    else res();
-  })();});
-  const r=await req;   // espera o robô terminar de verdade
-  closeM('mImp');
-  if(r&&r.ok){toast(nome+' sincronizada');await carregarPainel();}
-  else toast('Falha ao importar '+nome+(r&&r.erro?': '+r.erro:''));
+// a camada aberta, desenhada de novo junto com a lista (sem animar)
+function reabrirCamada(lista,k,html){
+  const linha=lista.querySelector(`:scope>[data-k="${CSS.escape(String(k))}"]`);if(!linha||!html)return;
+  linha.classList.add('on');linha.setAttribute('aria-expanded','true');
+  const b=document.createElement('div');b.className='cam';b.innerHTML=`<div class="wrap">${html}</div>`;linha.after(b);
 }
-async function addLoja(){
-  const nome=$('fNome').value.trim(),url=$('fUrl').value.trim(),email=$('fEmail').value.trim()||null,cor=$('fCorTxt').value.trim();
-  const gnota=parseFloat(String($('fGNota').value).replace(',','.'))||null,gaval=parseInt(String($('fGAval').value).replace(/\D/g,''))||null,logo=logoData;
-  if(!nome||!url){toast('Preencha o nome e o site da loja');return;}
-  closeM('mAdd');
-  if(editId){
-    const id=editId;editId=null;toast('Salvando '+nome+'…');
-    try{await api('/api/lojas?path=lojas',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,nome,autocerto_id:url,email,cor,logo_url:logo,google_nota:gnota,google_avaliacoes:gaval})});
-      await carregarPainel();toast(nome+' atualizada');}
-    catch(e){toast('Não deu para salvar: '+e.message);}
-    return;
-  }
-  toast('Cadastrando '+nome+'…');
+// o bloco do começo da lista (cadastro e editor do mural) abre e fecha como a camada
+function abrirBloco(b){b.hidden=false;if(reduz())return;b.style.overflow='hidden';const h=b.offsetHeight;
+  b.animate([{height:'0px',paddingTop:'0px',paddingBottom:'0px',marginBottom:'0px'},{height:h+'px'}],{duration:440,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>{b.style.overflow='';};}
+function fecharBloco(b,depois){if(b.hidden){if(depois)depois();return;}
+  const fim=()=>{b.hidden=true;b.innerHTML='';if(depois)depois();};
+  if(reduz()){fim();return;}b.style.overflow='hidden';
+  b.animate([{height:b.offsetHeight+'px'},{height:'0px',paddingTop:'0px',paddingBottom:'0px',marginBottom:'0px'}],{duration:300,easing:'ease-in'}).onfinish=()=>{b.style.overflow='';fim();};}
+const campo=(id,rot,val,ph,extra)=>`<label class="cp"><span>${rot}</span><input id="${id}" value="${esc(val||'')}"${ph?` placeholder="${esc(ph)}"`:''}${extra||''}></label>`;
+const info=(rot,val)=>`<div><span>${rot}</span><p class="${val?'':'mut'}">${val?esc(val):'Não informado'}</p></div>`;
+// o andamento do robô: a barra e o passo de agora
+function andamento(box,k,passos){box.innerHTML=`<div class="and"><div class="bar"><i style="width:${Math.round(Math.min(k+1,passos.length)/passos.length*100)}%"></i></div><p>${k<passos.length?spin+esc(passos[k]):check+'Pronto'}</p></div>`;}
+
+/* ---------- associados (as lojas e os credenciados) ---------- */
+let assocFiltro='todos',assocAberto=null;   // a linha aberta: "l:ID" (loja) ou "c:Nome" (credenciado)
+function entradasAssoc(){
+  return lojas.map(l=>({k:'l:'+l.id,cred:false,nome:l.nome,l})).concat(credenciados.map(c=>({k:'c:'+c.nome,cred:true,nome:c.nome,c})))
+    .sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+}
+const FILTROS_ASSOC=[['todos','Todos',()=>true],['lojas','Lojas',e=>!e.cred],['cred','Credenciados',e=>e.cred],['falha','Com falha',e=>!e.cred&&!!e.l.erro]];
+function renderAssoc(rolar){
+  const E=entradasAssoc(),q=f=>E.filter(f[2]).length;
+  if(assocFiltro==='falha'&&!q(FILTROS_ASSOC[3]))assocFiltro='todos';
+  $('assocChips').innerHTML=dadosProntos?FILTROS_ASSOC.filter(f=>f[0]!=='falha'||q(f)).map(f=>`<button type="button" class="chip${assocFiltro===f[0]?' on':''}${f[0]==='falha'?' erro':''}" onclick="filtAssoc('${f[0]}')">${f[1]}<i>${q(f)}</i></button>`).join(''):'';
+  const vis=E.filter(FILTROS_ASSOC.find(f=>f[0]===assocFiltro)[2]),lista=$('assocLista');
+  if(assocAberto&&!vis.some(e=>e.k===assocAberto))assocAberto=null;
+  lista.innerHTML=!dadosProntos?'':vis.length?vis.map(linhaAssoc).join(''):'<p class="vazio">Nenhum associado aqui.</p>';
+  if(assocAberto){const e=vis.find(x=>x.k===assocAberto);reabrirCamada(lista,assocAberto,camAssoc(e));
+    if(rolar)setTimeout(()=>{const r=lista.querySelector('.lr.on');if(r)scrollTo({top:r.getBoundingClientRect().top+scrollY-100,behavior:reduz()?'auto':'smooth'});},80);}
+}
+function filtAssoc(f){assocFiltro=f;assocAberto=null;renderAssoc();}
+function linhaAssoc(e,i){
+  const at=`class="lr${assocAberto===e.k?' on':''}" data-k="${esc(e.k)}" tabindex="0" role="button" aria-expanded="${assocAberto===e.k}" onclick="abrirAssoc(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirAssoc(this)}"`;
+  if(e.cred){const c=e.c;
+    return `<div ${at}><span class="i">${doisD(i+1)}</span>${lgCred(c)}<span class="nm"><b>${esc(c.nome)}</b><small><span class="cred">Credenciado</span></small></span><span class="q">${c.nota?`<b>${c.nota.toFixed(1).replace('.',',')}</b> ★`:''}</span><span class="st">${c.aval?fmt(c.aval)+' avaliações':''}</span>${sv(IC.chev,'chev')}</div>`;}
+  const l=e.l,st=l.erro?'<span class="pl erro">Falha na sincronização</span>':l.sync?esc('Sincronizado '+quando(l.sync)):'<span class="pl cinza">Aguardando o robô</span>';
+  return `<div ${at}><span class="i">${doisD(i+1)}</span>${lgHtml(l)}<span class="nm"><b>${esc(l.nome)}</b><small>${esc(l.origem||'sem site')}${l.fora?' · fora do site':''}</small></span><span class="q"><b>${fmt(l.n)}</b> ${l.n===1?'veículo':'veículos'}</span><span class="st">${st}</span>${sv(IC.chev,'chev')}</div>`;
+}
+function abrirAssoc(el){
+  const k=el.dataset.k;assocAberto=assocAberto===k?null:k;
+  const e=entradasAssoc().find(x=>x.k===assocAberto);
+  abrirCamada($('assocLista'),assocAberto?el:null,e?camAssoc(e):'');
+}
+function camAssoc(e){
+  if(!e)return '';
+  if(e.cred){const c=e.c;
+    return `<div class="cm-cab">${lgCred(c,true)}<div class="cm-v"><div class="kk">Credenciado Aceima</div><h3>${esc(c.nome)}</h3><p>${c.site?`<a href="${esc(c.site)}" target="_blank" rel="noopener">${esc(origemLabel(c.site))}</a>`:'Sem site'}</p></div>
+      <div class="cm-n">${c.nota?`<div><b>${c.nota.toFixed(1).replace('.',',')}<i>★</i></b><span>${fmt(c.aval)} avaliações</span></div>`:''}</div></div>
+      <p class="cm-tx">Aparece no site junto das lojas, mas não tem estoque. A nota e a logo o robô lê sozinho.</p>
+      <div class="cm-b"><a class="bto" href="/associados?loja=${encodeURIComponent(c.nome)}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a></div>`;}
+  const l=e.l,nota=l.nota?l.nota.toFixed(1).replace('.',','):'';
+  return `<div class="cm-cab">${lgHtml(l,true)}<div class="cm-v"><div class="kk">Associado Aceima${l.fora?' · fora do site':''}</div><h3>${esc(l.nome)}</h3><p>${l.chave&&!/^Portal/.test(l.origem)?`<a href="${esc(urlSite(l.chave))}" target="_blank" rel="noopener">${esc(l.origem)}</a>`:esc(l.origem||'Sem site cadastrado')}</p></div>
+    <div class="cm-n"><div><b>${fmt(l.n)}</b><span>${l.n===1?'veículo':'veículos'}</span></div>${nota?`<div><b>${nota}<i>★</i></b><span>${fmt(l.aval)} avaliações</span></div>`:''}</div></div>
+   <div class="cm-i" id="ci-${l.id}">
+    ${info('Endereço',l.end)}${info('Telefone',l.tel&&fmtTel(l.tel))}${info('WhatsApp',l.wa&&fmtTel(l.wa))}${info('E-mail dos leads',l.email)}
+    <div><span>Sincronização</span><p class="${l.erro?'erro':''}">${l.erro?esc('Falhou '+quando(l.sync)+': '+erroLegivel(l.erro)):l.sync?esc('Sincronizado '+quando(l.sync)):'O robô ainda não leu o site'}</p></div>
+   </div>
+   <div class="cm-b" id="cb-${l.id}">
+    <button type="button" class="bt" onclick="importarAgora(${l.id})">${sv(IC.sync,'sm')}Importar agora</button>
+    <button type="button" class="bto" onclick="editarAssoc(${l.id})">${sv(IC.lapis,'sm')}Editar</button>
+    ${l.n?`<button type="button" class="bto" onclick="verEstoqueDe(${l.id})">${sv(IC.carro,'sm')}Ver o estoque</button>`:''}
+    ${l.fora?'':`<a class="bto" href="/associados?loja=${encodeURIComponent(l.nome)}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a>`}
+    <button type="button" class="x-p" onclick="excluirLoja(${l.id})">${sv(IC.lixo,'sm')}Excluir</button>
+   </div>`;
+}
+function verAssoc(id){nav('associados',()=>{assocFiltro='todos';assocAberto='l:'+id;renderAssoc(true);});}
+function verFalhas(){fecharPops();nav('associados',()=>{assocFiltro='falha';assocAberto=null;renderAssoc();});}
+function verEstoqueDe(id){const l=lojas.find(x=>x.id===id);if(!l)return;
+  nav('veiculos',()=>{limparFiltrosVeic(true);const s=$('fVLoja');s.value=l.nome;if(s.__dd)s.__dd.atualizar();VPAG=0;filtrarVeic();});}
+// importar agora: o andamento aparece na própria camada
+async function importarAgora(id){
+  const l=lojas.find(x=>x.id===id),box=$('cb-'+id);if(!l||!box)return;
+  const passos=['Abrindo o site da loja','Lendo os anúncios','Conferindo as fotos','Publicando no site'];let k=0;
+  andamento(box,0,passos);const tick=setInterval(()=>{if(k<passos.length-1)andamento(box,++k,passos);},1600);
+  const r=await api('/api/importar?path=importar&loja='+id).then(x=>x.json()).catch(e=>({erro:e.message}));
+  clearInterval(tick);
+  const r0=(r&&r.lojas&&r.lojas[0])||{},erro=(r&&r.erro)||r0.erro;
+  if(!erro)andamento(box,passos.length,passos);
+  await carregarPainel();
+  toast(erro?'Não deu para importar '+l.nome+': '+erroLegivel(erro):l.nome+' sincronizada: '+fmt(r0.veiculos||0)+' veículos');
+}
+function editarAssoc(id){
+  const l=lojas.find(x=>x.id===id),raw=lojasApi.find(x=>x.id===id)||{},ci=$('ci-'+id),cb=$('cb-'+id);if(!l||!ci||!cb)return;
+  logoData=null;
+  ci.outerHTML=`<form class="cps" id="ci-${id}" onsubmit="salvarAssoc(${id});return false">
+    ${campo('eNome','Nome',l.nome)}${campo('eSite','Site',raw.autocerto_id||raw.autocerto_url||'','autobarra.com.br')}
+    ${campo('eEmail','E-mail dos leads',raw.email,'contato@loja.com.br',' type="email"')}${campo('eWa','WhatsApp',raw.whatsapp?fmtTel(raw.whatsapp):'','(21) 99999-9999',' inputmode="tel"')}
+    ${campo('eTel','Telefone',raw.telefone,'(21) 3333-3333',' inputmode="tel"')}${campo('eEnd','Endereço',raw.endereco,'Estrada Intendente Magalhães, 830').replace('class="cp"','class="cp dois"')}
+    <div class="cp"><span>Logo</span><div class="lgc"><span class="lg" id="eLogoPrev">${raw.logo_url?imgLogo(l):''}</span><label class="bto sm" for="eLogo">Trocar a logo</label><input type="file" id="eLogo" accept="image/*" hidden onchange="lerLogo(this,'eLogoPrev')"></div></div>
+    ${campo('eCor','Fundo da logo <small>(vazio: automático)</small>',raw.cor,'automático, ou #00091A')}
+    <button type="submit" hidden></button>
+  </form>`;
+  cb.innerHTML=`<button type="button" class="bt" onclick="salvarAssoc(${id})">Salvar</button><button type="button" class="bto" onclick="renderAssoc()">Cancelar</button>`;
+  setTimeout(()=>{const n=$('eNome');if(n)n.focus();},50);
+}
+const soDig=s=>String(s||'').replace(/\D/g,'');
+const waDe=s=>{const d=soDig(s);return !d?'':(d.length<=11?'55'+d:d);};
+// a nota do Google não vai junto: quem cuida dela é o robô das avaliações, e a API deixa a que está
+async function salvarAssoc(id){
+  const v=k=>($(k)?$(k).value.trim():'');
+  const nome=v('eNome');if(!nome){toast('Escreva o nome');$('eNome').focus();return;}
+  const corpo={id,nome,autocerto_id:v('eSite')||null,email:v('eEmail'),whatsapp:waDe(v('eWa')),telefone:v('eTel'),endereco:v('eEnd'),cor:v('eCor'),logo_url:logoData||null};
+  const cb=$('cb-'+id);if(cb)cb.innerHTML=`<div class="and"><p>${spin}Salvando…</p></div>`;
+  try{const r=await jsonPost('/api/lojas?path=lojas',corpo,'PATCH');if(!r.ok)throw new Error('erro '+r.status);
+    logoData=null;await carregarPainel();toast(nome+' atualizada');}
+  catch(e){toast('Não deu para salvar: '+e.message);renderAssoc();}
+}
+async function excluirLoja(id){const l=lojas.find(x=>x.id===id);if(!l||!confirm('Excluir "'+l.nome+'"? Os veículos dela saem do site.'))return;
+  try{await api('/api/lojas?path=lojas&id='+id,{method:'DELETE'});assocAberto=null;toast(l.nome+' excluída');await carregarPainel();}catch(e){toast('Não deu para excluir');}}
+/* cadastrar associado, na própria página (pedido do Luiz, 20/10/2026): só o nome e o site. O robô lê no site a logo, os contatos e o
+   estoque, e o painel só pede o que ele não achou */
+function abrirNovo(){
+  nav('associados',()=>{
+    const b=$('novoAssoc');if(!b.hidden){$('naNome').focus();return;}
+    b.innerHTML=`<div class="wrap"><div class="cam-tit"><div><div class="kk">Novo associado</div><h3>Cadastrar <em>associado.</em></h3><p class="cm-tx">Só o nome e o site. O robô lê no site da empresa a logo, os contatos e o estoque, e só pergunta o que não achar.</p></div><button type="button" class="xc" aria-label="Fechar" onclick="fecharNovo()">${sv(IC.x,'sm')}</button></div>
+      <form class="cps" id="naForm" onsubmit="cadastrar();return false">${campo('naNome','Nome da empresa','','Ex.: Auto Prime Veículos',' autocomplete="off"')}${campo('naSite','Site','','Ex.: autoprime.com.br',' autocomplete="off" inputmode="url"')}<button type="submit" hidden></button></form>
+      <div class="cm-b" id="naB"><button type="button" class="bt" onclick="cadastrar()">Cadastrar</button><button type="button" class="bto" onclick="fecharNovo()">Cancelar</button></div>
+      <div id="naPasso"></div></div>`;
+    abrirBloco(b);setTimeout(()=>{const n=$('naNome');if(n)n.focus();},250);
+  });
+}
+function fecharNovo(depois){fecharBloco($('novoAssoc'),depois);}
+async function cadastrar(){
+  const nome=$('naNome').value.trim(),site=$('naSite').value.trim().replace(/\s+/g,'');
+  if(!nome||!site){toast(!nome?'Escreva o nome da empresa':'Escreva o site da empresa');(nome?$('naSite'):$('naNome')).focus();return;}
+  $('naB').innerHTML='';$('naForm').querySelectorAll('input').forEach(i=>i.disabled=true);
+  const box=$('naPasso'),passos=['Cadastrando '+nome,'Abrindo o site','Lendo os anúncios','Conferindo os dados'];let k=0;
+  andamento(box,0,passos);const tick=setInterval(()=>{if(k<passos.length-1)andamento(box,++k,passos);},1700);
+  let loja=null,r0={},erro=null;
   try{
-    const r=await api('/api/lojas?path=lojas',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome,autocerto_id:url,email,logo_url:logo,google_nota:gnota,google_avaliacoes:gaval})});
-    const loja=await r.json();await carregarPainel();
-    runImport(-1,loja.id,nome,url);   // já roda o robô na loja nova
-  }catch(e){toast('Não deu para cadastrar: '+e.message);}
+    const r=await jsonPost('/api/lojas?path=lojas',{nome,autocerto_id:site});loja=await r.json().catch(()=>null);
+    if(!r.ok||!loja||!loja.id)throw new Error((loja&&loja.erro)||('erro '+r.status));
+    const ri=await api('/api/importar?path=importar&loja='+loja.id).then(x=>x.json()).catch(e=>({erro:e.message}));
+    r0=(ri&&ri.lojas&&ri.lojas[0])||{};erro=(ri&&ri.erro)||r0.erro||null;
+  }catch(e){
+    clearInterval(tick);box.innerHTML=`<div class="falta"><b>Não deu para cadastrar.</b> ${esc(e.message)}</div>`;
+    $('naForm').querySelectorAll('input').forEach(i=>i.disabled=false);
+    $('naB').innerHTML=`<button type="button" class="bt" onclick="cadastrar()">Tentar de novo</button><button type="button" class="bto" onclick="fecharNovo()">Cancelar</button>`;return;}
+  clearInterval(tick);andamento(box,passos.length,passos);
+  await carregarPainel();
+  const l=lojas.find(x=>x.id===loja.id)||{id:loja.id,nome},falta=faltaDe(l);
+  const entrou=erro?`<div class="falta"><b>O robô não conseguiu ler o estoque nesse site</b> (${esc(erroLegivel(erro))}). Confira o endereço; dá para corrigir em Editar e importar de novo.</div>`
+    :`<div class="ok-n"><i>${check}</i><span><b>${esc(nome)}</b> entrou com ${fmt(r0.veiculos||0)} ${r0.veiculos===1?'veículo':'veículos'}.</span></div>`;
+  if(!falta.length){box.innerHTML=entrou;setTimeout(()=>fecharNovo(()=>{assocAberto='l:'+loja.id;assocFiltro='todos';renderAssoc(true);}),erro?4000:2200);return;}
+  logoData=null;
+  box.innerHTML=`${entrou}<div class="falta">O robô não achou ${listaE(falta.map(f=>f[1]))} no site. Preencha para completar o cadastro:</div>
+    <form class="cps" onsubmit="completar(${loja.id});return false">${falta.map(f=>f[2]).join('')}<button type="submit" hidden></button></form>
+    <div class="cm-b"><button type="button" class="bt" onclick="completar(${loja.id})">Salvar</button><button type="button" class="bto" onclick="fecharNovo(()=>{assocAberto='l:${loja.id}';renderAssoc(true);})">Agora não</button></div>`;
+}
+const listaE=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' e '+a[a.length-1];
+// o que o robô não achou: só isso é pedido
+function faltaDe(l){
+  const f=[];
+  if(!l.logo)f.push(['logo','a logo',`<div class="cp"><span>Logo</span><div class="lgc"><span class="lg" id="cLogoPrev"></span><label class="bto sm" for="cLogo">Escolher a logo</label><input type="file" id="cLogo" accept="image/*" hidden onchange="lerLogo(this,'cLogoPrev')"></div></div>`]);
+  if(!l.end)f.push(['end','o endereço',campo('cEnd','Endereço','','Estrada Intendente Magalhães, 830')]);
+  if(!l.wa)f.push(['wa','o WhatsApp',campo('cWa','WhatsApp','','(21) 99999-9999',' inputmode="tel"')]);
+  if(!l.tel)f.push(['tel','o telefone',campo('cTel','Telefone','','(21) 3333-3333',' inputmode="tel"')]);
+  if(!l.email)f.push(['email','o e-mail',campo('cEmail','E-mail dos leads','','contato@empresa.com.br',' type="email"')]);
+  return f;
+}
+async function completar(id){
+  const v=k=>($(k)?$(k).value.trim():''),corpo={id};
+  if(logoData)corpo.logo_url=logoData;if(v('cEnd'))corpo.endereco=v('cEnd');if(v('cWa'))corpo.whatsapp=waDe(v('cWa'));if(v('cTel'))corpo.telefone=v('cTel');if(v('cEmail'))corpo.email=v('cEmail');
+  try{const r=await jsonPost('/api/lojas?path=lojas',corpo,'PATCH');if(!r.ok)throw new Error('erro '+r.status);
+    logoData=null;await carregarPainel();toast('Cadastro completo');fecharNovo(()=>{assocAberto='l:'+id;assocFiltro='todos';renderAssoc(true);});}
+  catch(e){toast('Não deu para salvar: '+e.message);}
 }
 
 /* ---------- veículos ---------- */
+// 100 por página (pedido do Luiz, 20/10/2026), em grade ou em lista; as páginas trocam pelas setas do lado do menu, como no site
+const VPOR=100;
+let VPAG=0,veicFiltrados=[],VMODO=(()=>{try{return localStorage.getItem('painel_vmodo')||'grade';}catch(e){return 'grade';}})();
 function montarFiltros(){
   const s1=$('fVLoja'),s2=$('fVMarca');
   if(s1){const v=s1.value;s1.innerHTML='<option value="">Todas as lojas</option>'+[...new Set(veicAll.map(x=>x.loja_nome).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')).map(n=>`<option>${esc(n)}</option>`).join('');s1.value=v;}
   if(s2){const v=s2.value;s2.innerHTML='<option value="">Todas as marcas</option>'+[...new Set(veicAll.map(x=>titulo(x.marca)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')).map(n=>`<option>${esc(n)}</option>`).join('');s2.value=v;}
 }
+/* busca inteligente, a mesma do estoque do site: cada palavra procura em marca, modelo, versão, loja, câmbio e combustível, em qualquer
+   ordem ("kwid auto barra" acha o Kwid da Auto Barra). Aceita erro de digitação, sigla sem hífen (hrv, tcross), apelido de marca (vw, gm),
+   ano ("2020", "a partir de 2018") e limite de preço ou de km ("até 60 mil", "de 50 a 80 mil", "até 50 mil km") */
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const APELIDOS={vw:'volkswagen',volks:'volkswagen',gm:'chevrolet',chevy:'chevrolet',mb:'mercedes',merc:'mercedes',benz:'mercedes',automatica:'automatico',aut:'automatico',eletrica:'eletrico',hibrida:'hibrido'};
+const VAZIAS=new Set(['de','da','do','das','dos','e','com','o','a','os','as','em','no','na','nos','nas','um','uma','pra','para','por','carro','carros','veiculo','veiculos','loja','ano','modelo','quero','procuro','reais','mil','km']);
+function lerBusca(q){
+  const lim={};let s=' '+norm(q).replace(/r\$/g,' ')+' ';
+  const num=(n,mil)=>{const x=/^\d{1,3}(\.\d{3})+$/.test(n)?+n.replace(/\./g,''):parseFloat(n.replace(',','.'));return mil?x*1000:x;};
+  const por=(x,km,lado)=>{if(!(x>=0))return;
+    if(!km&&Number.isInteger(x)&&x>=1950&&x<=2039){lim['ano'+lado]=x;return;}   // 4 algarismos de ano: é o ano
+    if(!km&&x<1000)x*=1000;   // "até 60" é 60 mil
+    lim[(km?'km':'p')+lado]=x;};
+  s=s.replace(/\sde\s+(\d[\d.,]*)\s*(mil|k)?\s+(?:a|ate)\s+(\d[\d.,]*)\s*(mil|k)?\s*(km)?(?=\s)/g,(m,a,ma,b,mb,km)=>{por(num(a,ma||mb),km,'min');por(num(b,mb),km,'max');return ' ';});
+  s=s.replace(/\s(ate|abaixo de|menos de|no maximo|maximo|acima de|mais de|a partir de|apartir de|no minimo|minimo|desde)\s+(\d[\d.,]*)\s*(mil|k)?\s*(km)?(?=\s)/g,
+    (m,op,n,mil,km)=>{por(num(n,mil),km,/ate|abaixo|menos|maximo/.test(op)?'max':'min');return ' ';});
+  s=s.replace(/\s(\d[\d.,]*)\s*(mil|k)\s*(km)?(?=\s)/g,(m,n,mil,km)=>{por(num(n,mil),km,'max');return ' ';});   // "80 mil" sozinho: até 80 mil
+  const toks=s.split(/\s+/).map(w=>w.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g,'')).filter(w=>w&&!VAZIAS.has(w)).map(w=>APELIDOS[w]||w);
+  return {toks,lim};
+}
+function parecida(a,b,k){   // no máximo k letras trocadas, a mais, a menos ou vizinhas invertidas
+  if(Math.abs(a.length-b.length)>k)return false;
+  let p2=null,p1=Array.from({length:b.length+1},(_,j)=>j);
+  for(let i=1;i<=a.length;i++){const c=[i];let menor=i;
+    for(let j=1;j<=b.length;j++){let x=Math.min(p1[j]+1,c[j-1]+1,p1[j-1]+(a[i-1]===b[j-1]?0:1));
+      if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])x=Math.min(x,p2[j-2]+1);
+      c[j]=x;if(x<menor)menor=x;}
+    if(menor>k)return false;p2=p1;p1=c;}
+  return p1[b.length]<=k;
+}
+function indiceBusca(v){   // palavras de cada anúncio, com o peso do lugar onde estão (guardado no próprio anúncio)
+  if(v._bi)return v._bi;
+  const pal=[],comp=[];
+  [[v.marca,3],[v.modelo,4],[v.versao,1.5],[v.loja_nome,3],[v.cambio,1],[v.combustivel,1]].forEach(([t,p])=>{const n=norm(t);if(!n)return;
+    n.split(/[\s\-\/()]+/).forEach(w=>{w=w.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g,'');if(w)pal.push([w,p]);});
+    comp.push([n.replace(/[^a-z0-9]/g,''),p]);});
+  if(/autom|cvt|dct|dsg/.test(norm(v.cambio)))pal.push(['automatico',1]);
+  return v._bi={pal,comp,anos:[v.ano_modelo,v.ano_fabricacao].filter(Boolean).map(String)};
+}
+function notaBusca(t,ix,exata){   // exata: sem aceitar erro de digitação
+  if(/^(19[5-9]\d|20[0-3]\d)$/.test(t))return ix.anos.includes(t)?3:0;
+  let m=0;const c=t.replace(/[^a-z0-9]/g,'');
+  for(const [w,p] of ix.pal){
+    if(w===t)m=Math.max(m,p);
+    else if(t.length>1&&w.startsWith(t))m=Math.max(m,p*.8);
+    else if(!exata&&c.length>3&&w.length>3&&parecida(c,w,c.length>6?2:1))m=Math.max(m,p*.55);
+  }
+  if(c.length>2)for(const [x,p] of ix.comp)if(x.includes(c))m=Math.max(m,p*.7);   // hrv, tcross, autobarra
+  return m;
+}
+function buscarVeic(l,q,porNota){
+  const {toks,lim}=lerBusca(q),ano=v=>Number(v.ano_modelo)||0,preco=v=>Number(v.preco)||0,km=v=>v.km==null?null:Number(v.km);
+  l=l.filter(v=>(lim.pmax==null||preco(v)>0&&preco(v)<=lim.pmax)&&(lim.pmin==null||preco(v)>=lim.pmin)
+    &&(lim.kmmax==null||km(v)!=null&&km(v)<=lim.kmmax)&&(lim.kmmin==null||km(v)>=lim.kmmin)
+    &&(lim.anomax==null||ano(v)>0&&ano(v)<=lim.anomax)&&(lim.anomin==null||ano(v)>=lim.anomin));
+  if(!toks.length)return l;
+  const r=[];
+  l.forEach((v,i)=>{const ix=indiceBusca(v),sc=toks.map(t=>notaBusca(t,ix));
+    for(let j=0;j+1<toks.length;j++)if(!sc[j]||!sc[j+1]){const x=notaBusca(toks[j]+toks[j+1],ix,1);if(x)sc[j]=sc[j+1]=x/2;}   // "hb 20" é HB20
+    let n=0,s=0;sc.forEach(x=>{if(x){n++;s+=x;}});if(n)r.push({v,n,s,i});});
+  // os que têm todas as palavras; se nenhum tem, os mais parecidos: pelo menos metade das palavras e nota perto da melhor
+  let f=r.filter(x=>x.n===toks.length);
+  if(!f.length){const best=r.reduce((a,x)=>Math.max(a,x.s),0);f=r.filter(x=>x.n>=Math.ceil(toks.length/2)&&x.s>=best*.7);}
+  if(porNota)f.sort((a,b)=>b.s-a.s||a.i-b.i);
+  return f.map(x=>x.v);
+}
 function filtrarVeic(){
-  const q=($('fVBusca').value||'').toLowerCase().trim(),lj=$('fVLoja').value||'',mc=$('fVMarca').value||'',ord=$('fVOrd').value||'recentes',st=$('fVStatus').value||'todos';
+  const q=$('fVBusca').value||'',lj=$('fVLoja').value||'',mc=$('fVMarca').value||'',ord=$('fVOrd').value||'recentes',st=$('fVStatus').value||'todos';
   let list=veicAll.filter(v=>{
-    if(q&&!nomeCompleto(v).toLowerCase().includes(q))return false;
     if(lj&&v.loja_nome!==lj)return false;
     if(mc&&titulo(v.marca)!==mc)return false;
     if(st==='nosite'&&v.oculto===true)return false;
@@ -1057,37 +1426,64 @@ function filtrarVeic(){
     if(st==='semfoto'&&fotoV(v))return false;
     return true;
   });
-  if(ord==='menor')list=list.slice().sort((a,b)=>(a.preco||0)-(b.preco||0));
-  else if(ord==='maior')list=list.slice().sort((a,b)=>(b.preco||0)-(a.preco||0));
-  renderVeic(list);
+  if(q.trim())list=buscarVeic(list,q,ord==='recentes');
+  const p=v=>Number(v.preco)||0;
+  if(ord==='menor')list=list.slice().sort((a,b)=>(p(a)||1e12)-(p(b)||1e12));
+  else if(ord==='maior')list=list.slice().sort((a,b)=>p(b)-p(a));
+  else if(ord==='km')list=list.slice().sort((a,b)=>(a.km==null?1e12:+a.km)-(b.km==null?1e12:+b.km));
+  else if(ord==='novos')list=list.slice().sort((a,b)=>(+b.ano_modelo||0)-(+a.ano_modelo||0));
+  veicFiltrados=list;
+  const pags=Math.max(1,Math.ceil(list.length/VPOR));if(VPAG>=pags)VPAG=pags-1;
+  renderVeic();
 }
-function limparFiltrosVeic(){
+function limparFiltrosVeic(quieto){
   $('fVBusca').value='';
-  [['fVLoja',''],['fVMarca',''],['fVOrd','recentes'],['fVStatus','todos']].forEach(([id,v])=>{const e=$(id);if(e){e.value=v;if(e.__dd)e.__dd.atualizar();}});
-  filtrarVeic();
+  [['fVLoja',''],['fVMarca',''],['fVOrd','recentes'],['fVStatus','todos']].forEach(([id,v])=>{const e=$(id);if(e){const m=e.value!==v;e.value=v;if(e.__dd)e.__dd.atualizar(m&&!quieto);}});
+  VPAG=0;if(!quieto)filtrarVeic();
 }
-function renderVeic(list){
-  list=list||veicAll;
-  const semFoto=veicAll.filter(v=>!fotoV(v)).length;
-  $('veicCount').innerHTML=`<b>${fmt(list.length)}</b> de ${fmt(veicAll.length)} veículos`+(semFoto?` · <span class="alerta">${semFoto} sem foto</span>`:'');
+function modoVeic(m){VMODO=m;try{localStorage.setItem('painel_vmodo',m);}catch(e){}renderVeic(true);}
+const precoV=v=>(v.preco&&+v.preco>0)?money(v.preco):'Consultar';
+const kmV=v=>v.km==null?'—':(Number(v.km)===0?'0 km':fmt(v.km)+' km');
+const etiquetaV=v=>!fotoV(v)?'<span class="pl erro">sem foto</span>':(v.oculto===true?'<span class="pl cinza">oculto</span>':'');
+const chave=v=>`<button type="button" class="switch${v.oculto===true?'':' on'}" role="switch" aria-checked="${v.oculto!==true}" aria-label="Aparece no site" title="${v.oculto===true?'Oculto no site':'Aparece no site'}" onclick="event.stopPropagation();toggleVeic(${v.id},this)"></button>`;
+function renderVeic(trocou){
+  const list=veicFiltrados,ini=VPAG*VPOR,pag=list.slice(ini,ini+VPOR),semFoto=veicAll.filter(v=>!fotoV(v)).length,pags=Math.ceil(list.length/VPOR);
+  $('veicCount').innerHTML=!dadosProntos?'':list.length?`<b>${fmt(ini+1)}–${fmt(ini+pag.length)}</b> de ${fmt(list.length)} ${list.length===1?'veículo':'veículos'}${pags>1?` · página ${VPAG+1} de ${pags}`:''}${semFoto&&!$('fVBusca').value?` · <span class="alerta">${semFoto} sem foto</span>`:''}`:'Nenhum veículo';
   const mexeu=['fVBusca','fVLoja','fVMarca'].some(id=>$(id).value)||$('fVStatus').value!=='todos'||$('fVOrd').value!=='recentes';
   $('btnLimparVeic').classList.toggle('on',mexeu);
-  const g=$('veicGrid');
-  if(!list.length){g.innerHTML='<p class="vazio" style="grid-column:1/-1">Nenhum veículo encontrado.</p>';return;}
-  g.innerHTML=list.slice(0,300).map(v=>{
-    const foto=fotoV(v),oc=v.oculto===true,tag=!foto?'<span class="pl erro">sem foto</span>':(oc?'<span class="pl cinza">oculto</span>':'');
-    return `<div class="vc" onclick="abrirVeic(${v.id})">
-     <div class="ft" style="background-image:url('${esc(foto)}')">${tag}</div>
-     <div class="b"><h4>${esc(nomeV(v))}</h4><div class="pr">${(v.preco&&+v.preco>0)?money(v.preco):'Consultar'}</div>
-      <div class="mt"><span>${esc(v.loja_nome||'')}${v.ano_modelo?' · '+v.ano_modelo:''}</span><button type="button" class="switch${oc?'':' on'}" role="switch" aria-checked="${!oc}" aria-label="Aparece no site" title="${oc?'Oculto no site':'Aparece no site'}" onclick="event.stopPropagation();toggleVeic(${v.id},this)"></button></div></div>
-    </div>`;}).join('');
+  document.querySelectorAll('.modo button').forEach(b=>b.classList.toggle('on',b.dataset.m===VMODO));
+  const box=$('veicLista');
+  if(!dadosProntos)box.innerHTML='';
+  else if(!pag.length)box.innerHTML='<p class="vazio">Nenhum veículo encontrado.</p>';
+  else if(VMODO==='lista')box.innerHTML=`<div class="vl"><div class="vli vli-h"><span></span><span>Veículo</span><span>Ano</span><span>Km</span><span>Preço</span><span class="lj">Loja</span><span></span><span></span></div>${pag.map(v=>`<div class="vli" onclick="abrirVeic(${v.id})">
+     <span class="ft" style="background-image:url('${esc(fotoV(v))}')"></span>
+     <span class="nm"><b>${esc(nomeV(v))}</b><small>${esc(titulo(v.versao)||'')}</small></span>
+     <span class="c">${esc(v.ano_modelo||'—')}</span><span class="c">${esc(kmV(v))}</span><span class="pr">${precoV(v)}</span><span class="c lj">${esc(v.loja_nome||'')}</span>
+     <span class="st">${etiquetaV(v)}</span>${chave(v)}</div>`).join('')}</div>`;
+  else box.innerHTML=`<div class="vgrid">${pag.map(v=>`<div class="vc" onclick="abrirVeic(${v.id})">
+     <div class="ft" style="background-image:url('${esc(fotoV(v))}')">${etiquetaV(v)}</div>
+     <div class="b"><h4>${esc(nomeV(v))}</h4><div class="pr">${precoV(v)}</div>
+      <div class="mt"><span>${esc(v.loja_nome||'')}${v.ano_modelo?' · '+v.ano_modelo:''}</span>${chave(v)}</div></div>
+    </div>`).join('')}</div>`;
+  if(trocou&&!reduz()){box.classList.remove('troca');void box.offsetWidth;box.classList.add('troca');}
+  const pg=$('veicPager');
+  pg.innerHTML=pags>1?`<button type="button" ${VPAG?'':'disabled'} onclick="irPaginaVeic(-1)">Anterior</button><span>${VPAG+1} de ${pags}</span><button type="button" ${VPAG<pags-1?'':'disabled'} onclick="irPaginaVeic(1)">Próxima</button>`:'';
+  setasVeic();
+}
+// as setas do lado do menu só aparecem no estoque e só as que levam a alguma página
+function setasVeic(){const m=$('menu'),pags=Math.ceil(veicFiltrados.length/VPOR),aqui=vistaAtual==='veiculos';m.classList.toggle('pa',aqui&&VPAG>0);m.classList.toggle('pp',aqui&&VPAG<pags-1);}
+// trocando de página, a lista some, a tela volta para o começo dela e a nova aparece
+function irPaginaVeic(d){
+  const pags=Math.ceil(veicFiltrados.length/VPOR),n=Math.min(Math.max(0,VPAG+d),pags-1);if(n===VPAG)return;
+  VPAG=n;renderVeic(true);
+  const y=$('v-veiculos').getBoundingClientRect().top+scrollY-24;if(scrollY>y)scrollTo({top:y,behavior:reduz()?'auto':'smooth'});
 }
 async function toggleVeic(id,el){
   const ocultarAgora=el.classList.contains('on');   // estava no site: vai ocultar
   el.classList.toggle('on');el.setAttribute('aria-checked',!ocultarAgora);el.title=ocultarAgora?'Oculto no site':'Aparece no site';
   const v=veicAll.find(x=>x.id===id);if(v)v.oculto=ocultarAgora;
-  try{await api('/api/veiculos?path=veiculos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,oculto:ocultarAgora})});
-    toast(ocultarAgora?'Veículo ocultado do site':'Veículo publicado no site');pintarHero();}
+  try{await jsonPost('/api/veiculos?path=veiculos',{id,oculto:ocultarAgora});
+    toast(ocultarAgora?'Veículo ocultado do site':'Veículo publicado no site');pintarResumo();pintarKpis(false);}
   catch(e){toast('Não deu para atualizar');}
 }
 /* janela do anúncio: a foto, as outras em tiras de 10, os dados, a loja e o liga e desliga do site */
@@ -1103,7 +1499,6 @@ function mvTiras(){
   if(a)a.disabled=mvPag===0;if(p)p.disabled=mvPag>=pags-1;
   if(t)t.textContent=pags>1?`fotos ${ini+1} a ${Math.min(ini+MV_POR_PAG,mvFotos.length)} de ${mvFotos.length}`:'';
 }
-const slugify=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 function abrirVeic(id){
   const v=veicAll.find(x=>x.id===id);if(!v)return;
   const loja=lojas.find(l=>l.id===v.loja_id),lojaRaw=lojasApi.find(l=>l.id===v.loja_id)||{};
@@ -1141,95 +1536,162 @@ function abrirVeic(id){
 function mvEstado(id){const v=veicAll.find(x=>x.id===id),t=$('mvEstadoTxt');if(v&&t)t.textContent=v.oculto?'Oculto no site':'Aparece no site';filtrarVeic();}
 
 /* ---------- leads ---------- */
-let leadFiltro='todos';
-function filtLead(t){leadFiltro=t;renderLeads();}
+// sem o sistema de atendimento (pedido do Luiz, 20/10/2026): lead novo é o que ainda não foi visto. Tocado, abre embaixo dele, como os
+// associados no celular, e fica visto
+let leadFiltro='todos',leadAberto=null;
+const FILTROS_LEAD=[['todos','Todos',()=>true],['novos','Novos',l=>l.novo],['venda','Interesse em carros',l=>l.tipo==='venda'],['compra','Querem vender',l=>l.tipo==='compra'],['associacao','Associação',l=>l.tipo==='associacao']];
+function filtLead(t){leadFiltro=t;leadAberto=null;renderLeads();}
 function renderLeads(){
-  const cont={todos:leads.length};leads.forEach(l=>{cont[l.tipo]=(cont[l.tipo]||0)+1;});
-  $('leadChips').innerHTML=[['todos','Todos'],['venda','Interesse em carros'],['compra','Querem vender'],['associacao','Associação']].map(([k,t])=>`<button type="button" class="chip${leadFiltro===k?' on':''}" onclick="filtLead('${k}')">${t}<i>${cont[k]||0}</i></button>`).join('');
-  const list=leads.filter(l=>leadFiltro==='todos'||l.tipo===leadFiltro);
-  $('leadsLista').innerHTML=list.length?list.map(l=>{const t=tipoDe(l);return `<div class="ll" tabindex="0" onclick="abrirLead(${l.id})" onkeydown="if(event.key==='Enter'&&event.target===this)abrirLead(${l.id})">
+  const q=f=>leads.filter(f[2]).length;
+  $('leadChips').innerHTML=dadosProntos?FILTROS_LEAD.filter(f=>f[0]!=='novos'||q(f)||leadFiltro==='novos').map(f=>`<button type="button" class="chip${leadFiltro===f[0]?' on':''}" onclick="filtLead('${f[0]}')">${f[1]}<i>${q(f)}</i></button>`).join(''):'';
+  const fil=(FILTROS_LEAD.find(f=>f[0]===leadFiltro)||FILTROS_LEAD[0])[2],list=leads.filter(fil),box=$('leadsLista');
+  if(leadAberto&&!list.some(l=>l.id===leadAberto))leadAberto=null;
+  box.innerHTML=!dadosProntos?'':list.length?list.map(l=>{const t=tipoDe(l);return `<div class="ll${l.novo?' novo':''}${leadAberto===l.id?' on':''}" data-k="${l.id}" tabindex="0" role="button" aria-expanded="${leadAberto===l.id}" onclick="abrirLeadLista(${l.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirLeadLista(${l.id})}">
+    <span class="${l.novo?'nv':'nv0'}"${l.novo?' title="Novo: ainda não foi visto"':''}></span>
     <span class="ll-d">${dataCurta(l.criado)}</span>
     <span class="ll-t"><span class="tpp ${t[1]}">${t[0]}</span></span>
     <span class="ll-c"><b>${esc(l.nome||'—')}</b><small>${esc(fmtTel(l.tel)||'—')}</small></span>
     <span class="ll-i">${esc(l.item||'—')}</span>
     <span class="ll-l">${esc(l.loja||(l.tipo==='compra'?'Todas as lojas':l.tipo==='associacao'?'Aceima':'—'))}</span>
-    <span class="ll-a" onclick="event.stopPropagation()"><select aria-label="Atendimento" onchange="mudarStatus(${l.id},this.value)">${Object.keys(ST_LEAD).map(k=>`<option value="${k}"${k===l.status?' selected':''}>${ST_LEAD[k]}</option>`).join('')}</select><button type="button" class="ib perigo" title="Excluir lead" aria-label="Excluir lead" onclick="excluirLead(${l.id})">${sv(IC.lixo,'sm')}</button></span>
+    ${sv(IC.chev,'chev')}
   </div>`;}).join(''):'<p class="vazio">Nenhum lead aqui.</p>';
-  document.querySelectorAll('#leadsLista select').forEach(s=>aprimorarSelect(s,ST_COR));
+  if(leadAberto)reabrirCamada(box,leadAberto,camLead(leadAberto));
+}
+function abrirLeadLista(id,rolar){
+  let linha=$('leadsLista').querySelector(`.ll[data-k="${id}"]`);
+  if(!linha){leadFiltro='todos';leadAberto=null;renderLeads();linha=$('leadsLista').querySelector(`.ll[data-k="${id}"]`);if(!linha)return;}
+  leadAberto=leadAberto===id?null:id;
+  abrirCamada($('leadsLista'),leadAberto?linha:null,leadAberto?camLead(id):'',rolar);
+  if(leadAberto)marcarVisto(id);
+}
+function verLead(id){fecharPops();nav('leads',()=>{leadAberto=null;abrirLeadLista(id);});}
+// o lead aberto fica visto (para todos: grava no banco)
+function marcarVisto(id){
+  const l=leads.find(x=>x.id===id);if(!l||!l.novo)return;
+  l.novo=false;const raw=leadsRaw.find(x=>x.id===id);if(raw)raw.status='visto';
+  const r=$('leadsLista').querySelector(`.ll[data-k="${id}"]`);if(r){r.classList.remove('novo');const d=r.querySelector('.nv');if(d){d.className='nv0';d.removeAttribute('title');}}
+  atualizaLeadBadge();pintarAvisos();pintarResumo();renderDash();
+  const ch=$('leadChips');if(ch)ch.innerHTML=FILTROS_LEAD.filter(f=>f[0]!=='novos'||leads.some(f[2])||leadFiltro==='novos').map(f=>`<button type="button" class="chip${leadFiltro===f[0]?' on':''}" onclick="filtLead('${f[0]}')">${f[1]}<i>${leads.filter(f[2]).length}</i></button>`).join('');
+  jsonPost('/api/leads?path=leads',{id,status:'visto'},'PATCH').catch(()=>{});
+}
+// os avisos: todos os leads novos de uma vez ficam vistos
+async function marcarVistos(){
+  const nv=leads.filter(l=>l.novo);if(!nv.length)return;
+  nv.forEach(l=>{l.novo=false;const raw=leadsRaw.find(x=>x.id===l.id);if(raw)raw.status='visto';});
+  renderLeads();renderDash();pintarAvisos();pintarResumo();atualizaLeadBadge();
+  await Promise.all(nv.map(l=>jsonPost('/api/leads?path=leads',{id:l.id,status:'visto'},'PATCH').catch(()=>{})));
+  toast(nv.length===1?'1 lead marcado como visto':nv.length+' leads marcados como vistos');
+}
+function camLead(id){
+  const l=leadsRaw.find(x=>x.id===id);if(!l)return '';
+  const det=l.detalhes||{},tel=String(l.cliente_telefone||'').replace(/\D/g,''),tipo=l.tipo||'venda',compra=tipo==='compra',assoc=tipo==='associacao';
+  const d=new Date(l.criado_em),dia=isNaN(d)?'—':d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const it=(rot,val)=>val?`<div><span>${rot}</span><p>${esc(val)}</p></div>`:'';
+  // carro na troca: o site grava o carro em detalhes.troca e "usa o carro como entrada" em detalhes.entrada (o painel mostrava só isso)
+  const troca=det.troca?(det.troca==='veículo a definir'?'A definir':titulo(det.troca)):(/na troca/i.test(l.entrada||'')?titulo(String(l.entrada).replace(/^\s*dando\s+/i,'').replace(/\s+na troca\s*$/i,'')):'');
+  const entrada=!troca&&det.entrada&&!/carro como entrada/i.test(det.entrada)?det.entrada:'';
+  const rot=assoc?'Quer se associar à Aceima':compra?'Quer vender um veículo':'Interesse em um anúncio';
+  return `<div class="cm-cab">${avatar(l.cliente_nome)}<div class="cm-v"><div class="kk">${rot}</div><h3>${esc(l.cliente_nome||'—')}</h3><p>${esc(dia)} · ${l.canal==='whatsapp'?'WhatsApp':'Formulário do site'}</p></div></div>
+   <div class="cm-i">
+    ${it('Telefone ou WhatsApp',fmtTel(l.cliente_telefone))}${it('E-mail',l.cliente_email)}
+    ${assoc?it('Empresa',det.empresa)+it('Ramo',det.ramo):''}
+    ${!compra&&!assoc?it('Veículo de interesse',titulo((l.veiculo_nome||'').trim()))+it('Loja anunciante',l.loja_nome)+it('Forma de compra',l.forma_compra)+it('Carro na troca',troca)+it('Entrada',entrada):''}
+    ${compra?it('Veículo do cliente',titulo([det.marca,det.modelo,det.versao,det.ano].filter(Boolean).join(' ')))+it('Quilometragem',det.km?det.km+' km':'')+it('Valor pretendido',det.valor?(/^R\$/.test(String(det.valor))?det.valor:'R$ '+det.valor):'')+it('Fotos enviadas',det.fotos?det.fotos+' foto(s)':''):''}
+   </div>
+   <div class="cm-b">
+    ${tel?`<a class="bt" href="https://wa.me/${tel.length>11?tel:'55'+tel}" target="_blank" rel="noopener">Chamar no WhatsApp</a>`:''}
+    ${l.cliente_email?`<a class="bto" href="mailto:${esc(l.cliente_email)}">Responder por e-mail</a>`:''}
+    <button type="button" class="x-p" onclick="excluirLead(${l.id})">${sv(IC.lixo,'sm')}Excluir</button>
+   </div>`;
 }
 async function excluirLead(id){
   if(!confirm('Excluir este lead? Não tem como desfazer.'))return;
-  try{await api('/api/leads?path=leads&id='+id,{method:'DELETE'});leads=leads.filter(l=>l.id!==id);leadsRaw=leadsRaw.filter(l=>l.id!==id);
-    renderLeads();renderDash();renderNotif();pintarRel();pintarHero();atualizaLeadBadge();toast('Lead excluído');}
+  try{await api('/api/leads?path=leads&id='+id,{method:'DELETE'});leads=leads.filter(l=>l.id!==id);leadsRaw=leadsRaw.filter(l=>l.id!==id);leadAberto=null;
+    renderLeads();renderDash();pintarAvisos();pintarRel();pintarResumo();pintarKpis(false);atualizaLeadBadge();toast('Lead excluído');}
   catch(e){toast('Não deu para excluir');}
 }
-async function mudarStatus(id,status){
-  const l=leads.find(x=>x.id===id);if(l)l.status=status;const raw=leadsRaw.find(x=>x.id===id);if(raw)raw.status=status;
-  try{await api('/api/leads?path=leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
-    toast('Atendimento: '+ST_LEAD[status]);renderLeads();renderDash();renderNotif();pintarHero();atualizaLeadBadge();}
-  catch(e){toast('Não deu para salvar o atendimento');}
-}
-function abrirLead(id){
-  const l=leadsRaw.find(x=>x.id===id);if(!l)return;
-  closeM('mVeic');document.querySelectorAll('.pop.on').forEach(p=>p.classList.remove('on'));
-  const det=l.detalhes||{},tel=String(l.cliente_telefone||'').replace(/\D/g,''),tipo=l.tipo||'venda',compra=tipo==='compra',assoc=tipo==='associacao';
-  const d=new Date(l.criado_em),dia=isNaN(d)?'—':d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  const linha=(rot,val)=>val?`<div class="li"><span>${rot}</span><b>${esc(val)}</b></div>`:'';
-  $('mlTitulo').textContent=assoc?'Quer se associar à Aceima':compra?'Quer vender um veículo':'Interesse em um anúncio';
-  $('mlCorpo').innerHTML=`<div class="fl-t">${avatar(l.cliente_nome)}<div><b>${esc(l.cliente_nome||'—')}</b><small>${esc(dia)} · ${l.canal==='whatsapp'?'WhatsApp':'Formulário do site'}</small></div></div>
-    ${linha('Telefone ou WhatsApp',fmtTel(l.cliente_telefone))}
-    ${linha('E-mail',l.cliente_email)}
-    ${assoc?linha('Empresa',det.empresa)+linha('Ramo',det.ramo):''}
-    ${!compra&&!assoc?linha('Veículo de interesse',titulo((l.veiculo_nome||'').trim()))+linha('Loja anunciante',l.loja_nome)+linha('Forma de compra',l.forma_compra)+linha('Entrada ou troca',det.entrada||det.troca||l.entrada||''):''}
-    ${compra?linha('Veículo do cliente',titulo([det.marca,det.modelo,det.versao,det.ano].filter(Boolean).join(' ')))+linha('Quilometragem',det.km?det.km+' km':'')+linha('Valor pretendido',det.valor?(/^R\$/.test(String(det.valor))?det.valor:'R$ '+det.valor):'')+linha('Fotos enviadas',det.fotos?det.fotos+' foto(s)':''):''}
-    ${linha('Atendimento',ST_LEAD[l.status||'novo'])}
-    <div style="display:flex;gap:9px;margin-top:22px;flex-wrap:wrap">
-      ${tel?`<a class="bt" href="https://wa.me/${tel.length>11?tel:'55'+tel}" target="_blank" rel="noopener">Chamar no WhatsApp</a>`:''}
-      ${l.cliente_email?`<a class="bt ghost" href="mailto:${esc(l.cliente_email)}">Responder por e-mail</a>`:''}
-    </div>`;
-  openM('mLead');
-}
-function atualizaLeadBadge(){const n=leads.filter(l=>l.status==='novo').length,b=$('leadBadge');if(!b)return;if(n>0&&!leadsVistos){b.textContent=n;b.style.display='';}else b.style.display='none';}
-function renderNotif(){
-  const nv=leads.filter(l=>l.status==='novo'),falhas=lojas.filter(l=>l.erro),partes=[];
-  if(nv.length)partes.push('<div class="ph">Leads sem atendimento</div>'+nv.slice(0,6).map(l=>`<button type="button" class="pi" onclick="abrirLead(${l.id})"><b>${esc(l.nome||'Cliente')}</b><span>${tipoDe(l)[0]}${l.item?' · '+esc(l.item):''}</span></button>`).join(''));
-  if(falhas.length)partes.push('<div class="ph">Falha na sincronização</div>'+falhas.map(f=>`<button type="button" class="pi" onclick="irBusca('lojas')"><b>${esc(f.nome)}</b><span>${esc(String(f.erro).slice(0,100))}</span></button>`).join(''));
-  $('notifBody').innerHTML=partes.join('')||'<div class="pi"><span>Nada por aqui.</span></div>';
-  $('notifDot').style.display=nv.length&&!leadsVistos?'':'none';
-}
-function toggleNotif(ev){ev.stopPropagation();$('notifPop').classList.toggle('on');$('gPop').classList.remove('on');}
+function atualizaLeadBadge(){const n=leads.filter(l=>l.novo).length,b=$('leadBadge');if(!b)return;b.textContent=n>99?'99+':n;b.hidden=!n;}
 
-/* ---------- publicações ---------- */
+/* ---------- avisos: os leads novos e as lojas com falha, por cima de tudo (pedido do Luiz, 20/10/2026) ---------- */
+function pintarAvisos(){
+  const nv=leads.filter(l=>l.novo),falhas=lojas.filter(l=>l.erro),n=nv.length+falhas.length,b=$('avisosN');
+  b.hidden=!n;b.textContent=n>9?'9+':n;
+  if(!dadosProntos){$('avisos').innerHTML=`<div class="av-h"><b>Avisos</b><span>Carregando…</span></div><div class="av-ok"></div>`;return;}
+  $('avisos').innerHTML=`<div class="av-h"><b>Avisos</b><span>${n?(nv.length?`${nv.length} ${nv.length===1?'lead novo':'leads novos'}`:'')+(nv.length&&falhas.length?' · ':'')+(falhas.length?`${falhas.length} ${falhas.length===1?'falha':'falhas'}`:''):'Tudo em dia'}</span></div>
+   ${nv.length?`<div class="av-g"><div class="av-t">Leads novos<span>${nv.length>5?`<button type="button" onclick="fecharPops();nav('leads',()=>filtLead('novos'))">Ver todos</button> · `:''}<button type="button" onclick="marcarVistos()">Marcar como vistos</button></span></div>${nv.slice(0,5).map(l=>`<button type="button" class="av-i" onclick="verLead(${l.id})">${avatar(l.nome)}<span class="tx"><b>${esc(l.nome||'Cliente')}</b><small>${tipoDe(l)[0]}${l.item?' · '+esc(l.item):''}</small></span><time>${quando(l.criado,true)}</time></button>`).join('')}</div>`:''}
+   ${falhas.length?`<div class="av-g"><div class="av-t">Falha na sincronização${falhas.length>1?`<button type="button" onclick="verFalhas()">Ver todas</button>`:''}</div>${falhas.map(f=>`<button type="button" class="av-i erro" onclick="fecharPops();verAssoc(${f.id})">${lgHtml(f)}<span class="tx"><b>${esc(f.nome)}</b><small>${esc(erroLegivel(f.erro))}</small></span><time>${quando(f.sync,true)}</time></button>`).join('')}</div>`:''}
+   ${n?'':`<div class="av-ok"><i>${check}</i>Nenhum lead novo e todas as lojas sincronizadas.</div>`}`;
+}
+function toggleAvisos(ev){
+  ev.stopPropagation();const p=$('avisos'),bt=$('avisosBt'),abre=!p.classList.contains('on');fecharPops();
+  if(!abre)return;pintarAvisos();
+  const r=bt.getBoundingClientRect(),c=innerWidth<=760;
+  p.style.top=(r.bottom+10)+'px';p.style.left=c?'12px':'auto';p.style.right=c?'12px':Math.max(12,innerWidth-r.right-6)+'px';
+  p.classList.add('on');bt.classList.add('on');bt.setAttribute('aria-expanded','true');
+}
+function fecharPops(){
+  $('gPop').classList.remove('on');$('avisos').classList.remove('on');
+  const bt=$('avisosBt');if(bt){bt.classList.remove('on');bt.setAttribute('aria-expanded','false');}
+  fecharDds();fecharMenu();
+}
+
+/* ---------- mural (as publicações do site) ---------- */
 // ficam em publicacoes.json, no próprio site; o painel grava pela API, que faz um commit no ramo desta publicação (pedido do Luiz,
 // 16/10/2026). A foto é diminuída aqui antes de subir, e a que acabou de subir aparece daqui até o site ser publicado de novo
 const CATS_PUB=['Ações no polo','Conquistas','Comunicados','Imprensa'];
 const FOTO_LOCAL={};
-let pubFiltro='Todas',pubEdit=null,pubFoto=null,pubTirar=false;
+let pubFiltro='Todas',pubEdit=null,pubFoto=null,pubTirar=false,pubCat=CATS_PUB[0],pubDest=false;
 const fotoPub=p=>p.foto?(FOTO_LOCAL[p.foto]||p.foto):'';
+function cartaoPub(p,prev){const f=prev?(pubFoto||(pubTirar?'':(pubEdit?fotoPub(PUBS.find(x=>x.id===pubEdit)||{}):''))):fotoPub(p);
+  return `<article class="pc">
+    <div class="pc-f">${f?`<img src="${esc(f)}" alt="" loading="lazy">`:sv(IC.foto)}</div>
+    <div class="pc-b"><div class="pc-k"><b>${esc(p.categoria)}</b> · ${dataLonga(p.data)}</div><h3>${esc(p.titulo||'Título da publicação')}</h3>${p.resumo?`<p>${esc(p.resumo)}</p>`:''}
+     ${p.destaque||p.exemplo?`<div class="pc-tags">${p.destaque?'<span class="pl ouro sem">Destaque</span>':''}${p.exemplo&&!prev?'<span class="pl cinza sem">Exemplo</span>':''}</div>`:''}</div>
+    ${prev?'':`<div class="pc-a"><a class="lk" href="/publicacoes/${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a>
+     <div class="pc-ed"><button type="button" class="pc-x" title="Excluir" aria-label="Excluir a publicação" onclick="excluirPub('${p.id}')">${sv(IC.lixo,'sm')}</button><button type="button" class="pc-e" title="Editar" aria-label="Editar a publicação" onclick="abrirPub('${p.id}')">${sv(IC.lapis,'sm')}</button></div></div>`}
+  </article>`;}
 function renderPubs(){
   const g=$('pubsGrid'),ch=$('pubChips');
   if(pubsErro){ch.innerHTML='';g.innerHTML=`<p class="vazio" style="grid-column:1/-1">Não deu para abrir as publicações: ${esc(pubsErro)}</p>`;return;}
   const cont={Todas:PUBS.length};PUBS.forEach(p=>{cont[p.categoria]=(cont[p.categoria]||0)+1;});
   ch.innerHTML=['Todas',...CATS_PUB].map(c=>`<button type="button" class="chip${pubFiltro===c?' on':''}" onclick="pubFiltro=this.dataset.c;renderPubs()" data-c="${c}">${c}<i>${cont[c]||0}</i></button>`).join('');
   const lista=PUBS.filter(p=>pubFiltro==='Todas'||p.categoria===pubFiltro);
-  g.innerHTML=lista.length?lista.map(p=>{const f=fotoPub(p);return `<article class="pc">
-    <div class="pc-f">${f?`<img src="${esc(f)}" alt="" loading="lazy">`:sv(IC.foto)}</div>
-    <div class="pc-b"><div class="pc-k"><b>${esc(p.categoria)}</b> · ${dataLonga(p.data)}</div><h3>${esc(p.titulo)}</h3>${p.resumo?`<p>${esc(p.resumo)}</p>`:''}
-     ${p.destaque||p.exemplo?`<div class="pc-tags">${p.destaque?'<span class="pl ouro sem">Destaque</span>':''}${p.exemplo?'<span class="pl cinza sem">Exemplo</span>':''}</div>`:''}</div>
-    <div class="pc-a"><button type="button" class="bt ghost sm" onclick="abrirPub('${p.id}')">${sv(IC.lapis,'sm')}Editar</button><a class="lk" href="/publicacoes/${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a><button type="button" class="ib perigo" title="Excluir" aria-label="Excluir a publicação" onclick="excluirPub('${p.id}')">${sv(IC.lixo,'sm')}</button></div>
-  </article>`;}).join(''):`<p class="vazio" style="grid-column:1/-1">${PUBS.length?'Nenhuma publicação nesta categoria.':'Nenhuma publicação ainda. Use "Nova publicação" para começar.'}</p>`;
+  g.innerHTML=lista.length?lista.map(p=>cartaoPub(p)).join(''):`<p class="vazio" style="grid-column:1/-1">${PUBS.length?'Nenhuma publicação nesta categoria.':'Nenhuma publicação ainda. Use "Nova publicação" para começar.'}</p>`;
 }
+/* o editor do mural, no começo da página, no padrão do site (pedido do Luiz, 20/10/2026): a folha azul, os campos escuros, as categorias em
+   pílulas e, ao lado, a foto e a prévia de como a publicação aparece */
 function abrirPub(id){
-  const p=id?PUBS.find(x=>x.id===id):null;
-  pubEdit=p?p.id:null;pubFoto=null;pubTirar=false;
-  $('mpTitulo').textContent=p?'Editar publicação':'Nova publicação';$('pSalvar').textContent=p?'Salvar':'Publicar';
-  $('pTitulo').value=p?p.titulo:'';$('pData').value=p?p.data:hojeISO();$('pResumo').value=p?(p.resumo||''):'';$('pTexto').value=p?(p.texto||''):'';
-  const cat=$('pCat');cat.value=p&&CATS_PUB.includes(p.categoria)?p.categoria:CATS_PUB[0];aprimorarSelect(cat);
-  const d=$('pDest');d.classList.toggle('on',!!(p&&p.destaque));d.setAttribute('aria-checked',!!(p&&p.destaque));
-  $('pFoto').value='';mostrarFotoPub(p?fotoPub(p):'');
-  openM('mPub');setTimeout(()=>$('pTitulo').focus(),60);
+  nav('mural',()=>{
+    const p=id?PUBS.find(x=>x.id===id):null;
+    pubEdit=p?p.id:null;pubFoto=null;pubTirar=false;pubCat=p&&CATS_PUB.includes(p.categoria)?p.categoria:CATS_PUB[0];pubDest=!!(p&&p.destaque);
+    const b=$('pubEd'),era=!b.hidden;
+    b.innerHTML=`<div class="wrap"><div class="cam-tit"><div><div class="kk">${p?'Editar publicação':'Nova publicação'}</div><h3>${p?'Editar o <em>mural.</em>':'Publicar no <em>mural.</em>'}</h3></div><button type="button" class="xc" aria-label="Fechar" onclick="fecharPub()">${sv(IC.x,'sm')}</button></div>
+     <div class="ed-g">
+      <div class="ed-c">
+       <label class="cp"><span>Título</span><input id="pTitulo" class="ed-tit" maxlength="160" placeholder="O que a Aceima fez" value="${esc(p?p.titulo:'')}" oninput="prevPub()"></label>
+       <div class="cp"><span>Categoria</span><div class="seg" id="pCats">${CATS_PUB.map(c=>`<button type="button" class="${c===pubCat?'on':''}" onclick="pubCat='${c}';document.querySelectorAll('#pCats button').forEach(x=>x.classList.toggle('on',x===this));prevPub()">${c}</button>`).join('')}</div></div>
+       <div class="ed-2"><label class="cp"><span>Data</span><input type="date" id="pData" value="${esc(p?p.data:hojeISO())}" oninput="prevPub()"></label>
+        <div class="cp"><span>Destaque</span><label class="sw-l"><button type="button" class="switch${pubDest?' on':''}" id="pDest" role="switch" aria-checked="${pubDest}" onclick="pubDest=!pubDest;this.classList.toggle('on',pubDest);this.setAttribute('aria-checked',pubDest);prevPub()"></button>No topo da página de Publicações</label></div></div>
+       <label class="cp"><span>Resumo <small>(aparece no destaque e na lista)</small></span><textarea id="pResumo" rows="3" maxlength="400" oninput="prevPub()">${esc(p?p.resumo||'':'')}</textarea></label>
+       <label class="cp"><span>Texto <small>(uma linha em branco entre os parágrafos)</small></span><textarea id="pTexto" rows="9">${esc(p?p.texto||'':'')}</textarea></label>
+      </div>
+      <div>
+       <div class="cp"><span>Foto</span><label class="ed-foto" for="pFoto" id="pFotoPrev"></label><input type="file" id="pFoto" accept="image/*" hidden onchange="lerFotoPub(this)"></div>
+       <div class="ed-fa"><label class="bto sm" for="pFoto">Escolher a foto</label><button type="button" class="x-p" id="pTirar" onclick="tirarFotoPub()">Remover a foto</button></div>
+       <div class="ed-prev"><span>Como aparece no site</span><div id="pPrev"></div></div>
+      </div>
+     </div>
+     <div class="cm-b"><button type="button" class="bt" id="pSalvar" onclick="salvarPub()">${p?'Salvar':'Publicar'}</button><button type="button" class="bto" onclick="fecharPub()">Cancelar</button>${p?`<button type="button" class="x-p" onclick="excluirPub('${p.id}')">${sv(IC.lixo,'sm')}Excluir publicação</button>`:''}</div></div>`;
+    mostrarFotoPub(p?fotoPub(p):'');prevPub();
+    if(!era)abrirBloco(b);
+    scrollTo({top:0,behavior:reduz()?'auto':'smooth'});setTimeout(()=>{const t=$('pTitulo');if(t)t.focus({preventScroll:true});},300);
+  });
 }
-function mostrarFotoPub(src){$('pFotoPrev').innerHTML=src?`<img src="${esc(src)}" alt="">`:sv(IC.foto);$('pTirar').style.display=src?'':'none';}
+function fecharPub(){fecharBloco($('pubEd'));pubEdit=null;}
+function prevPub(){const box=$('pPrev');if(!box)return;
+  box.innerHTML=cartaoPub({titulo:$('pTitulo').value.trim(),categoria:pubCat,data:$('pData').value||hojeISO(),resumo:$('pResumo').value.trim(),destaque:pubDest},true);}
+function mostrarFotoPub(src){const b=$('pFotoPrev');if(!b)return;
+  b.innerHTML=src?`<img src="${esc(src)}" alt="">`:`${sv(IC.foto)}<span>Escolher a foto</span>`;$('pTirar').style.display=src?'':'none';prevPub();}
 // a foto sobe diminuída (no máximo 1600 px no lado maior, em webp): cabe no envio e o site carrega rápido
 async function lerFotoPub(input){
   const f=input.files&&input.files[0];if(!f)return;
@@ -1246,77 +1708,107 @@ function tirarFotoPub(){pubFoto=null;pubTirar=!!pubEdit;$('pFoto').value='';most
 async function salvarPub(){
   const titulo_=$('pTitulo').value.trim();
   if(!titulo_){toast('Escreva o título');$('pTitulo').focus();return;}
-  const pub={id:pubEdit||undefined,titulo:titulo_,categoria:$('pCat').value,data:$('pData').value||hojeISO(),resumo:$('pResumo').value,texto:$('pTexto').value,destaque:$('pDest').classList.contains('on')};
+  const pub={id:pubEdit||undefined,titulo:titulo_,categoria:pubCat,data:$('pData').value||hojeISO(),resumo:$('pResumo').value,texto:$('pTexto').value,destaque:pubDest};
   const bt=$('pSalvar'),txt=bt.textContent;bt.disabled=true;bt.textContent='Salvando…';
   try{
-    const r=await api('/api/publicacoes?path=publicacoes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({acao:'salvar',pub,foto:pubFoto||undefined,tirarFoto:pubTirar||undefined})});
+    const r=await jsonPost('/api/publicacoes?path=publicacoes',{acao:'salvar',pub,foto:pubFoto||undefined,tirarFoto:pubTirar||undefined});
     const j=await r.json().catch(()=>({}));
     if(!r.ok||!j.ok)throw new Error(j.erro||('erro '+r.status));
     if(pubFoto&&j.publicacao&&j.publicacao.foto)FOTO_LOCAL[j.publicacao.foto]=pubFoto;
-    PUBS=j.publicacoes||PUBS;pubsErro=null;closeM('mPub');renderPubs();pintarHero();
+    PUBS=j.publicacoes||PUBS;pubsErro=null;fecharPub();renderPubs();pintarResumo();
     toast('Publicação salva. O site atualiza em cerca de um minuto');
-  }catch(e){toast('Não deu para salvar: '+e.message);}
-  finally{bt.disabled=false;bt.textContent=txt;}
+  }catch(e){toast('Não deu para salvar: '+e.message);bt.disabled=false;bt.textContent=txt;}
 }
 async function excluirPub(id){
   const p=PUBS.find(x=>x.id===id);if(!p||!confirm('Excluir a publicação "'+p.titulo+'"? Ela sai do site.'))return;
   try{
-    const r=await api('/api/publicacoes?path=publicacoes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({acao:'excluir',id})});
+    const r=await jsonPost('/api/publicacoes?path=publicacoes',{acao:'excluir',id});
     const j=await r.json().catch(()=>({}));
     if(!r.ok||!j.ok)throw new Error(j.erro||('erro '+r.status));
-    PUBS=j.publicacoes||PUBS.filter(x=>x.id!==id);renderPubs();pintarHero();toast('Publicação excluída. O site atualiza em cerca de um minuto');
+    if(pubEdit===id)fecharPub();
+    PUBS=j.publicacoes||PUBS.filter(x=>x.id!==id);renderPubs();pintarResumo();toast('Publicação excluída. O site atualiza em cerca de um minuto');
   }catch(e){toast('Não deu para excluir: '+e.message);}
 }
 
-/* ---------- busca do topo (lojas, veículos, leads e publicações) ---------- */
+/* ---------- busca do topo (associados, veículos, leads e publicações) ---------- */
 function buscaGlobal(q){
-  const pop=$('gPop');q=(q||'').toLowerCase().trim();
+  const pop=$('gPop');q=(q||'').trim();const n=norm(q);
   if(q.length<2){pop.classList.remove('on');pop.innerHTML='';return;}
   const out=[];
-  lojas.filter(l=>l.nome.toLowerCase().includes(q)).slice(0,4).forEach(l=>out.push(`<button type="button" class="pi" onclick="irBusca('lojas')"><b>${esc(l.nome)}</b><span>Loja · ${l.n} veículos</span></button>`));
-  veicAll.filter(v=>nomeCompleto(v).toLowerCase().includes(q)).slice(0,5).forEach(v=>out.push(`<button type="button" class="pi" data-t="${esc(nomeV(v))}" onclick="irBusca('veiculos',this.dataset.t)"><b>${esc(nomeV(v))}</b><span>${(v.preco&&+v.preco>0)?money(v.preco):'Consultar'} · ${esc(v.loja_nome||'')}</span></button>`));
-  leads.filter(l=>(l.nome||'').toLowerCase().includes(q)||String(l.tel).includes(q)).slice(0,4).forEach(l=>out.push(`<button type="button" class="pi" onclick="irBusca('leads');abrirLead(${l.id})"><b>${esc(l.nome)}</b><span>Lead · ${tipoDe(l)[0]}</span></button>`));
-  PUBS.filter(p=>String(p.titulo).toLowerCase().includes(q)).slice(0,3).forEach(p=>out.push(`<button type="button" class="pi" onclick="irBusca('publicacoes');abrirPub('${p.id}')"><b>${esc(p.titulo)}</b><span>Publicação · ${esc(p.categoria)}</span></button>`));
+  entradasAssoc().filter(e=>norm(e.nome).includes(n)).slice(0,4).forEach(e=>out.push(`<button type="button" class="pi" onclick="fecharPops();${e.cred?`nav('associados',()=>{assocFiltro='todos';assocAberto='c:'+this.dataset.n;renderAssoc(true)})`:`verAssoc(${e.l.id})`}" data-n="${esc(e.nome)}"><b>${esc(e.nome)}</b><span>${e.cred?'Credenciado':'Associado · '+fmt(e.l.n)+' veículos'}</span></button>`));
+  buscarVeic(veicAll,q,true).slice(0,5).forEach(v=>out.push(`<button type="button" class="pi" onclick="irBusca('veiculos',this.dataset.t)" data-t="${esc(q)}"><b>${esc(nomeV(v))} ${esc(v.ano_modelo||'')}</b><span>${precoV(v)} · ${esc(v.loja_nome||'')}</span></button>`));
+  leads.filter(l=>norm(l.nome).includes(n)||(soDig(q).length>3&&soDig(l.tel).includes(soDig(q)))).slice(0,4).forEach(l=>out.push(`<button type="button" class="pi" onclick="verLead(${l.id})"><b>${esc(l.nome)}</b><span>Lead · ${tipoDe(l)[0]}</span></button>`));
+  PUBS.filter(p=>norm(p.titulo).includes(n)).slice(0,3).forEach(p=>out.push(`<button type="button" class="pi" onclick="fecharPops();abrirPub('${p.id}')"><b>${esc(p.titulo)}</b><span>Mural · ${esc(p.categoria)}</span></button>`));
   pop.innerHTML=out.length?out.join(''):'<div class="pi"><span>Nada encontrado.</span></div>';
-  pop.classList.add('on');$('notifPop').classList.remove('on');
+  if(!pop.classList.contains('on')){$('avisos').classList.remove('on');const r=$('buscaBox').getBoundingClientRect(),c=innerWidth<=760;
+    pop.style.top=(r.bottom+8)+'px';pop.style.left=(c?12:r.left)+'px';pop.style.right=c?'12px':'auto';pop.classList.add('on');}
 }
 function irBusca(view,termo){
-  $('gPop').classList.remove('on');$('notifPop').classList.remove('on');$('gBusca').value='';
-  nav(view);
-  if(view==='veiculos'&&termo){$('fVBusca').value=termo;filtrarVeic();}
+  fecharPops();$('gBusca').value='';
+  nav(view,()=>{if(view==='veiculos'&&termo){limparFiltrosVeic(true);$('fVBusca').value=termo;VPAG=0;filtrarVeic();}});
 }
 
-/* ---------- navegação ---------- */
-const VISTAS=['dash','lojas','veiculos','leads','publicacoes'];
-function nav(v){
-  if(!VISTAS.includes(v))v='dash';
-  vistaAtual=v;
-  document.querySelectorAll('#menu a[data-v]').forEach(a=>{const on=a.dataset.v===v;a.classList.toggle('on',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
-  document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
-  if(v==='leads'){leadsVistos=true;atualizaLeadBadge();renderNotif();}
-  fecharMenu();pintarHero();
-  $('menuBt').innerHTML=sv(IC[v]);
-  // a parte aberta fica no endereço: atualizar a página volta para ela
-  try{history.replaceState(null,'','#'+v);}catch(e){}
-  scrollTo(0,0);
+/* ---------- menu: o nome da parte aberta e o da que está com o mouse em cima, como no site ---------- */
+function abrirNomes(){
+  const c=innerWidth<=760;
+  document.querySelectorAll('#menu>a,#menu>button:not(.pgs)').forEach(b=>{
+    const l=b.querySelector('.nl');if(!l)return;
+    const on=b.classList.contains('on')||b.classList.contains('hov');
+    l.style.width=c?'':(on?l.firstChild.scrollWidth+'px':'0px');
+    l.classList.toggle('vis',c||on);b.classList.toggle('nome',!c&&on);
+  });
 }
-function abrirSecaoDoEndereco(){const alvo=(location.hash||'').replace('#','').replace(/[^a-z]/g,'');nav(VISTAS.includes(alvo)?alvo:'dash');}
+// passar de uma para outra troca o nome aberto, sem fechar e abrir de novo; saindo da barra, fecha
+function passarMenu(b){
+  if(innerWidth<=760||!matchMedia('(hover:hover)').matches)return;
+  let mudou=false;document.querySelectorAll('#menu>a,#menu>button:not(.pgs)').forEach(x=>{const h=x===b&&!x.classList.contains('on');if(x.classList.contains('hov')!==h){x.classList.toggle('hov',h);mudou=true;}});
+  if(mudou)abrirNomes();
+}
 function toggleMenu(ev){ev.stopPropagation();const m=$('menu'),a=m.classList.toggle('aberto');$('menuBt').setAttribute('aria-expanded',a);}
 function fecharMenu(){$('menu').classList.remove('aberto');$('menuBt').setAttribute('aria-expanded','false');}
+
+/* ---------- navegação: tudo troca em fusão (a transição de página do navegador), também o topo; a data e o título têm a troca deles ---------- */
+const VISTAS=['dash','associados','veiculos','leads','mural'],ANTIGAS={lojas:'associados',publicacoes:'mural'};
+function nav(v,depois,semAnim){
+  v=ANTIGAS[v]||v;if(!VISTAS.includes(v))v='dash';
+  fecharPops();
+  const de=vistaAtual;
+  const troca=()=>{
+    vistaAtual=v;
+    document.querySelectorAll('#menu a[data-v]').forEach(a=>{const on=a.dataset.v===v;a.classList.toggle('on',on);a.classList.remove('hov');if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+    abrirNomes();
+    document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
+    if(de!==v||primeiraVez){pintarHero(primeiraVez);primeiraVez=false;scrollTo(0,0);}
+    $('menuBt').innerHTML=sv(IC[v]);setasVeic();
+    try{history.replaceState(null,'','#'+v);}catch(e){}
+    if(depois)depois();
+  };
+  if(de===v||semAnim||!document.startViewTransition||reduz()){troca();return;}
+  const raiz=document.documentElement;if(scrollY>240)raiz.classList.add('vt-simples');   // longe do topo: só a fusão
+  const t=document.startViewTransition(troca);
+  t.finished.finally(()=>raiz.classList.remove('vt-simples'));
+}
+function abrirSecaoDoEndereco(){const alvo=(location.hash||'').replace('#','').replace(/[^a-z]/g,'');nav(VISTAS.includes(ANTIGAS[alvo]||alvo)?alvo:'dash',null,true);}
+if(!document.startViewTransition)document.documentElement.classList.add('sem-vt');
 document.addEventListener('click',e=>{
-  if(!e.target.closest('#buscaBox'))$('gPop').classList.remove('on');
-  if(!e.target.closest('#notifWrap'))$('notifPop').classList.remove('on');
+  if(!e.target.closest('#buscaBox')&&!e.target.closest('#gPop'))$('gPop').classList.remove('on');
+  if(!e.target.closest('#avisos')&&!e.target.closest('#avisosBt')){$('avisos').classList.remove('on');const bt=$('avisosBt');if(bt){bt.classList.remove('on');bt.setAttribute('aria-expanded','false');}}
   if(!e.target.closest('#menu')&&!e.target.closest('#menuBt'))fecharMenu();
+  if(!e.target.closest('.dd'))fecharDds();
 });
+// a busca e os avisos ficam presos à tela: rolando a página, fecham
+addEventListener('scroll',()=>{if($('gPop').classList.contains('on')||$('avisos').classList.contains('on')){$('gPop').classList.remove('on');$('avisos').classList.remove('on');const bt=$('avisosBt');if(bt)bt.classList.remove('on');}},{passive:true});
+addEventListener('resize',()=>{abrirNomes();setasVeic();});
+document.fonts&&document.fonts.ready.then(abrirNomes);   // o nome medido com a letra do site, senão corta a última letra
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape')return;
   const m=[...document.querySelectorAll('.modal.on')].pop();
-  if(m&&m.id!=='mImp'){closeM(m.id);return;}
-  document.querySelectorAll('.pop.on,.dd.on').forEach(x=>x.classList.remove('on'));fecharMenu();
+  if(m){closeM(m.id);return;}
+  fecharPops();
 });
 function openM(id){$(id).classList.add('on');document.body.style.overflow='hidden';}
 function closeM(id){$(id).classList.remove('on');if(!document.querySelector('.modal.on'))document.body.style.overflow='';}
-function toast(msg){const t=$('toast');t.innerHTML='<span class="ok">'+check+'</span>'+esc(msg);t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),3400);}
+function toast(msg){const t=$('toast');t.innerHTML='<span class="ok">'+check+'</span>'+esc(msg);t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),3800);}
 
 /* ---------- entrada: a saudação da hora e o arco do dia ---------- */
 const SEMANA=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],
