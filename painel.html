@@ -51,7 +51,8 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
 
 /* ===== entrada (a opção 4 que o Luiz escolheu, 20/10/2026): a saudação da hora, com o sol no arco do dia, das 6h às 18h (de noite, a
    lua faz o mesmo caminho, das 18h às 6h). A data e a hora ficam alinhadas com o campo da senha e o botão: a data começa na borda do
-   campo e a hora termina na borda do botão. No celular, a senha e o botão vêm logo embaixo do desenho ===== */
+   campo e a hora termina na borda do botão. No celular, como no computador, a saudação fica dentro do arco, e as pontas do arco, a data
+   e a hora, o campo e o botão (menores, lado a lado) ficam alinhados dos dois lados (pedido do Luiz, 20/10/2026) ===== */
 #login{position:fixed;inset:0;z-index:200;overflow:auto;color:#fff}
 .ent{min-height:100%;max-width:1240px;margin:0 auto;padding:40px var(--lado) 34px;display:flex;flex-direction:column}
 .ent-topo{display:flex;align-items:center;justify-content:space-between;gap:20px}
@@ -59,9 +60,10 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
 .ent-volta{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--clara);transition:color .2s,background .2s}
 .ent-volta:hover{color:var(--gold3)}
 .ent-volta .ext{display:none}
-.ent-meio{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 0}
-/* o desenho: no computador, a saudação fica dentro do arco, apoiada na linha das pontas; numa tela baixa, o arco diminui para tudo caber */
-.dia{position:relative;width:min(760px,100%,max(440px,calc((100vh - 320px)*1.9)));aspect-ratio:760/400;container-type:inline-size}
+.ent-meio{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 0 80px;   /* no computador, tudo um pouco acima do meio */
+  --arco:min(760px,100%,max(440px,calc((100vh - 352px)*1.9)))}
+/* o desenho: a saudação fica dentro do arco, apoiada na linha das pontas; numa tela baixa, o arco diminui para tudo caber */
+.dia{position:relative;width:var(--arco);aspect-ratio:760/400;container-type:inline-size}
 .dia svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .dia .trilho{fill:none;stroke:rgba(255,255,255,.16);stroke-width:1.5;vector-effect:non-scaling-stroke}
 .dia .feito{fill:none;stroke:var(--gold2);stroke-width:2;stroke-linecap:round;vector-effect:non-scaling-stroke}
@@ -76,7 +78,7 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
 .saud .kk{color:var(--gold3)}
 .saud h1{margin-top:10px;font:300 112px/1 var(--f1);font-size:min(112px,14.74cqw);letter-spacing:-.04em}
 .saud h1 em{font-style:italic;font-weight:400;color:var(--gold3)}
-.ent-form{width:min(540px,100%);margin-top:30px}
+.ent-form{width:min(540px,calc(var(--arco) * 700 / 760));margin-top:30px}   /* nunca mais larga que as pontas do arco */
 .ent-hora{display:flex;justify-content:space-between;gap:16px;font-size:15px;line-height:20px;color:var(--clara)}
 .ent-hora b{font-weight:500;color:#fff;font-variant-numeric:tabular-nums}
 .ent-linha{display:flex;gap:10px;margin-top:12px}
@@ -97,18 +99,18 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
   .ent-volta span,.ent-volta .vol{display:none}
   .ent-volta .ext{display:block}
   .ent-meio{padding:20px 0}
-  /* no celular, o arco fica em cima e a saudação embaixo dele, como no exemplo; a senha e o botão vêm logo depois */
-  .dia{width:100%;aspect-ratio:auto;container-type:normal}
-  .dia svg{position:static;display:block;width:min(330px,100%);height:auto;margin:0 auto}
-  .saud{position:static;margin-top:18px}
+  /* o arco vai de uma borda à outra, na largura da data e da hora e da linha do campo com o botão */
+  .dia{width:100%;aspect-ratio:350/214}
+  .saud{bottom:6.4%}
   .saud .kk{font-size:10.5px}
-  .saud h1{margin-top:8px;font-size:58px}
-  .ent-form{margin-top:26px}
-  .ent-hora{font-size:13.5px}
-  .ent-linha{flex-direction:column}
-  .ent input{height:50px;padding:0 50px 0 20px;font-size:14.5px}
-  .olho{right:6px}
-  .ent-linha .bt{height:50px;justify-content:center;font-size:14.5px}
+  .saud h1{margin-top:6px;font-size:16cqw}
+  .ent-form{width:100%;margin-top:22px}
+  .ent-hora{font-size:13px;line-height:18px}
+  .ent-linha{gap:8px;margin-top:10px}
+  .ent input{height:42px;padding:0 42px 0 16px;font-size:13.5px}
+  .olho{right:3px;width:36px;height:36px}
+  .ent-linha .bt{height:42px;padding:0 18px;font-size:13.5px}
+  #lerr{margin-top:10px;font-size:12.5px}
   .ent-rod{font-size:11px}
 }
 
@@ -1320,7 +1322,7 @@ function toast(msg){const t=$('toast');t.innerHTML='<span class="ok">'+check+'</
 const SEMANA=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],
   MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 // medidas do desenho no computador e no celular (as dos exemplos): o arco, o sol (a: disco, b: brilho) e os rótulos das pontas
-const ARCO={pc:{w:760,h:400,cx:380,cy:370,r:350,a:9,b:22,f:13,ty:396},cel:{w:330,h:182,cx:165,cy:160,r:150,a:7,b:16,f:11,ty:178}};
+const ARCO={pc:{w:760,h:400,cx:380,cy:370,r:350,a:9,b:22,f:13,ty:396},cel:{w:350,h:214,cx:175,cy:193,r:175,a:7,b:16,f:11,ty:211}};   // no celular, as pontas nas bordas
 const telaArco=()=>innerWidth<=760?'cel':'pc';
 function montarArco(){
   const s=$('arco'),k=telaArco(),g=ARCO[k];
