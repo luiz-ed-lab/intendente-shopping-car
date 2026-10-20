@@ -67,14 +67,18 @@ Sem build. Tudo roda na Vercel.
   - Menu: como no site, a parte aberta mostra o nome, e o mouse em cima de outra abre o nome dela também (`abrirNomes()`, `passarMenu()`).
   - Topo: na visão geral, o título é a data ("Terça, 20 de outubro.", com o fim em itálico dourado), sem "O polo hoje."; nas outras partes, a data fica pequena em cima e o título da parte embaixo ("Empresas associadas.", "Veículos no ar.", "Central de leads.", "Mural Aceima."). Trocando de parte, a data diminui e sobe (ou cresce, voltando) e o título surge.
   - Transição: a página inteira troca em fusão, também o topo (antes, só a folha clara). É a transição de página do navegador, com nomes próprios para a data e o título (`data-topo`, `titulo-pg`); o menu fica de fora, parado. Longe do topo da página, só a fusão. Os títulos têm peso 500.
+  - Largura e alinhamento: o painel tem a largura das páginas do site (o `.wrap` do site: até 1780 px, com 60 px de cada lado; no tablet 28 px, no celular 5,63vw), e tudo encosta nessas bordas: as linhas das listas não têm recuo, e o fundo do mouse passa um pouco delas. Na visão geral, a data fica no meio, e os quatro números vão de uma borda à outra (o primeiro alinhado à esquerda, o último à direita, os do meio no meio; no celular, dois a dois, cada coluna na sua borda).
+  - Filtros: as pílulas de um grupo têm todas o mesmo tamanho, o da maior; trocando, a pílula muda em fusão e a lista entra em fusão (`pintarChips()`, `entrarLista()`). As listas suspensas de Veículos têm a mesma largura (190 px), com reticências no nome comprido.
+  - Falha do robô em duas palavras: "Site não existe" (página 404, domínio que não existe ou sem site) ou "Site indisponível" (o resto), em `erroLegivel()`. O link das lojas com falha não tem sublinhado.
 - Visão geral (20/10/2026):
   - Os quatro números ficam sem as linhas entre eles e com mais peso: Empresas associadas (as lojas que estão no site e os credenciados, como no site), com "N com estoque integrado"; Veículos no ar; Leads na última semana, com "N nas últimas 24h"; Última sincronização. As lojas com falha são um link que abre Associados só com elas.
   - Abrindo o painel, os números contam do zero e os textos são escritos letra por letra (`letras()`, `contar()`), e as listas chegam uma linha depois da outra. Antes dos dados, nada de zeros na tela.
   - A lista "Últimos Leads".
+  - O relatório só aparece quando os dados chegam: antes, ele ficava logo abaixo dos títulos e descia quando as listas apareciam.
   - O relatório em PDF sai pela janela de impressão da própria página, num quadro escondido (`imprimir()`). Antes, ele abria uma aba nova e mandava imprimir de lá, e com a janela de impressão aberta na outra aba o painel ficava travado, sem aceitar clique (o Luiz viu uma vez).
 - Avisos (20/10/2026): ficam fora do topo, presos à tela e por cima da folha (antes ficavam atrás dela). Mostram os leads novos e as lojas com falha na sincronização, cada um levando a ele, e têm o "Marcar como vistos". O número no sino soma os dois.
 - Associados (era Lojas, 20/10/2026):
-  - A lista segue Associados do site: uma empresa por linha, lojas e credenciados em ordem alfabética, com filtros Todos, Lojas, Credenciados e Com falha. Fechada, a linha mostra só a logo, o nome, o site, os veículos e a sincronização.
+  - A lista segue Associados do site: uma empresa por linha, sem linhas entre elas, lojas e credenciados em ordem alfabética, com filtros Todos, Lojas, Credenciados e Com falha. Fechada, a linha mostra só a logo, o nome, o site, os veículos e a sincronização.
   - Tocada, a página se abre embaixo da linha e mostra uma camada azul de ponta a ponta, como em Associados no celular (`abrirCamada()`, a mesma dos leads). Nela ficam os dados, a sincronização (a falha em palavras do dia a dia, `erroLegivel()`) e os botões Importar agora (o andamento aparece ali mesmo), Editar (os campos abrem ali mesmo), Ver o estoque, Ver no site e Excluir.
   - Os credenciados só aparecem: o cadastro deles fica no site (`PARCEIROS` e `PARCEIROS_ROBO`).
   - O resumo do topo diz "N empresas no site · N com estoque integrado · N com falha" (link).
@@ -82,6 +86,8 @@ Sem build. Tudo roda na Vercel.
 - Veículos (20/10/2026):
   - 100 por página. As setas das páginas ficam uma de cada lado do menu, como no site; no celular, embaixo da lista.
   - Dá para ver em grade ou em lista, e a escolha fica guardada no aparelho.
+  - O anúncio abre embaixo do carro, como as outras partes (não há mais janela): na lista, embaixo da linha; na grade, embaixo da fileira do carro, de ponta a ponta (`abrirVeic()`, `ancoraGrade()`). Lá ficam as fotos, os dados, o liga e desliga do site (todas as chaves do mesmo carro andam juntas), Ver no site, Ver a loja e os opcionais.
+  - As setas das páginas usam as classes `ant-on` e `prox-on` no menu. Antes era `pp`, o mesmo nome das pílulas do relatório, e o menu encolhia e mudava de cor na página de Veículos.
   - Os filtros têm as animações dos filtros do site: a lista abre e fecha em fusão, e o botão vai do tamanho antigo ao novo. A barra de rolagem da lista fica dentro dos cantos redondos.
   - A busca é a mesma do estoque do site (`buscarVeic()`: "kwid auto barra", erros de digitação, ano, "até 60 mil").
 - Leads (20/10/2026):
