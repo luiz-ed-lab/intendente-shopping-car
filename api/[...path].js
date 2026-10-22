@@ -787,16 +787,26 @@ async function rotaLojas(req, res) {
   res.status(405).end();
 }
 
+// o site digitado no painel sem o https:// ("frioline.com.br")
+const siteCompleto = s => { s = String(s || '').trim(); return !s ? null : /^https?:\/\//i.test(s) ? s : 'https://' + s; };
 // parceiros de serviço do polo — leitura pública, escrita só com token
 async function rotaParceiros(req, res) {
-  if (req.method === 'GET' && doSite(req)) {
-    // o site: a nota no Google e se tem logo, de cada credenciado (o robô das avaliações guarda tudo em config). Sem migra()
-    const { rows } = await query(`select chave, case when chave = 'avaliacoes_google' then valor end as valor, left(valor, 5) = 'data:' as tem
-                                    from config where chave = 'avaliacoes_google' or chave like 'logo_parceiro:%'`);
+  const painel = req.query && req.query.painel === '1';
+  if (req.method === 'GET' && (doSite(req) || painel)) {
+    // o site (e o painel, sem cache e com o id dos cadastrados por ele): a nota no Google e se tem logo, de cada credenciado (o robô das
+    // avaliações guarda tudo em config), e os dados dos que o painel cadastrou. Sem migra()
+    if (painel && !autorizado(req)) return negar(res);
+    const [{ rows }, doPainel] = await Promise.all([
+      query(`select chave, case when chave = 'avaliacoes_google' then valor end as valor, left(valor, 5) = 'data:' as tem
+               from config where chave = 'avaliacoes_google' or chave like 'logo_parceiro:%'`),
+      credenciadosDoPainel()]);
     const g = rows.find(r => r.chave === 'avaliacoes_google'), av = g && g.valor ? JSON.parse(g.valor) : {};
     const comLogo = new Set(rows.filter(r => r.chave.startsWith('logo_parceiro:') && r.tem).map(r => r.chave.slice(14)));
-    res.setHeader('Cache-Control', CACHE_SITE);
-    return res.json(PARCEIROS_ROBO.map(p => ({ nome: p.nome, nota: (av[p.nome] || {}).nota || null, total: (av[p.nome] || {}).total || null, logo: comLogo.has(p.nome), site: p.site || null })));
+    const nota = n => ({ nota: (av[n] || {}).nota || null, total: (av[n] || {}).total || null });
+    res.setHeader('Cache-Control', painel ? 'no-store' : CACHE_SITE);
+    return res.json(PARCEIROS_ROBO.map(p => ({ nome: p.nome, ...nota(p.nome), logo: comLogo.has(p.nome), site: p.site || null, ramo: p.ramo, descricao: p.descricao }))
+      .concat(doPainel.map(p => ({ nome: p.nome, ...nota(p.nome), logo: comLogo.has(p.nome) || p.tem_logo, site: p.site || null, ramo: p.ramo, descricao: p.descricao || '',
+        endereco: p.endereco || '', telefone: p.telefone || '', whatsapp: p.whatsapp || '', painel: true, ...(painel ? { id: p.id } : {}) }))));
   }
   await migra();
   if (req.method === 'GET') {
@@ -806,17 +816,27 @@ async function rotaParceiros(req, res) {
   }
   if (!autorizado(req)) return negar(res);
   const b = req.body || {};
+  // o robô no credenciado que o painel acabou de cadastrar (ou de novo, quando o site muda)
+  if (req.method === 'POST' && req.query && req.query.acao === 'ler') {
+    const r = await lerCredenciado(parseInt(b.id, 10) || 0);
+    return r ? res.json({ ok: true, ...r }) : res.status(404).json({ erro: 'credenciado não encontrado' });
+  }
   if (req.method === 'POST') {
     if (!b.nome) return res.status(400).json({ erro: 'nome é obrigatório' });
+    // o mesmo nome de um associado que já existe (loja ou credenciado) não entra duas vezes
+    const nome = String(b.nome).trim(), mesmo = x => semAcento(x).replace(/[^a-z0-9]/g, '') === semAcento(nome).replace(/[^a-z0-9]/g, '');
+    const { rows: ja } = await query(`select nome from lojas where ativa = true union all select nome from parceiros where ativa = true and coalesce(categoria, '') <> all($1)`, [CATS_ANTIGAS]);
+    if (PARCEIROS_ROBO.some(p => mesmo(p.nome)) || ja.some(x => mesmo(x.nome))) return res.status(409).json({ erro: 'já existe um associado com esse nome' });
     const { rows: [p] } = await query(
       `insert into parceiros (nome, categoria, descricao, beneficio, endereco, telefone, whatsapp, site, logo_url, cor, ordem)
        values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,coalesce($11,100)) returning *`,
-      [b.nome, b.categoria || 'servico', b.descricao, b.beneficio, b.endereco, b.telefone,
-       b.whatsapp, b.site, b.logo_url || null, b.cor || null, b.ordem]);
+      [nome, b.categoria || 'servico', b.descricao, b.beneficio, b.endereco, b.telefone,
+       b.whatsapp, siteCompleto(b.site), b.logo_url || null, b.cor || null, b.ordem]);
     return res.status(201).json(p);
   }
   if (req.method === 'PATCH') {
     if (!b.id) return res.status(400).json({ erro: 'id obrigatório' });
+    if (b.site) b.site = siteCompleto(b.site);
     const { rows: [p] } = await query(
       `update parceiros set nome=coalesce($2,nome), categoria=coalesce($3,categoria),
          descricao=coalesce($4,descricao), beneficio=coalesce($5,beneficio),
@@ -1320,27 +1340,34 @@ async function rotaPublicacoes(req, res) {
   if (req.method === 'GET') return res.json({ ok: true, ramo, publicacoes: await lerLista(ramo) });
   if (req.method !== 'POST') return res.status(405).json({ erro: 'método não permitido' });
   const b = req.body || {};
-  // a foto chega já diminuída pelo painel (webp ou jpg, com no máximo 1600 px no lado maior)
+  // as fotos chegam já diminuídas pelo painel (webp ou jpg, com no máximo 1600 px no lado maior)
+  const lerFoto = d => {
+    const m = String(d).match(/^data:image\/(webp|jpeg|png);base64,([A-Za-z0-9+/=]+)$/);
+    if (!m) return { erro: 400 };
+    if (m[2].length > 4e6) return { erro: 413 };
+    return { ext: m[1] === 'jpeg' ? 'jpg' : m[1], base64: m[2] };
+  };
+  const recusa = e => res.status(e).json({ erro: e === 413 ? 'foto grande demais' : 'foto em formato inválido' });
   let foto = null;
-  if (b.foto) {
-    const m = String(b.foto).match(/^data:image\/(webp|jpeg|png);base64,([A-Za-z0-9+/=]+)$/);
-    if (!m) return res.status(400).json({ erro: 'foto em formato inválido' });
-    if (m[2].length > 4e6) return res.status(413).json({ erro: 'foto grande demais' });
-    foto = { ext: m[1] === 'jpeg' ? 'jpg' : m[1], base64: m[2] };
-  }
+  if (b.foto) { foto = lerFoto(b.foto); if (foto.erro) return recusa(foto.erro); }
+  // mais de uma foto (pedido do Luiz, 21/10/2026): a lista na ordem do painel, a primeira é a capa. Cada item é uma foto que já está no
+  // site ({ caminho }) ou uma nova ({ nova: data URI })
+  const fotosPedidas = Array.isArray(b.fotos) ? b.fotos.slice(0, 12) : null;
+  if (fotosPedidas) for (const f of fotosPedidas) if (f && f.nova) { const x = lerFoto(f.nova); if (x.erro) return recusa(x.erro); f.lida = x; }
+  const fotosDe = p => Array.isArray(p.fotos) ? p.fotos : (p.foto ? [p.foto] : []);
   for (let tentativa = 0; tentativa < 3; tentativa++) {
     const ref = await gh(`git/ref/heads/${ramo}`);
     if (!ref.ok) return res.status(502).json({ erro: `o GitHub respondeu ${ref.status} ao ler o ramo` });
     const base = (await ref.json()).object.sha;
     const lista = await lerLista(base);
     const arquivos = [];   // { path, conteudo } (base64) ou { path, apagar: true }
-    const usada = (caminho, menos) => lista.some(x => x !== menos && x.foto === caminho);
+    const usada = (caminho, menos) => lista.some(x => x !== menos && fotosDe(x).includes(caminho));
     let msg, pub = null;
     if (b.acao === 'excluir') {
       const i = lista.findIndex(x => x.id === b.id);
       if (i < 0) return res.status(404).json({ erro: 'publicação não encontrada' });
       const [velha] = lista.splice(i, 1);
-      if (velha.foto && !usada(velha.foto)) arquivos.push({ path: velha.foto, apagar: true });
+      fotosDe(velha).forEach(f => { if (!usada(f)) arquivos.push({ path: f, apagar: true }); });
       msg = `Publicações: excluída "${velha.titulo}"`;
     } else if (b.acao === 'salvar') {
       const dados = limparPub(b.pub || {});
@@ -1351,8 +1378,20 @@ async function rotaPublicacoes(req, res) {
       if (!velha) { const raiz = id; for (let n = 2; lista.some(x => x.id === id); n++) id = `${raiz}-${n}`; }
       // a publicação editada deixa de ser exemplo; a foto antiga sai quando chega outra ou quando é tirada
       pub = { id, ...dados, foto: velha && velha.foto || null };
-      if ((foto || b.tirarFoto) && pub.foto) { if (!usada(pub.foto, velha)) arquivos.push({ path: pub.foto, apagar: true }); pub.foto = null; }
-      if (foto) { pub.foto = `fotos-publicacoes/${id}-${Date.now().toString(36)}.${foto.ext}`; arquivos.push({ path: pub.foto, conteudo: foto.base64 }); }
+      if (fotosPedidas) {
+        // as que ficam, as novas na ordem pedida, e as que saíram (se nenhuma outra publicação usa) vão embora no mesmo commit
+        const antigas = velha ? fotosDe(velha) : [], novas = [], marca = Date.now().toString(36);
+        fotosPedidas.forEach((f, k) => {
+          if (f && f.caminho && antigas.includes(f.caminho) && !novas.includes(f.caminho)) novas.push(f.caminho);
+          else if (f && f.lida) { const c = `fotos-publicacoes/${id}-${marca}-${k + 1}.${f.lida.ext}`; arquivos.push({ path: c, conteudo: f.lida.base64 }); novas.push(c); }
+        });
+        antigas.forEach(f => { if (!novas.includes(f) && !usada(f, velha)) arquivos.push({ path: f, apagar: true }); });
+        pub.foto = novas[0] || null; pub.fotos = novas;
+      } else {
+        if ((foto || b.tirarFoto) && pub.foto) { if (!usada(pub.foto, velha)) arquivos.push({ path: pub.foto, apagar: true }); pub.foto = null; }
+        if (foto) { pub.foto = `fotos-publicacoes/${id}-${Date.now().toString(36)}.${foto.ext}`; arquivos.push({ path: pub.foto, conteudo: foto.base64 }); }
+        if (velha && Array.isArray(velha.fotos)) pub.fotos = [pub.foto, ...velha.fotos.slice(1)].filter(Boolean);
+      }
       if (pub.destaque) lista.forEach(x => { x.destaque = false; });   // um destaque só
       if (velha) lista[lista.indexOf(velha)] = pub; else lista.push(pub);
       msg = `Publicações: ${velha ? 'editada' : 'nova'} "${pub.titulo}"`;
@@ -1393,12 +1432,80 @@ const semAcento = s => String(s || '').toLowerCase().normalize('NFD').replace(/[
 const FORA_DO_SITE = ['Lions Seminovos'];
 // associados que não são lojas de carro: os mesmos do PARCEIROS do index.html, com o mesmo nome (pedido do Luiz, 07/10/2026)
 // site: onde o robô lê a logo. A SISV não tem site nem logo (fica com as iniciais); o do R21 é o r21.com.br (Luiz, 13/10/2026)
+// descricao: a descrição curta que o painel mostra (o resumo do texto de cada um no site; pedido do Luiz, 21/10/2026)
 const PARCEIROS_ROBO = [
-  { nome: 'LaudoCar', site: 'https://laudocarrj.com.br/' },
-  { nome: 'SISV Inspeção Veicular' },
-  { nome: 'Frioline', site: 'https://www.frioline.com.br/' },
-  { nome: 'R21 Bar & Restaurante', site: 'https://r21.com.br/' }
+  { nome: 'LaudoCar', site: 'https://laudocarrj.com.br/', ramo: 'Serviços Automotivos',
+    descricao: 'Vistoria cautelar: confere estrutura, numerações e o histórico do veículo antes de fechar negócio.' },
+  { nome: 'SISV Inspeção Veicular', ramo: 'Serviços Automotivos',
+    descricao: 'Inspeção veicular exigida pelo Detran para carros com GNV, sinistrados, blindados ou com característica alterada.' },
+  { nome: 'Frioline', site: 'https://www.frioline.com.br/', ramo: 'Serviços Automotivos',
+    descricao: 'Ar-condicionado automotivo, com instalação e manutenção em linha nacional e importada.' },
+  { nome: 'R21 Bar & Restaurante', site: 'https://r21.com.br/', ramo: 'Alimentício',
+    descricao: 'Bar e restaurante com almoço, jantar, música ao vivo e espaço kids.' }
 ];
+// credenciados cadastrados pelo painel (pedido do Luiz, 21/10/2026: no cadastro, o ramo; o que não é loja de automóveis vira credenciado,
+// e o robô não lê estoque, só as avaliações e os dados da empresa). Ficam na tabela parceiros, com o ramo em "categoria". As linhas
+// antigas dessa tabela (as quatro do começo, com as categorias antigas) não aparecem: os quatro credenciados de antes estão acima
+const CATS_ANTIGAS = ['vistoria', 'manutencao', 'alimentacao', 'servico'];
+async function credenciadosDoPainel() {
+  try {
+    const { rows } = await query(`select id, nome, categoria as ramo, descricao, endereco, telefone, whatsapp, site, logo_url is not null as tem_logo
+                                    from parceiros where ativa = true and coalesce(categoria, '') <> all($1) order by nome`, [CATS_ANTIGAS]);
+    return rows.filter(r => !PARCEIROS_ROBO.some(p => p.nome === r.nome));
+  } catch (_) { return []; }
+}
+// todos os credenciados, para os robôs das avaliações e da logo. Sem o id: o robô das avaliações usa o id para gravar a nota na tabela lojas
+async function credenciados() {
+  return PARCEIROS_ROBO.concat((await credenciadosDoPainel()).map(r => ({ nome: r.nome, site: r.site || undefined })));
+}
+// a descrição curta e os contatos lidos no site de um credenciado novo. A descrição é a da página (a primeira frase) ou, sem ela, o título
+// sem o nome da empresa ("Ar condicionado para veículos | FRIOLINE" vira "Ar condicionado para veículos.")
+async function infoDoSite(site, nome) {
+  try {
+    const r = await fetch(site, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ACEIMA-Importer/1.0)' }, redirect: 'follow', signal: AbortSignal.timeout(8000) });
+    if (!r.ok) return { erro: 'HTTP ' + r.status };
+    const $ = cheerio.load(await r.text());
+    const chave = palavraChave(nome) || '', temNome = t => !!chave && semAcento(t).replace(/[^a-z0-9]/g, '').includes(chave);
+    let descricao = '';
+    const meta = ($('meta[name="description"]').attr('content') || $('meta[property="og:description"]').attr('content') || '').replace(/\s+/g, ' ').trim();
+    if (meta.length >= 25 && meta.length <= 300 && !/(\[…\]|\[\.\.\.\]|…)$/.test(meta)) descricao = (meta.match(/^.{25,170}?[.!?](?=\s|$)/) || [meta.slice(0, 170)])[0];
+    if (!descricao) {
+      // a parte do título que diz o que a empresa faz: sem o nome dela, sem "Início" e sem o lugar ("Vila Valqueire (RJ)")
+      const parte = $('title').first().text().replace(/\s+/g, ' ').split(/\s+[|–—-]\s+|\s*\|\s*/).map(s => s.trim())
+        .find(s => s.split(' ').length >= 2 && !temNome(s) && !/^(home|in[íi]cio|p[áa]gina inicial|bem[- ]vindo)/i.test(s)
+          && !/\b(rj|rio de janeiro|vila valqueire|madureira|bento ribeiro|campinho|cascadura|oswaldo cruz|jacarepagu[áa]|grupo)\b/i.test(semAcento(s)));
+      // título em maiúsculas iniciais ("Vistoria Cautelar Premium") vira frase; sigla fica como está
+      if (parte) descricao = parte.split(' ').map((w, i) => i && !/^[A-Z0-9]{2,}$/.test(w) ? w.toLowerCase() : w).join(' ');
+    }
+    if (descricao) { descricao = descricao.charAt(0).toUpperCase() + descricao.slice(1); if (!/[.!?]$/.test(descricao)) descricao += '.'; }
+    const c = pegarContato($);   // endereço e telefone escritos na página e o WhatsApp dos links
+    const tel = d => { d = String(d || '').replace(/\D/g, '').replace(/^55(?=\d{10,11}$)/, ''); return d.length === 10 || d.length === 11 ? `(${d.slice(0, 2)}) ${d.slice(2, -4)}-${d.slice(-4)}` : null; };
+    let telefone = tel(c.telefone);
+    if (!telefone) telefone = $('a[href^="tel:"]').map((_, e) => tel($(e).attr('href'))).get().find(Boolean) || null;
+    let endereco = c.endereco && c.endereco.replace(/\s*-?\s*\d{5}-?\d{3}\s*$/, '');   // sem o CEP no fim
+    if (!endereco) {
+      const m = $('body').text().replace(/\s+/g, ' ').match(/(?:Estrada|Est\.?)\s+Intendente\s+Magalh[ãa]es,?\s*(?:n[º°o.]*\s*)?(\d{1,5})(?:\s*[-–,]\s*([A-ZÀ-Ú][a-zà-ú]+(?: [A-ZÀ-Ú][a-zà-ú]+)?))?/);
+      if (m) endereco = `Estrada Intendente Magalhães, ${m[1]}${m[2] ? ', ' + m[2] : ''}`;
+    }
+    return { ok: true, descricao, telefone, whatsapp: c.whatsapp || null, endereco: endereco || null };
+  } catch (e) { return { erro: e.message }; }
+}
+// o robô no credenciado novo: a descrição e os contatos (só o que estiver vazio: o que a Aceima escreveu no painel vale); a logo e as
+// avaliações vêm pelas leituras de sempre, que já incluem o credenciado novo (dentro do limite de consultas ao Google do dia)
+async function lerCredenciado(id) {
+  const { rows: [p] } = await query('select * from parceiros where id = $1', [id]);
+  if (!p) return null;
+  const info = p.site ? await infoDoSite(p.site, p.nome) : {};
+  const { rows: [atual] } = await query(`update parceiros set descricao = coalesce(nullif(descricao, ''), $2), telefone = coalesce(nullif(telefone, ''), $3),
+      whatsapp = coalesce(nullif(whatsapp, ''), $4), endereco = coalesce(nullif(endereco, ''), $5) where id = $1 returning *`,
+    [id, info.descricao || null, info.telefone || null, info.whatsapp || null, info.endereco || null]);
+  try { await avaliacoesGoogle(); } catch (_) {}
+  const { rows } = await query(`select chave, case when chave = 'avaliacoes_google' then valor end as valor, left(valor, 5) = 'data:' as tem
+                                  from config where chave = 'avaliacoes_google' or chave = $1`, ['logo_parceiro:' + p.nome]);
+  const g = rows.find(r => r.chave === 'avaliacoes_google'), av = (g && g.valor ? JSON.parse(g.valor) : {})[p.nome] || {};
+  return { parceiro: atual, nota: av.nota || null, total: av.total || null, logo: !!atual.logo_url || rows.some(r => r.chave !== 'avaliacoes_google' && r.tem),
+    erroSite: p.site && !info.ok ? (info.erro || 'o site não respondeu') : null };
+}
 const NOMES_GENERICOS = ['auto', 'car', 'veiculos', 'automoveis', 'motors', 'motos', 'multimarcas', 'seminovos'];
 // a palavra principal do nome ("laudocar", "r21"): a primeira com mais de duas letras que não é genérica
 const palavraChave = nome => semAcento(nome).replace(/[^a-z0-9 ]/g, '').split(' ').find(w => w.length > 2 && !NOMES_GENERICOS.includes(w));
@@ -1436,12 +1543,13 @@ async function avaliacoesGoogle() {
   const todas = () => Object.entries(guardadas).filter(([nome]) => !FORA_DO_SITE.includes(nome)).flatMap(([, g]) => g.lista);
   const chave = process.env.GOOGLE_PLACES_KEY;
   const recente = c && Date.now() - new Date(c.em).getTime() < 864e5;   // a atualização do dia já foi feita
-  const novos = PARCEIROS_ROBO.filter(p => !guardadas[p.nome]);
-  try { await logosDosParceiros(); } catch (_) {}
+  const parc = await credenciados();   // os de sempre e os cadastrados pelo painel
+  const novos = parc.filter(p => !guardadas[p.nome]);
+  try { await logosDosParceiros(parc); } catch (_) {}
   if (!chave || (recente && !novos.length)) return todas();
   if (!recente) await migra();   // só a atualização do dia precisa das colunas novas: quem só lê as avaliações não espera as migrações (eram 3s na primeira visita)
   const { rows: lojas } = await query('select id, nome from lojas where ativa = true and nome <> all($1)', [FORA_DO_SITE]);
-  const associados = lojas.concat(PARCEIROS_ROBO);
+  const associados = lojas.concat(parc);
   const LIMITE_DIA = 30;   // consultas ao Google em 24 horas. NUNCA subir sem autorização do Luiz.
   const idade = l => guardadas[l.nome] ? new Date(guardadas[l.nome].em).getTime() : 0;
   const feitas = Object.values(guardadas).filter(g => Date.now() - new Date(g.em).getTime() < 864e5).length;   // consultas das últimas 24 horas
@@ -1464,10 +1572,10 @@ async function avaliacoesGoogle() {
 // logo dos credenciados, lida no site de cada um e guardada em config ('logo_parceiro:Nome', em data URI). Achada, é lida de novo em
 // 30 dias; não achada, fica marcado o site que foi lido ('sem:' + site) e ela é procurada de novo em 3 dias, ou logo que o site mudar.
 // Uma leitura que falha não apaga a logo que já estava guardada. Credenciado sem site não é lido
-async function logosDosParceiros() {
+async function logosDosParceiros(lista) {
   const { rows } = await query(`select chave, em, left(valor, 5) = 'data:' as tem, case when valor like 'sem:%' then valor end as lido
                                   from config where chave like 'logo_parceiro:%'`);
-  const vez = PARCEIROS_ROBO.filter(p => { if (!p.site) return false;
+  const vez = (lista || PARCEIROS_ROBO).filter(p => { if (!p.site) return false;
     const r = rows.find(x => x.chave === 'logo_parceiro:' + p.nome);
     return !r || Date.now() - new Date(r.em).getTime() > (r.tem ? 30 : 3) * 864e5 || (!r.tem && r.lido !== 'sem:' + p.site); });
   await Promise.all(vez.map(async p => {
@@ -1506,13 +1614,104 @@ async function logoDoParceiro(p) {
   } catch (_) { return null; }
 }
 
+// ---------------- VISITAS (os gráficos da visão geral do painel) ----------------
+// O site conta as visitas para os gráficos do painel (pedido do Luiz, 21/10/2026): cada página vista é uma linha, com a sessão (um número
+// que o site sorteia e que some quando a aba fecha), a página, o carro (na página do veículo), o tempo nela, o tipo de aparelho e, na
+// primeira página da sessão, de onde a pessoa veio. As buscas do estoque ficam numa tabela à parte. Nada pessoal: sem IP, sem nome e sem
+// nada guardado no aparelho. As duas tabelas são criadas na primeira visita
+let visitasProntas = false;
+async function tabelasVisitas() {
+  if (visitasProntas) return;
+  await query(`create table if not exists visitas (
+    id bigserial primary key, sessao text not null, vista int not null, pagina text not null, ref text, veiculo_id int,
+    segundos int not null default 0, origem text, aparelho text, criado_em timestamptz not null default now(), unique (sessao, vista))`);
+  await query('create index if not exists visitas_criado_em on visitas (criado_em)');
+  await query('create table if not exists buscas (id bigserial primary key, sessao text, termo text not null, criado_em timestamptz not null default now())');
+  await query('create index if not exists buscas_criado_em on buscas (criado_em)');
+  visitasProntas = true;
+}
+const PAGINAS_SITE = ['home', 'estoque', 'associados', 'veiculo', 'aceima', 'associar', 'publicacoes', 'publicacao', 'servicos'];
+const APARELHOS = ['Celular', 'Tablet', 'Computador'];
+const ORIGENS = ['Google', 'Instagram', 'Facebook', 'WhatsApp', 'YouTube', 'TikTok', 'Bing', 'Direto', 'Outros sites'];
+// o site manda pelo sendBeacon (o corpo pode chegar como texto). Pedido fora do formato é ignorado em silêncio
+async function rotaVisita(req, res) {
+  if (req.method !== 'POST') return res.status(405).end();
+  let b = req.body || {};
+  if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
+  const s = String(b.s || '');
+  if (!/^[a-z0-9]{8,40}$/.test(s)) return res.status(204).end();
+  await tabelasVisitas();
+  if (b.busca != null) {
+    const termo = String(b.busca).toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 60);
+    if (termo.length >= 2) await query('insert into buscas (sessao, termo) values ($1, $2)', [s, termo]);
+    return res.status(204).end();
+  }
+  const n = parseInt(b.n, 10), pg = String(b.pg || '');
+  if (!(n >= 1 && n <= 1000) || !PAGINAS_SITE.includes(pg)) return res.status(204).end();
+  const ref = b.ref == null || b.ref === '' ? null : String(b.ref).slice(0, 120);
+  // a mesma página manda o tempo de novo quando a aba some e volta: fica o maior
+  await query(`insert into visitas (sessao, vista, pagina, ref, veiculo_id, segundos, origem, aparelho) values ($1, $2, $3, $4, $5, $6, $7, $8)
+                 on conflict (sessao, vista) do update set segundos = greatest(visitas.segundos, excluded.segundos)`,
+    [s, n, pg, ref, pg === 'veiculo' ? (parseInt(ref, 10) || null) : null,
+     Math.max(0, Math.min(1800, parseInt(b.seg, 10) || 0)),   // mais de meia hora parada numa página conta meia hora
+     n === 1 && ORIGENS.includes(b.o) ? b.o : null, APARELHOS.includes(b.ap) ? b.ap : null]);
+  return res.status(204).end();
+}
+// os números dos gráficos: o período escolhido no painel (7, 30 ou 90 dias) e o anterior, do mesmo tamanho, para comparar
+async function rotaVisitas(req, res) {
+  await tabelasVisitas();
+  const dias = [7, 30, 90].includes(parseInt(req.query && req.query.dias, 10)) ? parseInt(req.query.dias, 10) : 30;
+  const ini = `now() - interval '${dias} days'`, ini2 = `now() - interval '${dias * 2} days'`;   // dias vem da lista acima
+  const fuso = `at time zone 'America/Sao_Paulo'`;
+  // cada sessão com o tempo somado das páginas: a média e as faixas do tempo no site
+  const resumo = (de, ate) => query(`select count(*)::int as visitas, coalesce(sum(pags), 0)::int as paginas, coalesce(round(avg(seg)), 0)::int as seg_medio,
+      count(*) filter (where pags = 1)::int as uma_pagina,
+      count(*) filter (where seg < 10)::int as t1, count(*) filter (where seg >= 10 and seg < 30)::int as t2,
+      count(*) filter (where seg >= 30 and seg < 60)::int as t3, count(*) filter (where seg >= 60 and seg < 180)::int as t4,
+      count(*) filter (where seg >= 180 and seg < 600)::int as t5, count(*) filter (where seg >= 600)::int as t6
+    from (select sessao, sum(segundos) as seg, count(*) as pags from visitas
+           where criado_em >= ${de}${ate ? ` and criado_em < ${ate}` : ''} group by sessao) s`);
+  const [atual, antes, porDia, carros, lojas, origem, aparelho, horas, paginas, buscas, leads, leadsAntes] = await Promise.all([
+    resumo(ini), resumo(ini2, ini),
+    query(`select to_char((criado_em ${fuso})::date, 'YYYY-MM-DD') as dia, count(distinct sessao)::int as visitas, count(*)::int as paginas
+             from visitas where criado_em >= ${ini} group by 1`),
+    query(`select v.veiculo_id as id, count(*)::int as vistas, count(distinct v.sessao)::int as pessoas, coalesce(round(avg(v.segundos)), 0)::int as seg,
+                  max(ve.marca) as marca, max(ve.modelo) as modelo, max(ve.ano_modelo) as ano, max(ve.fotos[1]) as foto, bool_or(ve.ativo) as ativo, max(l.nome) as loja
+             from visitas v left join veiculos ve on ve.id = v.veiculo_id left join lojas l on l.id = ve.loja_id
+            where v.pagina = 'veiculo' and v.veiculo_id is not null and v.criado_em >= ${ini}
+            group by v.veiculo_id order by 2 desc, 3 desc limit 6`),
+    query(`select l.nome, count(*)::int as vistas from visitas v join veiculos ve on ve.id = v.veiculo_id join lojas l on l.id = ve.loja_id
+            where v.pagina = 'veiculo' and v.criado_em >= ${ini} group by l.nome order by 2 desc, 1 limit 6`),
+    query(`select coalesce(origem, 'Direto') as nome, count(*)::int as visitas from visitas where vista = 1 and criado_em >= ${ini} group by 1 order by 2 desc`),
+    query(`select coalesce(aparelho, 'Computador') as nome, count(distinct sessao)::int as visitas from visitas where criado_em >= ${ini} group by 1 order by 2 desc`),
+    query(`select extract(hour from criado_em ${fuso})::int as h, count(*)::int as visitas from visitas where vista = 1 and criado_em >= ${ini} group by 1`),
+    query(`select pagina as nome, count(*)::int as vistas from visitas where criado_em >= ${ini} group by 1 order by 2 desc`),
+    query(`select termo, count(*)::int as vezes from buscas where criado_em >= ${ini} group by termo order by 2 desc, 1 limit 8`),
+    query(`select count(*)::int as n from leads where criado_em >= ${ini}`),
+    query(`select count(*)::int as n from leads where criado_em >= ${ini2} and criado_em < ${ini}`)
+  ]);
+  // todos os dias do período, também os sem visita (na hora do Rio)
+  const hoje = Date.parse(new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date()) + 'T12:00:00Z'), dia = {};
+  porDia.rows.forEach(r => { dia[r.dia] = r; });
+  const lista = [];
+  for (let i = dias - 1; i >= 0; i--) {
+    const k = new Date(hoje - i * 864e5).toISOString().slice(0, 10);
+    lista.push({ dia: k, visitas: dia[k] ? dia[k].visitas : 0, paginas: dia[k] ? dia[k].paginas : 0 });
+  }
+  const h24 = Array(24).fill(0); horas.rows.forEach(r => { if (r.h >= 0 && r.h < 24) h24[r.h] = r.visitas; });
+  res.setHeader('Cache-Control', 'no-store');
+  return res.json({ ok: true, dias, atual: atual.rows[0], anterior: antes.rows[0], leads: leads.rows[0].n, leadsAntes: leadsAntes.rows[0].n,
+    porDia: lista, carros: carros.rows, lojas: lojas.rows, origem: origem.rows, aparelho: aparelho.rows, horas: h24, paginas: paginas.rows, buscas: buscas.rows });
+}
+
 // ---------------- PÁGINA DO VEÍCULO ----------------
 // logo de uma loja como imagem (o banco guarda como data URI), com cache: a página do veículo mostra a logo sem pesar a lista de lojas
 async function rotaLogo(req, res) {
   const id = parseInt((req.query && req.query.id) || '', 10), parc = req.query && req.query.parceiro;
   if (!id && !parc) return res.status(400).end();
-  const { rows: [l] } = parc   // credenciado: a logo que o robô leu no site dele
-    ? await query("select valor as logo_url from config where chave = $1", ['logo_parceiro:' + String(parc)])
+  const { rows: [l] } = parc   // credenciado: a logo escolhida no painel ou, sem ela, a que o robô leu no site dele
+    ? await query(`select coalesce((select logo_url from parceiros where nome = $1 and ativa = true and logo_url is not null and coalesce(categoria, '') <> all($2) limit 1),
+                                   (select valor from config where chave = $3)) as logo_url`, [String(parc), CATS_ANTIGAS, 'logo_parceiro:' + String(parc)])
     : await query('select logo_url from lojas where id = $1 and ativa = true', [id]);
   const u = (l && l.logo_url) || '';
   const m = u.match(/^data:(image\/[a-z0-9.+-]+)(;base64)?,([\s\S]*)$/i);
@@ -1578,6 +1777,8 @@ export default async function handler(req, res) {
     if (rota === 'testeemail') return autorizado(req) ? await rotaTesteEmail(req, res) : negar(res);
     if (rota === 'conteudo') return autorizado(req) ? await rotaConteudo(req, res) : negar(res);
     if (rota === 'publicacoes') return autorizado(req) ? await rotaPublicacoes(req, res) : negar(res);
+    if (rota === 'visita') return await rotaVisita(req, res);
+    if (rota === 'visitas') return autorizado(req) ? await rotaVisitas(req, res) : negar(res);
     if (rota === 'avaliacoes') {
       const lista = await avaliacoesGoogle();
       // 1h nova; depois, por até 7 dias, a Vercel entrega a anterior na hora e busca a nova por trás

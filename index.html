@@ -383,6 +383,13 @@ button.fp{border:1px solid transparent;cursor:pointer}
 .pbd-x{margin-top:clamp(20px,1.8vw,32px)}
 .pbd-x p{font:400 clamp(1rem,1.02vw,1.15rem)/1.7 var(--f2);color:#24324A}
 .pbd-x p+p{margin-top:1em}
+/* as outras fotos da publicação (pedido do Luiz, 21/10/2026: mais de uma foto), embaixo do texto; tocadas, abrem em tela cheia */
+.pbd>.pbd-g{max-width:none}
+.pbd-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,1vw,16px);margin-top:clamp(24px,2.2vw,40px)}
+.pbd-g button{display:block;padding:0;border:0;aspect-ratio:4/3;border-radius:clamp(12px,1.2vw,18px);overflow:hidden;background:#E9E4DD;cursor:zoom-in}
+.pbd-g img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.pbd-g button:hover img{transform:scale(1.03)}
+.pbd-f.zoom{cursor:zoom-in}
 .pbd-o{--rm:clamp(24px,2.8vw,44px);--g:clamp(24px,2.8vw,40px);padding-top:clamp(8px,1vw,16px);padding-bottom:clamp(56px,4.8vw,92px)}
 .pbd-o h2{font:500 clamp(1.6rem,2vw,2.4rem)/1.1 var(--f1);letter-spacing:-.02em;color:var(--ink)}
 .aviso b{color:#0B1A33}
@@ -1261,6 +1268,8 @@ body.lb-on{overflow:hidden}
   .pbd-f{margin-top:5.63vw;border-radius:4.23vw}
   .pbd-x{margin-top:4.93vw}
   .pbd-x p{font-size:3.47vw;line-height:1.6}
+  .pbd-g{grid-template-columns:repeat(2,minmax(0,1fr));gap:2.82vw;margin-top:5.63vw}
+  .pbd-g button{border-radius:2.82vw}
   .pbd-o{--rm:2.82vw;--g:5.63vw;padding-top:2.82vw;padding-bottom:16.9vw}
   .pbd-o h2{font-size:5.63vw;text-align:center}
   .sv-h{font-size:5.63vw!important}
@@ -1449,8 +1458,15 @@ async function carregar(){
       const [rl,rv,vit,rp]=await Promise.all([fetch('/api/lojas?path=lojas&site=1').then(r=>r.json()),fetch('/api/veiculos?path=veiculos&site=1').then(r=>r.json()),
         fetch('/vitrine.json').then(r=>r.ok?r.json():null).catch(()=>null),fetch('/api/parceiros?path=parceiros&site=1').then(r=>r.ok?r.json():null).catch(()=>null)]);
       VIT=vit&&vit.fotos||null;
-      // credenciados: a nota no Google e a logo que o robô leu no site de cada um
-      if(Array.isArray(rp))rp.forEach(x=>{const c=PARCEIROS.find(y=>y.nome===x.nome);if(c){c.nota=Number(x.nota)||0;c.av=Number(x.total)||0;c.logo=x.logo?'/api/logo?path=logo&parceiro='+encodeURIComponent(x.nome):'';}});
+      // credenciados: a nota no Google e a logo que o robô leu no site de cada um. Os cadastrados pelo painel (pedido do Luiz, 21/10/2026)
+      // entram aqui, com o ramo, a descrição e os contatos que o robô leu ou a Aceima escreveu
+      if(Array.isArray(rp))rp.forEach(x=>{let c=PARCEIROS.find(y=>y.nome===x.nome);
+        if(!c&&x.painel){const r=x.ramo||'Outro ramo',e=x.endereco||'';
+          c={nome:x.nome,cat:r==='Alimentício'?'Comércio':'Serviços',ramo:r,tipo:r,tag:r,txt:x.descricao||'',chips:[],
+            num:numRua(e)||parseInt((e.match(/Magalh[ãa]es,?\s*(?:n\s*[º°o.]?\s*)?(\d{1,5})/i)||[])[1],10)||null,
+            inf:[['Endereço',e],['Telefone',x.telefone||'']],wa:x.whatsapp||null,waTxt:'quero saber mais',site:x.site||''};
+          PARCEIROS.push(c);}
+        if(c){c.nota=Number(x.nota)||0;c.av=Number(x.total)||0;c.logo=x.logo?'/api/logo?path=logo&parceiro='+encodeURIComponent(x.nome):'';}});
       if(Array.isArray(rl)&&rl.length)LJ=rl.filter(l=>l.ativa!==false);
       if(Array.isArray(rv)&&rv.length)V=intercalar(rv.map(mapV));
     }catch(e){}
@@ -1828,7 +1844,7 @@ function filtroLinha(){
    <span class="fp ${algumFiltro()?'drk':'on'}" id="fp-todos" onclick="limparFiltros()"><span>${T('estoque.todos','Todos')}<span class="so-desk"> ${T('estoque.todos-resto','os veículos')}</span></span></span>
    ${FILTROS.map(f=>`<span class="fp ${F[f[0]]?'on':'drk'}" id="fp-${f[0]}" onclick="abrirFiltro('${f[0]}')"><span>${F[f[0]]?esc(F[f[0]]):T('estoque.filtro-'+f[0],f[1])}</span>${ic(I_DOWN,13)}</span>`).join('')}
    <span class="fp drk so-desk" id="fp-ord" onclick="abrirFiltro('ord')"><span>${T('estoque.ordenar','Ordenar:')} ${esc(F.ord.toLowerCase())}</span>${ic(I_DOWN,13)}</span>
-   ${buscando||F.q?`<span class="fp drk" id="fp-busca">${ic(I_BUSCA,14)}<input id="busca" value="${esc(F.q)}" placeholder="Modelo, loja, ano ou preço" oninput="F.q=this.value;mostrar=LOTE;pagEst=0;pintarAnuncios();marcarTodos()"></span>`
+   ${buscando||F.q?`<span class="fp drk" id="fp-busca">${ic(I_BUSCA,14)}<input id="busca" value="${esc(F.q)}" placeholder="Modelo, loja, ano ou preço" oninput="F.q=this.value;mostrar=LOTE;pagEst=0;pintarAnuncios();marcarTodos();contarBusca(this.value)"></span>`
      :`<span class="fp drk" id="fp-busca" onclick="buscando=true;render(false);setTimeout(()=>document.getElementById('busca').focus(),20)">${ic(I_BUSCA,14)}<span>${T('estoque.buscar','Buscar')}</span></span>`}
   </div>`;
 }
@@ -2468,9 +2484,10 @@ function pintarDescricao(txt){
 // fotos em tela cheia: a atual no meio e, dos lados (em cima e embaixo no celular), a anterior e a próxima bem apagadas.
 // Passar (setas, teclado, deslizar ou tocar numa das dos lados) troca as fotos de lugar numa animação rápida
 let fotosLB=[],iLB=0;
-function abrirFoto(i){
-  const v=V.find(x=>String(x.id)===String(vAtual));if(!v||!(v.fotos||[]).length)return;
-  fotosLB=v.fotos;iLB=Math.min(i,fotosLB.length-1);fecharFoto(true);
+// lista: as fotos de uma publicação; sem ela, as do carro aberto
+function abrirFoto(i,lista){
+  const v=lista?null:V.find(x=>String(x.id)===String(vAtual)),fs=lista||(v&&v.fotos)||[];if(!fs.length)return;
+  fotosLB=fs;iLB=Math.min(i,fotosLB.length-1);fecharFoto(true);
   const lb=document.createElement('div');lb.id='lb';
   lb.innerHTML=fotosLB.map((f,j)=>`<figure class="lb-s" data-i="${j}"><img alt=""></figure>`).join('')
     +`<button type="button" class="lb-x" aria-label="Fechar" onclick="fecharFoto()">${ic('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',22)}</button>`
@@ -2759,6 +2776,9 @@ const diaPub=d=>new Date(String(d)+'T12:00:00');
 const dataPub=d=>{const x=diaPub(d);return isNaN(x)?'':x.toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'});};   // 18 de março de 2026
 const dataPubCurta=d=>{const x=diaPub(d);return isNaN(x)?'':`${String(x.getDate()).padStart(2,'0')} ${['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][x.getMonth()]} ${x.getFullYear()}`;};   // 12 mar 2026
 const fotoPub=(p,curta)=>p.foto?`<img src="${esc(p.foto)}" alt="" loading="lazy">`:(curta?T('publicacoes.sem-foto-curta','Foto'):T('publicacoes.sem-foto','Foto da ação'));
+// todas as fotos da publicação, a capa primeiro (o painel grava "fotos" desde 21/10/2026; as antigas têm só "foto")
+const fotosDaPub=p=>(Array.isArray(p.fotos)&&p.fotos.length?p.fotos:[p.foto]).filter(Boolean);
+function verFotoPub(i){const p=PUBS.find(x=>x.id===pubAtual);if(p)abrirFoto(i,fotosDaPub(p));}
 const cartaoPub=(p,seta)=>`<a class="ac2-card" href="${hr('publicacao',p.id)}"><div class="foto">${fotoPub(p)}</div><h3>${E('publicacoes.cartao-titulo',esc(p.titulo))}${seta}</h3><small>${esc(p.categoria)} · ${dataPubCurta(p.data)}</small></a>`;
 function filtrarPub(c){catPub=c;render();}
 function publicacoes(){
@@ -2795,8 +2815,9 @@ function publicacao(){
    <div class="pbd-k"><span class="fp on">${esc(p.categoria)}</span><span>${dataPub(p.data)}</span></div>
    <h1 class="pbd-t">${E('publicacoes.pagina-titulo',esc(p.titulo))}</h1>
    ${p.resumo?`<p class="pbd-r">${E('publicacoes.pagina-resumo',esc(p.resumo))}</p>`:''}
-   ${p.foto?`<figure class="pbd-f"><img src="${esc(p.foto)}" alt=""></figure>`:''}
+   ${p.foto?`<figure class="pbd-f${fotosDaPub(p).length>1?' zoom" onclick="verFotoPub(0)':''}"><img src="${esc(p.foto)}" alt=""></figure>`:''}
    ${paras?`<div class="pbd-x">${paras}</div>`:''}
+   ${fotosDaPub(p).length>1?`<div class="pbd-g">${fotosDaPub(p).slice(1).map((f,i)=>`<button type="button" aria-label="Ver a foto ${i+2}" onclick="verFotoPub(${i+1})"><img src="${esc(f)}" alt="" loading="lazy"></button>`).join('')}</div>`:''}
  </article>`:`<div class="wrap pbd">${volta}<h1 class="pbd-t">${T('publicacoes.nao-achada','Publicação não encontrada.')}</h1></div>`}
  ${outras.length?`<section class="wrap pbd-o"><h2>${T('publicacoes.outras','Outras publicações')}</h2><div class="ac2-cards">${outras.map(x=>cartaoPub(x,seta)).join('')}</div></section>`:''}
 </div>${rodape()}`;}
@@ -2816,8 +2837,8 @@ function servicos(){
   ${PARCEIROS.map(p=>{const s='servicos.'+slug(p.nome);return `<div class="parc">
     <div><div class="kick">${T(s+'.chamada',p.tag)}</div><h2 class="sv-h" style="font-size:1.9rem;margin:8px 0 10px">${esc(p.nome)}</h2><p style="max-width:640px">${T(s+'.texto',p.txt)}</p>
       <div class="chips">${p.chips.map((c,i)=>`<span class="fp lite">${T(`${s}.item${i+1}`,c)}</span>`).join('')}</div></div>
-    <div><div class="inf">${p.inf.map((r,i)=>`<b>${T(`${s}.info${i+1}-rotulo`,r[0])}</b><br>${T(`${s}.info${i+1}`,r[1])}<br>`).join('')}</div>
-      <div style="display:flex;gap:8px;margin-top:14px">${p.wa?`<a class="btn" href="https://wa.me/${p.wa}?text=${encodeURIComponent('Olá! Vim pelo site da Aceima e '+p.waTxt+'.')}" target="_blank">${T(s+'.botao-whatsapp','WhatsApp')}</a>`:''}<a class="btn o" href="${p.site}" target="_blank" rel="noopener">${T(s+'.botao-site',p.siteTxt||'Ver o site')}</a></div></div>
+    <div><div class="inf">${p.inf.map((r,i)=>r[1]?`<b>${T(`${s}.info${i+1}-rotulo`,r[0])}</b><br>${T(`${s}.info${i+1}`,r[1])}<br>`:'').join('')}</div>
+      <div style="display:flex;gap:8px;margin-top:14px">${p.wa?`<a class="btn" href="https://wa.me/${p.wa}?text=${encodeURIComponent('Olá! Vim pelo site da Aceima e '+p.waTxt+'.')}" target="_blank">${T(s+'.botao-whatsapp','WhatsApp')}</a>`:''}${p.site?`<a class="btn o" href="${esc(p.site)}" target="_blank" rel="noopener">${T(s+'.botao-site',p.siteTxt||'Ver o site')}</a>`:''}</div></div>
   </div>`;}).join('')}
  </div>
 </div>${rodape()}`;}
@@ -2901,6 +2922,50 @@ function sairEdicao(){
   EDIT=null;sel=null;PEND={};document.body.classList.remove('editando');document.getElementById('edBarra').remove();render(false);
 }
 
+/* ==================== VISITAS (os gráficos do painel) ==================== */
+// pedido do Luiz, 21/10/2026: o painel mostra os carros mais vistos, o tempo no site, de onde vêm as visitas e o que procuram. Cada página
+// vista manda, quando a pessoa sai dela (ou a aba some), a página, o carro e o tempo nela. A sessão é um número sorteado que fica só nesta
+// aba: nada pessoal e nada guardado no aparelho. Não conta o modo de edição, robôs nem o site aberto do computador
+const VIS=(()=>{try{let s=sessionStorage.getItem('vis_s');if(!s){s=Math.random().toString(36).slice(2,12)+Date.now().toString(36);sessionStorage.setItem('vis_s',s);}
+  return {s,n:+sessionStorage.getItem('vis_n')||0};}catch(e){return null;}})();
+let visAtual=null;   // a página vista agora: o número dela na sessão, a página, o carro ou a publicação, e o tempo já contado
+const visLigada=()=>!!VIS&&API!==null&&!EDIT&&!navigator.webdriver&&!/bot|crawl|spider|slurp|headless|lighthouse/i.test(navigator.userAgent)&&!/[?&]editar\b/.test(location.search);
+function origemVisita(){
+  let h='';try{h=document.referrer?new URL(document.referrer).hostname:'';}catch(e){}
+  if(h===location.hostname)h='';
+  const t=((new URLSearchParams(location.search).get('utm_source')||'')+' '+h).toLowerCase().trim();
+  return /google/.test(t)?'Google':/instagram/.test(t)?'Instagram':/facebook|fb\.|^fb\b/.test(t)?'Facebook':/whatsapp|wa\.me/.test(t)?'WhatsApp':
+    /youtube/.test(t)?'YouTube':/tiktok/.test(t)?'TikTok':/bing/.test(t)?'Bing':t?'Outros sites':'Direto';
+}
+const aparelhoVisita=()=>matchMedia('(max-width:760px)').matches?'Celular':matchMedia('(max-width:1100px) and (pointer:coarse)').matches?'Tablet':'Computador';
+function enviarVisita(d){
+  const corpo=JSON.stringify(d),u='/api/visita?path=visita';
+  try{if(navigator.sendBeacon&&navigator.sendBeacon(u,new Blob([corpo],{type:'application/json'})))return;}catch(e){}
+  fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:corpo,keepalive:true}).catch(()=>{});
+}
+// a página que estava aberta manda o tempo nela (de novo, se a aba sumir e voltar: fica o maior)
+function fecharVisita(){
+  const v=visAtual;if(!v)return;
+  if(v.ini){v.ms+=Date.now()-v.ini;v.ini=0;}
+  if(v.mandado===v.ms)return;v.mandado=v.ms;   // a aba sumindo e a página saindo chegam juntas: manda uma vez só
+  enviarVisita({s:VIS.s,n:v.n,pg:v.pg,ref:v.ref,seg:Math.round(v.ms/1000),o:v.n===1?VIS.o:undefined,ap:VIS.ap});
+}
+// a cada desenho de página: só conta quando muda a página (ou o carro, ou a publicação); filtro e busca não contam
+function contarVisita(){
+  if(!visLigada())return;
+  const ref=pagAtual==='veiculo'?String(vAtual):pagAtual==='publicacao'?String(pubAtual||''):null;
+  if(visAtual&&visAtual.pg===pagAtual&&visAtual.ref===ref)return;
+  if(visAtual)fecharVisita();
+  if(!VIS.o){VIS.o=origemVisita();VIS.ap=aparelhoVisita();}
+  VIS.n++;try{sessionStorage.setItem('vis_n',VIS.n);}catch(e){}
+  visAtual={n:VIS.n,pg:pagAtual,ref,ms:0,ini:document.hidden?0:Date.now()};
+}
+document.addEventListener('visibilitychange',()=>{if(!visAtual)return;if(document.hidden)fecharVisita();else visAtual.ini=Date.now();});
+addEventListener('pagehide',()=>{if(visAtual&&visAtual.ini)fecharVisita();});
+// as buscas do estoque: o que ficou escrito por dois segundos e meio, uma vez cada
+function contarBusca(q){clearTimeout(contarBusca.t);if(!visLigada())return;
+  contarBusca.t=setTimeout(()=>{const t=String(q||'').trim();if(t.length<2||t===contarBusca.ult)return;contarBusca.ult=t;enviarVisita({s:VIS.s,busca:t});},2500);}
+
 /* ==================== ROTAS ==================== */
 const VIEWS={home,estoque,associados,veiculo,aceima,associar,publicacoes,publicacao,servicos};
 const ROTAS={home:'/',estoque:'/estoque',associados:'/associados',aceima:'/a-aceima',associar:'/seja-um-associado',publicacoes:'/publicacoes',servicos:'/servicos'};
@@ -2969,7 +3034,7 @@ function render(topo){
   else if(pagAtual==='veiculo'){const v=V.find(x=>String(x.id)===String(vAtual));if(v)document.title=nomeV(v)+' '+(v.ano||'')+' | Aceima';}
   else if(pagAtual==='publicacao'){const p=PUBS.find(x=>x.id===pubAtual);document.title=(p?p.titulo:'Publicações')+' | Aceima';}
   if(pagAtual==='estoque'){const u=urlDe('estoque',F.loja);if(caminho()!==u)try{history.replaceState(history.state,'',(HASH?'#':'')+u);}catch(e){}}   // o endereço acompanha a loja do filtro
-  setasPagina();menuNoRodape();
+  setasPagina();menuNoRodape();contarVisita();
 }
 function go(pg,arg){
   const de=pagAtual;

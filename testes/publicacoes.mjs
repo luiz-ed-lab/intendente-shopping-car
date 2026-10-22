@@ -88,5 +88,21 @@ r = await post({ acao: 'salvar', pub: { id: 'nao-existe', titulo: 'X' } }); asse
 r = await post({ acao: 'apagar-tudo' }); assert(r.code === 400, 'ação desconhecida');
 r = await post({ acao: 'salvar', pub: { titulo: 'Categoria estranha', categoria: '<script>' } });
 assert(r.body.publicacao.categoria === 'Ações no polo', 'categoria fora da lista vira a primeira');
+
+// várias fotos (21/10/2026): a primeira é a capa; as que saem somem do site e as que ficam continuam
+const fa = 'data:image/webp;base64,' + Buffer.from('foto-a').toString('base64'), fb = 'data:image/webp;base64,' + Buffer.from('foto-b').toString('base64');
+r = await post({ acao: 'salvar', pub: { titulo: 'Galeria', categoria: 'Ações no polo', data: '2026-10-20' }, fotos: [{ nova: fa }, { nova: fb }] });
+let gal = r.body.publicacao;
+assert(gal.fotos.length === 2 && gal.foto === gal.fotos[0] && /-1\.webp$/.test(gal.fotos[0]) && /-2\.webp$/.test(gal.fotos[1]), 'várias fotos, a primeira é a capa');
+assert(Buffer.from(repo.arquivos[gal.fotos[1]], 'base64').toString() === 'foto-b', 'as fotos novas no mesmo commit');
+const [g1, g2] = gal.fotos;
+r = await post({ acao: 'salvar', pub: { id: gal.id, titulo: 'Galeria', categoria: 'Ações no polo', data: '2026-10-20' }, fotos: [{ caminho: g2 }, { nova: fa }] });
+gal = r.body.publicacao;
+assert(gal.fotos[0] === g2 && gal.foto === g2 && gal.fotos.length === 2, 'troca a capa e acrescenta outra');
+assert(!(g1 in repo.arquivos) && (g2 in repo.arquivos), 'a foto tirada sai do site e a que ficou continua');
+r = await post({ acao: 'salvar', pub: { id: gal.id, titulo: 'Galeria', categoria: 'Ações no polo', data: '2026-10-20' }, fotos: [] });
+assert(r.body.publicacao.foto === null && !r.body.publicacao.fotos.length && !gal.fotos.some(f => f in repo.arquivos), 'sem fotos: todas saem');
+r = await post({ acao: 'salvar', pub: { titulo: 'X' }, fotos: [{ nova: 'data:text/html;base64,PGI+' }] }); assert(r.code === 400, 'recusa arquivo que não é foto na lista');
+r = await post({ acao: 'excluir', id: gal.id }); assert(r.body.ok, 'exclui a galeria');
 delete process.env.GITHUB_TOKEN;
 r = res(); await f({ method: 'GET' }, r); assert(r.code === 500 && /GITHUB_TOKEN/.test(r.body.erro), 'sem GITHUB_TOKEN avisa em vez de gravar');

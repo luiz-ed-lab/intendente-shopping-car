@@ -5,8 +5,10 @@ const src = fs.readFileSync(new URL('../api/[...path].js', import.meta.url), 'ut
 const trecho = src.slice(src.indexOf('const semAcento'), src.indexOf('// ---------------- ROTEADOR'));
 let config = null, updates = [], chamadas = [], respostas = {}, migrou = 0;
 let lojas = [{ id: 1, nome: 'HiperCar' }, { id: 2, nome: 'T.F.A. Motors' }, { id: 3, nome: 'Lazari' }];
+let parceirosDb = [];   // credenciados cadastrados pelo painel (tabela parceiros)
 const query = async (sql, p) => {
   if (/select valor, em from config/.test(sql)) return { rows: config ? [config] : [] };
+  if (/from parceiros where ativa = true/.test(sql)) return { rows: parceirosDb };
   if (/select id, nome from lojas/.test(sql)) return { rows: lojas.filter(l => !(p && p[0] || []).includes(l.nome)) };
   if (/insert into config/.test(sql)) { config = { valor: p[0], em: new Date() }; return { rows: [] }; }
   if (/update lojas/.test(sql)) { updates.push(p); return { rows: [] }; }
@@ -90,3 +92,14 @@ chamadas = []; await avaliacoesGoogle();
 assert(chamadas.length === 0, 'no mesmo dia, com as 30 do dia feitas, os credenciados novos esperam');
 passaUmDia(); await avaliacoesGoogle();
 assert(chamadas.length === 30 && ['Loja31', 'Loja35', 'Frioline'].every(n => chamadas.includes(n)), 'segundo dia: entram os que ficaram de fora');
+
+// credenciado cadastrado pelo painel (21/10/2026): entra na hora, como os outros novos, e a nota dele não vai para a tabela das lojas
+lojas = [{ id: 1, nome: 'HiperCar' }]; config = null; chamadas = []; updates = [];
+respostas = { 'HiperCar': ok([]), 'Padaria Estrela': ok([{ displayName: { text: 'Padaria Estrela' }, rating: 4.6, userRatingCount: 52, reviews: [rev(5, 'Pão quentinho', 'Iara')] }]) };
+await avaliacoesGoogle();
+parceirosDb = [{ id: 1, nome: 'Padaria Estrela', ramo: 'Alimentício', site: 'https://padariaestrela.com.br' }];
+chamadas = []; updates = []; l = await avaliacoesGoogle();
+assert(chamadas.join() === 'Padaria Estrela' && guardadas()['Padaria Estrela'].nota === 4.6, 'credenciado do painel entra na hora');
+assert(!updates.length && l.some(a => a.autor === 'Iara'), 'a nota dele não vai para a tabela das lojas, e as avaliações vão para a faixa');
+passaUmDia(); respostas = { 'HiperCar': ok([]) }; await avaliacoesGoogle();
+assert(chamadas.includes('Padaria Estrela') && guardadas()['Padaria Estrela'], 'na rodada do dia ele continua (não sai como associado que deixou a associação)');
