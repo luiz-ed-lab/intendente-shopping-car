@@ -42,7 +42,7 @@ assert(r.body.ok && Array.isArray(r.body.publicacoes) && !r.body.publicacoes.len
 r = await post({ acao: 'salvar', pub: { titulo: 'Mutirão de vistoria na Intendente', categoria: 'Ações no polo', data: '2026-10-10', resumo: ' Resumo ', texto: 'Linha 1\r\n\r\nLinha 2' } });
 assert(r.code === 200 && r.body.ok, 'cria a primeira publicação');
 assert(r.body.publicacao.id === '2026-10-10-mutirao-de-vistoria-na-intendente', 'o id vem da data e do título, sem acento');
-assert(r.body.publicacao.resumo === 'Resumo' && r.body.publicacao.texto === 'Linha 1\n\nLinha 2', 'limpa espaços e o \\r do texto');
+assert(!('resumo' in r.body.publicacao) && r.body.publicacao.texto === 'Linha 1\n\nLinha 2', 'limpa o \\r do texto e não guarda resumo');
 assert(repo.arvore.tree.length === 1 && repo.arvore.tree[0].path === 'publicacoes.json' && repo.arvore.base_tree === 'arvore-c0', 'um commit só, com a lista, em cima do commit atual');
 assert(repo.commits.pop() === 'Publicações: nova "Mutirão de vistoria na Intendente"', 'mensagem do commit');
 

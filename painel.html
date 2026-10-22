@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#00091A">
 <title>Painel Aceima</title>
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/png" sizes="32x32" href="marca-nova/icone-32.png">
@@ -98,8 +99,9 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
   .ent-volta:hover{color:#fff;background:rgba(255,255,255,.15)}
   .ent-volta span,.ent-volta .vol{display:none}
   .ent-volta .ext{display:block}
-  .ent-meio{padding:20px 0}
-  /* o arco vai de uma borda à outra, na largura da data e da hora e da linha do campo com o botão */
+  /* o desenho, a data e a hora e o campo com o botão um pouco mais estreitos que a tela, no meio, alinhados entre si; e tudo um pouco mais
+     para cima (pedido do Luiz, 22/10/2026: estava colado nos cantos) */
+  .ent-meio{padding:20px 7vw 13vh}
   .dia{width:100%;aspect-ratio:350/214}
   .saud{bottom:6.4%}
   .saud .kk{font-size:10.5px}
@@ -123,7 +125,16 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
 /* a mesma largura das páginas do site (.wrap do site: até 1780 px, com 60 px de cada lado): o painel vai até as bordas como elas
    (pedido do Luiz, 20/10/2026: antes ficava numa coluna de 1320 px no meio da tela) */
 .topo-in{max-width:1660px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;grid-template-areas:"busca logo acoes" "tit tit tit" "form form form" "kpi kpi kpi" "graf graf graf";align-items:center;column-gap:20px}
-.busca{grid-area:busca;justify-self:start;display:flex;align-items:center;gap:10px;width:300px;height:44px;padding:0 16px;border-radius:99px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);color:var(--clara)}
+/* a busca e o "+" da parte aberta na mesma linha (pedido do Luiz, 22/10/2026); o "+" some enquanto o formulário está aberto */
+.tbusca{grid-area:busca;justify-self:start;display:flex;align-items:center;gap:10px}
+.busca{display:flex;align-items:center;gap:10px;width:300px;height:44px;padding:0 16px;border-radius:99px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);color:var(--clara)}
+.mais{width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(135deg,#C8862E,#F0AD57);color:var(--navy);box-shadow:0 10px 24px -12px rgba(232,160,72,.7);transition:width .45s var(--ease),margin .45s var(--ease),opacity .3s,transform .45s var(--ease)}
+.mais:hover{background:linear-gradient(135deg,#D3913A,#F5B866)}
+.mais .ic{width:22px;height:22px;stroke-width:2.2}
+.mais.fora{width:0;margin-left:-10px;opacity:0;transform:scale(.5) rotate(-90deg);pointer-events:none}
+/* puxando a tela além do começo, aparece o azul do topo; além do fim, o claro da folha (no celular, aparecia branco em cima do topo) */
+html{background:var(--navy)}
+html.no-fim{background:var(--cl)}
 .busca input{flex:1;min-width:0;border:0;background:none;color:#fff;font-size:14px}
 .busca input::placeholder{color:#8592AA}
 .tlogo{grid-area:logo;height:34px;width:auto}
@@ -154,13 +165,12 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
 .hres b{color:#fff;font-weight:600}
 .lnk-erro{color:#F5A193;font-weight:600;transition:color .2s}
 .lnk-erro:hover{color:#FFC6BD}
-/* os quatro números da visão geral, sem as linhas entre eles, e alinhados com as bordas: o primeiro encosta na da esquerda, o último na da
-   direita, e os do meio ficam no meio (pedidos do Luiz, 20/10/2026) */
-.hkpi{grid-area:kpi;margin-top:48px;display:flex;justify-content:space-between;gap:24px 32px}
+/* os quatro números da visão geral, sem as linhas entre eles, cada um no meio da sua quarta parte: centralizados entre si (pedido do
+   Luiz, 22/10/2026; antes o primeiro e o último encostavam nas bordas) */
+.hkpi{grid-area:kpi;margin-top:48px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 32px}
 .hkpi[hidden]{display:none}
 .hkpi>div{min-width:0;text-align:center}
-.hkpi>div:first-child{text-align:left}
-.hkpi>div:last-child{text-align:right}
+.hkpi .esq{display:inline-block;vertical-align:middle}   /* na linha do texto: o esqueleto tem a mesma altura dos números, nada pula */
 .hkpi .n{min-height:1em;font:500 64px/1 var(--f1);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .hkpi .n.ouro{color:var(--gold3)}
 .hkpi .r{min-height:1.5em;margin-top:12px;font-size:15px;font-weight:600}
@@ -168,12 +178,32 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
 /* escrita: cada letra entra em fusão, uma depois da outra (o atraso vem em cada letra) */
 .lt{animation:letra .22s ease-out both}
 @keyframes letra{from{opacity:0}}
+/* esqueleto: enquanto os dados não chegam, a página já tem a forma de quando carrega, com um brilho que passa; os números e as listas
+   entram por cima, contando e chegando (pedido do Luiz, 22/10/2026: antes da carga, a tela era bem diferente) */
+.esq{display:block;max-width:100%;border-radius:8px;background:linear-gradient(90deg,rgba(255,255,255,.05) 20%,rgba(255,255,255,.13) 45%,rgba(255,255,255,.05) 70%);background-size:300% 100%;animation:brilhoEsq 1.7s ease-in-out infinite}
+.folha .esq{background-image:linear-gradient(90deg,#EAE5DE 20%,#F7F4EF 45%,#EAE5DE 70%)}
+@keyframes brilhoEsq{from{background-position:100% 0}to{background-position:0 0}}
+.row.esq-l{pointer-events:none}
+.row.esq-l .row-tx .esq+.esq{margin-top:7px}
+.av.esq,.lg.esq{box-shadow:none}
+.rel-n b .esq{display:inline-block;width:64px;height:30px;vertical-align:middle}
 /* ===== visitas ao site: os gráficos da visão geral, no azul, embaixo dos quatro números (pedido do Luiz, 21/10/2026). Marcas finas no
    dourado do site, grade discreta, o valor escrito na ponta das barras; na linha e nas colunas, o valor aparece com o mouse em cima ===== */
 .hgraf{grid-area:graf;margin-top:60px}
 .hgraf[hidden]{display:none}
-.gf-cab{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
-.gf-cab .kk{color:var(--gold3)}
+.gf-cab{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:40px}
+/* recolhível (pedido do Luiz, 22/10/2026): o título abre e fecha os gráficos, e o painel lembra como ficou da última vez */
+.gf-tog{display:inline-flex;align-items:center;gap:12px;padding:6px 0;color:var(--gold3);font:600 11.5px/1.2 var(--f2);letter-spacing:.22em;text-transform:uppercase}
+.gf-tog i{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);color:#CFD9E8;transition:background .2s,color .2s}
+.gf-tog:hover i{background:rgba(255,255,255,.12);color:#fff}
+.gf-tog i .ic{width:15px;height:15px;transition:transform .45s var(--ease)}
+.hgraf.rec .gf-tog i .ic{transform:rotate(-90deg)}
+.gf-per{transition:opacity .3s,visibility .3s}
+.hgraf.rec .gf-per{opacity:0;visibility:hidden}
+.gf-corpo{padding-top:18px}
+.hgraf.fechado .gf-corpo{display:none}
+.esq-cols{position:absolute;inset:0 0 22px;display:flex;align-items:flex-end;gap:1.2%}
+.esq-cols i{flex:1;border-radius:4px 4px 0 0}
 .gf-per{display:flex;gap:4px;padding:4px;border-radius:99px;background:rgba(255,255,255,.06)}
 .gf-per button{height:32px;padding:0 14px;border-radius:99px;color:#B9C6DA;font:600 12.5px/1 var(--f2);transition:background .2s,color .2s}
 .gf-per button:hover{color:#fff}
@@ -336,19 +366,20 @@ button.row:hover .row-tx b{color:var(--gold)}
 .lg{width:58px;height:36px;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;font:700 12px/1 var(--f2);color:var(--mut)}
 .lg img{max-width:46px;max-height:24px;object-fit:contain}
 .lg.g{width:84px;height:54px;border-radius:14px}.lg.g img{max-width:66px;max-height:36px}
-/* relatório de leads */
-.rel{background:#fff;border-radius:26px;padding:26px 30px;display:flex;flex-wrap:wrap;align-items:center;gap:22px 44px;box-shadow:var(--sombra)}
+/* relatório de leads: tudo no meio, um embaixo do outro, e os quatro números numa linha só (pedido do Luiz, 22/10/2026) */
+.rel{background:#fff;border-radius:26px;padding:28px 30px 30px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:22px;box-shadow:var(--sombra)}
 #relDash{margin-top:44px}
 #relLeads{margin-bottom:28px}
-.rel-e{flex:1 1 260px}
+.rel-e{display:flex;flex-direction:column;align-items:center}
 .rel .kk{color:var(--goldtx)}
-.pps{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.pps{margin-top:12px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
 .pp{height:36px;padding:0 15px;border-radius:99px;background:#F1EEEA;font:500 13.5px/1 var(--f2);transition:background .2s}
 .pp:hover{background:#E8E3DC}
 .pp.on{background:var(--navy);color:#fff}
-.rel-d{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--mut)}
+.rel-d{margin-top:10px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;align-items:center;font-size:13px;color:var(--mut)}
 .rel-d input{height:36px;padding:0 12px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:13px}
-.rel-n{display:flex;flex-wrap:wrap;gap:20px 40px}
+.rel-n{display:flex;flex-wrap:nowrap;justify-content:center;gap:20px 64px}
+.rel-n>div{min-width:0}
 .rel-n b{display:block;font:500 34px/1 var(--f1);font-variant-numeric:tabular-nums}
 .rel-n span{display:block;margin-top:6px;font-size:13px;color:var(--mut)}
 /* filtros em pílulas: todas do mesmo tamanho, o da maior (pedido do Luiz, 20/10/2026); trocando, a pílula muda em fusão e a lista entra
@@ -478,8 +509,12 @@ button.row:hover .row-tx b{color:var(--gold)}
 .lr .lg img{max-width:50px;max-height:26px}
 .cred{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--goldtx)}
 /* veículos */
-.vbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-.vbar .vcount{margin:0}
+/* a contagem no meio e o modo de ver à direita (pedido do Luiz, 22/10/2026) */
+.vbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:18px}
+.vbar .vcount{grid-column:2;margin:0;text-align:center}
+.vbar .modo{grid-column:3;justify-self:end}
+.lcount{margin-bottom:16px;text-align:center}
+.lcount:empty{display:none}
 .modo{display:flex;gap:4px;padding:4px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
 .modo button{width:36px;height:34px;border-radius:99px;display:flex;align-items:center;justify-content:center;color:var(--mut);transition:background .2s,color .2s}
 .modo button:hover{color:var(--ink)}
@@ -499,8 +534,9 @@ button.row:hover .row-tx b{color:var(--gold)}
 .vc .vm{font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vc .vp{margin-top:auto;padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .vc .pr{font:600 16px/1.2 var(--f1);white-space:nowrap}
-/* a segunda visualização: em lista (pedido do Luiz, 20/10/2026) */
-.vl{border-top:1px solid var(--line)}
+/* a segunda visualização: em lista (pedido do Luiz, 20/10/2026), sem a barra dos nomes das colunas em cima e sem a primeira e a última
+   linha (pedido de 22/10/2026): só as linhas entre os carros */
+.vl>.vli:nth-last-child(1 of .vli){border-bottom-color:transparent}
 .vli{display:grid;grid-template-columns:96px minmax(0,2.2fr) 70px 100px 112px minmax(0,1.2fr) 92px 42px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
 .vli .nm b{transition:color .2s}
 .vli:hover .nm b,.vli.on .nm b{color:var(--goldtx)}
@@ -512,7 +548,6 @@ button.row:hover .row-tx b{color:var(--gold)}
 .vli .c{font-size:13.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vli .pr{font:600 15px/1.2 var(--f1);white-space:nowrap}
 .vli .st{display:flex;justify-content:flex-end}
-.vli-h{padding-top:0;padding-bottom:12px;border-bottom:1px solid var(--ink);cursor:default;font:600 11px/1 var(--f2);letter-spacing:.16em;text-transform:uppercase;color:#5E6B80}
 .switch{position:relative;width:42px;height:24px;border-radius:99px;background:#D7D1C9;flex:none;transition:background .2s}
 .switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s var(--ease)}
 .switch.on{background:var(--gold2)}
@@ -554,18 +589,43 @@ button.row:hover .row-tx b{color:var(--gold)}
 .pc-x{position:absolute;top:0;right:0;z-index:1;background:#F8E1DE;color:#9A2F22;opacity:0;transform:scale(.6);pointer-events:none;transition:transform .35s var(--ease),opacity .2s,background .2s}
 .pc-x:hover{background:#F2CDC8}
 .pc-ed:hover .pc-x,.pc-ed:focus-within .pc-x{opacity:1;transform:translateX(-48px);pointer-events:auto}
-@media (hover:none){.pc-x{display:none}}   /* sem mouse, o excluir fica no editor */
-/* o editor do mural, no azul do topo e no padrão do site: campos escuros e o botão dourado. À direita, as fotos pequenas (mais de uma;
-   a primeira é a capa) e a prévia de como a publicação aparece na lista do site, que termina na linha do fim do texto (pedido do Luiz,
-   21/10/2026) */
-.ed-g{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:28px 44px;align-items:stretch}
-.ed-c{display:flex;flex-direction:column;gap:20px;min-width:0}
-.ed-lado{display:flex;flex-direction:column;gap:22px;min-width:0}
-/* o texto e o resumo crescem até o fim da fileira: as duas colunas terminam sempre na mesma linha */
-.ed-txt{flex:1 1 auto;display:flex;flex-direction:column}
-.ed-txt textarea{flex:1 1 auto;min-height:230px}
-.ed-tit{height:62px!important;font:500 24px/1 var(--f1)!important;letter-spacing:-.01em}
-.ed-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+/* sem mouse (celular), o excluir fica sempre à mostra, ao lado do editar (pedido do Luiz, 22/10/2026) */
+@media (hover:none){.pc-ed{gap:8px}.pc-x{position:static;opacity:1;transform:none;pointer-events:auto}}
+/* editar abre embaixo da publicação, como as camadas das outras partes (pedido do Luiz, 22/10/2026); a nova abre no azul do topo */
+.pgrid>.cam{grid-column:1/-1}
+.pc.on{box-shadow:0 0 0 2px var(--gold2),0 22px 40px -24px rgba(11,26,51,.38)}
+/* o editor do mural, no padrão do site e menor (pedido do Luiz, 22/10/2026): o título, a data e o destaque numa linha; as categorias numa
+   linha; o texto começa pequeno e cresce conforme se escreve; à direita, as fotos pequenas (a primeira é a capa) e a prévia */
+.ed-g{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:24px 40px;align-items:start}
+.ed-c{display:flex;flex-direction:column;gap:18px;min-width:0}
+.ed-lado{display:flex;flex-direction:column;gap:18px;min-width:0}
+.ed-l1{display:grid;grid-template-columns:minmax(0,1fr) 230px auto;gap:16px 18px;align-items:end}
+.ed-g .cp input{height:44px;font-size:14.5px}
+.ed-g .seg{flex-wrap:nowrap}
+.ed-g .seg button{height:38px;padding:0 16px;font-size:13px}
+.ed-g .sw-l{height:44px}
+.ed-txt textarea{min-height:0;resize:none;overflow:hidden;transition:height .2s}
+/* a data no padrão das listas do site: o botão abre um calendário escuro, como a lista dos filtros */
+.cal-t{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;height:44px;padding:0 14px 0 16px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:14.5px;white-space:nowrap;transition:border-color .2s}
+.cal-t:hover{border-color:rgba(255,255,255,.3)}
+.cal-t.on{border-color:rgba(244,176,92,.65)}
+.cal-t .ic{width:16px;height:16px;color:#8592AA;transition:transform .25s var(--ease)}
+.cal-t.on .ic{transform:rotate(180deg)}
+.cal-p{position:fixed;z-index:300;width:304px;padding:14px;border-radius:18px;background:#0E1E38;color:#fff;box-shadow:0 22px 50px -18px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.1);display:none}
+.cal-p.on{display:block;animation:dropEntra .2s var(--ease) both}
+.cal-p.sai{display:block;animation:dropSai .16s ease-in both;pointer-events:none}
+.cal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-h b{font:500 15px/1 var(--f1)}
+.cal-h button{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#CFD9E8;transition:background .2s,color .2s}
+.cal-h button:hover{background:rgba(255,255,255,.08);color:#fff}
+.cal-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.cal-g span{padding:6px 0;text-align:center;font:600 10.5px/1 var(--f2);letter-spacing:.08em;text-transform:uppercase;color:var(--gold3)}
+.cal-g button{height:36px;border-radius:10px;color:#CFD9E8;font-size:13.5px;font-variant-numeric:tabular-nums;transition:background .15s,color .15s}
+.cal-g button:hover{background:rgba(255,255,255,.08);color:#fff}
+.cal-g button.hoje{box-shadow:inset 0 0 0 1px rgba(244,176,92,.5)}
+.cal-g button.sel{background:var(--gold2);color:var(--navy);font-weight:700}
+.cal-f{margin-top:8px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);text-align:center}
+.cal-f button{font:600 13px/1 var(--f2);color:var(--gold3)}
 .ed-fotos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .ed-f{position:relative;aspect-ratio:4/3;border-radius:12px;background:#0A1A33 center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);cursor:pointer;transition:box-shadow .2s}
 .ed-f:hover{box-shadow:inset 0 0 0 1px rgba(244,176,92,.6)}
@@ -577,18 +637,13 @@ button.row:hover .row-tx b{color:var(--gold)}
 @media (hover:none){.ed-f .x{opacity:1}}
 .ed-mais{aspect-ratio:4/3;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px dashed rgba(255,255,255,.26);color:#8592AA;font-size:12px;cursor:pointer;transition:border-color .2s,color .2s}
 .ed-mais:hover{border-color:rgba(244,176,92,.6);color:var(--gold3)}
-.ed-dica{margin-top:8px;font-size:12px;color:#8592AA}
-/* o resumo ocupa o que sobra na coluna: as duas colunas terminam na mesma linha, sem buraco entre as fotos e a prévia */
-.ed-res{flex:1 1 auto;display:flex;flex-direction:column}
-.ed-res textarea{flex:1 1 auto;min-height:96px;resize:none}
-.ed-prev{margin-top:auto}
 .ed-prev>span{display:block;margin-bottom:10px;font:600 10.5px/1.2 var(--f2);letter-spacing:.18em;text-transform:uppercase;color:var(--gold3)}
 .pv{display:flex;gap:14px;align-items:flex-start;padding:14px;border-radius:16px;background:var(--cl);color:var(--ink)}
 .pv-f{width:104px;aspect-ratio:4/3;border-radius:10px;flex:none;background:#E9E4DD center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#A9A198}
 .pv small{display:block;font:600 11px/1.2 var(--f2);letter-spacing:.06em;text-transform:uppercase;color:var(--goldtx)}
 .pv b{display:block;margin-top:6px;font:500 16px/1.3 var(--f1);overflow-wrap:anywhere}
 .pv span{display:block;margin-top:6px;font-size:12.5px;color:var(--mut)}
-.tform .cm-b.ed-b{margin-top:26px}
+.cm-b.ed-b{margin-top:24px}
 
 /* ===== menu: a barra em pílula do site, fixa embaixo. Como no site, a parte aberta mostra o nome, e o mouse em cima de outra abre o
    nome dela também (pedido do Luiz, 20/10/2026) ===== */
@@ -708,18 +763,19 @@ button.row:hover .row-tx b{color:var(--gold)}
   .htit .kk+h1{margin-top:10px}
   .hres{font-size:13.5px}
   .htit .hero-ac,.htit .hero-ac .bt{width:100%;justify-content:center}
-  .busca{grid-area:busca;justify-self:stretch;width:auto;margin-top:20px}
+  .tbusca{justify-self:stretch;margin-top:20px}
+  .busca{flex:1;width:auto;min-width:0}
   .pop,.avisos{width:auto}
-  /* os números dois a dois: os da esquerda encostam na borda da esquerda, os da direita na da direita */
-  .hkpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:26px;gap:22px 18px}
-  .hkpi>div,.hkpi>div:first-child{text-align:left}
-  .hkpi>div:nth-child(2n),.hkpi>div:last-child{text-align:right}
+  /* os números dois a dois, cada um no meio da sua metade */
+  .hkpi{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:26px;gap:22px 18px}
   .hkpi .n{font-size:38px}
   .hkpi .r{margin-top:8px;font-size:13px}
   .hkpi .s{font-size:12px}
   .folha{padding:30px var(--lado) 48px}
   .menu{display:none;left:auto;right:var(--lado);top:66px;bottom:auto;transform:none;flex-direction:column;align-items:stretch;width:230px;padding:8px;border-radius:22px}
   .menu.aberto{display:flex;animation:entra .25s var(--ease)}
+  .menu.sai{display:flex;animation:menuSai .22s ease-in both;pointer-events:none}   /* fechando, some em fusão (pedido do Luiz, 22/10/2026) */
+  @keyframes menuSai{to{opacity:0;transform:translateY(-8px)}}
   .menu a,.menu button,.menu a.on{justify-content:flex-start;height:44px;padding:0 14px}
   .menu .nl,.menu .nl.vis{width:auto!important;margin-left:10px;opacity:1}
   .menu .sep{width:auto;height:1px;margin:4px 6px}
@@ -730,13 +786,21 @@ button.row:hover .row-tx b{color:var(--gold)}
   .g2{gap:34px}
   .row-q,.row-n,.row-st{width:auto}
   .row .row-n{display:none}
-  .rel{padding:20px 18px}
-  .rel-n{display:grid;grid-template-columns:1fr 1fr;width:100%}
-  .rel-n b{font-size:28px}
+  .rel{padding:22px 16px}
+  /* os quatro números numa linha só, no meio */
+  .rel-n{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%}
+  .rel-n b{font-size:24px}
+  .rel-n span{font-size:11px;line-height:1.3}
   .rel .bt{width:100%;justify-content:center}
-  /* os filtros em pílulas, dois por linha, todos do mesmo tamanho */
+  /* os filtros em pílulas, dois por linha, todos do mesmo tamanho; com número ímpar, o primeiro ("Todos") vai de ponta a ponta e os
+     outros ficam embaixo dele (pedido do Luiz, 22/10/2026) */
   .chips{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+  .chips>.chip:first-child:nth-last-child(odd){grid-column:1/-1}
   .chip{padding:0 12px}
+  /* em Associados, os quatro filtros numa linha só, menores (pedido do Luiz, 22/10/2026) */
+  #assocChips{display:flex;gap:6px}
+  #assocChips .chip{flex:1 1 auto;min-width:0;height:36px;padding:0 2vw;gap:4px;font-size:3vw}
+  #assocChips .chip i{font-size:2.7vw}
   .lr{gap:12px;min-height:64px;width:calc(100% + 20px);margin:0 -10px;padding:12px 10px}
   .lr .i{display:none}
   .lr .q{min-width:0}
@@ -772,7 +836,13 @@ button.row:hover .row-tx b{color:var(--gold)}
   .fbusca{flex:1 1 100%}
   .filtros .dd{flex:1 1 calc(50% - 5px)}
   .filtros .dd-t{width:100%;min-width:0}
-  .vbar{flex-wrap:wrap}
+  .vbar{grid-template-columns:minmax(0,1fr);justify-items:center;row-gap:10px}
+  .vbar .vcount,.vbar .modo{grid-column:1;justify-self:center}
+  /* o editor do mural: o título numa linha, a data e o destaque na de baixo, e as quatro categorias numa linha só */
+  .ed-l1{grid-template-columns:minmax(0,1fr) auto}
+  .ed-l1 .ed-ti{grid-column:1/-1}
+  .ed-g .seg{gap:5px}
+  .ed-g .seg button{flex:1 1 auto;min-width:0;height:34px;padding:0 1.6vw;font-size:2.95vw}
   .ll-h{display:none}
   .ll{grid-template-columns:10px minmax(0,1fr) auto;grid-template-areas:"n c t" "n i i" "n l d";row-gap:5px;padding:12px 0}
   .ll>.nv,.ll>.nv0{grid-area:n;align-self:start;margin-top:7px}
@@ -814,7 +884,7 @@ button.row:hover .row-tx b{color:var(--gold)}
         <div id="lerr" role="alert">Senha incorreta.</div>
       </form>
     </div>
-    <p class="ent-rod">© <span id="entAno"></span> Aceima · aceima.com.br</p>
+    <p class="ent-rod">© <span id="entAno"></span> Aceima</p>
   </div>
 </div>
 
@@ -822,10 +892,14 @@ button.row:hover .row-tx b{color:var(--gold)}
 <div class="app" id="app">
   <header class="topo vidro">
     <div class="topo-in">
-      <label class="busca" id="buscaBox">
-        <svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input id="gBusca" placeholder="Buscar no painel" aria-label="Buscar associado, veículo, lead ou publicação" autocomplete="off" oninput="buscaGlobal(this.value)" onkeydown="if(event.key==='Escape'){this.value='';buscaGlobal('');}">
-      </label>
+      <!-- a busca e, ao lado dela, o "+" da parte aberta (cadastrar associado ou nova publicação), que some enquanto o formulário está aberto -->
+      <div class="tbusca">
+        <label class="busca" id="buscaBox">
+          <svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="gBusca" placeholder="Buscar no painel" aria-label="Buscar associado, veículo, lead ou publicação" autocomplete="off" oninput="buscaGlobal(this.value)" onkeydown="if(event.key==='Escape'){this.value='';buscaGlobal('');}">
+        </label>
+        <button type="button" class="mais fora" id="btMais" aria-hidden="true" tabindex="-1" onclick="acaoMais()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
       <img class="tlogo" src="marca-nova/aceima-nova.png" alt="Aceima">
       <div class="tacoes">
         <button type="button" class="cir" id="avisosBt" aria-label="Avisos" aria-expanded="false" onclick="toggleAvisos(event)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="num" id="avisosN" hidden></span></button>
@@ -872,10 +946,10 @@ button.row:hover .row-tx b{color:var(--gold)}
       <section class="view" id="v-veiculos">
         <div class="filtros">
           <label class="fbusca"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="fVBusca" placeholder="Modelo, loja, ano ou preço" aria-label="Buscar no estoque" autocomplete="off" oninput="VPAG=0;filtrarVeic()"></label>
-          <select id="fVLoja" data-padrao="" onchange="VPAG=0;filtrarVeic(true)" aria-label="Loja"><option value="">Todas as lojas</option></select>
-          <select id="fVMarca" data-padrao="" onchange="VPAG=0;filtrarVeic(true)" aria-label="Marca"><option value="">Todas as marcas</option></select>
-          <select id="fVStatus" data-padrao="todos" onchange="VPAG=0;filtrarVeic(true)" aria-label="Situação"><option value="todos">Todos</option><option value="nosite">No site</option><option value="ocultos">Ocultos</option><option value="semfoto">Sem foto</option></select>
-          <select id="fVOrd" onchange="VPAG=0;filtrarVeic(true)" aria-label="Ordem"><option value="recentes">Mais recentes</option><option value="menor">Menor preço</option><option value="maior">Maior preço</option><option value="km">Menor km</option><option value="novos">Mais novos</option></select>
+          <select autocomplete="off" id="fVLoja" data-padrao="" onchange="VPAG=0;filtrarVeic(true)" aria-label="Loja"><option value="">Todas as lojas</option></select>
+          <select autocomplete="off" id="fVMarca" data-padrao="" onchange="VPAG=0;filtrarVeic(true)" aria-label="Marca"><option value="">Todas as marcas</option></select>
+          <select autocomplete="off" id="fVStatus" data-padrao="todos" onchange="VPAG=0;filtrarVeic(true)" aria-label="Situação"><option value="todos">Todos</option><option value="nosite">No site</option><option value="ocultos">Ocultos</option><option value="semfoto">Sem foto</option></select>
+          <select autocomplete="off" id="fVOrd" onchange="VPAG=0;filtrarVeic(true)" aria-label="Ordem"><option value="recentes">Mais recentes</option><option value="menor">Menor preço</option><option value="maior">Maior preço</option><option value="km">Menor km</option><option value="novos">Mais novos</option></select>
           <button type="button" class="limpar" id="btnLimparVeic" onclick="limparFiltrosVeic()">Limpar filtros</button>
         </div>
         <div class="vbar">
@@ -893,8 +967,10 @@ button.row:hover .row-tx b{color:var(--gold)}
       <section class="view" id="v-leads">
         <section class="rel" id="relLeads"></section>
         <div class="chips" id="leadChips" style="margin-bottom:22px"></div>
+        <div class="vcount lcount" id="leadCount"></div>
         <div class="ll-h"><span></span><span>Data</span><span>Tipo</span><span>Cliente</span><span>Veículo ou empresa</span><span>Loja</span><span></span></div>
         <div id="leadsLista"></div>
+        <div class="pager" id="leadPager"></div>
       </section>
 
       <!-- ===== MURAL ===== -->
@@ -914,8 +990,8 @@ button.row:hover .row-tx b{color:var(--gold)}
     <span class="sep"></span>
     <a href="/" target="_blank" rel="noopener" aria-label="Ver o site" onmouseenter="passarMenu(this)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="nl"><span>Ver o site</span></span></a>
     <button type="button" aria-label="Sair" onmouseenter="passarMenu(this)" onclick="sair()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg><span class="nl"><span>Sair</span></span></button>
-    <button type="button" class="pgs pg-ant" aria-label="Página anterior" onclick="irPaginaVeic(-1)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg><span class="pt"><span>Página anterior</span></span></button>
-    <button type="button" class="pgs pg-prox" aria-label="Próxima página" onclick="irPaginaVeic(1)"><span class="pt"><span>Próxima página</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+    <button type="button" class="pgs pg-ant" aria-label="Página anterior" onclick="irPagina(-1)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg><span class="pt"><span>Página anterior</span></span></button>
+    <button type="button" class="pgs pg-prox" aria-label="Próxima página" onclick="irPagina(1)"><span class="pt"><span>Próxima página</span></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
   </nav>
 </div>
 
@@ -1053,7 +1129,7 @@ async function carregarPubs(){
     if(!r.ok||!j.ok)throw new Error(j.erro||('erro '+r.status));
     PUBS=Array.isArray(j.publicacoes)?j.publicacoes:[];pubsErro=null;
   }catch(e){pubsErro=e.message;}
-  renderPubs();if(vistaAtual==='mural')pintarResumo();
+  pubsProntas=true;renderPubs();if(vistaAtual==='mural')pintarResumo();
 }
 
 /* ---------- topo: a data, o título e os números de cada parte ---------- */
@@ -1072,10 +1148,17 @@ function pintarHero(animar){
   $('htT').innerHTML=v==='dash'?`<h1 class="data" aria-label="${esc(d1+d2)}">${dois(d1,d2)}</h1>`
     :`<div class="kk data">${esc(dt)}</div><h1 class="pg" aria-label="${esc(TIT[v].join(''))}">${dois(TIT[v][0],TIT[v][1])}</h1>`;
   $('heroTit').classList.toggle('centro',v==='dash');   // na visão geral, a data no meio
-  $('htA').innerHTML=v==='associados'?`<button type="button" class="bt" onclick="abrirNovo()">${sv(IC.mais,'sm')}Cadastrar Associado</button>`
-    :v==='mural'?`<button type="button" class="bt" onclick="abrirPub()">${sv(IC.mais,'sm')}Nova publicação</button>`:'';
-  pintarResumo();pintarKpis(false);pintarGraf(false);
+  pintarMais();pintarResumo();pintarKpis(false);pintarGraf(false);
 }
+// o "+" fica ao lado da busca, na mesma linha (pedido do Luiz, 22/10/2026): em Associados cadastra, no Mural publica. Some enquanto o
+// formulário está aberto
+const MAIS={associados:['Cadastrar associado',()=>abrirNovo()],mural:['Nova publicação',()=>abrirPub()]};
+function pintarMais(){
+  const b=$('btMais'),m=MAIS[vistaAtual],aberto=(vistaAtual==='associados'&&!$('novoAssoc').hidden)||(vistaAtual==='mural'&&!$('pubEd').hidden);
+  const mostra=!!m&&!aberto;b.classList.toggle('fora',!mostra);b.setAttribute('aria-hidden',String(!mostra));b.tabIndex=mostra?0:-1;
+  if(m){b.title=m[0];b.setAttribute('aria-label',m[0]);}
+}
+function acaoMais(){const m=MAIS[vistaAtual];if(m)m[1]();}
 function pintarResumo(animar){
   const v=vistaAtual,r=$('htR');let res='';
   if(dadosProntos){
@@ -1091,7 +1174,8 @@ function pintarResumo(animar){
 // os quatro números da visão geral. Abrindo o painel, contam do zero e os textos são escritos; antes dos dados, nada de zeros na tela
 function pintarKpis(animar){
   const k=$('heroKpi');k.hidden=vistaAtual!=='dash';if(k.hidden)return;
-  if(!dadosProntos){k.innerHTML=[0,1,2,3].map(()=>'<div><div class="n"></div><div class="r"></div><div class="s"></div></div>').join('');return;}
+  // antes dos dados, a forma dos números com o brilho do esqueleto (nada de zeros na tela)
+  if(!dadosProntos){k.innerHTML=[96,150,60,140].map(w=>`<div><div class="n"><i class="esq" style="width:${w}px;height:50px"></i></div><div class="r"><i class="esq" style="width:150px;height:13px"></i></div><div class="s"><i class="esq" style="width:118px;height:11px"></i></div></div>`).join('');return;}
   const c=contas(),falha=c.falhas?`<button type="button" class="lnk-erro" onclick="verFalhas()">${fmt(c.falhas)} ${c.falhas===1?'loja com falha':'lojas com falha'}</button>`:'';
   const itens=[
     {n:c.empresas,r:'Empresas associadas',s:`${fmt(c.integradas)} com estoque integrado`},
@@ -1148,15 +1232,33 @@ function verVeiculo(id){
     VPAG=Math.floor(i/VPOR);veicAberto=null;renderVeic();abrirVeic(id);});
 }
 function picoTxt(h){h=h||[];const max=Math.max(0,...h);if(!max)return 'Sem visitas no período.';const i=h.indexOf(max);return `Mais visitas entre ${i}h e ${(i+1)%24}h`;}
+// "Direto" não dizia nada (pedido do Luiz, 22/10/2026): é quem digitou o endereço ou entrou por um link salvo (sem site de origem)
+const NOME_ORIGEM={Direto:'Endereço digitado ou salvo'};
+// recolhido ou aberto fica guardado no aparelho, como ficou da última vez (pedido do Luiz, 22/10/2026)
+let grafFechado=(()=>{try{return localStorage.getItem('painel_visitas')==='fechado';}catch(e){return false;}})();
+// o esqueleto dos gráficos: os mesmos cartões, com o brilho no lugar dos números, enquanto as visitas não chegam
+function esqGraf(){
+  const c=(cl,h,corpo)=>`<div class="gc ${cl}"><h3>${h}</h3>${corpo}</div>`,num='<div class="gnum"><i class="esq" style="width:118px;height:36px"></i></div>';
+  const bar=n=>Array.from({length:n},(_,i)=>`<div class="gbar"><span><i class="esq" style="width:${[62,48,70,40,56,44][i%6]}%;height:12px"></i></span><b><i class="esq" style="width:34px;height:12px"></i></b><i></i></div>`).join('');
+  return c('gc-dia','Visitas por dia',num+'<div class="gplot"><i class="esq" style="position:absolute;inset:0 0 24px 40px;height:auto;border-radius:14px;opacity:.55"></i></div>')
+    +c('gc-tempo','Tempo no site',num+bar(6))
+    +c('gc-carros','Carros mais visitados',Array.from({length:5},()=>'<div class="gcar"><span class="ft esq"></span><span class="nm"><i class="esq" style="width:72%;height:12px"></i><i class="esq" style="width:44%;height:10px;margin-top:7px"></i></span><b><i class="esq" style="width:26px;height:14px"></i></b></div>').join(''))
+    +c('gc-origem','De onde vêm',bar(6))
+    +c('gc-hora','Horário das visitas',`<div class="gplot"><div class="esq-cols">${[8,6,5,4,4,6,14,26,38,48,54,58,60,56,52,54,58,66,74,80,82,72,50,24].map(h=>`<i class="esq" style="height:${h}%"></i>`).join('')}</div></div>`)
+    +c('gc-busca','O que mais procuram',bar(5))+c('gc-lojas','Lojas mais vistas',bar(5));
+}
 function pintarGraf(animar){
-  const g=$('heroGraf');g.hidden=vistaAtual!=='dash'||!VIS;if(g.hidden){dica();return;}
-  const a=VIS.atual||{},b=VIS.anterior||{},nv=a.visitas||0,anim=animar&&!reduz();
+  const g=$('heroGraf');g.hidden=vistaAtual!=='dash';if(g.hidden){dica();return;}
+  g.classList.toggle('rec',grafFechado);g.classList.toggle('fechado',grafFechado);
+  const cab=`<div class="gf-cab"><button type="button" class="gf-tog" id="gfTog" aria-expanded="${!grafFechado}" aria-controls="gfCorpo" onclick="alternarGraf()">Visitas ao site<i>${sv('<path d="m6 9 6 6 6-6"/>')}</i></button><div class="gf-per" role="group" aria-label="Período dos gráficos">${[7,30,90].map(d=>`<button type="button" data-d="${d}" class="${d===GDIAS?'on':''}" aria-pressed="${d===GDIAS}" onclick="trocarPeriodo(${d})">${d} dias</button>`).join('')}</div></div>`;
+  if(!VIS){g.innerHTML=cab+`<div class="gf-corpo" id="gfCorpo"><div class="gf-grade">${esqGraf()}</div></div>`;return;}
+  const a=VIS.atual||{},b=VIS.anterior||{},nv=a.visitas||0,anim=animar&&!reduz()&&!grafFechado;
   const conv=nv?(VIS.leads||0)*100/nv:0,sem=t=>`<p class="gvazio">${t||'Sem visitas no período.'}</p>`;
   const tempo=[['até 10 s',a.t1],['10 a 30 s',a.t2],['30 s a 1 min',a.t3],['1 a 3 min',a.t4],['3 a 10 min',a.t5],['mais de 10 min',a.t6]];
-  const origem=(VIS.origem||[]).map(x=>[x.nome,x.visitas]),totO=origem.reduce((s,x)=>s+x[1],0);
+  const origem=(VIS.origem||[]).map(x=>[NOME_ORIGEM[x.nome]||x.nome,x.visitas]),totO=origem.reduce((s,x)=>s+x[1],0);
   const ap=(VIS.aparelho||[]).map(x=>[x.nome,x.visitas]),totA=ap.reduce((s,x)=>s+x[1],0);
   const dias=VIS.porDia||[],horas=VIS.horas||[];
-  g.innerHTML=`<div class="gf-cab"><div class="kk">Visitas ao site</div><div class="gf-per" role="group" aria-label="Período dos gráficos">${[7,30,90].map(d=>`<button type="button" data-d="${d}" class="${d===GDIAS?'on':''}" aria-pressed="${d===GDIAS}" onclick="trocarPeriodo(${d})">${d} dias</button>`).join('')}</div></div>
+  g.innerHTML=cab+`<div class="gf-corpo" id="gfCorpo">
    <div class="gf-grade">
     <div class="gc gc-dia">
      <div class="gtopo"><div><h3>Visitas por dia</h3><div class="gnum"><b data-n="${nv}">${anim?'0':fmt(nv)}</b><span>${nv===1?'visita':'visitas'}</span>${delta(nv,b.visitas||0)}</div></div>
@@ -1173,12 +1275,32 @@ function pintarGraf(animar){
      <table class="so-leitor"><caption>Visitas por hora</caption><tr><th>Hora</th><th>Visitas</th></tr>${horas.map((v,i)=>`<tr><td>${i}h</td><td>${v}</td></tr>`).join('')}</table></div>
     <div class="gc gc-busca"><h3>O que mais procuram</h3><p class="gsub">Buscas no estoque do site</p>${(VIS.buscas||[]).length?barras(VIS.buscas.map(x=>[x.termo,x.vezes])):sem('Nenhuma busca no período.')}</div>
     <div class="gc gc-lojas"><h3>Lojas mais vistas</h3><p class="gsub">Visitas aos anúncios de cada loja</p>${(VIS.lojas||[]).length?barras(VIS.lojas.map(x=>[x.nome,x.vistas])):sem()}</div>
-   </div>`;
+   </div></div>`;
   desenharDia(anim);desenharHoras(anim);
   // as barras crescem até o tamanho delas e os números contam do zero; sem animação, já aparecem prontos
   const crescer=()=>{g.querySelectorAll('u[data-w]').forEach(u=>{u.style.width=u.dataset.w+'%';});g.querySelectorAll('.gap-t i').forEach(i=>{i.style.flexGrow=i.dataset.g;});};
   if(anim){requestAnimationFrame(()=>requestAnimationFrame(crescer));g.querySelectorAll('.gnum b[data-n]').forEach(e=>contar(e,+e.dataset.n,1400));}
   else{g.querySelectorAll('u[data-w],.gap-t i').forEach(e=>{e.style.transition='none';});crescer();}
+}
+// recolher e abrir os gráficos: fechando, o conteúdo some e depois o espaço fecha; abrindo, o espaço cresce e o conteúdo aparece
+function alternarGraf(){
+  const g=$('heroGraf'),c=$('gfCorpo'),bt=$('gfTog');grafFechado=!grafFechado;dica();
+  try{localStorage.setItem('painel_visitas',grafFechado?'fechado':'aberto');}catch(e){}
+  if(bt)bt.setAttribute('aria-expanded',String(!grafFechado));
+  if(!c)return;c.getAnimations().forEach(a=>a.cancel());
+  if(grafFechado){
+    g.classList.add('rec');if(reduz()){g.classList.add('fechado');return;}
+    const h=c.offsetHeight;c.style.overflow='hidden';
+    c.animate([{height:h+'px',opacity:1},{height:h+'px',opacity:0,offset:.3},{height:'0px',paddingTop:'0px',opacity:0}],{duration:680,easing:'cubic-bezier(.45,0,.25,1)'})
+      .onfinish=()=>{c.style.overflow='';g.classList.add('fechado');};
+  }else{
+    g.classList.remove('rec','fechado');desenharDia(false);desenharHoras(false);   // escondidos, a linha e as colunas não tinham tamanho
+    g.querySelectorAll('u[data-w]').forEach(u=>{u.style.transition='none';u.style.width=u.dataset.w+'%';});
+    if(reduz())return;
+    const h=c.offsetHeight;c.style.overflow='hidden';
+    c.animate([{height:'0px',paddingTop:'0px',opacity:0},{height:h+'px',opacity:0,offset:.5},{height:h+'px',opacity:1}],{duration:760,easing:'cubic-bezier(.2,.8,.2,1)'})
+      .onfinish=()=>{c.style.overflow='';};
+  }
 }
 // a dica com o valor, presa à tela, perto do ponto (sem argumentos, some)
 function dica(x,y,v,r){
@@ -1234,9 +1356,11 @@ function desenharHoras(animar){
 addEventListener('resize',()=>{clearTimeout(desenharDia.t);desenharDia.t=setTimeout(()=>{if(vistaAtual==='dash'&&VIS){desenharDia(false);desenharHoras(false);}},150);});
 
 /* ---------- visão geral ---------- */
+// as linhas do esqueleto: a forma das listas enquanto os dados não chegam
+const esqLinhas=(n,logo)=>Array.from({length:n},(_,i)=>`<div class="row esq-l">${logo?'<span class="lg esq"></span>':'<span class="av esq"></span>'}<span class="row-tx"><i class="esq" style="width:${[58,46,64,52,40,60][i%6]}%;height:13px"></i><i class="esq" style="width:${[36,44,30,40,48,34][i%6]}%;height:10px"></i></span><span class="row-st"><i class="esq" style="width:58px;height:22px;border-radius:99px"></i></span></div>`).join('');
 function renderDash(animar){
   const ch=i=>animar?` style="animation-delay:${350+i*70}ms"`:'',cl=animar?' chega':'';
-  if(!dadosProntos){$('dashLeads').innerHTML=$('dashImp').innerHTML='';return;}
+  if(!dadosProntos){$('dashLeads').innerHTML=esqLinhas(6);$('dashImp').innerHTML=esqLinhas(6,true);return;}
   $('dashLeads').innerHTML=leads.length?leads.slice(0,6).map((l,i)=>`<button type="button" class="row${cl}"${ch(i)} onclick="verLead(${l.id})">${avatar(l.nome)}<span class="row-tx"><b>${esc(l.nome||'Cliente')}</b><small><span class="tp">${tipoDe(l)[0]}</span>${l.item?' · '+esc(l.item):''}</small></span><span class="row-q">${quando(l.criado,true)}</span><span class="row-st">${l.novo?'<span class="pl novo">Novo</span>':''}</span></button>`).join('')
     :'<p class="vazio">Nenhum lead ainda.</p>';
   const rec=lojas.slice().sort((a,b)=>String(b.sync||'').localeCompare(String(a.sync||''))).slice(0,6);
@@ -1260,16 +1384,13 @@ function repIntervalo(){
 function repTroca(k){REP.p=k;if(k==='periodo'&&!REP.de){REP.de=new Date(Date.now()-6*864e5).toISOString().slice(0,10);REP.ate=hojeISO();}pintarRel();}
 function pintarRel(animar){
   const iv=repIntervalo(),lista=iv?leadsRaw.filter(l=>{const d=new Date(l.criado_em);return d>=iv.ini&&d<=iv.fim;}):[],c=t=>lista.filter(l=>(l.tipo||'venda')===t).length;
-  const num=n=>dadosProntos?`<b data-n="${n}">${animar?'0':fmt(n)}</b>`:'<b>&nbsp;</b>';
+  const num=n=>dadosProntos?`<b data-n="${n}">${animar?'0':fmt(n)}</b>`:'<b><i class="esq"></i></b>';
   const html=`<div class="rel-e"><div class="kk">Relatório de leads</div><div class="pps">${[['dia','Hoje'],['semana','7 dias'],['mes','30 dias'],['periodo','Período']].map(([k,t])=>`<button type="button" class="pp${REP.p===k?' on':''}" onclick="repTroca('${k}')">${t}</button>`).join('')}</div>
     ${REP.p==='periodo'?`<div class="rel-d"><input type="date" value="${REP.de}" aria-label="Do dia" onchange="REP.de=this.value;pintarRel()"> até <input type="date" value="${REP.ate}" aria-label="Até o dia" onchange="REP.ate=this.value;pintarRel()"></div>`:''}</div>
     <div class="rel-n"><div>${num(lista.length)}<span>Leads no total</span></div><div>${num(c('venda'))}<span>Interesse em carros</span></div><div>${num(c('compra'))}<span>Querem vender</span></div><div>${num(c('associacao'))}<span>Seja um associado</span></div></div>
     <button type="button" class="bt az" onclick="gerarRelatorio()">${sv(IC.baixar,'sm')}Baixar PDF</button>`;
+  // o relatório já aparece antes dos dados, com o esqueleto nos números e embaixo do esqueleto das listas: nada desce quando os dados chegam
   ['relDash','relLeads'].forEach(id=>{const e=$(id);if(!e)return;e.innerHTML=html;if(animar)e.querySelectorAll('b[data-n]').forEach((b,i)=>setTimeout(()=>contar(b,+b.dataset.n,1200),500+i*90));});
-  // na visão geral, o relatório só aparece com os dados: antes, ele ficava em cima e descia quando as listas chegavam
-  const d=$('relDash');
-  if(!dadosProntos)d.hidden=true;
-  else if(d.hidden){d.hidden=false;if(!reduz())d.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:450,delay:animar?700:0,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'});}
 }
 // o PDF sai pela janela de impressão da própria página, num quadro escondido. Antes abria uma aba nova e mandava imprimir de lá: com a
 // janela de impressão aberta na outra aba, o painel ficava travado, sem aceitar clique (o que o Luiz viu em 20/10/2026)
@@ -1378,6 +1499,7 @@ function ddFlutuar(t,p){
 ['scroll','resize'].forEach(ev=>addEventListener(ev,e=>{
   if(e.target&&e.target.closest&&e.target.closest('.dd-p'))return;
   document.querySelectorAll('.dd.on').forEach(x=>{const t=x.querySelector('.dd-t'),p=x.__p;if(t&&p)ddFlutuar(t,p);});
+  if(typeof posCal==='function')posCal();   // o calendário da data acompanha o campo
 },true));
 function aprimorarTodos(){['fVLoja','fVMarca','fVStatus','fVOrd'].forEach(id=>aprimorarSelect($(id)));}
 
@@ -1440,8 +1562,9 @@ function lerLogo(input,prevId){
 function abrirCamada(lista,linha,html,rolar,ancora){
   const rd=reduz(),tinha=lista.querySelector(':scope>.cam');
   // a que fecha perde os ids enquanto some: a nova tem os mesmos (as fotos do carro novo iam para a camada que estava fechando)
-  lista.querySelectorAll(':scope>.cam').forEach(b=>{b.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));if(rd){b.remove();return;}b.style.overflow='hidden';
-    b.animate([{height:b.offsetHeight+'px'},{height:'0px',paddingTop:'0px',paddingBottom:'0px'}],{duration:280,easing:'ease-in'}).onfinish=()=>b.remove();});
+  // fechando, o conteúdo some primeiro e o espaço fecha depois, sem golpe
+  lista.querySelectorAll(':scope>.cam').forEach(b=>{b.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));if(rd){b.remove();return;}b.style.overflow='hidden';const h=b.offsetHeight;
+    b.animate([{height:h+'px',opacity:1},{height:h+'px',opacity:0,offset:.28},{height:'0px',paddingTop:'0px',paddingBottom:'0px',opacity:0}],{duration:460,easing:'cubic-bezier(.45,0,.25,1)',fill:'forwards'}).onfinish=()=>b.remove();});
   lista.querySelectorAll(':scope>.on[data-k]').forEach(r=>{if(r!==linha){r.classList.remove('on');r.setAttribute('aria-expanded','false');}});
   if(!linha||!html)return null;
   linha.classList.add('on');linha.setAttribute('aria-expanded','true');
@@ -1466,10 +1589,13 @@ function pintarChips(box,itens,atual,fn){
 const entrarLista=el=>{if(el&&!reduz())el.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});};
 // o cadastro e o editor do mural, no azul do topo: abrindo, o espaço cresce e o conteúdo surge; fechando, o conteúdo some primeiro e depois
 // o espaço fecha devagar (pedido do Luiz, 21/10/2026: o cancelar fechava de um golpe só)
-function abrirBloco(b){b.hidden=false;if(reduz())return;b.style.overflow='hidden';const h=b.offsetHeight,mt=getComputedStyle(b).marginTop;
-  b.animate([{height:'0px',marginTop:'0px',opacity:0},{height:h+'px',marginTop:mt,opacity:0,offset:.45},{height:h+'px',marginTop:mt,opacity:1}],{duration:620,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>{b.style.overflow='';};}
+// abrindo bem mais leve (pedido do Luiz, 22/10/2026): o espaço abre devagar e cada parte do formulário chega em fusão, uma depois da outra
+function abrirBloco(b){b.hidden=false;pintarMais();if(reduz())return;b.style.overflow='hidden';const h=b.offsetHeight,mt=getComputedStyle(b).marginTop;
+  b.animate([{height:'0px',marginTop:'0px'},{height:h+'px',marginTop:mt}],{duration:860,easing:'cubic-bezier(.25,.8,.25,1)'}).onfinish=()=>{b.style.overflow='';};
+  [...b.querySelectorAll(':scope>.tf-cab,:scope>.na-g>*,:scope .ed-c>*,:scope .ed-lado>*,:scope>.cm-b')].forEach((e,i)=>
+    e.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'none'}],{duration:640,delay:240+i*70,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'}));}
 function fecharBloco(b,depois){if(b.hidden){if(depois)depois();return;}
-  const fim=()=>{b.hidden=true;b.innerHTML='';if(depois)depois();};
+  const fim=()=>{b.hidden=true;b.innerHTML='';pintarMais();if(depois)depois();};
   if(reduz()){fim();return;}b.style.overflow='hidden';const h=b.offsetHeight,mt=getComputedStyle(b).marginTop;
   b.animate([{height:h+'px',marginTop:mt,opacity:1},{height:h+'px',marginTop:mt,opacity:0,offset:.3},{height:'0px',marginTop:'0px',opacity:0}],{duration:640,easing:'cubic-bezier(.45,0,.25,1)',fill:'forwards'}).onfinish=()=>{b.style.overflow='';fim();b.getAnimations().forEach(a=>a.cancel());};}
 const campo=(id,rot,val,ph,extra)=>`<label class="cp"><span>${rot}</span><input id="${id}" value="${esc(val||'')}"${ph?` placeholder="${esc(ph)}"`:''}${extra||''}></label>`;
@@ -1490,7 +1616,8 @@ function renderAssoc(rolar){
   pintarChips($('assocChips'),dadosProntos?FILTROS_ASSOC.filter(f=>f[0]!=='falha'||q(f)).map(f=>[f[0],f[1],q(f),f[0]==='falha'?'erro':'']):[],assocFiltro,'filtAssoc');
   const vis=E.filter(FILTROS_ASSOC.find(f=>f[0]===assocFiltro)[2]),lista=$('assocLista');
   if(assocAberto&&!vis.some(e=>e.k===assocAberto))assocAberto=null;
-  lista.innerHTML=!dadosProntos?'':vis.length?vis.map(linhaAssoc).join(''):'<p class="vazio">Nenhum associado aqui.</p>';
+  lista.innerHTML=!dadosProntos?Array.from({length:8},(_,i)=>`<div class="lr" style="pointer-events:none"><span class="i"></span><span class="lg esq"></span><span class="nm"><i class="esq" style="width:${[38,30,44,34][i%4]}%;height:14px"></i><i class="esq" style="width:${[22,28,18,24][i%4]}%;height:10px;margin-top:7px"></i></span><span class="q"><i class="esq" style="width:84px;height:14px;margin-left:auto"></i></span><span class="st"><i class="esq" style="width:130px;height:12px"></i></span><span class="chev"></span></div>`).join('')
+    :vis.length?vis.map(linhaAssoc).join(''):'<p class="vazio">Nenhum associado aqui.</p>';
   if(assocAberto){const e=vis.find(x=>x.k===assocAberto);reabrirCamada(lista,assocAberto,camAssoc(e));
     if(rolar)setTimeout(()=>{const r=lista.querySelector('.lr.on');if(r)scrollTo({top:r.getBoundingClientRect().top+scrollY-100,behavior:reduz()?'auto':'smooth'});},80);}
 }
@@ -1561,7 +1688,7 @@ function editarAssoc(id){
     ${campo('eEmail','E-mail dos leads',raw.email,'contato@loja.com.br',' type="email"')}${campo('eWa','WhatsApp',raw.whatsapp?fmtTel(raw.whatsapp):'','(21) 99999-9999',' inputmode="tel"')}
     ${campo('eTel','Telefone',raw.telefone,'(21) 3333-3333',' inputmode="tel"')}${campo('eEnd','Endereço',raw.endereco,'Estrada Intendente Magalhães, 830').replace('class="cp"','class="cp dois"')}
     <div class="cp"><span>Logo</span><div class="lgc"><span class="lg" id="eLogoPrev">${raw.logo_url?imgLogo(l):''}</span><label class="bto sm" for="eLogo">Trocar a logo</label><input type="file" id="eLogo" accept="image/*" hidden onchange="lerLogo(this,'eLogoPrev')"></div></div>
-    ${campo('eCor','Fundo da logo <small>(vazio: automático)</small>',raw.cor,'automático, ou #00091A')}
+    ${campo('eCor','Fundo da logo',raw.cor,'Automático')}
     <button type="submit" hidden></button>
   </form>`;
   cb.innerHTML=`<button type="button" class="bt" onclick="salvarAssoc(${id})">Salvar</button><button type="button" class="bto" onclick="renderAssoc()">Cancelar</button>`;
@@ -1608,8 +1735,7 @@ function abrirNovo(){
   });
 }
 // credenciado: o site não é obrigatório (a SISV, por exemplo, não tem)
-function mudouRamo(){const loja=$('naRamo').value===RAMO_LOJA,s=$('naSite');if(!s)return;
-  s.closest('.cp').querySelector('span').innerHTML=loja?'Site':'Site <small>(se tiver)</small>';s.placeholder=loja?'Ex.: autoprime.com.br':'Ex.: padariaestrela.com.br';}
+function mudouRamo(){const loja=$('naRamo').value===RAMO_LOJA,s=$('naSite');if(s)s.placeholder=loja?'Ex.: autoprime.com.br':'Ex.: padariaestrela.com.br';}
 function fecharNovo(depois){fecharBloco($('novoAssoc'),depois);}
 function travarNovo(t){$('naForm').querySelectorAll('input,.dd-t').forEach(i=>i.disabled=t);}
 function deNovo(msg){travarNovo(false);$('naPasso').innerHTML=`<div class="falta"><b>Não deu para cadastrar.</b> ${esc(msg)}</div>`;
@@ -1682,7 +1808,7 @@ async function cadastrarCred(nome,site,ramo){
     <form class="cps" onsubmit="completarCred(${p.id});return false">${falta.map(f=>f[2]).join('')}<button type="submit" hidden></button></form>
     <div class="cm-b"><button type="button" class="bt" onclick="completarCred(${p.id})">Salvar</button><button type="button" class="bto" onclick="fecharNovo(abrirCredNovo)">Agora não</button></div>`;
 }
-const campoDesc=(id,val)=>`<label class="cp dois"><span>Descrição <small>(uma frase curta: o que a empresa faz)</small></span><textarea id="${id}" rows="2" maxlength="200">${esc(val||'')}</textarea></label>`;
+const campoDesc=(id,val)=>`<label class="cp dois"><span>Descrição</span><textarea id="${id}" rows="2" maxlength="200" placeholder="O que a empresa faz, numa frase">${esc(val||'')}</textarea></label>`;
 const campoLogo=(id,rot)=>`<div class="cp"><span>Logo</span><div class="lgc"><span class="lg" id="${id}Prev"></span><label class="bto sm" for="${id}">${rot}</label><input type="file" id="${id}" accept="image/*" hidden onchange="lerLogo(this,'${id}Prev')"></div></div>`;
 // o que o robô não achou no credenciado novo: só isso é pedido
 function faltaCred(c){
@@ -1854,9 +1980,12 @@ function renderVeic(trocou){
   document.querySelectorAll('.modo button').forEach(b=>b.classList.toggle('on',b.dataset.m===VMODO));
   const box=$('veicLista');
   if(!pag.some(v=>v.id===veicAberto))veicAberto=null;
-  if(!dadosProntos)box.innerHTML='';
+  // antes dos dados, o esqueleto da grade ou da lista
+  if(!dadosProntos)box.innerHTML=VMODO==='lista'?`<div class="vl">${Array.from({length:8},()=>'<div class="vli"><span class="ft esq"></span><span class="nm"><i class="esq" style="width:60%;height:13px"></i><i class="esq" style="width:38%;height:10px;margin-top:7px"></i></span><span class="c"><i class="esq" style="width:40px;height:11px"></i></span><span class="c"><i class="esq" style="width:60px;height:11px"></i></span><span class="pr"><i class="esq" style="width:76px;height:13px"></i></span><span class="c lj"><i class="esq" style="width:90px;height:11px"></i></span><span></span><span></span></div>').join('')}</div>`
+    :`<div class="vgrid">${Array.from({length:12},()=>'<div class="vc"><div class="ft esq" style="border-radius:0"></div><div class="b"><i class="esq" style="width:70%;height:14px"></i><i class="esq" style="width:46%;height:11px;margin-top:6px"></i><i class="esq" style="width:56%;height:11px;margin-top:4px"></i><div class="vp"><i class="esq" style="width:84px;height:15px"></i><i class="esq" style="width:42px;height:24px;border-radius:99px"></i></div></div></div>').join('')}</div>`;
   else if(!pag.length)box.innerHTML='<p class="vazio">Nenhum veículo encontrado.</p>';
-  else if(VMODO==='lista')box.innerHTML=`<div class="vl"><div class="vli vli-h"><span></span><span>Veículo</span><span>Ano</span><span>Km</span><span>Preço</span><span class="lj">Loja</span><span></span><span></span></div>${pag.map(v=>`<div class="vli" ${tocar(v.id)}>
+  // em lista, sem a barra dos nomes das colunas em cima (pedido do Luiz, 22/10/2026)
+  else if(VMODO==='lista')box.innerHTML=`<div class="vl">${pag.map(v=>`<div class="vli" ${tocar(v.id)}>
      <span class="ft" style="background-image:url('${esc(fotoV(v))}')"></span>
      <span class="nm"><b>${esc(nomeV(v))}</b><small>${esc(titulo(v.versao)||'')}</small></span>
      <span class="c">${esc(v.ano_modelo||'—')}</span><span class="c">${esc(kmV(v))}</span><span class="pr">${precoV(v)}</span><span class="c lj">${esc(v.loja_nome||'')}</span>
@@ -1870,10 +1999,14 @@ function renderVeic(trocou){
   if(trocou&&!reduz()){box.classList.remove('troca');void box.offsetWidth;box.classList.add('troca');}
   const pg=$('veicPager');
   pg.innerHTML=pags>1?`<button type="button" ${VPAG?'':'disabled'} onclick="irPaginaVeic(-1)">Anterior</button><span>${VPAG+1} de ${pags}</span><button type="button" ${VPAG<pags-1?'':'disabled'} onclick="irPaginaVeic(1)">Próxima</button>`:'';
-  setasVeic();
+  setasPagina();
 }
-// as setas do lado do menu só aparecem no estoque e só as que levam a alguma página
-function setasVeic(){const m=$('menu'),pags=Math.ceil(veicFiltrados.length/VPOR),aqui=vistaAtual==='veiculos';m.classList.toggle('ant-on',aqui&&VPAG>0);m.classList.toggle('prox-on',aqui&&VPAG<pags-1);}
+// as setas do lado do menu, como no site: em Veículos e em Leads, só as que levam a alguma página
+function setasPagina(){
+  const m=$('menu'),v=vistaAtual,[pg,pags]=v==='veiculos'?[VPAG,Math.ceil(veicFiltrados.length/VPOR)]:v==='leads'?[LPAG,Math.ceil(leadsDoFiltro().length/LPOR)]:[0,0];
+  m.classList.toggle('ant-on',pags>1&&pg>0);m.classList.toggle('prox-on',pags>1&&pg<pags-1);
+}
+function irPagina(d){if(vistaAtual==='leads')irPaginaLeads(d);else if(vistaAtual==='veiculos')irPaginaVeic(d);}
 // trocando de página, a lista some, a tela volta para o começo dela e a nova aparece
 function irPaginaVeic(d){
   const pags=Math.ceil(veicFiltrados.length/VPOR),n=Math.min(Math.max(0,VPAG+d),pags-1);if(n===VPAG)return;
@@ -1909,8 +2042,8 @@ function mvTiras(){
 }
 // na grade, a camada entra depois do último carro da fileira do tocado
 function ancoraGrade(lista,el){
-  if(!lista.classList.contains('vgrid'))return el;
-  let a=el;lista.querySelectorAll(':scope>.vc').forEach(c=>{if(c.offsetTop===el.offsetTop)a=c;});return a;
+  if(!lista.classList.contains('vgrid')&&!lista.classList.contains('pgrid'))return el;   // a grade dos carros e a do mural
+  let a=el;lista.querySelectorAll(':scope>[data-k]').forEach(c=>{if(c.offsetTop===el.offsetTop)a=c;});return a;
 }
 // tocado, o carro abre as informações embaixo; tocar de novo fecha
 function abrirVeic(id,el){
@@ -1957,15 +2090,23 @@ addEventListener('resize',()=>{clearTimeout(abrirVeic.t);abrirVeic.t=setTimeout(
 // sem o sistema de atendimento (pedido do Luiz, 20/10/2026): lead novo é o que ainda não foi visto. Tocado, abre embaixo dele, como os
 // associados no celular, e fica visto
 let leadFiltro='todos',leadAberto=null;
+// 15 por página; passando de 15, a página seguinte vem do lado (pedido do Luiz, 22/10/2026), pelas setas do menu ou, no celular, embaixo
+const LPOR=15;let LPAG=0;
 const FILTROS_LEAD=[['todos','Todos',()=>true],['novos','Novos',l=>l.novo],['venda','Interesse em carros',l=>l.tipo==='venda'],['compra','Querem vender',l=>l.tipo==='compra'],['associacao','Associação',l=>l.tipo==='associacao']];
-function filtLead(t){if(t===leadFiltro)return;leadFiltro=t;leadAberto=null;renderLeads();entrarLista($('leadsLista'));}
+const leadsDoFiltro=()=>leads.filter((FILTROS_LEAD.find(f=>f[0]===leadFiltro)||FILTROS_LEAD[0])[2]);
+function filtLead(t){if(t===leadFiltro)return;leadFiltro=t;leadAberto=null;LPAG=0;renderLeads();entrarLista($('leadsLista'));}
 const chipsLeads=()=>pintarChips($('leadChips'),dadosProntos?FILTROS_LEAD.filter(f=>f[0]!=='novos'||leads.some(f[2])||leadFiltro==='novos').map(f=>[f[0],f[1],leads.filter(f[2]).length]):[],leadFiltro,'filtLead');
 function renderLeads(){
-  const q=f=>leads.filter(f[2]).length;
   chipsLeads();
-  const fil=(FILTROS_LEAD.find(f=>f[0]===leadFiltro)||FILTROS_LEAD[0])[2],list=leads.filter(fil),box=$('leadsLista');
-  if(leadAberto&&!list.some(l=>l.id===leadAberto))leadAberto=null;
-  box.innerHTML=!dadosProntos?'':list.length?list.map(l=>{const t=tipoDe(l);return `<div class="ll${l.novo?' novo':''}${leadAberto===l.id?' on':''}" data-k="${l.id}" tabindex="0" role="button" aria-expanded="${leadAberto===l.id}" onclick="abrirLeadLista(${l.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirLeadLista(${l.id})}">
+  const list=leadsDoFiltro(),box=$('leadsLista'),pags=Math.max(1,Math.ceil(list.length/LPOR));
+  if(LPAG>=pags)LPAG=pags-1;
+  const ini=LPAG*LPOR,pag=list.slice(ini,ini+LPOR);
+  if(leadAberto&&!pag.some(l=>l.id===leadAberto))leadAberto=null;
+  $('leadCount').innerHTML=dadosProntos&&list.length>LPOR?`<b>${fmt(ini+1)}–${fmt(ini+pag.length)}</b> de ${fmt(list.length)} leads · página ${LPAG+1} de ${pags}`:'';
+  $('leadPager').innerHTML=dadosProntos&&pags>1?`<button type="button" ${LPAG?'':'disabled'} onclick="irPaginaLeads(-1)">Anterior</button><span>${LPAG+1} de ${pags}</span><button type="button" ${LPAG<pags-1?'':'disabled'} onclick="irPaginaLeads(1)">Próxima</button>`:'';
+  setasPagina();
+  box.innerHTML=!dadosProntos?Array.from({length:8},()=>'<div class="ll"><span class="nv0"></span><span class="ll-d"><i class="esq" style="width:70px;height:11px"></i></span><span class="ll-t"><i class="esq" style="width:80px;height:22px;border-radius:99px"></i></span><span class="ll-c"><i class="esq" style="width:65%;height:13px"></i><i class="esq" style="width:45%;height:10px;margin-top:6px"></i></span><span class="ll-i"><i class="esq" style="width:70%;height:11px"></i></span><span class="ll-l"><i class="esq" style="width:60%;height:11px"></i></span><span></span></div>').join('')
+   :pag.length?pag.map(l=>{const t=tipoDe(l);return `<div class="ll${l.novo?' novo':''}${leadAberto===l.id?' on':''}" data-k="${l.id}" tabindex="0" role="button" aria-expanded="${leadAberto===l.id}" onclick="abrirLeadLista(${l.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirLeadLista(${l.id})}">
     <span class="${l.novo?'nv':'nv0'}"${l.novo?' title="Novo: ainda não foi visto"':''}></span>
     <span class="ll-d">${dataCurta(l.criado)}</span>
     <span class="ll-t"><span class="tpp ${t[1]}">${t[0]}</span></span>
@@ -1976,9 +2117,19 @@ function renderLeads(){
   </div>`;}).join(''):'<p class="vazio">Nenhum lead aqui.</p>';
   if(leadAberto)reabrirCamada(box,leadAberto,camLead(leadAberto));
 }
+// a página seguinte (ou a anterior) entra do lado: a lista sai para um lado e a nova chega do outro
+function irPaginaLeads(d){
+  const pags=Math.ceil(leadsDoFiltro().length/LPOR),n=Math.min(Math.max(0,LPAG+d),pags-1);if(n===LPAG)return;
+  const box=$('leadsLista'),y=$('v-leads').getBoundingClientRect().top+scrollY-24,vai=()=>{LPAG=n;leadAberto=null;renderLeads();
+    if(!reduz())box.animate([{opacity:0,transform:`translateX(${d*48}px)`},{opacity:1,transform:'none'}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});};
+  if(scrollY>y)scrollTo({top:y,behavior:reduz()?'auto':'smooth'});
+  if(reduz()){vai();return;}
+  box.animate([{opacity:1,transform:'none'},{opacity:0,transform:`translateX(${-d*48}px)`}],{duration:200,easing:'ease-in'}).onfinish=vai;
+}
 function abrirLeadLista(id,rolar){
   let linha=$('leadsLista').querySelector(`.ll[data-k="${id}"]`);
-  if(!linha){leadFiltro='todos';leadAberto=null;renderLeads();linha=$('leadsLista').querySelector(`.ll[data-k="${id}"]`);if(!linha)return;}
+  // o lead pode estar em outra página (ou fora do filtro): a lista vai até ele
+  if(!linha){if(!leadsDoFiltro().some(l=>l.id===id))leadFiltro='todos';const i=leadsDoFiltro().findIndex(l=>l.id===id);LPAG=Math.max(0,Math.floor(i/LPOR));leadAberto=null;renderLeads();linha=$('leadsLista').querySelector(`.ll[data-k="${id}"]`);if(!linha)return;}
   leadAberto=leadAberto===id?null:id;
   abrirCamada($('leadsLista'),leadAberto?linha:null,leadAberto?camLead(id):'',rolar);
   if(leadAberto)marcarVisto(id);
@@ -2052,7 +2203,7 @@ function toggleAvisos(ev){
 function mostrar(el){clearTimeout(el._t);el.classList.remove('sai');el.classList.add('on');}
 function sumir(el){if(!el||!el.classList.contains('on'))return;el.classList.remove('on');if(reduz())return;el.classList.add('sai');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('sai'),190);}
 function fecharAvisos(){sumir($('avisos'));const bt=$('avisosBt');if(bt){bt.classList.remove('on');bt.setAttribute('aria-expanded','false');}}
-function fecharPops(){sumir($('gPop'));fecharAvisos();fecharDds();fecharMenu();}
+function fecharPops(){sumir($('gPop'));fecharAvisos();fecharDds();fecharMenu();fecharCal();}
 
 /* ---------- mural (as publicações do site) ---------- */
 // ficam em publicacoes.json, no próprio site; o painel grava pela API, que faz um commit no ramo desta publicação (pedido do Luiz,
@@ -2060,57 +2211,85 @@ function fecharPops(){sumir($('gPop'));fecharAvisos();fecharDds();fecharMenu();}
 const CATS_PUB=['Ações no polo','Conquistas','Comunicados','Imprensa'];
 const FOTO_LOCAL={};
 // as fotos da publicação: cada uma é a que já está no site ({caminho}) ou uma nova ({nova: data URI}); a primeira é a capa
-let pubFiltro='Todas',pubEdit=null,pubFotos=[],pubCat=CATS_PUB[0],pubDest=false;
+let pubFiltro='Todas',pubEdit=null,pubFotos=[],pubCat=CATS_PUB[0],pubDest=false,pubsProntas=false;
 const MAX_FOTOS_PUB=8;
 const fotoPub=p=>p.foto?(FOTO_LOCAL[p.foto]||p.foto):'';
 const fotosDaPub=p=>Array.isArray(p.fotos)&&p.fotos.length?p.fotos:(p.foto?[p.foto]:[]);
 const srcFotoPub=f=>f.nova||FOTO_LOCAL[f.caminho]||f.caminho;
-function cartaoPub(p){const f=fotoPub(p),n=fotosDaPub(p).length;
-  return `<article class="pc">
+// o começo do texto, no lugar do resumo (o resumo saiu: eram dois textos; pedido do Luiz, 22/10/2026)
+const trechoPub=p=>{const t=String(p.texto||'').replace(/\s+/g,' ').trim();return t.length>160?t.slice(0,160).replace(/\s+\S*$/,'')+'…':t;};
+function cartaoPub(p){const f=fotoPub(p),n=fotosDaPub(p).length,tr=trechoPub(p);
+  return `<article class="pc" data-k="${esc(p.id)}">
     <div class="pc-f">${f?`<img src="${esc(f)}" alt="" loading="lazy">`:sv(IC.foto)}</div>
-    <div class="pc-b"><div class="pc-k"><b>${esc(p.categoria)}</b> · ${dataLonga(p.data)}${n>1?` · ${n} fotos`:''}</div><h3>${esc(p.titulo||'Título da publicação')}</h3>${p.resumo?`<p>${esc(p.resumo)}</p>`:''}
+    <div class="pc-b"><div class="pc-k"><b>${esc(p.categoria)}</b> · ${dataLonga(p.data)}${n>1?` · ${n} fotos`:''}</div><h3>${esc(p.titulo||'Título da publicação')}</h3>${tr?`<p>${esc(tr)}</p>`:''}
      ${p.destaque||p.exemplo?`<div class="pc-tags">${p.destaque?'<span class="pl ouro sem">Destaque</span>':''}${p.exemplo?'<span class="pl cinza sem">Exemplo</span>':''}</div>`:''}</div>
     <div class="pc-a"><a class="lk" href="/publicacoes/${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a>
      <div class="pc-ed"><button type="button" class="pc-x" title="Excluir" aria-label="Excluir a publicação" onclick="excluirPub('${p.id}')">${sv(IC.lixo,'sm')}</button><button type="button" class="pc-e" title="Editar" aria-label="Editar a publicação" onclick="abrirPub('${p.id}')">${sv(IC.lapis,'sm')}</button></div></div>
   </article>`;}
-function filtPub(c){if(c===pubFiltro)return;pubFiltro=c;renderPubs();entrarLista($('pubsGrid'));}
+function filtPub(c){if(c===pubFiltro)return;pubFiltro=c;pubEdit=null;fecharCal();renderPubs();entrarLista($('pubsGrid'));}
 function renderPubs(){
   const g=$('pubsGrid'),ch=$('pubChips');
   if(pubsErro){ch.innerHTML='';g.innerHTML=`<p class="vazio" style="grid-column:1/-1">Não deu para abrir as publicações: ${esc(pubsErro)}</p>`;return;}
+  // antes de as publicações chegarem, o esqueleto dos cartões
+  if(!pubsProntas){ch.innerHTML='';g.innerHTML=Array.from({length:6},()=>'<article class="pc"><div class="pc-f esq" style="border-radius:0"></div><div class="pc-b"><i class="esq" style="width:46%;height:11px"></i><i class="esq" style="width:82%;height:16px;margin-top:10px"></i><i class="esq" style="width:64%;height:12px;margin-top:8px"></i></div><div class="pc-a"><i class="esq" style="width:90px;height:13px"></i><i class="esq" style="width:40px;height:40px;border-radius:50%"></i></div></article>').join('');return;}
   const cont={Todas:PUBS.length};PUBS.forEach(p=>{cont[p.categoria]=(cont[p.categoria]||0)+1;});
   pintarChips(ch,['Todas',...CATS_PUB].map(c=>[c,c,cont[c]||0]),pubFiltro,'filtPub');
   const lista=PUBS.filter(p=>pubFiltro==='Todas'||p.categoria===pubFiltro);
-  g.innerHTML=lista.length?lista.map(p=>cartaoPub(p)).join(''):`<p class="vazio" style="grid-column:1/-1">${PUBS.length?'Nenhuma publicação nesta categoria.':'Nenhuma publicação ainda. Use "Nova publicação" para começar.'}</p>`;
+  g.innerHTML=lista.length?lista.map(p=>cartaoPub(p)).join(''):`<p class="vazio" style="grid-column:1/-1">${PUBS.length?'Nenhuma publicação nesta categoria.':'Nenhuma publicação ainda.'}</p>`;
 }
-/* o editor do mural, no azul do topo, acima da folha clara (pedidos do Luiz, 20 e 21/10/2026): os campos escuros, as categorias em pílulas
-   e, ao lado, as fotos pequenas (mais de uma; a primeira é a capa) e a prévia de como a publicação aparece na lista do site */
+/* o editor do mural, no padrão do site e menor (pedidos do Luiz, 20, 21 e 22/10/2026): o título, a data e o destaque numa linha, as
+   categorias numa linha, o texto que cresce conforme se escreve e, ao lado, as fotos pequenas (a primeira é a capa) e a prévia. A nova
+   abre no azul do topo; editar abre embaixo da publicação, como as camadas das outras partes */
+function editorPub(p){
+  const d=p?p.data:hojeISO();
+  return `<div class="tf-cab"><div class="kk">${p?'Editar publicação':'Nova publicação'}</div><button type="button" class="xc" aria-label="Fechar" onclick="fecharPub()">${sv(IC.x,'sm')}</button></div>
+   <div class="ed-g">
+    <div class="ed-c">
+     <div class="ed-l1">
+      <label class="cp ed-ti"><span>Título</span><input id="pTitulo" maxlength="160" placeholder="O que a Aceima fez" value="${esc(p?p.titulo:'')}" oninput="prevPub()"></label>
+      <div class="cp"><span>Data</span><button type="button" class="cal-t" id="pDataBt" aria-haspopup="dialog" onclick="abrirCal(event)"><span>${dataLonga(d)}</span>${sv('<path d="m6 9 6 6 6-6"/>')}</button><input type="hidden" id="pData" value="${esc(d)}"></div>
+      <div class="cp"><span>Destaque</span><label class="sw-l"><button type="button" class="switch${pubDest?' on':''}" id="pDest" role="switch" aria-checked="${pubDest}" aria-label="Destaque" onclick="pubDest=!pubDest;this.classList.toggle('on',pubDest);this.setAttribute('aria-checked',pubDest);prevPub()"></button></label></div>
+     </div>
+     <div class="cp"><span>Categoria</span><div class="seg" id="pCats">${CATS_PUB.map(c=>`<button type="button" class="${c===pubCat?'on':''}" onclick="pubCat='${c}';document.querySelectorAll('#pCats button').forEach(x=>x.classList.toggle('on',x===this));prevPub()">${c}</button>`).join('')}</div></div>
+     <label class="cp ed-txt"><span>Texto</span><textarea id="pTexto" rows="2" oninput="crescerTexto(this)">${esc(p?p.texto||'':'')}</textarea></label>
+    </div>
+    <div class="ed-lado">
+     <div class="cp"><span>Fotos</span><div class="ed-fotos" id="pFotos"></div><input type="file" id="pFoto" accept="image/*" multiple hidden onchange="lerFotosPub(this)"></div>
+     <div class="ed-prev"><span>Como aparece no site</span><div id="pPrev"></div></div>
+    </div>
+   </div>
+   <div class="cm-b ed-b"><button type="button" class="bt" id="pSalvar" onclick="salvarPub()">${p?'Salvar':'Publicar'}</button><button type="button" class="bto" onclick="fecharPub()">Cancelar</button>${p?`<button type="button" class="x-p" onclick="excluirPub('${p.id}')">${sv(IC.lixo,'sm')}Excluir publicação</button>`:''}</div>`;
+}
+// o texto começa pequeno e cresce conforme se escreve
+function crescerTexto(t){if(!t)return;t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px';}
 function abrirPub(id){
   nav('mural',()=>{
-    const p=id?PUBS.find(x=>x.id===id):null;
-    pubEdit=p?p.id:null;pubFotos=p?fotosDaPub(p).map(c=>({caminho:c})):[];pubCat=p&&CATS_PUB.includes(p.categoria)?p.categoria:CATS_PUB[0];pubDest=!!(p&&p.destaque);
-    const b=$('pubEd'),era=!b.hidden;
-    b.innerHTML=`<div class="tf-cab"><div class="kk">${p?'Editar publicação':'Nova publicação'}</div><button type="button" class="xc" aria-label="Fechar" onclick="fecharPub()">${sv(IC.x,'sm')}</button></div>
-     <div class="ed-g">
-      <div class="ed-c">
-       <label class="cp"><span>Título</span><input id="pTitulo" class="ed-tit" maxlength="160" placeholder="O que a Aceima fez" value="${esc(p?p.titulo:'')}" oninput="prevPub()"></label>
-       <div class="cp"><span>Categoria</span><div class="seg" id="pCats">${CATS_PUB.map(c=>`<button type="button" class="${c===pubCat?'on':''}" onclick="pubCat='${c}';document.querySelectorAll('#pCats button').forEach(x=>x.classList.toggle('on',x===this));prevPub()">${c}</button>`).join('')}</div></div>
-       <div class="ed-2"><label class="cp"><span>Data</span><input type="date" id="pData" value="${esc(p?p.data:hojeISO())}" oninput="prevPub()"></label>
-        <div class="cp"><span>Destaque</span><label class="sw-l"><button type="button" class="switch${pubDest?' on':''}" id="pDest" role="switch" aria-checked="${pubDest}" onclick="pubDest=!pubDest;this.classList.toggle('on',pubDest);this.setAttribute('aria-checked',pubDest);prevPub()"></button>No topo da página de Publicações</label></div></div>
-       <label class="cp ed-txt"><span>Texto <small>(uma linha em branco entre os parágrafos)</small></span><textarea id="pTexto" rows="10">${esc(p?p.texto||'':'')}</textarea></label>
-      </div>
-      <div class="ed-lado">
-       <div class="cp"><span>Fotos <small>(até ${MAX_FOTOS_PUB}; a primeira é a capa)</small></span><div class="ed-fotos" id="pFotos"></div><input type="file" id="pFoto" accept="image/*" multiple hidden onchange="lerFotosPub(this)"></div>
-       <label class="cp ed-res"><span>Resumo <small>(aparece no destaque e na lista)</small></span><textarea id="pResumo" rows="3" maxlength="400" oninput="prevPub()">${esc(p?p.resumo||'':'')}</textarea></label>
-       <div class="ed-prev"><span>Como aparece no site</span><div id="pPrev"></div></div>
-      </div>
-     </div>
-     <div class="cm-b ed-b"><button type="button" class="bt" id="pSalvar" onclick="salvarPub()">${p?'Salvar':'Publicar'}</button><button type="button" class="bto" onclick="fecharPub()">Cancelar</button>${p?`<button type="button" class="x-p" onclick="excluirPub('${p.id}')">${sv(IC.lixo,'sm')}Excluir publicação</button>`:''}</div>`;
-    pintarFotosPub();
-    if(!era)abrirBloco(b);
-    if(scrollY>0)scrollTo({top:0,behavior:reduz()?'auto':'smooth'});setTimeout(()=>{const t=$('pTitulo');if(t)t.focus({preventScroll:true});},320);
+    const p=id?PUBS.find(x=>x.id===id):null;if(id&&!p)return;
+    const b=$('pubEd'),g=$('pubsGrid');fecharCal();
+    if(p){
+      if(pubEdit===p.id&&b.hidden){fecharPub();return;}   // tocar de novo no editar fecha
+      if(!b.hidden)fecharBloco(b);
+      let card=g.querySelector(`.pc[data-k="${CSS.escape(p.id)}"]`);
+      if(!card){pubFiltro='Todas';renderPubs();card=g.querySelector(`.pc[data-k="${CSS.escape(p.id)}"]`);if(!card)return;}
+      pubEdit=p.id;pubFotos=fotosDaPub(p).map(c=>({caminho:c}));pubCat=CATS_PUB.includes(p.categoria)?p.categoria:CATS_PUB[0];pubDest=!!p.destaque;
+      abrirCamada(g,card,editorPub(p),true,ancoraGrade(g,card));
+      pintarFotosPub();crescerTexto($('pTexto'));
+      return;
+    }
+    if(pubEdit&&b.hidden){abrirCamada(g,null,'');pubEdit=null;}   // fecha o que estava editando embaixo
+    if(!b.hidden){$('pTitulo').focus();return;}
+    pubEdit=null;pubFotos=[];pubCat=CATS_PUB[0];pubDest=false;
+    b.innerHTML=editorPub(null);pintarFotosPub();
+    abrirBloco(b);
+    if(scrollY>0)scrollTo({top:0,behavior:reduz()?'auto':'smooth'});setTimeout(()=>{const t=$('pTitulo');if(t)t.focus({preventScroll:true});},360);
   });
 }
-function fecharPub(){fecharBloco($('pubEd'));pubEdit=null;}
+// fechar: a nova fecha no topo; a que estava sendo editada fecha a camada embaixo dela
+function fecharPub(){
+  fecharCal();
+  if(pubEdit&&$('pubEd').hidden){abrirCamada($('pubsGrid'),null,'');pubEdit=null;return;}
+  fecharBloco($('pubEd'));pubEdit=null;
+}
 // a prévia: a publicação como aparece na lista do site (a capa pequena, a categoria, o título e a data)
 function prevPub(){const box=$('pPrev');if(!box)return;const capa=pubFotos[0]?srcFotoPub(pubFotos[0]):'';
   box.innerHTML=`<div class="pv"><div class="pv-f"${capa?` style="background-image:url('${esc(capa)}')"`:''}>${capa?'':sv(IC.foto)}</div><div><small>${esc(pubCat)}</small><b>${esc($('pTitulo').value.trim()||'Título da publicação')}</b><span>${dataLonga($('pData').value||hojeISO())}${pubDest?' · Destaque':''}</span></div></div>`;}
@@ -2137,6 +2316,8 @@ async function lerFotosPub(input){
   for(const f of fs){try{pubFotos.push({nova:await reduzirFoto(f,1600,.82)});}catch(e){toast('Não deu para ler uma das fotos');}}
   pintarFotosPub();
 }
+// depois de salvar ou excluir, o editor fecha devagar e a lista se refaz em seguida
+const refazerMural=()=>setTimeout(()=>{renderPubs();pintarResumo();},440);
 async function salvarPub(){
   const titulo_=$('pTitulo').value.trim();
   if(!titulo_){toast('Escreva o título');$('pTitulo').focus();return;}
@@ -2145,14 +2326,14 @@ async function salvarPub(){
   const peso=()=>pubFotos.reduce((s,f)=>s+(f.nova?f.nova.length:0),0);
   if(peso()>4e6)for(const f of pubFotos)if(f.nova)f.nova=await reduzirFoto(f.nova,1280,.72);
   if(peso()>4e6){toast('São muitas fotos novas de uma vez: salve com menos e acrescente as outras depois');bt.disabled=false;bt.textContent=txt;return;}
-  const pub={id:pubEdit||undefined,titulo:titulo_,categoria:pubCat,data:$('pData').value||hojeISO(),resumo:$('pResumo').value,texto:$('pTexto').value,destaque:pubDest};
+  const pub={id:pubEdit||undefined,titulo:titulo_,categoria:pubCat,data:$('pData').value||hojeISO(),texto:$('pTexto').value,destaque:pubDest};
   try{
     const r=await jsonPost('/api/publicacoes?path=publicacoes',{acao:'salvar',pub,fotos:pubFotos.map(f=>f.nova?{nova:f.nova}:{caminho:f.caminho})});
     const j=await r.json().catch(()=>({}));
     if(!r.ok||!j.ok)throw new Error(j.erro||('erro '+r.status));
     // as fotos novas aparecem daqui até o site ser publicado de novo
     if(j.publicacao&&Array.isArray(j.publicacao.fotos))pubFotos.forEach((f,i)=>{if(f.nova&&j.publicacao.fotos[i])FOTO_LOCAL[j.publicacao.fotos[i]]=f.nova;});
-    PUBS=j.publicacoes||PUBS;pubsErro=null;fecharPub();renderPubs();pintarResumo();
+    PUBS=j.publicacoes||PUBS;pubsErro=null;fecharPub();refazerMural();
     toast('Publicação salva. O site atualiza em cerca de um minuto');
   }catch(e){toast('Não deu para salvar: '+e.message);bt.disabled=false;bt.textContent=txt;}
 }
@@ -2162,9 +2343,41 @@ async function excluirPub(id){
     const r=await jsonPost('/api/publicacoes?path=publicacoes',{acao:'excluir',id});
     const j=await r.json().catch(()=>({}));
     if(!r.ok||!j.ok)throw new Error(j.erro||('erro '+r.status));
-    if(pubEdit===id)fecharPub();
-    PUBS=j.publicacoes||PUBS.filter(x=>x.id!==id);renderPubs();pintarResumo();toast('Publicação excluída. O site atualiza em cerca de um minuto');
+    const editando=pubEdit===id;if(editando)fecharPub();
+    PUBS=j.publicacoes||PUBS.filter(x=>x.id!==id);if(editando)refazerMural();else{renderPubs();pintarResumo();}
+    toast('Publicação excluída. O site atualiza em cerca de um minuto');
   }catch(e){toast('Não deu para excluir: '+e.message);}
+}
+/* a data no padrão das listas do site: um calendário escuro, como a lista dos filtros (pedido do Luiz, 22/10/2026; antes era o do
+   navegador) */
+let calMes=null;
+function abrirCal(ev){
+  ev.stopPropagation();const bt=$('pDataBt');if(!bt)return;
+  let p=$('calP');if(p&&p.classList.contains('on')){fecharCal();return;}
+  if(!p){p=document.createElement('div');p.id='calP';p.className='cal-p';p.setAttribute('role','dialog');p.setAttribute('aria-label','Escolher a data');p.onclick=e=>e.stopPropagation();document.body.appendChild(p);}
+  calMes=new Date(($('pData').value||hojeISO()).slice(0,7)+'-01T12:00:00');
+  pintarCal();clearTimeout(p._t);p.classList.remove('sai');p.classList.add('on');bt.classList.add('on');posCal();
+}
+function posCal(){
+  const p=$('calP'),bt=$('pDataBt');if(!p||!bt||!p.classList.contains('on'))return;
+  const r=bt.getBoundingClientRect(),cabe=innerHeight-r.bottom>380;
+  p.style.left=Math.max(8,Math.min(r.left,innerWidth-312))+'px';
+  if(cabe){p.style.top=(r.bottom+6)+'px';p.style.bottom='auto';p.style.transformOrigin='top left';}
+  else{p.style.bottom=(innerHeight-r.top+6)+'px';p.style.top='auto';p.style.transformOrigin='bottom left';}
+}
+function pintarCal(){
+  const p=$('calP');if(!p)return;
+  const sel=$('pData').value,hoje=hojeISO(),a=calMes.getFullYear(),m=calMes.getMonth(),ini=new Date(a,m,1).getDay(),dias=new Date(a,m+1,0).getDate();
+  const iso=d=>`${a}-${doisD(m+1)}-${doisD(d)}`,nome=calMes.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  p.innerHTML=`<div class="cal-h"><button type="button" aria-label="Mês anterior" onclick="mudarMes(-1)">${sv('<path d="m15 18-6-6 6-6"/>','sm')}</button><b>${esc(nome.charAt(0).toUpperCase()+nome.slice(1))}</b><button type="button" aria-label="Próximo mês" onclick="mudarMes(1)">${sv('<path d="m9 18 6-6-6-6"/>','sm')}</button></div>
+    <div class="cal-g">${['D','S','T','Q','Q','S','S'].map(x=>`<span>${x}</span>`).join('')}${'<i></i>'.repeat(ini)}${Array.from({length:dias},(_,i)=>{const d=iso(i+1);return `<button type="button" class="${d===sel?'sel':''}${d===hoje?' hoje':''}" onclick="escolherDia('${d}')">${i+1}</button>`;}).join('')}</div>
+    <div class="cal-f"><button type="button" onclick="escolherDia('${hoje}')">Hoje</button></div>`;
+}
+function mudarMes(d){calMes=new Date(calMes.getFullYear(),calMes.getMonth()+d,1,12);pintarCal();}
+function escolherDia(d){const h=$('pData');if(!h)return;h.value=d;const t=$('pDataBt');if(t)t.firstElementChild.textContent=dataLonga(d);fecharCal();prevPub();}
+function fecharCal(){
+  const p=$('calP'),bt=$('pDataBt');if(bt)bt.classList.remove('on');if(!p||!p.classList.contains('on'))return;
+  p.classList.remove('on');if(reduz())return;p.classList.add('sai');clearTimeout(p._t);p._t=setTimeout(()=>p.classList.remove('sai'),170);
 }
 
 /* ---------- busca do topo (associados, veículos, leads e publicações) ---------- */
@@ -2201,15 +2414,33 @@ function passarMenu(b){
   let mudou=false;document.querySelectorAll('#menu>a,#menu>button:not(.pgs)').forEach(x=>{const h=x===b&&!x.classList.contains('on');if(x.classList.contains('hov')!==h){x.classList.toggle('hov',h);mudou=true;}});
   if(mudou)abrirNomes();
 }
-function toggleMenu(ev){ev.stopPropagation();const m=$('menu'),a=m.classList.toggle('aberto');$('menuBt').setAttribute('aria-expanded',a);}
-function fecharMenu(){$('menu').classList.remove('aberto');$('menuBt').setAttribute('aria-expanded','false');}
+function toggleMenu(ev){ev.stopPropagation();const m=$('menu');if(m.classList.contains('aberto')){fecharMenu();return;}
+  clearTimeout(m._t);m.classList.remove('sai');m.classList.add('aberto');$('menuBt').setAttribute('aria-expanded','true');}
+// no celular, o menu fecha em fusão, como abre (pedido do Luiz, 22/10/2026)
+function fecharMenu(){const m=$('menu');$('menuBt').setAttribute('aria-expanded','false');if(!m.classList.contains('aberto'))return;
+  m.classList.remove('aberto');if(reduz())return;m.classList.add('sai');clearTimeout(m._t);m._t=setTimeout(()=>m.classList.remove('sai'),230);}
 
 /* ---------- navegação: tudo troca em fusão (a transição de página do navegador), também o topo; a data e o título têm a troca deles ---------- */
 const VISTAS=['dash','associados','veiculos','leads','mural'],ANTIGAS={lojas:'associados',publicacoes:'mural'};
-function nav(v,depois,semAnim){
+/* voltar pelo navegador (pedido do Luiz, 22/10/2026): cada troca de parte é uma entrada no histórico, e a parte que fica para trás guarda o
+   ponto exato da página, o filtro e o que estava aberto nela. Voltando (ou avançando), a parte abre como estava */
+const abertoDe=v=>v==='associados'?assocAberto:v==='leads'?leadAberto:v==='veiculos'?veicAberto:null;
+const filtroDe=v=>v==='associados'?assocFiltro:v==='leads'?[leadFiltro,LPAG]:v==='veiculos'?VPAG:v==='mural'?pubFiltro:null;
+function guardarLugar(){try{history.replaceState({v:vistaAtual,y:Math.round(scrollY),a:abertoDe(vistaAtual),f:filtroDe(vistaAtual)},'','#'+vistaAtual);}catch(e){}}
+function restaurar(s){
+  const v=s.v,f=s.f;
+  if(v==='associados'){if(f)assocFiltro=f;assocAberto=s.a||null;renderAssoc();}
+  else if(v==='leads'){if(Array.isArray(f)){leadFiltro=f[0];LPAG=f[1]||0;}leadAberto=s.a||null;renderLeads();}
+  else if(v==='veiculos'){if(typeof f==='number')VPAG=f;veicAberto=s.a||null;renderVeic();}
+  else if(v==='mural'){if(f)pubFiltro=f;renderPubs();}
+  scrollTo(0,s.y||0);
+}
+// volta: o estado guardado na entrada do histórico (do popstate); sem ele, é uma troca nova, que entra no histórico
+function nav(v,depois,semAnim,volta){
   v=ANTIGAS[v]||v;if(!VISTAS.includes(v))v='dash';
   fecharPops();
   const de=vistaAtual;
+  if(de!==v&&!volta&&!primeiraVez)guardarLugar();   // o ponto exato de onde se saiu
   const troca=()=>{
     vistaAtual=v;
     // o cadastro e o editor do mural ficam no topo: saindo da parte deles, somem junto com a troca de página
@@ -2219,26 +2450,36 @@ function nav(v,depois,semAnim){
     abrirNomes();
     document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
     if(de!==v||primeiraVez){pintarHero(primeiraVez);primeiraVez=false;scrollTo(0,0);}
-    $('menuBt').innerHTML=sv(IC[v]);setasVeic();
-    try{history.replaceState(null,'','#'+v);}catch(e){}
+    $('menuBt').innerHTML=sv(IC[v]);setasPagina();
+    if(volta)restaurar(volta);
+    else if(de!==v)try{history.pushState({v,y:0},'','#'+v);}catch(e){}
     if(depois)depois();
   };
   if(de===v||semAnim||!document.startViewTransition||reduz()){troca();return;}
-  const raiz=document.documentElement;if(scrollY>240)raiz.classList.add('vt-simples');   // longe do topo: só a fusão
+  const raiz=document.documentElement;if(scrollY>240||(volta&&volta.y>240))raiz.classList.add('vt-simples');   // longe do topo: só a fusão
   const t=document.startViewTransition(troca);
   t.finished.finally(()=>raiz.classList.remove('vt-simples'));
 }
-function abrirSecaoDoEndereco(){const alvo=(location.hash||'').replace('#','').replace(/[^a-z]/g,'');nav(VISTAS.includes(ANTIGAS[alvo]||alvo)?alvo:'dash',null,true);}
+addEventListener('popstate',e=>{const s=e.state;if(s&&s.v&&$('app').classList.contains('on'))nav(s.v,null,false,s);});
+// abrindo o painel: a parte do endereço, e a primeira entrada do histórico; o esqueleto das listas aparece até os dados chegarem
+function abrirSecaoDoEndereco(){
+  const alvo=(location.hash||'').replace('#','').replace(/[^a-z]/g,''),v=VISTAS.includes(ANTIGAS[alvo]||alvo)?(ANTIGAS[alvo]||alvo):'dash';
+  nav(v,null,true);try{history.replaceState({v,y:0},'','#'+v);}catch(e){}
+  if(!dadosProntos){renderDash();renderAssoc();renderVeic();renderLeads();renderPubs();}
+}
 if(!document.startViewTransition)document.documentElement.classList.add('sem-vt');
 document.addEventListener('click',e=>{
   if(!e.target.closest('#buscaBox')&&!e.target.closest('#gPop'))sumir($('gPop'));
   if(!e.target.closest('#avisos')&&!e.target.closest('#avisosBt'))fecharAvisos();
   if(!e.target.closest('#menu')&&!e.target.closest('#menuBt'))fecharMenu();
   if(!e.target.closest('.dd'))fecharDds();
+  if(!e.target.closest('#calP')&&!e.target.closest('#pDataBt'))fecharCal();
 });
 // a busca e os avisos ficam presos à tela: rolando a página, fecham
 addEventListener('scroll',()=>{sumir($('gPop'));fecharAvisos();},{passive:true});
-addEventListener('resize',()=>{abrirNomes();setasVeic();});
+addEventListener('resize',()=>{abrirNomes();setasPagina();});
+// puxando além do começo da página, aparece o azul do topo; além do fim, o claro da folha (no celular, aparecia branco em cima do topo)
+addEventListener('scroll',()=>{const r=document.documentElement;r.classList.toggle('no-fim',scrollY>(r.scrollHeight-innerHeight)/2);},{passive:true});
 document.fonts&&document.fonts.ready.then(abrirNomes);   // o nome medido com a letra do site, senão corta a última letra
 document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharPops();});
 function toast(msg){const t=$('toast');t.innerHTML='<span class="ok">'+check+'</span>'+esc(msg);t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),3800);}
