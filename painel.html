@@ -120,7 +120,11 @@ h1,h2,h3,h4{font-family:var(--f1);font-weight:500;letter-spacing:-.02em}
 /* o botão principal com o dourado do site, em degradê */
 .bt{background:linear-gradient(135deg,#C8862E,#F0AD57)}
 .bt:not(.az):not(.ghost):hover{background:linear-gradient(135deg,#D3913A,#F5B866)}
-.app{display:none}.app.on{display:block}
+.app{display:none}
+/* a barra de rolagem tem sempre o seu lugar: numa lista curta, escolher um filtro não faz tudo andar para o lado (pedido do Luiz,
+   21/10/2026). A folha clara vai até o fim da tela, sem deixar espaço vazio embaixo do conteúdo (22/10/2026) */
+html:has(.app.on){overflow-y:scroll}
+.app.on{display:flex;flex-direction:column;min-height:100vh}
 .topo{color:#fff;padding:24px var(--lado) calc(var(--canto) + 52px)}
 /* a mesma largura das páginas do site (.wrap do site: até 1780 px, com 60 px de cada lado): o painel vai até as bordas como elas
    (pedido do Luiz, 20/10/2026: antes ficava numa coluna de 1320 px no meio da tela) */
@@ -192,14 +196,17 @@ html.no-fim{background:var(--cl)}
 .hgraf{grid-area:graf;margin-top:60px}
 .hgraf[hidden]{display:none}
 .gf-cab{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:40px}
-/* recolhível (pedido do Luiz, 22/10/2026): o título abre e fecha os gráficos, e o painel lembra como ficou da última vez */
-.gf-tog{display:inline-flex;align-items:center;gap:12px;padding:6px 0;color:var(--gold3);font:600 11.5px/1.2 var(--f2);letter-spacing:.22em;text-transform:uppercase}
-.gf-tog i{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);color:#CFD9E8;transition:background .2s,color .2s}
-.gf-tog:hover i{background:rgba(255,255,255,.12);color:#fff}
-.gf-tog i .ic{width:15px;height:15px;transition:transform .45s var(--ease)}
+/* recolhível (pedido do Luiz, 22/10/2026): o título abre e fecha os gráficos, e o painel lembra como ficou da última vez. Só a seta,
+   perto do texto, sem o círculo; recolhidos, a folha clara sobe até perto do título (alternarGraf() anima a subida) */
+.gf-tog{display:inline-flex;align-items:center;gap:5px;padding:6px 0;color:var(--gold3);font:600 11.5px/1.2 var(--f2);letter-spacing:.22em;text-transform:uppercase;transition:color .2s}
+.gf-tog:hover{color:#F8C98A}
+.gf-tog i{display:flex}
+.gf-tog i .ic{width:15px;height:15px;stroke-width:2.2;transition:transform .45s var(--ease)}
 .hgraf.rec .gf-tog i .ic{transform:rotate(-90deg)}
+.topo:has(.hgraf.rec:not([hidden])){padding-bottom:calc(var(--canto) + 4px)}
 .gf-per{transition:opacity .3s,visibility .3s}
 .hgraf.rec .gf-per{opacity:0;visibility:hidden}
+.gf-per.cel{display:none}   /* no celular, o período fica no começo dos gráficos e recolhe junto com eles */
 .gf-corpo{padding-top:18px}
 .hgraf.fechado .gf-corpo{display:none}
 .esq-cols{position:absolute;inset:0 0 22px;display:flex;align-items:flex-end;gap:1.2%}
@@ -328,9 +335,8 @@ html.no-fim{background:var(--cl)}
 .av-ok i{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:#E0F0E8;color:#1F6146}
 
 /* ===== folha clara ===== */
-/* a folha tem pelo menos a altura da tela: a página sempre rola, e a barra de rolagem não some numa lista curta (sumindo, tudo andava para
-   o lado ao escolher um filtro; pedido do Luiz, 21/10/2026) */
-.folha{position:relative;margin-top:calc(-1 * var(--canto));padding:52px var(--lado) 140px;border-radius:var(--canto) var(--canto) 0 0;background:var(--cl);min-height:100vh}
+/* a folha vai até o fim da tela (flex) e, embaixo, só tem o espaço para o menu não cobrir o fim da página (pedido do Luiz, 22/10/2026) */
+.folha{position:relative;flex:1 0 auto;margin-top:calc(-1 * var(--canto));padding:52px var(--lado) 96px;border-radius:var(--canto) var(--canto) 0 0;background:var(--cl)}
 .wrap{max-width:1660px;margin:0 auto}
 .view{display:none}
 .view.on{display:block}
@@ -366,20 +372,19 @@ button.row:hover .row-tx b{color:var(--gold)}
 .lg{width:58px;height:36px;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;font:700 12px/1 var(--f2);color:var(--mut)}
 .lg img{max-width:46px;max-height:24px;object-fit:contain}
 .lg.g{width:84px;height:54px;border-radius:14px}.lg.g img{max-width:66px;max-height:36px}
-/* relatório de leads: tudo no meio, um embaixo do outro, e os quatro números numa linha só (pedido do Luiz, 22/10/2026) */
-.rel{background:#fff;border-radius:26px;padding:28px 30px 30px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:22px;box-shadow:var(--sombra)}
+/* relatório de leads (no celular, tudo no meio e os números numa linha só; no computador, como sempre foi) */
+.rel{background:#fff;border-radius:26px;padding:26px 30px;display:flex;flex-wrap:wrap;align-items:center;gap:22px 44px;box-shadow:var(--sombra)}
 #relDash{margin-top:44px}
 #relLeads{margin-bottom:28px}
-.rel-e{display:flex;flex-direction:column;align-items:center}
+.rel-e{flex:1 1 260px}
 .rel .kk{color:var(--goldtx)}
-.pps{margin-top:12px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
-.pp{height:36px;padding:0 15px;border-radius:99px;background:#F1EEEA;font:500 13.5px/1 var(--f2);transition:background .2s}
+.pps{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.pp{height:36px;padding:0 15px;border-radius:99px;background:#F1EEEA;font:500 13.5px/1 var(--f2);transition:background .25s,color .25s}
 .pp:hover{background:#E8E3DC}
 .pp.on{background:var(--navy);color:#fff}
-.rel-d{margin-top:10px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;align-items:center;font-size:13px;color:var(--mut)}
+.rel-d{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--mut)}
 .rel-d input{height:36px;padding:0 12px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:13px}
-.rel-n{display:flex;flex-wrap:nowrap;justify-content:center;gap:20px 64px}
-.rel-n>div{min-width:0}
+.rel-n{display:flex;flex-wrap:wrap;gap:20px 40px}
 .rel-n b{display:block;font:500 34px/1 var(--f1);font-variant-numeric:tabular-nums}
 .rel-n span{display:block;margin-top:6px;font-size:13px;color:var(--mut)}
 /* filtros em pílulas: todas do mesmo tamanho, o da maior (pedido do Luiz, 20/10/2026); trocando, a pílula muda em fusão e a lista entra
@@ -481,7 +486,7 @@ button.row:hover .row-tx b{color:var(--gold)}
 .cps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px 20px;margin-top:22px}
 .cps .lg2{grid-column:1/-1}
 .seg{display:flex;flex-wrap:wrap;gap:8px}
-.seg button{height:44px;padding:0 18px;border-radius:99px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);color:#CFD9E8;font:500 13.5px/1 var(--f2);transition:background .25s,box-shadow .25s,color .25s}
+.seg button{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 18px;border-radius:99px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);color:#CFD9E8;font:500 13.5px/1 var(--f2);white-space:nowrap;transition:background .25s,box-shadow .25s,color .25s}
 .seg button:hover{box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);color:#fff}
 .seg button.on{background:rgba(244,176,92,.16);box-shadow:inset 0 0 0 1px rgba(244,176,92,.55);color:var(--gold3)}
 .sw-l{display:flex;align-items:center;gap:12px;height:48px;color:#CFD9E8;font-size:14px;cursor:pointer}
@@ -738,6 +743,8 @@ button.row:hover .row-tx b{color:var(--gold)}
   .topo-in{grid-template-columns:auto 1fr;grid-template-areas:"logo acoes" "tit tit" "form form" "busca busca" "kpi kpi" "graf graf";column-gap:12px}
   .hgraf{margin-top:36px}
   .gf-cab{flex-wrap:wrap}
+  .gf-cab .gf-per{display:none}
+  .gf-per.cel{display:flex;width:max-content;margin-bottom:14px}
   .gf-grade{grid-template-columns:minmax(0,1fr);gap:12px}
   .gc-dia,.gc-tempo,.gc-carros,.gc-origem,.gc-hora,.gc-busca,.gc-lojas{grid-column:auto}
   .gc{padding:18px 18px 20px;border-radius:18px}
@@ -771,7 +778,7 @@ button.row:hover .row-tx b{color:var(--gold)}
   .hkpi .n{font-size:38px}
   .hkpi .r{margin-top:8px;font-size:13px}
   .hkpi .s{font-size:12px}
-  .folha{padding:30px var(--lado) 48px}
+  .folha{padding:30px var(--lado) var(--lado)}   /* o menu fica em cima: embaixo, só o respiro das laterais */
   .menu{display:none;left:auto;right:var(--lado);top:66px;bottom:auto;transform:none;flex-direction:column;align-items:stretch;width:230px;padding:8px;border-radius:22px}
   .menu.aberto{display:flex;animation:entra .25s var(--ease)}
   .menu.sai{display:flex;animation:menuSai .22s ease-in both;pointer-events:none}   /* fechando, some em fusão (pedido do Luiz, 22/10/2026) */
@@ -786,9 +793,12 @@ button.row:hover .row-tx b{color:var(--gold)}
   .g2{gap:34px}
   .row-q,.row-n,.row-st{width:auto}
   .row .row-n{display:none}
-  .rel{padding:22px 16px}
-  /* os quatro números numa linha só, no meio */
+  /* o relatório: tudo no meio, um embaixo do outro, e os quatro números numa linha só (pedido do Luiz, 22/10/2026, só no celular) */
+  .rel{padding:22px 16px;flex-direction:column;text-align:center}
+  .rel-e{flex:none;display:flex;flex-direction:column;align-items:center}
+  .pps,.rel-d{justify-content:center}
   .rel-n{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%}
+  .rel-n>div{min-width:0}
   .rel-n b{font-size:24px}
   .rel-n span{font-size:11px;line-height:1.3}
   .rel .bt{width:100%;justify-content:center}
@@ -1084,10 +1094,10 @@ const slugify=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g
 function letras(txt,ini,passo){passo=passo||22;let k=0;return [...String(txt)].map(c=>c===' '?' ':`<span class="lt" style="animation-delay:${Math.round((ini||0)+passo*k++)}ms">${esc(c)}</span>`).join('');}
 // o número sobe do zero até o valor, rápido no começo e devagar no fim
 function contar(el,alvo,dur){
-  if(!el)return;alvo=Number(alvo)||0;
+  if(!el)return;alvo=Number(alvo)||0;const vez=el._c=(el._c||0)+1;   // um pedido novo no mesmo número faz o anterior parar
   if(reduz()||!dur){el.textContent=fmt(alvo);return;}
   const ini=performance.now();el.textContent='0';
-  const passo=t=>{const k=Math.min(1,(t-ini)/dur);el.textContent=fmt(Math.round(alvo*(1-Math.pow(1-k,3))));if(k<1)requestAnimationFrame(passo);};
+  const passo=t=>{if(el._c!==vez)return;const k=Math.min(1,(t-ini)/dur);el.textContent=fmt(Math.round(alvo*(1-Math.pow(1-k,3))));if(k<1)requestAnimationFrame(passo);};
   requestAnimationFrame(passo);
 }
 
@@ -1197,7 +1207,10 @@ async function trocarPeriodo(d){
   document.querySelectorAll('#heroGraf .gf-per button').forEach(b=>{const on=+b.dataset.d===d;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);});
   const r=await api('/api/visitas?path=visitas&dias='+d).then(x=>x.ok?x.json():null).catch(()=>null);
   if(GDIAS!==d)return;
-  if(r&&r.ok){VIS=r;pintarGraf(true);}else{if(g)g.classList.remove('carrega');toast('Não deu para buscar as visitas');}
+  if(r&&r.ok){VIS=r;pintarGraf(true);
+    // os gráficos do período novo chegam em fusão, do apagado ao normal (pedido do Luiz, 22/10/2026: a troca era seca)
+    const n=document.querySelector('#heroGraf .gf-grade');if(n&&!reduz())n.animate([{opacity:.45},{opacity:1}],{duration:420,easing:'ease-out'});}
+  else{if(g)g.classList.remove('carrega');toast('Não deu para buscar as visitas');}
 }
 const pct=(n,t)=>t?Math.round((n||0)*100/t):0;
 const tempoTxt=s=>{s=Math.round(s||0);if(s<60)return s+' s';const m=Math.floor(s/60),r=s%60;return r?`${m} min ${r} s`:`${m} min`;};
@@ -1232,8 +1245,8 @@ function verVeiculo(id){
     VPAG=Math.floor(i/VPOR);veicAberto=null;renderVeic();abrirVeic(id);});
 }
 function picoTxt(h){h=h||[];const max=Math.max(0,...h);if(!max)return 'Sem visitas no período.';const i=h.indexOf(max);return `Mais visitas entre ${i}h e ${(i+1)%24}h`;}
-// "Direto" não dizia nada (pedido do Luiz, 22/10/2026): é quem digitou o endereço ou entrou por um link salvo (sem site de origem)
-const NOME_ORIGEM={Direto:'Endereço digitado ou salvo'};
+// "Direto" é quem digitou o endereço ou entrou por um link salvo, sem site de origem: aparece como "Link Direto" (pedido do Luiz, 22/10/2026)
+const NOME_ORIGEM={Direto:'Link Direto'};
 // recolhido ou aberto fica guardado no aparelho, como ficou da última vez (pedido do Luiz, 22/10/2026)
 let grafFechado=(()=>{try{return localStorage.getItem('painel_visitas')==='fechado';}catch(e){return false;}})();
 // o esqueleto dos gráficos: os mesmos cartões, com o brilho no lugar dos números, enquanto as visitas não chegam
@@ -1250,15 +1263,17 @@ function esqGraf(){
 function pintarGraf(animar){
   const g=$('heroGraf');g.hidden=vistaAtual!=='dash';if(g.hidden){dica();return;}
   g.classList.toggle('rec',grafFechado);g.classList.toggle('fechado',grafFechado);
-  const cab=`<div class="gf-cab"><button type="button" class="gf-tog" id="gfTog" aria-expanded="${!grafFechado}" aria-controls="gfCorpo" onclick="alternarGraf()">Visitas ao site<i>${sv('<path d="m6 9 6 6 6-6"/>')}</i></button><div class="gf-per" role="group" aria-label="Período dos gráficos">${[7,30,90].map(d=>`<button type="button" data-d="${d}" class="${d===GDIAS?'on':''}" aria-pressed="${d===GDIAS}" onclick="trocarPeriodo(${d})">${d} dias</button>`).join('')}</div></div>`;
-  if(!VIS){g.innerHTML=cab+`<div class="gf-corpo" id="gfCorpo"><div class="gf-grade">${esqGraf()}</div></div>`;return;}
+  // o período: no computador, ao lado do título; no celular, no começo dos gráficos, e recolhe junto com eles
+  const per=cl=>`<div class="gf-per${cl}" role="group" aria-label="Período dos gráficos">${[7,30,90].map(d=>`<button type="button" data-d="${d}" class="${d===GDIAS?'on':''}" aria-pressed="${d===GDIAS}" onclick="trocarPeriodo(${d})">${d} dias</button>`).join('')}</div>`;
+  const cab=`<div class="gf-cab"><button type="button" class="gf-tog" id="gfTog" aria-expanded="${!grafFechado}" aria-controls="gfCorpo" onclick="alternarGraf()">Visitas ao site<i>${sv('<path d="m6 9 6 6 6-6"/>')}</i></button>${per('')}</div>`;
+  if(!VIS){g.innerHTML=cab+`<div class="gf-corpo" id="gfCorpo">${per(' cel')}<div class="gf-grade">${esqGraf()}</div></div>`;return;}
   const a=VIS.atual||{},b=VIS.anterior||{},nv=a.visitas||0,anim=animar&&!reduz()&&!grafFechado;
   const conv=nv?(VIS.leads||0)*100/nv:0,sem=t=>`<p class="gvazio">${t||'Sem visitas no período.'}</p>`;
   const tempo=[['até 10 s',a.t1],['10 a 30 s',a.t2],['30 s a 1 min',a.t3],['1 a 3 min',a.t4],['3 a 10 min',a.t5],['mais de 10 min',a.t6]];
   const origem=(VIS.origem||[]).map(x=>[NOME_ORIGEM[x.nome]||x.nome,x.visitas]),totO=origem.reduce((s,x)=>s+x[1],0);
   const ap=(VIS.aparelho||[]).map(x=>[x.nome,x.visitas]),totA=ap.reduce((s,x)=>s+x[1],0);
   const dias=VIS.porDia||[],horas=VIS.horas||[];
-  g.innerHTML=cab+`<div class="gf-corpo" id="gfCorpo">
+  g.innerHTML=cab+`<div class="gf-corpo" id="gfCorpo">${per(' cel')}
    <div class="gf-grade">
     <div class="gc gc-dia">
      <div class="gtopo"><div><h3>Visitas por dia</h3><div class="gnum"><b data-n="${nv}">${anim?'0':fmt(nv)}</b><span>${nv===1?'visita':'visitas'}</span>${delta(nv,b.visitas||0)}</div></div>
@@ -1282,23 +1297,28 @@ function pintarGraf(animar){
   if(anim){requestAnimationFrame(()=>requestAnimationFrame(crescer));g.querySelectorAll('.gnum b[data-n]').forEach(e=>contar(e,+e.dataset.n,1400));}
   else{g.querySelectorAll('u[data-w],.gap-t i').forEach(e=>{e.style.transition='none';});crescer();}
 }
-// recolher e abrir os gráficos: fechando, o conteúdo some e depois o espaço fecha; abrindo, o espaço cresce e o conteúdo aparece
+// recolher e abrir os gráficos: fechando, o conteúdo some e depois o espaço fecha; abrindo, o espaço cresce e o conteúdo aparece.
+// Recolhidos, a folha clara sobe até perto do título (pedido do Luiz, 22/10/2026: "bem colado à divisa"), junto com o espaço que fecha
 function alternarGraf(){
-  const g=$('heroGraf'),c=$('gfCorpo'),bt=$('gfTog');grafFechado=!grafFechado;dica();
+  const g=$('heroGraf'),c=$('gfCorpo'),bt=$('gfTog'),topo=g.closest('.topo');grafFechado=!grafFechado;dica();
   try{localStorage.setItem('painel_visitas',grafFechado?'fechado':'aberto');}catch(e){}
   if(bt)bt.setAttribute('aria-expanded',String(!grafFechado));
-  if(!c)return;c.getAnimations().forEach(a=>a.cancel());
+  if(!c)return;
+  const pb0=getComputedStyle(topo).paddingBottom;   // de onde a folha está agora (também no meio de uma troca)
+  c.getAnimations().forEach(a=>a.cancel());if(alternarGraf.a)alternarGraf.a.cancel();
   if(grafFechado){
     g.classList.add('rec');if(reduz()){g.classList.add('fechado');return;}
-    const h=c.offsetHeight;c.style.overflow='hidden';
-    c.animate([{height:h+'px',opacity:1},{height:h+'px',opacity:0,offset:.3},{height:'0px',paddingTop:'0px',opacity:0}],{duration:680,easing:'cubic-bezier(.45,0,.25,1)'})
+    const h=c.offsetHeight,pb1=getComputedStyle(topo).paddingBottom,tempo={duration:680,easing:'cubic-bezier(.45,0,.25,1)'};c.style.overflow='hidden';
+    alternarGraf.a=topo.animate([{paddingBottom:pb0},{paddingBottom:pb0,offset:.3},{paddingBottom:pb1}],tempo);
+    c.animate([{height:h+'px',opacity:1},{height:h+'px',opacity:0,offset:.3},{height:'0px',paddingTop:'0px',opacity:0}],tempo)
       .onfinish=()=>{c.style.overflow='';g.classList.add('fechado');};
   }else{
     g.classList.remove('rec','fechado');desenharDia(false);desenharHoras(false);   // escondidos, a linha e as colunas não tinham tamanho
     g.querySelectorAll('u[data-w]').forEach(u=>{u.style.transition='none';u.style.width=u.dataset.w+'%';});
     if(reduz())return;
-    const h=c.offsetHeight;c.style.overflow='hidden';
-    c.animate([{height:'0px',paddingTop:'0px',opacity:0},{height:h+'px',opacity:0,offset:.5},{height:h+'px',opacity:1}],{duration:760,easing:'cubic-bezier(.2,.8,.2,1)'})
+    const h=c.offsetHeight,pb1=getComputedStyle(topo).paddingBottom,tempo={duration:760,easing:'cubic-bezier(.2,.8,.2,1)'};c.style.overflow='hidden';
+    alternarGraf.a=topo.animate([{paddingBottom:pb0},{paddingBottom:pb1,offset:.5},{paddingBottom:pb1}],tempo);
+    c.animate([{height:'0px',paddingTop:'0px',opacity:0},{height:h+'px',opacity:0,offset:.5},{height:h+'px',opacity:1}],tempo)
       .onfinish=()=>{c.style.overflow='';};
   }
 }
@@ -1381,16 +1401,33 @@ function repIntervalo(){
   const i=new Date(REP.de+'T00:00:00'),f=new Date(REP.ate+'T23:59:59');
   return {ini:i,fim:f,rotulo:'De '+i.toLocaleDateString('pt-BR')+' a '+f.toLocaleDateString('pt-BR')};
 }
-function repTroca(k){REP.p=k;if(k==='periodo'&&!REP.de){REP.de=new Date(Date.now()-6*864e5).toISOString().slice(0,10);REP.ate=hojeISO();}pintarRel();}
-function pintarRel(animar){
+function repTroca(k){if(REP.p===k)return;REP.p=k;if(k==='periodo'&&!REP.de){REP.de=new Date(Date.now()-6*864e5).toISOString().slice(0,10);REP.ate=hojeISO();}pintarRel(false,true);}
+function pintarRel(animar,troca){
   const iv=repIntervalo(),lista=iv?leadsRaw.filter(l=>{const d=new Date(l.criado_em);return d>=iv.ini&&d<=iv.fim;}):[],c=t=>lista.filter(l=>(l.tipo||'venda')===t).length;
+  const ns=[lista.length,c('venda'),c('compra'),c('associacao')];
   const num=n=>dadosProntos?`<b data-n="${n}">${animar?'0':fmt(n)}</b>`:'<b><i class="esq"></i></b>';
-  const html=`<div class="rel-e"><div class="kk">Relatório de leads</div><div class="pps">${[['dia','Hoje'],['semana','7 dias'],['mes','30 dias'],['periodo','Período']].map(([k,t])=>`<button type="button" class="pp${REP.p===k?' on':''}" onclick="repTroca('${k}')">${t}</button>`).join('')}</div>
-    ${REP.p==='periodo'?`<div class="rel-d"><input type="date" value="${REP.de}" aria-label="Do dia" onchange="REP.de=this.value;pintarRel()"> até <input type="date" value="${REP.ate}" aria-label="Até o dia" onchange="REP.ate=this.value;pintarRel()"></div>`:''}</div>
-    <div class="rel-n"><div>${num(lista.length)}<span>Leads no total</span></div><div>${num(c('venda'))}<span>Interesse em carros</span></div><div>${num(c('compra'))}<span>Querem vender</span></div><div>${num(c('associacao'))}<span>Seja um associado</span></div></div>
+  const datas=`<div class="rel-d"><input type="date" value="${REP.de}" aria-label="Do dia" onchange="REP.de=this.value;pintarRel(false,true)"> até <input type="date" value="${REP.ate}" aria-label="Até o dia" onchange="REP.ate=this.value;pintarRel(false,true)"></div>`;
+  const html=`<div class="rel-e"><div class="kk">Relatório de leads</div><div class="pps">${[['dia','Hoje'],['semana','7 dias'],['mes','30 dias'],['periodo','Período']].map(([k,t])=>`<button type="button" class="pp${REP.p===k?' on':''}" data-k="${k}" onclick="repTroca('${k}')">${t}</button>`).join('')}</div>
+    ${REP.p==='periodo'?datas:''}</div>
+    <div class="rel-n"><div>${num(ns[0])}<span>Leads no total</span></div><div>${num(ns[1])}<span>Interesse em carros</span></div><div>${num(ns[2])}<span>Querem vender</span></div><div>${num(ns[3])}<span>Seja um associado</span></div></div>
     <button type="button" class="bt az" onclick="gerarRelatorio()">${sv(IC.baixar,'sm')}Baixar PDF</button>`;
   // o relatório já aparece antes dos dados, com o esqueleto nos números e embaixo do esqueleto das listas: nada desce quando os dados chegam
-  ['relDash','relLeads'].forEach(id=>{const e=$(id);if(!e)return;e.innerHTML=html;if(animar)e.querySelectorAll('b[data-n]').forEach((b,i)=>setTimeout(()=>contar(b,+b.dataset.n,1200),500+i*90));});
+  ['relDash','relLeads'].forEach(id=>{const e=$(id);if(!e)return;
+    if(troca&&dadosProntos&&!reduz()&&e.querySelector('.rel-n b[data-n]')){trocarRel(e,ns,datas);return;}
+    e.innerHTML=html;if(animar)e.querySelectorAll('b[data-n]').forEach((b,i)=>setTimeout(()=>contar(b,+b.dataset.n,1200),500+i*90));});
+}
+// trocando o período (pedido do Luiz, 22/10/2026: era seco), nada é desenhado de novo: a pílula muda em fusão, as datas abrem e fecham
+// devagar e os números somem e voltam com os do período novo
+function trocarRel(e,ns,datas){
+  e.querySelectorAll('.pp').forEach(b=>b.classList.toggle('on',b.dataset.k===REP.p));
+  const d=e.querySelector('.rel-d:not(.sai)'),quer=REP.p==='periodo';
+  if(quer&&!d){e.querySelector('.pps').insertAdjacentHTML('afterend',datas);const n=e.querySelector('.rel-d:not(.sai)'),h=n.offsetHeight;n.style.overflow='hidden';
+    n.animate([{height:'0px',marginTop:'0px',opacity:0},{height:h+'px',marginTop:getComputedStyle(n).marginTop,opacity:1}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>{n.style.overflow='';};}
+  else if(!quer&&d){const h=d.offsetHeight;d.classList.add('sai');d.style.overflow='hidden';
+    d.animate([{height:h+'px',opacity:1},{height:'0px',marginTop:'0px',opacity:0}],{duration:300,easing:'cubic-bezier(.45,0,.25,1)',fill:'forwards'}).onfinish=()=>d.remove();}
+  const rn=e.querySelector('.rel-n');rn.getAnimations().forEach(a=>a.cancel());
+  rn.animate([{opacity:1},{opacity:0,offset:.35},{opacity:0,offset:.45},{opacity:1}],{duration:560,easing:'ease-in-out'});
+  clearTimeout(e._t);e._t=setTimeout(()=>rn.querySelectorAll('b[data-n]').forEach((b,i)=>{b._c=(b._c||0)+1;b.dataset.n=ns[i];b.textContent=fmt(ns[i]);}),220);
 }
 // o PDF sai pela janela de impressão da própria página, num quadro escondido. Antes abria uma aba nova e mandava imprimir de lá: com a
 // janela de impressão aberta na outra aba, o painel ficava travado, sem aceitar clique (o que o Luiz viu em 20/10/2026)
@@ -1865,9 +1902,13 @@ async function excluirCred(id){const c=credenciados.find(x=>x.id===id);if(!c||!c
   catch(e){toast('Não deu para excluir');}}
 
 /* ---------- veículos ---------- */
-// 100 por página (pedido do Luiz, 20/10/2026), em grade ou em lista; as páginas trocam pelas setas do lado do menu, como no site
-const VPOR=100;
+// 100 por página no computador e 25 no celular (pedidos do Luiz, 20 e 22/10/2026), em grade ou em lista; as páginas trocam pelas setas
+// do lado do menu, como no site (no celular, embaixo da lista)
+const celular=()=>matchMedia('(max-width:760px)').matches;
+let VPOR=celular()?25:100;
 let VPAG=0,veicFiltrados=[],VMODO=(()=>{try{return localStorage.getItem('painel_vmodo')||'grade';}catch(e){return 'grade';}})();
+// passando de uma largura para a outra, a página muda de tamanho e continua no mesmo carro
+addEventListener('resize',()=>{const n=celular()?25:100;if(n===VPOR)return;VPAG=Math.floor(VPAG*VPOR/n);VPOR=n;if(dadosProntos)filtrarVeic();});
 function montarFiltros(){
   const s1=$('fVLoja'),s2=$('fVMarca');
   if(s1){const v=s1.value;s1.innerHTML='<option value="">Todas as lojas</option>'+[...new Set(veicAll.map(x=>x.loja_nome).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')).map(n=>`<option>${esc(n)}</option>`).join('');s1.value=v;}
@@ -1965,7 +2006,8 @@ function limparFiltrosVeic(quieto){
   [['fVLoja',''],['fVMarca',''],['fVOrd','recentes'],['fVStatus','todos']].forEach(([id,v])=>{const e=$(id);if(e){const m=e.value!==v;e.value=v;if(e.__dd)e.__dd.atualizar(m&&!quieto);}});
   VPAG=0;if(!quieto)filtrarVeic(true);
 }
-function modoVeic(m){VMODO=m;try{localStorage.setItem('painel_vmodo',m);}catch(e){}renderVeic(true);}
+// trocando entre grade e lista, o carro aberto fecha (pedido do Luiz, 22/10/2026)
+function modoVeic(m){if(m===VMODO)return;VMODO=m;veicAberto=null;try{localStorage.setItem('painel_vmodo',m);}catch(e){}renderVeic(true);}
 const precoV=v=>(v.preco&&+v.preco>0)?money(v.preco):'Consultar';
 const kmV=v=>v.km==null?'—':(Number(v.km)===0?'0 km':fmt(v.km)+' km');
 const etiquetaV=v=>!fotoV(v)?'<span class="pl erro">sem foto</span>':(v.oculto===true?'<span class="pl cinza">oculto</span>':'');
