@@ -2769,7 +2769,7 @@ function enviarAssoc(){
 /* ==================== PUBLICAÇÕES ==================== */
 // as publicações vêm de publicacoes.json, que o painel grava no próprio site (pedido do Luiz, 16/10/2026): a marcada como destaque (ou a
 // mais nova) em cima, as outras na lista ao lado. Os filtros separam por categoria e cada publicação abre na sua página (/publicacoes/id).
-// Título, resumo e texto vêm do painel: o modo de edição muda o estilo deles (E), não o texto
+// Título e texto vêm do painel: o modo de edição muda o estilo deles (E), não o texto
 const CATS_PUB=['Ações no polo','Conquistas','Comunicados','Imprensa'];
 let catPub='Tudo',pubAtual=null;
 const diaPub=d=>new Date(String(d)+'T12:00:00');
@@ -2794,7 +2794,7 @@ function publicacoes(){
      <div class="foto pb-foto" style="height:300px;border-radius:16px">${fotoPub(dest)}</div>
      <div style="display:flex;align-items:center;gap:12px;margin-top:18px"><span class="fp on" style="padding:5px 13px;font-size:.72rem;cursor:inherit">${dest.destaque?T('publicacoes.destaque-selo','Destaque'):esc(dest.categoria)}</span><span style="font-family:var(--f2);font-size:.78rem;color:var(--mut)">${dataPub(dest.data)}</span></div>
      <h2 class="pb-dt" style="font-size:1.85rem;margin-top:12px;max-width:760px">${E('publicacoes.destaque-titulo',esc(dest.titulo))}</h2>
-     ${dest.resumo?`<p class="pb-tx" style="margin-top:10px;max-width:760px;font-size:.96rem">${E('publicacoes.destaque-texto',esc(dest.resumo))}</p>`:''}
+     ${trechoPub(dest)?`<p class="pb-tx" style="margin-top:10px;max-width:760px;font-size:.96rem">${E('publicacoes.destaque-texto',esc(trechoPub(dest)))}</p>`:''}
    </a>
    <div>
      ${resto.length?`<div style="font-family:var(--f2);font-size:.68rem;letter-spacing:2px;color:var(--mut);padding-bottom:12px;border-bottom:2px solid #0B1A33">${T('publicacoes.recentes','MAIS RECENTES')}</div>`:''}
@@ -2804,7 +2804,9 @@ function publicacoes(){
  </div>`:`<div class="wrap" style="padding-top:24px;flex:1"><p class="pb-vazio">${T('publicacoes.vazio','Ainda não há publicações nesta categoria.')}</p></div>`}
  ${PUBS.some(p=>p.exemplo)?`<div class="wrap" style="padding-top:18px;padding-bottom:40px"><div class="aviso"><b>Conteúdo ilustrativo.</b> Textos, fotos e datas serão levantados com a diretoria.</div></div>`:'<div style="height:40px"></div>'}
 </div>${rodape()}`;}
-// a página de uma publicação: categoria e data, título, resumo, foto e o texto em parágrafos (linha em branco no painel = parágrafo novo)
+// a página de uma publicação: categoria e data, título, foto e o texto em parágrafos (linha em branco no painel = parágrafo novo). O resumo
+// saiu (pedido do Luiz, 22/10/2026: eram dois textos); no destaque da lista, aparece o começo do texto
+const trechoPub=p=>{const t=String(p.texto||'').replace(/\s+/g,' ').trim();return t.length>220?t.slice(0,220).replace(/\s+\S*$/,'')+'…':t;};
 function publicacao(){
   const p=PUBS.find(x=>x.id===pubAtual),outras=PUBS.filter(x=>x!==p).slice(0,3),seta=ic('<path d="M7 17 17 7"/><path d="M7 7h10v10"/>',18);
   const volta=`<a class="vp-volta" href="${hr('publicacoes')}">${ic('<path d="m15 18-6-6 6-6"/>',18)}${T('publicacoes.voltar','Publicações')}</a>`;
@@ -2814,7 +2816,6 @@ function publicacao(){
  ${p?`<article class="wrap pbd">${volta}
    <div class="pbd-k"><span class="fp on">${esc(p.categoria)}</span><span>${dataPub(p.data)}</span></div>
    <h1 class="pbd-t">${E('publicacoes.pagina-titulo',esc(p.titulo))}</h1>
-   ${p.resumo?`<p class="pbd-r">${E('publicacoes.pagina-resumo',esc(p.resumo))}</p>`:''}
    ${p.foto?`<figure class="pbd-f${fotosDaPub(p).length>1?' zoom" onclick="verFotoPub(0)':''}"><img src="${esc(p.foto)}" alt=""></figure>`:''}
    ${paras?`<div class="pbd-x">${paras}</div>`:''}
    ${fotosDaPub(p).length>1?`<div class="pbd-g">${fotosDaPub(p).slice(1).map((f,i)=>`<button type="button" aria-label="Ver a foto ${i+2}" onclick="verFotoPub(${i+1})"><img src="${esc(f)}" alt="" loading="lazy"></button>`).join('')}</div>`:''}
@@ -2930,11 +2931,14 @@ const VIS=(()=>{try{let s=sessionStorage.getItem('vis_s');if(!s){s=Math.random()
   return {s,n:+sessionStorage.getItem('vis_n')||0};}catch(e){return null;}})();
 let visAtual=null;   // a página vista agora: o número dela na sessão, a página, o carro ou a publicação, e o tempo já contado
 const visLigada=()=>!!VIS&&API!==null&&!EDIT&&!navigator.webdriver&&!/bot|crawl|spider|slurp|headless|lighthouse/i.test(navigator.userAgent)&&!/[?&]editar\b/.test(location.search);
+// de onde a pessoa veio: o site anterior, o aplicativo (no Android, "android-app://com.whatsapp") ou o navegador de dentro do Instagram e
+// do Facebook. Sem nada disso, ela digitou o endereço ou usou um link salvo ("Direto")
 function origemVisita(){
   let h='';try{h=document.referrer?new URL(document.referrer).hostname:'';}catch(e){}
   if(h===location.hostname)h='';
-  const t=((new URLSearchParams(location.search).get('utm_source')||'')+' '+h).toLowerCase().trim();
-  return /google/.test(t)?'Google':/instagram/.test(t)?'Instagram':/facebook|fb\.|^fb\b/.test(t)?'Facebook':/whatsapp|wa\.me/.test(t)?'WhatsApp':
+  const ua=navigator.userAgent||'',app=/^android-app:/i.test(document.referrer||'')?document.referrer:'';
+  const t=[new URLSearchParams(location.search).get('utm_source')||'',h,app,/Instagram/i.test(ua)?'instagram':'',/FBAN|FBAV|FB_IAB|FBIOS/i.test(ua)?'facebook':''].join(' ').toLowerCase().trim();
+  return /mail|\.gm\b/.test(t)?'Outros sites':/google/.test(t)?'Google':/instagram/.test(t)?'Instagram':/facebook|fb\.|^fb\b/.test(t)?'Facebook':/whatsapp|wa\.me/.test(t)?'WhatsApp':
     /youtube/.test(t)?'YouTube':/tiktok/.test(t)?'TikTok':/bing/.test(t)?'Bing':t?'Outros sites':'Direto';
 }
 const aparelhoVisita=()=>matchMedia('(max-width:760px)').matches?'Celular':matchMedia('(max-width:1100px) and (pointer:coarse)').matches?'Tablet':'Computador';

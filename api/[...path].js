@@ -1317,8 +1317,7 @@ function limparPub(p) {
     titulo: txt(p.titulo, 160),
     categoria: CATEGORIAS_PUB.includes(p.categoria) ? p.categoria : CATEGORIAS_PUB[0],
     data: /^\d{4}-\d{2}-\d{2}$/.test(String(p.data || '')) ? p.data : new Date().toISOString().slice(0, 10),
-    resumo: txt(p.resumo, 400),
-    texto: txt(p.texto, 20000),
+    texto: txt(p.texto, 20000),   // o resumo saiu (pedido do Luiz, 22/10/2026: eram dois textos)
     destaque: !!p.destaque,
   };
 }

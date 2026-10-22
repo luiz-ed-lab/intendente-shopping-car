@@ -4,8 +4,7 @@
     "titulo": "Título da matéria em destaque da associação",
     "categoria": "Ações no polo",
     "data": "2026-03-18",
-    "resumo": "Espaço para a Aceima contar o que fez: ação junto ao poder público, mutirão de vistoria, campanha do polo, encontro dos associados.",
-    "texto": "Publicação de exemplo. As publicações de verdade entram pelo painel, com título, foto, resumo e texto.",
+    "texto": "Espaço para a Aceima contar o que fez: ação junto ao poder público, mutirão de vistoria, campanha do polo, encontro dos associados.\n\nPublicação de exemplo. As publicações de verdade entram pelo painel, com título, fotos e texto.",
     "destaque": true,
     "foto": null,
     "exemplo": true
@@ -15,8 +14,7 @@
     "titulo": "Título de uma conquista da associação",
     "categoria": "Conquistas",
     "data": "2026-03-12",
-    "resumo": "",
-    "texto": "Publicação de exemplo. As publicações de verdade entram pelo painel, com título, foto, resumo e texto.",
+    "texto": "Publicação de exemplo. As publicações de verdade entram pelo painel, com título, fotos e texto.",
     "destaque": false,
     "foto": null,
     "exemplo": true
@@ -26,8 +24,7 @@
     "titulo": "Comunicado da diretoria aos associados",
     "categoria": "Comunicados",
     "data": "2026-03-04",
-    "resumo": "",
-    "texto": "Publicação de exemplo. As publicações de verdade entram pelo painel, com título, foto, resumo e texto.",
+    "texto": "Publicação de exemplo. As publicações de verdade entram pelo painel, com título, fotos e texto.",
     "destaque": false,
     "foto": null,
     "exemplo": true
@@ -37,8 +34,7 @@
     "titulo": "O polo na imprensa do Rio de Janeiro",
     "categoria": "Imprensa",
     "data": "2026-02-21",
-    "resumo": "",
-    "texto": "Publicação de exemplo. As publicações de verdade entram pelo painel, com título, foto, resumo e texto.",
+    "texto": "Publicação de exemplo. As publicações de verdade entram pelo painel, com título, fotos e texto.",
     "destaque": false,
     "foto": null,
     "exemplo": true
@@ -48,8 +44,7 @@
     "titulo": "Mutirão realizado na Intendente Magalhães",
     "categoria": "Ações no polo",
     "data": "2026-02-09",
-    "resumo": "",
-    "texto": "Publicação de exemplo. As publicações de verdade entram pelo painel, com título, foto, resumo e texto.",
+    "texto": "Publicação de exemplo. As publicações de verdade entram pelo painel, com título, fotos e texto.",
     "destaque": false,
     "foto": null,
     "exemplo": true
