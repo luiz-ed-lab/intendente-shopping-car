@@ -2507,6 +2507,7 @@ addEventListener('popstate',e=>{const s=e.state;if(s&&s.v&&$('app').classList.co
 function abrirSecaoDoEndereco(){
   const alvo=(location.hash||'').replace('#','').replace(/[^a-z]/g,''),v=VISTAS.includes(ANTIGAS[alvo]||alvo)?(ANTIGAS[alvo]||alvo):'dash';
   nav(v,null,true);try{history.replaceState({v,y:0},'','#'+v);}catch(e){}
+  aprimorarTodos();   // os filtros de Veículos já no desenho do painel enquanto os dados chegam (antes apareciam os do navegador; Luiz, 26/10/2026)
   if(!dadosProntos){renderDash();renderAssoc();renderVeic();renderLeads();renderPubs();}
 }
 if(!document.startViewTransition)document.documentElement.classList.add('sem-vt');
