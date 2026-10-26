@@ -39,6 +39,7 @@ Sem build. Tudo roda na Vercel.
 - O site pede `lojas` e `veiculos` com `site=1`: versão leve (sem os logos, que eram quase todo o peso, e só as colunas que o site usa), sempre pública (nunca traz veículo oculto) e com cache de 5 minutos na Vercel. O painel pede sem `site=1` e continua recebendo tudo, sem cache. Teste: `node testes/site.mjs`.
 - E-mails de lead: Resend. O formulário do Seja um associado grava lead com `tipo: 'associacao'` (empresa e ramo em `detalhes`), que vai por e-mail só para a ACEIMA, com layout próprio (13/10/2026). No painel, ele aparece separado, como "Associação", com a empresa e o ramo (16/10/2026).
 - Variáveis de ambiente (nomes em `.env.example`, valores só na Vercel): `DATABASE_URL`, `PAINEL_TOKEN`, `RESEND_API_KEY`, `RESEND_FROM`, `ACEIMA_EMAIL`, `SITE_URL`, `GITHUB_TOKEN`, `GOOGLE_PLACES_KEY`.
+- Trocar a senha do painel: `PAINEL_TOKEN` na Vercel (Production e Preview; o time é `luiz-ed6495s-projects`) e o secret `PAINEL_TOKEN` do GitHub, com o mesmo valor. Variável trocada só vale numa publicação nova: na produção, o Redeploy (quem clica é o Luiz); na prévia, o próximo push no `site-novo`. Em 26/10/2026 o Luiz trocou a senha e republicou só a produção, e a prévia (onde está o painel novo) ficou pedindo a antiga até um push.
 
 ### Front (`index.html`)
 
