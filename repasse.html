@@ -13,11 +13,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!--
-  Repasse da Aceima (pedido do Luiz, 26/10/2026): página separada do site, sem link a partir dele, onde cada loja associada entra com o
-  próprio login, oferece às outras lojas os carros pegos na troca e chama quem cadastrou pelo WhatsApp. A estrutura é a lista por dia
-  (a opção C que o Luiz escolheu): a lista que as lojas já trocam nos grupos de WhatsApp, posta em ordem.
-  Enquanto o banco não existe (a criação das tabelas espera a aprovação do Luiz), a página roda como demonstração: os carros são de
-  exemplo, qualquer e-mail entra e nada sai do aparelho.
+  Repasse da Aceima (pedido do Luiz, 26/10/2026): cada loja associada entra com o próprio login, oferece às outras lojas os carros pegos
+  na troca e chama quem cadastrou pelo WhatsApp. A estrutura é a lista por dia (a opção C que o Luiz escolheu): a lista que as lojas já
+  trocam nos grupos de WhatsApp, posta em ordem. Fica no menu e no rodapé do site (pedido do Luiz, 26/10/2026), fora dos buscadores.
+  Os dados vêm da rota /api/repasse (o acesso de cada loja nasce no painel, em Associados) e as fotos, da rota /api/rfoto.
 -->
 <style>
 :root{--navy:#00091A;--ink:#0B1A33;--cl:#F6F4F1;--gold:#C8862E;--gold2:#E8A048;--gold3:#F4B05C;--goldtx:#9A5F14;--mut:#5A6B85;--clara:#B9C6DA;
@@ -49,10 +48,12 @@ html{scrollbar-color:#C9C3BB transparent}
 .contorno:hover{box-shadow:inset 0 0 0 1px var(--ink)}
 .redondo{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;background:rgba(255,255,255,.08);color:#CFD9E8;transition:background .2s,color .2s}
 .redondo:hover{background:rgba(255,255,255,.16);color:#fff}
+.lk{font:600 13.5px var(--f2);color:var(--goldtx);white-space:nowrap;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.lk:hover{color:var(--ink)}
 
 /* ===== entrada ===== */
 .entrada{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px var(--lado);color:#fff;text-align:center}
-.entrada .logo{height:34px;width:auto}
+.entrada .logo{display:block;height:34px;width:auto}
 .entrada h1{margin-top:40px;font:500 clamp(40px,5.2vw,64px)/1.02 var(--f1);letter-spacing:-.03em}
 .entrada h1 em{font-style:italic;color:var(--gold3)}
 .entrada .sub{margin-top:16px;max-width:520px;font-size:17px;color:var(--clara)}
@@ -64,13 +65,15 @@ html{scrollbar-color:#C9C3BB transparent}
 .ent-form .ouro{margin-top:8px;height:54px;font-size:16px}
 .ent-nota{margin-top:22px;max-width:460px;font-size:14px;color:var(--clara)}
 .ent-nota a{color:var(--gold3);font-weight:600;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
-.demo{display:inline-flex;align-items:center;gap:8px;margin-top:18px;min-height:32px;padding:7px 16px;border-radius:99px;background:rgba(244,176,92,.12);color:var(--gold3);font:600 13px/1.35 var(--f2);text-align:center}
+.ent-volta{margin-top:14px;font-size:14px;color:#9FB0C9;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;transition:color .2s}
+.ent-volta:hover{color:#fff}
 
 /* ===== topo do app ===== */
 .topo{padding:28px var(--lado) calc(var(--canto) + 42px);color:#fff}
 .topo-in{max-width:1660px;margin:0 auto}
 .barra{display:flex;align-items:center;gap:14px;height:46px}
-.marca{display:flex;align-items:center;gap:14px;font:500 21px/1 var(--f1);color:var(--gold3)}
+.marca{display:flex;align-items:center;gap:14px;font:500 21px/1 var(--f1);color:var(--gold3);transition:opacity .2s}
+a.marca:hover{opacity:.85}
 .marca img{height:30px;width:auto}
 .marca i{width:1px;height:22px;background:rgba(255,255,255,.25)}
 .esp{flex:1}
@@ -98,7 +101,7 @@ html{scrollbar-color:#C9C3BB transparent}
 .fc .campo{height:52px}
 .fc textarea.campo{height:auto;min-height:52px;padding:14px 18px;resize:none;overflow:hidden;line-height:1.5}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
-.seg button{height:52px;flex:1 1 0;min-width:0;padding:0 12px;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);color:#CFD9E8;font:500 14.5px var(--f2);display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;transition:background .2s,box-shadow .2s,color .2s}
+.seg button{height:52px;flex:1 1 0;min-width:0;padding:0 12px;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);color:#CFD9E8;font:500 14.5px var(--f2);display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;transition:background .2s,box-shadow .2s,color .2s}
 .seg button:hover{box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);color:#fff}
 .seg button.on{background:rgba(244,176,92,.16);box-shadow:inset 0 0 0 1px rgba(244,176,92,.55);color:var(--gold3)}
 .fotos{display:flex;gap:10px;flex-wrap:wrap}
@@ -106,9 +109,10 @@ html{scrollbar-color:#C9C3BB transparent}
 .fotos label:hover{background:rgba(244,176,92,.12)}
 .fotos input{position:absolute;width:1px;height:1px;opacity:0}
 .fotos figure{position:relative;width:120px;height:90px;border-radius:14px;overflow:hidden;background:#1a2233}
-.fotos figure img{width:100%;height:100%;object-fit:cover}
-.fotos figure figcaption{position:absolute;left:8px;bottom:8px;height:22px;padding:0 8px;border-radius:99px;background:rgba(0,9,26,.75);color:#fff;font:600 11px/22px var(--f2)}
-.fotos figure button{position:absolute;right:6px;top:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,9,26,.75);color:#fff;display:grid;place-items:center}
+.fotos .capa-bt{display:block;width:100%;height:100%}
+.fotos figure img{display:block;width:100%;height:100%;object-fit:cover}
+.fotos figure figcaption{position:absolute;left:8px;bottom:8px;height:22px;padding:0 8px;border-radius:99px;background:rgba(0,9,26,.75);color:#fff;font:600 11px/22px var(--f2);pointer-events:none}
+.fotos .fx{position:absolute;right:6px;top:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,9,26,.75);color:#fff;display:grid;place-items:center}
 .form-acoes{margin-top:22px;display:flex;align-items:center;gap:12px}
 .form-acoes .ouro{height:52px;padding:0 30px}
 .form-acoes .sair-f{height:52px;padding:0 22px;border-radius:99px;color:#CFD9E8;font:600 15px var(--f2)}
@@ -136,12 +140,8 @@ html{scrollbar-color:#C9C3BB transparent}
 .ln:hover{background:rgba(255,255,255,.7)}
 .ln.on{background:#fff;border-radius:16px 16px 0 0}
 .ph{position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(160deg,#5d6676,#262e3d 62%,#151b27)}
-.ph.cl{background:linear-gradient(160deg,#cdd2da,#8d96a5 62%,#5b6474)}
-.ph.vm{background:linear-gradient(160deg,#a5463f,#55221f 62%,#2a1312)}
-.ph.az{background:linear-gradient(160deg,#4f6d93,#22324a 62%,#111a28)}
-.ph.br{background:linear-gradient(160deg,#eef0f3,#c4c9d1 62%,#8f97a4)}
 .ph svg{position:absolute;left:8%;bottom:11%;width:84%;height:auto;fill:rgba(255,255,255,.18)}
-.ph.br svg{fill:rgba(11,26,51,.12)}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .ln .ph{width:116px;height:87px}
 .ln .nm b{display:flex;align-items:center;gap:8px;font:600 17px/1.3 var(--f2)}
 .ln .nm span{display:block;margin-top:4px;font-size:14px;color:var(--mut)}
@@ -164,11 +164,11 @@ html{scrollbar-color:#C9C3BB transparent}
 /* a linha aberta: as fotos e os detalhes no lugar */
 .abre{overflow:hidden;margin:0 -10px;padding:0 10px;background:#fff;border-radius:0 0 16px 16px;box-shadow:0 26px 40px -34px rgba(0,0,0,.35)}
 .abre-in{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:34px;padding:10px 0 26px}
-.galeria .grande{width:100%;aspect-ratio:4/3;border-radius:16px}
-.galeria .tiras{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
-.galeria .tiras button{aspect-ratio:4/3;border-radius:10px;overflow:hidden;opacity:.8;transition:opacity .2s}
+.galeria .grande{display:block;width:100%;aspect-ratio:4/3;border-radius:16px}
+.galeria .tiras{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+.galeria .tiras button{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#E9E5DF;opacity:.75;transition:opacity .2s}
 .galeria .tiras button:hover,.galeria .tiras button.on{opacity:1}
-.galeria .tiras button .ph{width:100%;height:100%;border-radius:0}
+.galeria .tiras img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .det h3{font:600 26px/1.15 var(--f1);letter-spacing:-.015em}
 .det .ver{margin-top:4px;font-size:15px;color:var(--mut)}
 .dados{margin-top:18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line)}
@@ -202,13 +202,20 @@ html{scrollbar-color:#C9C3BB transparent}
 .mi .ac button:hover{color:var(--ink)}
 .meus .ouro{width:100%;margin-top:18px;height:50px}
 .meus .nada{padding:14px 0 4px;font-size:14px;color:var(--mut)}
+.conta{margin-top:16px;text-align:center}
+/* trocar a senha: dois campos no próprio quadro */
+.senha-f{display:grid;gap:10px;text-align:left}
+.senha-f label{display:grid;gap:6px;font-size:13px;color:var(--mut)}
+.senha-f input{height:46px;border-radius:12px;border:1px solid var(--line);background:#fff;padding:0 14px;color:var(--ink);font-size:16px;outline:0;transition:border-color .2s}
+.senha-f input:focus{border-color:var(--gold)}
+.senha-f div{display:flex;align-items:center;gap:14px;margin-top:4px}
+.senha-f .ouro{width:auto;margin:0;height:44px;padding:0 20px;font-size:14px}
 
 .aviso{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding:14px 16px;border-radius:16px;background:#F3EEE6;font-size:13.5px;line-height:1.5;color:#5b4a35}
 .aviso svg{color:var(--gold);margin-top:2px}
-.aviso.so-tab{display:none}
 #btRepassar{display:none}   /* no computador, o Repassar fica na coluna dos seus carros; no tablet e no celular, no topo */
 
-.toast{position:fixed;left:50%;bottom:28px;z-index:50;transform:translate(-50%,16px);max-width:calc(100vw - 32px);padding:13px 20px;border-radius:99px;background:var(--navy);color:#fff;font:500 14.5px/1.4 var(--f2);box-shadow:0 18px 40px -16px rgba(0,9,26,.6);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s var(--ease)}
+.toast{position:fixed;left:50%;bottom:28px;z-index:50;transform:translate(-50%,16px);width:max-content;max-width:min(560px,calc(100vw - 32px));padding:13px 20px;border-radius:23px;background:var(--navy);color:#fff;font:500 14.5px/1.4 var(--f2);box-shadow:0 18px 40px -16px rgba(0,9,26,.6);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s var(--ease)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 
 /* ===== tablet e celular: o mercado e os seus carros em duas abas, e a lista mais compacta ===== */
@@ -220,7 +227,6 @@ html{scrollbar-color:#C9C3BB transparent}
   .abas button small{font-weight:500;color:#9FB0C9}
   .abas button.on{background:#fff;color:var(--ink)}.abas button.on small{color:var(--mut)}
   .so-mercado .meus-col{display:none}
-  .aviso.so-tab:not([hidden]){display:flex;margin:0 0 14px}
   #btRepassar{display:inline-flex}
   .so-meus .mercado{display:none}
   .meus{position:static}
@@ -261,6 +267,7 @@ html{scrollbar-color:#C9C3BB transparent}
   .ln .nm .pm{display:block!important;margin-top:1.28vw;font:600 4.1vw/1 var(--f1);color:var(--ink);font-variant-numeric:tabular-nums}
   .zap{width:10.77vw;height:10.77vw}
   .abre-in{grid-template-columns:minmax(0,1fr);gap:18px;padding:10px 0 22px}
+  .galeria .tiras{gap:1.54vw}
   .dados{grid-template-columns:repeat(2,minmax(0,1fr))}
   .det h3{font-size:5.64vw}.det .ver,.obs{font-size:3.47vw}
   .dados strong{font-size:4.1vw}.dados small{font-size:2.56vw}
@@ -270,7 +277,7 @@ html{scrollbar-color:#C9C3BB transparent}
   .fg .c2{grid-column:1/-1}
   .form-cab h2{font-size:6.15vw}
   .fc>span{font-size:3.3vw}.fc .campo,.campo{font-size:max(16px,3.6vw)}
-  .seg button{font-size:3.3vw;padding:0 1.5vw}
+  .seg button{font-size:3.3vw;padding:0 1.5vw;white-space:normal;line-height:1.2}
   .ouro,.contorno{font-size:3.3vw}
   .form-acoes{flex-wrap:wrap}.form-acoes .ouro{flex:1 1 100%}.form-acoes small{margin:0 auto}
   .fotos label,.fotos figure{width:calc(33.33% - 7px);height:auto;aspect-ratio:4/3}
@@ -278,8 +285,9 @@ html{scrollbar-color:#C9C3BB transparent}
   .entrada .logo{height:26px}
   .entrada .sub{font-size:3.87vw}
   .entrada h1{font-size:9.74vw}
-  .ent-form label,.ent-nota{font-size:3.3vw}
-  .meus h2{font-size:5.13vw}.meus>p,.mi .lh{font-size:3.3vw}.mi b{font-size:3.72vw}.mi .ac button{font-size:3.3vw}
+  .ent-form label,.ent-nota,.ent-volta{font-size:3.3vw}
+  .meus h2{font-size:5.13vw}.meus>p,.mi .lh{font-size:3.3vw}.mi b{font-size:3.72vw}.mi .ac button,.lk{font-size:3.3vw}
+  .senha-f label{font-size:3.3vw}.senha-f .ouro{font-size:3.3vw}
   .toast{bottom:20px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
@@ -300,8 +308,8 @@ html{scrollbar-color:#C9C3BB transparent}
 </defs></svg>
 
 <!-- ===== ENTRADA ===== -->
-<main class="entrada vidro" id="entrada">
- <img class="logo" src="marca-nova/aceima-nova.png" alt="Aceima">
+<main class="entrada vidro oculto" id="entrada">
+ <a href="/" aria-label="Site da Aceima"><img class="logo" src="marca-nova/aceima-nova.png" alt="Aceima"></a>
  <h1>Repasse <em>da Intendente.</em></h1>
  <p class="sub">Os carros que as lojas associadas pegam na troca, oferecidos primeiro entre elas.</p>
  <form class="ent-form" id="entForm" novalidate>
@@ -309,10 +317,10 @@ html{scrollbar-color:#C9C3BB transparent}
   <input class="campo" id="entEmail" type="email" autocomplete="username" placeholder="loja@exemplo.com.br" required>
   <label for="entSenha">Senha</label>
   <input class="campo" id="entSenha" type="password" autocomplete="current-password" placeholder="Sua senha" required>
-  <button class="ouro" type="submit">Entrar</button>
+  <button class="ouro" type="submit" id="entBt">Entrar</button>
  </form>
  <p class="ent-nota">Quem cria o acesso de cada loja é a Aceima. Ainda não tem o seu? <a href="https://wa.me/5521991041424?text=Ol%C3%A1!%20Quero%20o%20acesso%20da%20minha%20loja%20ao%20Repasse%20da%20Aceima." target="_blank" rel="noopener">Fale com a associação</a></p>
- <p class="demo">Demonstração: carros de exemplo, qualquer e-mail entra</p>
+ <a class="ent-volta" href="/">Voltar para o site</a>
 </main>
 
 <!-- ===== REPASSE ===== -->
@@ -320,7 +328,7 @@ html{scrollbar-color:#C9C3BB transparent}
  <header class="topo vidro">
   <div class="topo-in">
    <div class="barra">
-    <div class="marca"><img src="marca-nova/aceima-nova.png" alt="Aceima"><i></i>Repasse</div>
+    <a class="marca" href="/" title="Site da Aceima"><img src="marca-nova/aceima-nova.png" alt="Aceima"><i></i>Repasse</a>
     <div class="esp"></div>
     <div class="loja" id="lojaChip"></div>
     <button class="ouro" type="button" id="btRepassar" onclick="abrirForm()"><svg class="i"><use href="#mais"/></svg><span>Repassar um carro</span></button>
@@ -340,7 +348,6 @@ html{scrollbar-color:#C9C3BB transparent}
  <main class="folha">
   <div class="folha-in so-mercado" id="folhaIn">
    <section class="mercado" aria-label="Carros no repasse">
-    <div class="aviso so-tab" id="avisoMercado" hidden></div>
     <div class="fil" id="filtros"></div>
     <div id="lista"></div>
    </section>
@@ -351,8 +358,6 @@ html{scrollbar-color:#C9C3BB transparent}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-/* ---------- demonstração: até o banco existir, os carros são de exemplo e nada sai do aparelho ---------- */
-const DEMO=true;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>Number(n||0).toLocaleString('pt-BR');
@@ -360,32 +365,27 @@ const reais=n=>'R$ '+fmt(n);
 const reduz=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sv=(id,cl)=>`<svg class="i${cl?' '+cl:''}" aria-hidden="true"><use href="#${id}"/></svg>`;
 const carroSv='<svg viewBox="0 0 120 44" aria-hidden="true"><use href="#carro"/></svg>';
-const ph=(tom,extra)=>`<div class="ph ${tom||''}${extra?' '+extra:''}">${carroSv}</div>`;
+// o endereço de uma foto (m=1: a pequena, para a lista); sem foto, o desenho do carro
+const FOTO=(id,mini)=>`/api/rfoto?path=rfoto&id=${id}${mini?'&m=1':''}`;
+const capa=c=>c.fotos.length?`<div class="ph"><img src="${FOTO(c.fotos[0],true)}" alt="" loading="lazy" decoding="async"></div>`:`<div class="ph">${carroSv}</div>`;
 // as iniciais da loja: as maiúsculas da primeira palavra quando ela tem duas (TurboMix: TM), senão a primeira letra das duas primeiras
 const iniciais=n=>{const p=String(n).trim().split(/\s+/),m=(p[0].match(/[A-ZÀ-Ú]/g)||[]);return (m.length>=2?m.slice(0,2).join(''):p.slice(0,2).map(w=>w[0]).join('')).toUpperCase();};
+// o nome escrito todo em maiúsculas (como nos grupos) fica como no site: só a primeira letra de cada palavra maiúscula, menos as siglas
+// e as palavras com número ("TOYOTA COROLLA XEI 2.0" vira "Toyota Corolla XEI 2.0"); a mesma regra do titulo() do index.html
+const SIGLAS=['BMW','BYD','JAC','RAM','GWM','GM','VW','GAC','KTM','CAOA','MV','DS','ABS','CBS','TSI','TFSI','MPI','MPFI','MI','MSI','SCE','TCE','DCI','TGDI','CGI','GDI','THP','HPE','VVT','VCT','VTEC','MIVEC','TDI','TD','CRDI','GNV','CVT','DCT','DSG','EDC','AT','MT','AWD','AWC','FWD','RWD','PHEV','HEV','DHT','KW','CV','CC','SUV',
+  'LT','LTZ','LS','LX','LXL','LXR','EX','EXL','EXS','DX','SE','SEL','SR','SRV','SV','SL','GL','GLS','GLX','GLI','GT','GTI','GTS','RS','ST','XS','XL','XLS','XLT','XLI','XEI','XR','XRE','XRX','XTZ','XVS','YBR','YS','ZR','NK','NXR','PCX','CG','CB','NMAX','XMAX','ADV','TXS','VTI','HSE','CD','CS','STD','ED','EL','ELX','DI','SED','MHD','SFI','GS','GSX','XE','SRX','SW','CL','DLX','PDK','AMG','RT','ACT',
+  'GLA','GLC','GLE','CLA','SLK','CRV','HRV','WRV','ASX','TT','II','III','IV','VI','VII'];
+const MINUSC=['de','da','do','das','dos','e','com','sem','para','em'];
+const maiusc1=p=>p.toLowerCase().replace(/[a-zà-ÿ]/,c=>c.toUpperCase());
+const titulo=s=>String(s||'').trim().split(/\s+/).filter(Boolean).map((w,i)=>{
+  if(i&&MINUSC.includes(w.toLowerCase()))return w.toLowerCase();
+  if(/\d/.test(w)||(w.includes('-')&&w.split('-').every(p=>p.length<=2)))return w.toUpperCase();
+  return w.split(/([\-\/.,()])/).map(p=>SIGLAS.includes(p.toUpperCase())?p.toUpperCase():maiusc1(p)).join('');}).join(' ');
+const nomeBom=s=>{s=String(s||'').replace(/\s+/g,' ').trim();return /[a-zà-ÿ]/.test(s)?s:titulo(s);};
 
-// a hora de cada carro, a partir de agora (dias atrás, hora, minuto)
-const quando=(d,h,m)=>{const x=new Date();x.setDate(x.getDate()-d);x.setHours(h,m,0,0);return x;};
-const EU='TurboMix Veículos';
-let CARROS=[
- {id:1,marca:'Toyota',modelo:'Corolla',versao:'XEi 2.0',ano:'2019/2020',km:68000,cambio:'Automático',comb:'Flex',cor:'Prata',placa:'7',donos:1,laudo:'Aprovado',valor:89500,loja:'Jazz Veículos',criado:quando(0,10,42),tom:'',fotos:8,obs:'Único dono, revisões feitas na concessionária e pneus novos. Um risco leve no para-choque traseiro.'},
- {id:2,marca:'Hyundai',modelo:'HB20',versao:'1.0 Comfort',ano:'2020/2020',km:52000,cambio:'Manual',comb:'Flex',cor:'Branco',placa:'3',donos:2,laudo:'Aprovado',valor:52900,loja:'Lazari',criado:quando(0,9,15),tom:'br',fotos:6,obs:'Carro de garagem, manual e chave reserva.'},
- {id:3,marca:'Chevrolet',modelo:'Onix',versao:'1.0 LT',ano:'2019/2019',km:74000,cambio:'Manual',comb:'Flex',cor:'Vermelho',placa:'9',donos:2,laudo:'Aprovado',valor:48700,loja:'Robmar Automóveis',criado:quando(0,8,30),repassado:quando(0,11,20),tom:'vm',fotos:5,obs:'Pintura original. Precisa de alinhamento.'},
- {id:4,marca:'Nissan',modelo:'Kicks',versao:'SV 1.6',ano:'2019/2019',km:79000,cambio:'CVT',comb:'Flex',cor:'Cinza',placa:'1',donos:1,laudo:'Aprovado',valor:72900,loja:'Autryx Veículos',criado:quando(0,8,5),tom:'',fotos:7,obs:'Revisado. IPVA 2026 pago.'},
- {id:5,marca:'Jeep',modelo:'Renegade',versao:'Sport 1.8',ano:'2018/2018',km:83000,cambio:'Automático',comb:'Flex',cor:'Prata',placa:'5',donos:2,laudo:'Aprovado',valor:69800,loja:'Maiorano Veículos',criado:quando(1,17,48),tom:'cl',fotos:9,obs:'Pneus meia-vida. Ar-condicionado gelando.'},
- {id:6,marca:'Fiat',modelo:'Toro',versao:'Freedom 1.8',ano:'2018/2018',km:102000,cambio:'Automático',comb:'Flex',cor:'Preto',placa:'8',donos:1,laudo:'Com apontamento',valor:79500,loja:'Auto Barra',criado:quando(1,15,10),tom:'',fotos:8,obs:'Laudo com apontamento na longarina dianteira, reparo bem feito. Valor já considera.'},
- {id:7,marca:'Honda',modelo:'Fit',versao:'EX 1.5',ano:'2017/2017',km:88000,cambio:'CVT',comb:'Flex',cor:'Azul',placa:'2',donos:2,laudo:'Aprovado',valor:61900,loja:'Perfil Multimarcas',criado:quando(1,11,32),tom:'az',fotos:6,obs:'Manual, chave reserva e revisões em dia.'},
- {id:8,marca:'Volkswagen',modelo:'Gol',versao:'1.6 MSI',ano:'2018/2018',km:91000,cambio:'Manual',comb:'Flex',cor:'Branco',placa:'4',donos:3,laudo:'Aprovado',valor:39900,loja:'AG Rio Car',criado:quando(1,9,4),tom:'br',fotos:5,obs:'Para quem precisa de giro rápido.'},
- {id:9,marca:'Renault',modelo:'Kwid',versao:'Zen 1.0',ano:'2021/2022',km:41000,cambio:'Manual',comb:'Flex',cor:'Laranja',placa:'6',donos:1,laudo:'Aprovado',valor:42500,loja:'T.F.A. Motors',criado:quando(2,16,25),tom:'vm',fotos:6,obs:'Garantia de fábrica até março.'},
- {id:10,marca:'Ford',modelo:'EcoSport',versao:'SE 1.5',ano:'2019/2019',km:76000,cambio:'Automático',comb:'Flex',cor:'Prata',placa:'0',donos:2,laudo:'Aprovado',valor:62400,loja:'Maiorano Veículos',criado:quando(2,10,50),tom:'cl',fotos:7,obs:'Revisões na concessionária.'},
- {id:11,marca:'Chevrolet',modelo:'Tracker',versao:'LT 1.0 Turbo',ano:'2021/2021',km:58000,cambio:'Automático',comb:'Flex',cor:'Branco',placa:'3',donos:1,laudo:'Aprovado',valor:94900,loja:'Jazz Veículos',criado:quando(3,14,0),tom:'br',fotos:10,obs:'Multimídia original e sensor de estacionamento.'},
- {id:12,marca:'Fiat',modelo:'Mobi',versao:'Like 1.0',ano:'2020/2020',km:47000,cambio:'Manual',comb:'Flex',cor:'Vermelho',placa:'7',donos:2,laudo:'Aprovado',valor:36900,loja:'Lazari',criado:quando(3,9,40),tom:'vm',fotos:5,obs:'Econômico, pronto para rodar.'},
- {id:13,marca:'Volkswagen',modelo:'Polo',versao:'1.0 TSI',ano:'2020/2020',km:61000,cambio:'Automático',comb:'Flex',cor:'Cinza',placa:'2',donos:1,laudo:'Aprovado',valor:71900,loja:EU,criado:quando(1,10,12),tom:'',fotos:8,obs:'Um dono, revisado.'},
- {id:14,marca:'Fiat',modelo:'Argo',versao:'Drive 1.3',ano:'2021/2021',km:38000,cambio:'Manual',comb:'Flex',cor:'Prata',placa:'9',donos:1,laudo:'Aprovado',valor:58400,loja:EU,criado:quando(2,9,30),tom:'cl',fotos:6,obs:'Baixa quilometragem.'},
- {id:15,marca:'Ford',modelo:'Ka',versao:'SE 1.5',ano:'2019/2019',km:77000,cambio:'Manual',comb:'Flex',cor:'Vermelho',placa:'4',donos:2,laudo:'Aprovado',valor:44900,loja:EU,criado:quando(4,15,0),repassado:quando(2,17,40),tom:'vm',fotos:5,obs:'Repassado.'}
-];
+let CARROS=[],EU='',F={chip:'todos',q:'',ord:'novos'},aberto=null,novoId=null,abaAtual='mercado';
+let vistos=null,chegaram=new Set(),assinatura='',senhaAberta=false,enviando=false,poll=null;
 const CHIPS=[['todos','Todos'],['hoje','Hoje'],['ate50','Até R$ 50 mil'],['auto','Automáticos']];
-let F={chip:'todos',q:'',ord:'novos'},aberto=null,novoId=null,abaAtual='mercado';
 
 const hoje0=()=>{const x=new Date();x.setHours(0,0,0,0);return x;};
 const mesmoDia=(a,b)=>a.toDateString()===b.toDateString();
@@ -393,8 +393,8 @@ const SEM=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],MES
 function nomeDia(d){const h=hoje0(),o=new Date(h);o.setDate(o.getDate()-1);
   if(mesmoDia(d,h))return 'Hoje';if(mesmoDia(d,o))return 'Ontem';return SEM[d.getDay()]+', '+d.getDate()+' de '+MES[d.getMonth()];}
 const hora=d=>String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-const nome=c=>c.marca+' '+c.modelo+(c.versao?' '+c.versao:'');
-const anoMod=c=>String(c.ano).split('/').pop();
+const anoMod=c=>(String(c.ano).match(/\d{4}/g)||['']).pop();
+const kmT=c=>c.km!=null?fmt(c.km)+' km':'';
 // no mercado: todos os carros, os da própria loja também (como no grupo); o repassado só no dia em que foi repassado
 const noMercado=c=>!c.repassado||mesmoDia(c.repassado,new Date());
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
@@ -402,20 +402,20 @@ const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''
 function filtrar(){
   let l=CARROS.filter(noMercado);
   const q=norm(F.q).split(/\s+/).filter(Boolean);
-  if(q.length)l=l.filter(c=>{const t=norm([c.marca,c.modelo,c.versao,c.ano,c.loja,c.cambio,c.cor].join(' '));return q.every(p=>t.includes(p));});
+  if(q.length)l=l.filter(c=>{const t=norm([c.nome,c.ano,c.loja,c.cambio,c.comb,c.cor].join(' '));return q.every(p=>t.includes(p));});
   if(F.chip==='hoje')l=l.filter(c=>mesmoDia(c.criado,new Date()));
   if(F.chip==='ate50')l=l.filter(c=>c.valor<=50000);
-  if(F.chip==='auto')l=l.filter(c=>c.cambio!=='Manual');
-  const s={novos:(a,b)=>b.criado-a.criado,menor:(a,b)=>a.valor-b.valor,maior:(a,b)=>b.valor-a.valor,km:(a,b)=>a.km-b.km,ano:(a,b)=>anoMod(b)-anoMod(a)||b.criado-a.criado}[F.ord];
+  if(F.chip==='auto')l=l.filter(c=>c.cambio&&c.cambio!=='Manual');
+  const s={novos:(a,b)=>b.criado-a.criado,menor:(a,b)=>a.valor-b.valor,maior:(a,b)=>b.valor-a.valor,km:(a,b)=>(a.km??1e9)-(b.km??1e9),ano:(a,b)=>anoMod(b)-anoMod(a)||b.criado-a.criado}[F.ord];
   return l.sort(s);
 }
-function contaChip(k){const base=CARROS.filter(noMercado);return k==='todos'?base.length:k==='hoje'?base.filter(c=>mesmoDia(c.criado,new Date())).length:k==='ate50'?base.filter(c=>c.valor<=50000).length:base.filter(c=>c.cambio!=='Manual').length;}
+function contaChip(k){const base=CARROS.filter(noMercado);return k==='todos'?base.length:k==='hoje'?base.filter(c=>mesmoDia(c.criado,new Date())).length:k==='ate50'?base.filter(c=>c.valor<=50000).length:base.filter(c=>c.cambio&&c.cambio!=='Manual').length;}
 
 function pintarTopo(){
-  const m=CARROS.filter(noMercado),lojas=new Set(m.map(c=>c.loja)).size,hj=m.filter(c=>mesmoDia(c.criado,new Date())).length,meus=CARROS.filter(c=>c.loja===EU&&!c.repassado).length;
+  const m=CARROS.filter(noMercado),lojas=new Set(m.map(c=>c.loja)).size,hj=m.filter(c=>mesmoDia(c.criado,new Date())).length,meus=CARROS.filter(c=>c.meu&&!c.repassado).length;
   $('resumo').innerHTML=`<b>${m.length} ${m.length===1?'carro':'carros'}</b> de ${lojas} ${lojas===1?'loja':'lojas'} · ${hj} ${hj===1?'chegou':'chegaram'} hoje`;
   $('nMercado').textContent=m.length;$('nMeus').textContent=meus;
-  $('lojaChip').innerHTML=`<b>${esc(iniciais(EU))}</b>${esc(EU)}`;
+  $('lojaChip').innerHTML=EU?`<b>${esc(iniciais(EU))}</b>${esc(EU)}`:'';
 }
 function pintarFiltros(){
   $('filtros').innerHTML=CHIPS.map(([k,t])=>`<button type="button" class="chip${F.chip===k?' on':''}" aria-pressed="${F.chip===k}" onclick="escolherChip('${k}')">${t} <small>${contaChip(k)}</small></button>`).join('')
@@ -424,42 +424,46 @@ function pintarFiltros(){
 function escolherChip(k){F.chip=k;pintarFiltros();pintarLista(true);}
 
 function linha(c){
-  const foi=!!c.repassado,ab=aberto===c.id,meu=c.loja===EU,novo=novoId===c.id||(mesmoDia(c.criado,new Date())&&!foi&&c===filtrarPrimeiroDeHoje());
+  const foi=!!c.repassado,ab=aberto===c.id,novo=novoId===c.id||(mesmoDia(c.criado,new Date())&&!foi&&c===filtrarPrimeiroDeHoje());
   const fim=foi?' · repassado às '+hora(c.repassado):'';
-  const dados=[anoMod(c),fmt(c.km)+' km',c.cambio,c.comb].join(' · ')+fim,curto=[anoMod(c),fmt(c.km)+' km',c.cambio].join(' · ')+fim;
-  return `<div class="ln${foi?' foi':''}${ab?' on':''}${novoId===c.id?' chega':''}" data-id="${c.id}" ${foi?'aria-disabled="true"':`role="button" tabindex="0" aria-expanded="${ab}"`}>
-   ${ph(c.tom)}
-   <div class="nm"><b>${esc(nome(c))}${novo?'<span class="novo">novo</span>':''}</b><span class="dl">${esc(dados)}</span><span class="dc">${esc(curto)}</span><span class="qm" style="display:none">${esc(c.loja)} · ${hora(c.criado)}${novo?'<span class="novo">novo</span>':''}</span><span class="pm" style="display:none">${reais(c.valor)}</span></div>
+  const dados=[anoMod(c),kmT(c),c.cambio,c.comb].filter(Boolean).join(' · ')+fim,curto=[anoMod(c),kmT(c),c.cambio].filter(Boolean).join(' · ')+fim;
+  return `<div class="ln${foi?' foi':''}${ab?' on':''}${novoId===c.id||chegaram.has(c.id)?' chega':''}" data-id="${c.id}" ${foi?'aria-disabled="true"':`role="button" tabindex="0" aria-expanded="${ab}"`}>
+   ${capa(c)}
+   <div class="nm"><b>${esc(c.nome)}${novo?'<span class="novo">novo</span>':''}</b><span class="dl">${esc(dados)}</span><span class="dc">${esc(curto)}</span><span class="qm" style="display:none">${esc(c.loja)} · ${hora(c.criado)}${novo?'<span class="novo">novo</span>':''}</span><span class="pm" style="display:none">${reais(c.valor)}</span></div>
    <em>${reais(c.valor)}</em>
    <div class="q"><strong>${esc(c.loja)}</strong>${hora(c.criado)}</div>
-   ${meu?`<span class="pl meu" title="Carro da sua loja"><i>Seu carro</i><i>Seu</i></span>`:`<button type="button" class="zap" data-zap="${c.id}" aria-label="Chamar a ${esc(c.loja)} no WhatsApp" title="Chamar no WhatsApp"${foi?' tabindex="-1"':''}>${sv('zap')}</button>`}
+   ${c.meu?`<span class="pl meu" title="Carro da sua loja"><i>Seu carro</i><i>Seu</i></span>`:`<button type="button" class="zap" data-zap="${c.id}" aria-label="Chamar a ${esc(c.loja)} no WhatsApp" title="Chamar no WhatsApp"${foi?' tabindex="-1"':''}>${sv('zap')}</button>`}
   </div>${ab?abertoHtml(c):''}`;
 }
 // o mais novo de hoje ganha a etiqueta "novo"
 function filtrarPrimeiroDeHoje(){return CARROS.filter(c=>noMercado(c)&&!c.repassado&&mesmoDia(c.criado,new Date())).sort((a,b)=>b.criado-a.criado)[0];}
 function abertoHtml(c){
-  const tons=[c.tom,'cl','',c.tom,'br'];
+  const fs=c.fotos;
+  // a foto grande abre inteira numa aba (no celular, dá para ampliar); as pequenas trocam a grande
+  const gal=fs.length?`<a class="grande ph" id="grande${c.id}" href="${FOTO(fs[0])}" target="_blank" rel="noopener" aria-label="Abrir a foto inteira"><img src="${FOTO(fs[0])}" alt="${esc(c.nome)}"></a>
+     ${fs.length>1?`<div class="tiras">${fs.map((f,i)=>`<button type="button" class="${i===0?'on':''}" aria-label="Foto ${i+1}" onclick="trocarFoto(${c.id},'${f}',this)"><img src="${FOTO(f,true)}" alt="" loading="lazy"></button>`).join('')}</div>`:''}`
+    :`<div class="grande ph">${carroSv}</div>`;
   return `<div class="abre" id="abre${c.id}"><div class="abre-in">
-   <div class="galeria"><div class="grande ph ${c.tom||''}" id="grande${c.id}">${carroSv}</div>
-    <div class="tiras">${[0,1,2,3].map(i=>`<button type="button" class="${i===0?'on':''}" aria-label="Foto ${i+1}" onclick="trocarFoto(${c.id},${i},'${tons[i]||''}',this)">${ph(tons[i])}</button>`).join('')}</div></div>
+   <div class="galeria">${gal}</div>
    <div class="det">
-    <h3>${esc(nome(c))}</h3><p class="ver">${esc([c.cambio,c.comb,c.cor].filter(Boolean).join(' · '))}</p>
-    <div class="dados"><div><small>Ano</small><strong>${esc(c.ano)}</strong></div><div><small>Km</small><strong>${fmt(c.km)}</strong></div><div><small>Final da placa</small><strong>${esc(c.placa||'-')}</strong></div>
-     <div><small>Donos</small><strong>${c.donos||'-'}</strong></div><div><small>Laudo</small><strong>${esc(c.laudo||'-')}</strong></div><div><small>Fotos</small><strong>${c.fotos||0}</strong></div></div>
+    <h3>${esc(c.nome)}</h3><p class="ver">${esc([c.cambio,c.comb,c.cor].filter(Boolean).join(' · '))}</p>
+    <div class="dados"><div><small>Ano</small><strong>${esc(c.ano||'-')}</strong></div><div><small>Km</small><strong>${c.km!=null?fmt(c.km):'-'}</strong></div><div><small>Final da placa</small><strong>${esc(c.placa||'-')}</strong></div>
+     <div><small>Donos</small><strong>${esc(c.donos||'-')}</strong></div><div><small>Laudo</small><strong>${esc(c.laudo||'-')}</strong></div><div><small>Fotos</small><strong>${fs.length}</strong></div></div>
     ${c.obs?`<p class="obs"><b>Da loja:</b> ${esc(c.obs)}</p>`:''}
     <div class="valor"><small>Valor de repasse</small><strong>${reais(c.valor)}</strong></div>
-    <div class="acoes">${c.loja===EU
+    <div class="acoes">${c.meu
       ?`<button type="button" class="ouro" onclick="marcarRepassado(${c.id})">Foi repassado</button><button type="button" class="contorno" onclick="tirar(${c.id})">Tirar do repasse</button>`
       :`<button type="button" class="ouro" data-zap="${c.id}">${sv('zap')}Chamar a ${esc(c.loja)} no WhatsApp</button><button type="button" class="contorno" onclick="copiar(${c.id})">${sv('copia')}Copiar os dados</button>`}</div>
    </div></div></div>`;
 }
 function pintarLista(trocou){
   const l=filtrar(),box=$('lista');
+  if(!CARROS.some(noMercado)){box.innerHTML=`<div class="vazio"><b>Nenhum carro no repasse agora.</b>Os carros que as lojas oferecem aparecem aqui, do mais novo para o mais antigo.<br><button type="button" class="contorno" onclick="abrirForm()">Repassar um carro</button></div>`;return;}
   if(!l.length){box.innerHTML=`<div class="vazio"><b>Nenhum carro com esse filtro.</b>Tente outra busca ou veja todos os carros.<br><button type="button" class="contorno" onclick="limpar()">Ver todos</button></div>`;return;}
   // agrupa por dia só na ordem "mais novos"; nas outras ordens, a lista vai direto
   let h='';
   if(F.ord==='novos'){let dia='';l.forEach(c=>{const d=nomeDia(c.criado);if(d!==dia){dia=d;const n=l.filter(x=>nomeDia(x.criado)===d).length;h+=`<div class="dia"><h2>${d}</h2><span>${n} ${n===1?'carro':'carros'}</span></div>`;}h+=linha(c);});}
-  else h=`<div class="dia"><h2>${{menor:'Do menor preço',maior:'Do maior preço',km:'Da menor quilometragem',ano:'Do ano mais novo'}[F.ord]}</h2><span>${l.length} carros</span></div>`+l.map(linha).join('');
+  else h=`<div class="dia"><h2>${{menor:'Do menor preço',maior:'Do maior preço',km:'Da menor quilometragem',ano:'Do ano mais novo'}[F.ord]}</h2><span>${l.length} ${l.length===1?'carro':'carros'}</span></div>`+l.map(linha).join('');
   box.innerHTML=h;
   if(trocou&&!reduz())box.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:320,easing:'cubic-bezier(.2,.8,.2,1)'});
 }
@@ -474,49 +478,83 @@ function alternar(id){
     if(novo&&!reduz()){const h=novo.offsetHeight;novo.animate([{height:'0px',opacity:0},{height:h+'px',opacity:1}],{duration:420,easing:'cubic-bezier(.2,.8,.2,1)'});
       const ln=document.querySelector(`.ln[data-id="${aberto}"]`);if(ln){const r=ln.getBoundingClientRect();if(r.top<0||r.top>innerHeight*.6)scrollTo({top:scrollY+r.top-90,behavior:'smooth'});}}},velho&&!reduz()?240:0);
 }
-function trocarFoto(id,i,tom,bt){const g=$('grande'+id);if(g)g.className='grande ph '+(tom||'');bt.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===bt));}
+function trocarFoto(id,f,bt){const g=$('grande'+id);if(g){g.href=FOTO(f);g.querySelector('img').src=FOTO(f);}bt.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===bt));}
 
 function zap(id){
   const c=CARROS.find(x=>x.id===id);if(!c)return;
-  const msg=`Olá! Vi no Repasse da Aceima o ${nome(c)} ${anoMod(c)} (${reais(c.valor)}) e tenho interesse. Sou da ${EU}.`;
-  if(DEMO){toast(`Na demonstração o WhatsApp não abre. A mensagem para a ${c.loja} seria: "${msg}"`,6500);return;}
+  if(!c.wa){toast(`A ${c.loja} ainda não tem WhatsApp no Repasse. Quem cadastra é a Aceima.`,4500);return;}
+  const msg=`Olá! Vi no Repasse da Aceima o ${c.nome} ${anoMod(c)} (${reais(c.valor)}) e tenho interesse. Sou da ${EU}.`;
   open('https://wa.me/'+c.wa+'?text='+encodeURIComponent(msg),'_blank','noopener');
 }
 function copiar(id){
   const c=CARROS.find(x=>x.id===id);if(!c)return;
-  const t=`${nome(c)} ${c.ano} · ${fmt(c.km)} km · ${c.cambio} · ${c.comb}${c.cor?' · '+c.cor:''} · ${reais(c.valor)} · ${c.loja} (Repasse da Aceima)`;
+  const t=[c.nome+' '+c.ano,kmT(c),c.cambio,c.comb,c.cor,reais(c.valor)].filter(Boolean).join(' · ')+` · ${c.loja} (Repasse da Aceima)`;
   (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Dados copiados. É só colar no grupo.')).catch(()=>toast(t,7000));
 }
 
 /* ---------- seus carros no repasse ---------- */
 function pintarMeus(){
-  const meus=CARROS.filter(c=>c.loja===EU).sort((a,b)=>(!!a.repassado-!!b.repassado)||(b.criado-a.criado));
+  if(senhaAberta)return;   // o formulário da senha aberto não some quando a lista atualiza
+  const meus=CARROS.filter(c=>c.meu).sort((a,b)=>(!!a.repassado-!!b.repassado)||(b.criado-a.criado));
   $('meus').innerHTML=`<h2>Seus carros no repasse</h2><p>${meus.filter(c=>!c.repassado).length} à venda para as outras lojas</p>
-   ${meus.length?meus.map(c=>`<div class="mi">${ph(c.tom)}<div><b>${esc(nome(c))} ${anoMod(c)}</b><span class="lh">${reais(c.valor)}${c.repassado?'<span class="pl foi">Repassado</span>':'<span class="pl ok">No repasse</span>'}</span></div>
+   ${meus.length?meus.map(c=>`<div class="mi">${capa(c)}<div><b>${esc(c.nome)} ${anoMod(c)}</b><span class="lh">${reais(c.valor)}${c.repassado?'<span class="pl foi">Repassado</span>':'<span class="pl ok">No repasse</span>'}</span></div>
     ${c.repassado?'':`<div class="ac"><button type="button" onclick="marcarRepassado(${c.id})">Foi repassado</button><button type="button" onclick="tirar(${c.id})">Tirar do repasse</button></div>`}</div>`).join('')
     :'<p class="nada">Nenhum carro seu no repasse ainda.</p>'}
    <button type="button" class="ouro" onclick="abrirForm()">${sv('mais')}Repassar um carro</button>
-   ${DEMO?`<div class="aviso">${sv('info','sm')}<span>Demonstração: os carros são de exemplo e o que você cadastrar fica só neste aparelho, até a próxima visita.</span></div>`:''}`;
+   <div class="aviso">${sv('info','sm')}<span>Cada carro fica 30 dias no repasse.</span></div>
+   <div class="conta" id="conta"><button type="button" class="lk" onclick="abrirSenha()">Trocar a senha da loja</button></div>`;
 }
-function marcarRepassado(id){const c=CARROS.find(x=>x.id===id);if(!c)return;c.repassado=new Date();tudo();toast(`${nome(c)} marcado como repassado. Ele some do mercado amanhã.`);}
-function tirar(id){const c=CARROS.find(x=>x.id===id);if(!c)return;CARROS=CARROS.filter(x=>x.id!==id);tudo();toast(`${nome(c)} saiu do repasse.`);}
+async function marcarRepassado(id){
+  const c=CARROS.find(x=>x.id===id);if(!c)return;
+  try{await api('status',{id,status:'repassado'});c.repassado=new Date();aberto=null;tudo();toast(`${c.nome} marcado como repassado. Ele sai do mercado amanhã.`);}
+  catch(e){if(e.message)toast(e.message);}
+}
+async function tirar(id){
+  const c=CARROS.find(x=>x.id===id);if(!c||!confirm(`Tirar o ${c.nome} do repasse? Ele sai da lista na hora.`))return;
+  try{await api('status',{id,status:'tirado'});CARROS=CARROS.filter(x=>x.id!==id);aberto=null;tudo();toast(`${c.nome} saiu do repasse.`);}
+  catch(e){if(e.message)toast(e.message);}
+}
+function abrirSenha(){
+  senhaAberta=true;
+  $('conta').innerHTML=`<form class="senha-f" onsubmit="trocarSenha(event)">
+   <label>Senha atual<input id="sAtual" type="password" autocomplete="current-password"></label>
+   <label>Senha nova<input id="sNova" type="password" autocomplete="new-password" placeholder="Pelo menos 6 letras ou números"></label>
+   <div><button class="ouro" type="submit" id="sBt">Salvar a senha</button><button type="button" class="lk" onclick="fecharSenha()">Cancelar</button></div></form>`;
+  $('sAtual').focus();
+}
+function fecharSenha(){senhaAberta=false;pintarMeus();}
+async function trocarSenha(e){
+  e.preventDefault();const a=$('sAtual').value,n=$('sNova').value,bt=$('sBt');
+  if(!a){$('sAtual').focus();toast('Escreva a senha atual.');return;}
+  if(n.length<6){$('sNova').focus();toast('A senha nova precisa ter pelo menos 6 letras ou números.');return;}
+  bt.disabled=true;
+  try{await api('senha',{atual:a,nova:n});fecharSenha();toast('Senha trocada. Nos outros aparelhos, a loja entra com a senha nova.',4500);}
+  catch(er){bt.disabled=false;if(er.message)toast(er.message);}
+}
 
 /* ---------- repassar um carro: o formulário abre no azul do topo ---------- */
-let NF={cambio:'Manual',comb:'Flex',fotos:[]};
+let NF={};
+const CAMBIOS=['Manual','Automático','CVT'],COMBS=['Flex','Gasolina','Diesel','Híbrido','Elétrico'],DONOS=['1','2','3 ou mais'],LAUDOS=['Aprovado','Com apontamento','Sem laudo'];
+// as escolhas em botões; nas que não são obrigatórias (donos e laudo), tocar de novo tira a escolha
+const seg=(k,ops,opc)=>`<div class="seg">${ops.map(x=>`<button type="button" class="${x===NF[k]?'on':''}" aria-pressed="${x===NF[k]}" onclick="segEscolhe('${k}',this,${opc?1:0})">${x}</button>`).join('')}</div>`;
 function abrirForm(){
   const f=$('formRep');if(!f.classList.contains('oculto')){$('fMarca').focus();return;}
-  NF={cambio:'Manual',comb:'Flex',fotos:[]};
+  if(abaAtual!=='mercado')aba('mercado');
+  NF={cambio:'Manual',comb:'Flex',donos:'',laudo:'',fotos:[]};
   f.innerHTML=`<div class="form-in">
    <div class="form-cab"><h2>Repassar <em>um carro.</em></h2><button type="button" class="redondo" aria-label="Fechar" onclick="fecharForm()">${sv('xis')}</button></div>
    <div class="fg" oninput="liberar()">
-    <label class="fc c2"><span>Marca, modelo e versão</span><input class="campo" id="fMarca" placeholder="Ex.: Toyota Corolla XEi 2.0" autocomplete="off"></label>
-    <label class="fc"><span>Ano</span><input class="campo" id="fAno" inputmode="numeric" placeholder="2019/2020"></label>
-    <label class="fc"><span>Quilometragem</span><input class="campo" id="fKm" inputmode="numeric" placeholder="Ex.: 68.000" oninput="milhar(this)"></label>
-    <div class="fc c2"><span>Câmbio</span><div class="seg" id="sCambio">${['Manual','Automático','CVT'].map(x=>`<button type="button" class="${x===NF.cambio?'on':''}" onclick="segEscolhe('cambio',this)">${x}</button>`).join('')}</div></div>
-    <div class="fc c2"><span>Combustível</span><div class="seg" id="sComb">${['Flex','Gasolina','Diesel','Elétrico'].map(x=>`<button type="button" class="${x===NF.comb?'on':''}" onclick="segEscolhe('comb',this)">${x}</button>`).join('')}</div></div>
-    <label class="fc"><span>Cor</span><input class="campo" id="fCor" placeholder="Ex.: Prata"></label>
-    <label class="fc"><span>Valor de repasse</span><input class="campo" id="fValor" inputmode="numeric" placeholder="R$" oninput="milhar(this,true)"></label>
-    <label class="fc c2"><span>Observações</span><textarea class="campo" id="fObs" rows="1" placeholder="Estado, laudo, revisões, o que precisa de reparo" oninput="crescer(this)"></textarea></label>
+    <label class="fc c2"><span>Marca, modelo e versão</span><input class="campo" id="fMarca" placeholder="Ex.: Toyota Corolla XEi 2.0" autocomplete="off" maxlength="80"></label>
+    <label class="fc"><span>Ano</span><input class="campo" id="fAno" inputmode="numeric" placeholder="2019/2020" autocomplete="off" oninput="anoFmt(this)"></label>
+    <label class="fc"><span>Quilometragem</span><input class="campo" id="fKm" inputmode="numeric" placeholder="Ex.: 68.000" autocomplete="off" oninput="milhar(this)"></label>
+    <div class="fc c2"><span>Câmbio</span>${seg('cambio',CAMBIOS)}</div>
+    <div class="fc c2"><span>Combustível</span>${seg('comb',COMBS)}</div>
+    <label class="fc"><span>Cor</span><input class="campo" id="fCor" placeholder="Ex.: Prata" maxlength="30"></label>
+    <label class="fc"><span>Final da placa</span><input class="campo" id="fPlaca" inputmode="numeric" placeholder="Ex.: 7" autocomplete="off" oninput="soNum(this,1)"></label>
+    <label class="fc c2"><span>Valor de repasse</span><input class="campo" id="fValor" inputmode="numeric" placeholder="R$" autocomplete="off" oninput="milhar(this,true)"></label>
+    <div class="fc c2"><span>Donos</span>${seg('donos',DONOS,1)}</div>
+    <div class="fc c2"><span>Laudo cautelar</span>${seg('laudo',LAUDOS,1)}</div>
+    <label class="fc c4"><span>Observações</span><textarea class="campo" id="fObs" rows="1" maxlength="1000" placeholder="Estado, revisões, o que precisa de reparo" oninput="crescer(this)"></textarea></label>
     <div class="fc c4"><span>Fotos (a primeira é a capa)</span><div class="fotos" id="fFotos"></div></div>
    </div>
    <div class="form-acoes"><button type="button" class="ouro" id="fPub" disabled onclick="publicar()">Publicar no repasse</button><button type="button" class="sair-f" onclick="fecharForm()">Cancelar</button><small>Marca e modelo, ano e valor são o mínimo.</small></div></div>`;
@@ -526,29 +564,54 @@ function abrirForm(){
   scrollTo({top:0,behavior:reduz()?'auto':'smooth'});setTimeout(()=>$('fMarca').focus({preventScroll:true}),reduz()?0:420);
 }
 function fecharForm(){
-  const f=$('formRep');if(f.classList.contains('oculto'))return;
-  const fim=()=>{f.classList.add('oculto');f.innerHTML='';$('btRepassar').classList.remove('oculto');NF.fotos.forEach(x=>URL.revokeObjectURL(x.url));};
+  const f=$('formRep');if(f.classList.contains('oculto')||enviando)return;
+  const fim=()=>{f.classList.add('oculto');f.innerHTML='';$('btRepassar').classList.remove('oculto');(NF.fotos||[]).forEach(x=>URL.revokeObjectURL(x.url));};
   if(reduz()){fim();return;}
   const h=f.offsetHeight;f.animate([{height:h+'px',opacity:1},{height:h+'px',opacity:0,offset:.35},{height:'0px',opacity:0}],{duration:620,easing:'cubic-bezier(.45,0,.25,1)'}).onfinish=fim;
 }
-function segEscolhe(k,b){NF[k]=b.textContent;b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));}
+function segEscolhe(k,b,opc){const v=b.textContent;NF[k]=opc&&NF[k]===v?'':v;
+  b.parentNode.querySelectorAll('button').forEach(x=>{const on=x.textContent===NF[k];x.classList.toggle('on',on);x.setAttribute('aria-pressed',on);});}
 function milhar(el,rs){const n=el.value.replace(/\D/g,'').slice(0,9);el.value=n?(rs?'R$ ':'')+Number(n).toLocaleString('pt-BR'):'';}
+function soNum(el,n){el.value=el.value.replace(/\D/g,'').slice(0,n);}
+// o ano com a barra posta sozinha (o teclado de números do celular não tem barra): 20192020 vira 2019/2020
+function anoFmt(el){const d=el.value.replace(/\D/g,'').slice(0,8);el.value=d.length>4?d.slice(0,4)+'/'+d.slice(4):d;}
 function crescer(t){t.style.height='auto';t.style.height=t.scrollHeight+2+'px';}
-function liberar(){const ok=$('fMarca').value.trim().length>2&&/\d{4}/.test($('fAno').value)&&$('fValor').value.replace(/\D/g,'').length>=3;$('fPub').disabled=!ok;}
+function liberar(){const b=$('fPub');if(!b||enviando)return;b.disabled=!($('fMarca').value.trim().length>2&&/\d{4}/.test($('fAno').value)&&$('fValor').value.replace(/\D/g,'').length>=3);}
 function pintarFotos(){
   const box=$('fFotos');if(!box)return;
-  box.innerHTML=NF.fotos.map((x,i)=>`<figure><img src="${x.url}" alt="Foto ${i+1}">${i===0?'<figcaption>Capa</figcaption>':''}<button type="button" aria-label="Tirar a foto ${i+1}" onclick="tirarFoto(${i})">${sv('xis','sm')}</button></figure>`).join('')
+  box.innerHTML=NF.fotos.map((x,i)=>`<figure><button type="button" class="capa-bt" ${i?`aria-label="Usar a foto ${i+1} como capa" title="Usar como capa" onclick="fazerCapa(${i})"`:'aria-label="Capa" tabindex="-1"'}><img src="${x.url}" alt=""></button>${i===0?'<figcaption>Capa</figcaption>':''}<button type="button" class="fx" aria-label="Tirar a foto ${i+1}" onclick="tirarFoto(${i})">${sv('xis','sm')}</button></figure>`).join('')
     +(NF.fotos.length<10?`<label>${sv('foto')}Adicionar<input type="file" accept="image/*" multiple onchange="addFotos(this)"></label>`:'');
 }
-function addFotos(inp){[...inp.files].slice(0,10-NF.fotos.length).forEach(f=>NF.fotos.push({url:URL.createObjectURL(f)}));pintarFotos();}
+// cada foto é diminuída assim que entra (a grande com até 1280 px e a pequena da lista com até 400 px, em jpg): publicar fica rápido
+const diminuir=(im,max,q)=>{const k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),cv=document.createElement('canvas');
+  cv.width=Math.max(1,Math.round(im.naturalWidth*k));cv.height=Math.max(1,Math.round(im.naturalHeight*k));cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);return cv.toDataURL('image/jpeg',q);};
+const prepararFoto=url=>new Promise(ok=>{const im=new Image();im.onload=()=>{try{ok({dados:diminuir(im,1280,.78),mini:diminuir(im,400,.72)});}catch(e){ok(null);}};im.onerror=()=>ok(null);im.src=url;});
+function addFotos(inp){
+  [...inp.files].filter(f=>/^image\//.test(f.type)).slice(0,10-NF.fotos.length).forEach(f=>{const url=URL.createObjectURL(f);NF.fotos.push({url,pronta:prepararFoto(url)});});
+  inp.value='';pintarFotos();
+}
+function fazerCapa(i){NF.fotos.unshift(NF.fotos.splice(i,1)[0]);pintarFotos();}
 function tirarFoto(i){URL.revokeObjectURL(NF.fotos[i].url);NF.fotos.splice(i,1);pintarFotos();}
-function publicar(){
-  const txt=$('fMarca').value.trim().replace(/\s+/g,' '),p=txt.split(' ');
-  const c={id:Date.now(),marca:p[0]||txt,modelo:p[1]||'',versao:p.slice(2).join(' '),ano:$('fAno').value.trim(),km:Number($('fKm').value.replace(/\D/g,''))||0,
-    cambio:NF.cambio,comb:NF.comb,cor:$('fCor').value.trim(),valor:Number($('fValor').value.replace(/\D/g,'')),loja:EU,criado:new Date(),tom:'',fotos:NF.fotos.length,obs:$('fObs').value.trim(),donos:'',placa:'',laudo:''};
-  CARROS.push(c);fecharForm();novoId=c.id;
-  tudo();toast(`${nome(c)} está no repasse. As outras lojas já veem.`);
-  setTimeout(()=>{novoId=null;},2200);
+// publicar: os dados, uma foto por vez (o botão mostra o andamento) e o "pronto", que põe o carro na lista de todas as lojas
+async function publicar(){
+  if(enviando)return;
+  const bt=$('fPub'),volta=()=>{enviando=false;if($('fPub')){bt.textContent='Publicar no repasse';liberar();}};
+  const corpo={nome:nomeBom($('fMarca').value),ano:$('fAno').value.trim(),km:$('fKm').value.replace(/\D/g,'')||null,cambio:NF.cambio,comb:NF.comb,cor:$('fCor').value.trim(),
+    placa:$('fPlaca').value,valor:Number($('fValor').value.replace(/\D/g,'')),donos:NF.donos,laudo:NF.laudo,obs:$('fObs').value.trim()};
+  enviando=true;bt.disabled=true;bt.textContent=NF.fotos.length?'Preparando as fotos…':'Publicando…';
+  try{
+    const fotos=(await Promise.all(NF.fotos.map(x=>x.pronta))).filter(Boolean);
+    if(fotos.length<NF.fotos.length)toast('Uma das fotos não abriu e ficou de fora.');
+    const r=await api('publicar',Object.assign(corpo,{fotos:fotos.length}));
+    for(let i=0;i<fotos.length;i++){
+      bt.textContent=`Enviando a foto ${i+1} de ${fotos.length}…`;
+      const manda=()=>api('foto',{carro:r.id,ordem:i,dados:fotos[i].dados,mini:fotos[i].mini});
+      await manda().catch(e=>e.message?manda():Promise.reject(e));   // uma segunda tentativa, se a internet falhou
+    }
+    if(fotos.length)await api('pronto',{carro:r.id});
+    enviando=false;novoId=r.id;fecharForm();await carregar(false,true);
+    toast(`${corpo.nome} está no repasse. As outras lojas já veem.`);setTimeout(()=>{novoId=null;},2200);
+  }catch(e){volta();if(e.message)toast(e.message,4500);}
 }
 
 /* ---------- abas (tablet e celular) ---------- */
@@ -556,21 +619,61 @@ function aba(k){abaAtual=k;$('folhaIn').className='folha-in '+(k==='meus'?'so-me
   [['abaMercado','mercado'],['abaMeus','meus']].forEach(([id,v])=>{const b=$(id);b.classList.toggle('on',v===k);b.setAttribute('aria-selected',v===k);});}
 
 let tt;function toast(t,ms){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),ms||2800);}
-function tudo(){pintarTopo();pintarFiltros();pintarLista(false);pintarMeus();
-  const av=$('avisoMercado');if(av&&DEMO){av.hidden=false;av.innerHTML=sv('info','sm')+'<span>Demonstração: os carros são de exemplo. O cadastro das lojas e os carros de verdade entram quando o Repasse for ligado ao banco.</span>';}}
+function tudo(){pintarTopo();pintarFiltros();pintarLista(false);pintarMeus();}
 
-/* ---------- entrada ---------- */
+/* ---------- a API e a sessão (o token fica no aparelho por 30 dias; Sair apaga) ---------- */
 const SESSAO='aceima_repasse';
-function entrar(){$('entrada').classList.add('oculto');$('app').classList.remove('oculto');tudo();}
-function sair(){try{sessionStorage.removeItem(SESSAO);}catch(e){}location.reload();}
-$('entForm').addEventListener('submit',e=>{e.preventDefault();
-  const em=$('entEmail'),se=$('entSenha');
+const guarda={pega(){try{return localStorage.getItem(SESSAO)||sessionStorage.getItem(SESSAO);}catch(e){return null;}},
+  poe(t){try{localStorage.setItem(SESSAO,t);}catch(e){try{sessionStorage.setItem(SESSAO,t);}catch(_){}}},
+  tira(){try{localStorage.removeItem(SESSAO);sessionStorage.removeItem(SESSAO);}catch(e){}}};
+let TOKEN=guarda.pega();
+async function api(acao,corpo){
+  let r;
+  try{r=await fetch('/api/repasse?path=repasse'+(acao?'&acao='+acao:''),{method:corpo?'POST':'GET',cache:'no-store',
+    headers:Object.assign({'x-repasse-token':TOKEN||''},corpo?{'Content-Type':'application/json'}:{}),body:corpo?JSON.stringify(corpo):undefined});}
+  catch(e){throw new Error('Sem conexão. Confira a internet e tente de novo.');}
+  let d={};try{d=await r.json();}catch(e){}
+  if(r.status===401&&acao!=='entrar'){sessaoCaiu();throw new Error('');}
+  if(!r.ok)throw new Error(d.erro||'Não deu certo agora. Tente de novo em instantes.');
+  return d;
+}
+// a lista vem de novo a cada minuto (com a aba aberta): o carro que chegou entra no topo com o brilho, e a página não pula
+async function carregar(primeira,forcar){
+  let d;
+  try{d=await api('',null);}
+  catch(e){if(e.message&&primeira)$('lista').innerHTML=`<div class="vazio"><b>Não deu para abrir o repasse.</b>${esc(e.message)}<br><button type="button" class="contorno" onclick="carregar(true)">Tentar de novo</button></div>`;return;}
+  const ass=new Date().toDateString()+JSON.stringify(d.carros.map(c=>[c.id,c.repassado,c.fotos.length,c.valor]));
+  if(!primeira&&!forcar&&ass===assinatura)return;
+  assinatura=ass;EU=d.loja;
+  const lista=d.carros.map(c=>Object.assign(c,{criado:new Date(c.criado),repassado:c.repassado?new Date(c.repassado):null}));
+  if(vistos)lista.forEach(c=>{if(!vistos.has(c.id)&&!c.meu)chegaram.add(c.id);});
+  vistos=new Set(lista.map(c=>c.id));
+  const ref=primeira?null:[...document.querySelectorAll('#lista .ln')].find(x=>x.getBoundingClientRect().top>=0),topo=ref&&ref.getBoundingClientRect().top;
+  CARROS=lista;tudo();
+  if(ref&&scrollY>200){const o=document.querySelector(`#lista .ln[data-id="${ref.dataset.id}"]`);if(o)scrollBy(0,o.getBoundingClientRect().top-topo);}
+  if(chegaram.size)setTimeout(()=>chegaram.clear(),2400);
+}
+function mostrarEntrada(){$('app').classList.add('oculto');$('entrada').classList.remove('oculto');clearInterval(poll);poll=null;}
+async function abrirApp(){
+  $('entrada').classList.add('oculto');$('app').classList.remove('oculto');
+  $('lista').innerHTML='<div class="vazio"><b>Abrindo o repasse…</b></div>';
+  await carregar(true);
+  if(!poll)poll=setInterval(()=>{if(document.visibilityState==='visible'&&TOKEN)carregar();},60000);
+}
+function sessaoCaiu(){if(!TOKEN)return;TOKEN=null;guarda.tira();mostrarEntrada();toast('Entre de novo com o e-mail e a senha da loja.',4000);}
+function sair(){const t=TOKEN;if(t)fetch('/api/repasse?path=repasse&acao=sair',{method:'POST',headers:{'x-repasse-token':t,'Content-Type':'application/json'},body:'{}',keepalive:true}).catch(()=>{});
+  TOKEN=null;guarda.tira();location.reload();}
+$('entForm').addEventListener('submit',async e=>{e.preventDefault();
+  const em=$('entEmail'),se=$('entSenha'),bt=$('entBt');
   if(!em.value.trim()){em.focus();toast('Escreva o e-mail da loja.');return;}
   if(!se.value){se.focus();toast('Escreva a senha.');return;}
-  try{sessionStorage.setItem(SESSAO,'demo');}catch(e){}
-  entrar();
+  bt.disabled=true;bt.textContent='Entrando…';
+  try{const d=await api('entrar',{email:em.value,senha:se.value});TOKEN=d.token;guarda.poe(TOKEN);EU=d.loja;se.value='';await abrirApp();}
+  catch(er){toast(er.message||'Não deu para entrar.',4000);se.select();}
+  bt.disabled=false;bt.textContent='Entrar';
 });
-try{if(sessionStorage.getItem(SESSAO))entrar();}catch(e){}
+if(TOKEN)abrirApp();else mostrarEntrada();
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&TOKEN&&poll)carregar();});
 
 // um ouvinte só para a lista: abrir a linha, o WhatsApp, o teclado
 $('lista').addEventListener('click',e=>{
