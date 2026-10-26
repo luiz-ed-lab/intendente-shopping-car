@@ -7,13 +7,21 @@
     { "path": "/api/importar", "schedule": "0 9 * * *" }
   ],
   "redirects": [
-    { "source": "/painel.html", "destination": "/painel", "permanent": true }
+    { "source": "/painel.html", "destination": "/painel", "permanent": true },
+    { "source": "/repasse.html", "destination": "/repasse", "permanent": true }
   ],
   "rewrites": [
     { "source": "/painel", "destination": "/painel.html" },
+    { "source": "/repasse", "destination": "/repasse.html" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [
+    {
+      "source": "/repasse",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ]
+    },
     {
       "source": "/((?!api/|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|js|css|txt|xml)$).*)",
       "headers": [
