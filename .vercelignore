@@ -1,0 +1,18 @@
+# Arquivos internos do projeto: ficam no repositório, mas não vão para o site (26/10/2026).
+# Sem este arquivo, a Vercel publicava tudo, e /CLAUDE.md, /docs e /testes abriam para qualquer pessoa.
+# Continuam publicados as páginas (index.html, painel.html, repasse.html), conteudo.js, publicacoes.json, vitrine.json,
+# as imagens e o vídeo, a pasta api/ e o que a função dela precisa (package.json, package-lock.json e vercel.json).
+CLAUDE.md
+PRODUCT.md
+DESIGN.md
+README.md
+COMO-LEVAR-PARA-O-CODE.md
+.env.example
+.gitignore
+.github
+.claude
+.impeccable
+docs
+arquivo
+testes
+fotos-home/*.py
