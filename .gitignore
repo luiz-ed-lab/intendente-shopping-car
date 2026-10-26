@@ -5,3 +5,5 @@ node_modules/
 .vercel/
 .DS_Store
 Thumbs.db
+# arquivos da skill de design (impeccable): o contrato de direção e as capturas ficam só no computador, nunca no site
+.impeccable/
