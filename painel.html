@@ -1013,6 +1013,7 @@ const $=id=>document.getElementById(id);
 
 let lojasApi=[];       // lojas como a API manda (com o id do banco)
 let lojas=[];          // lojas para a tela
+let repAcessos={};     // o acesso de cada loja ao Repasse, pelo id da loja
 let credenciados=[];   // os credenciados (não são lojas, não têm estoque): os do site e os cadastrados pelo painel, com a nota e a logo que o robô leu
 let VIS=null,GDIAS=30; // as visitas ao site (os gráficos da visão geral) e o período escolhido, em dias
 let veicAll=[];        // veículos como a API manda
@@ -1041,6 +1042,7 @@ const IC={dash:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y=
   sync:'<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',baixar:'<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>',
   fora:'<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
   foto:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
+  repasse:'<path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>',
   check:'<path d="M20 6 9 17l-5-5"/>',chev:'<path d="m9 18 6-6-6-6"/>',x:'<path d="M18 6 6 18M6 6l12 12"/>',carro:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9c-.1.4-.2.8-.2 1.2v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>'};
 const spin=sv(IC.sync,'sm'),check=sv(IC.check,'sm');
 const reduz=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1105,9 +1107,10 @@ function contar(el,alvo,dur){
 async function carregarPainel(){
   const pega=u=>api(u).then(r=>r.ok?r.json():null).catch(()=>null);
   // as visitas chegam junto com o resto: os gráficos aparecem com os números, sem empurrar a página depois
-  const [lj,ve,le,pc,vs]=await Promise.all([pega('/api/lojas?path=lojas'),pega('/api/veiculos?path=veiculos'),pega('/api/leads?path=leads'),
-    pega('/api/parceiros?path=parceiros&painel=1'),pega('/api/visitas?path=visitas&dias='+GDIAS)]);
+  const [lj,ve,le,pc,vs,ra]=await Promise.all([pega('/api/lojas?path=lojas'),pega('/api/veiculos?path=veiculos'),pega('/api/leads?path=leads'),
+    pega('/api/parceiros?path=parceiros&painel=1'),pega('/api/visitas?path=visitas&dias='+GDIAS),pega('/api/repasse?path=repasse&acao=acessos')]);
   lojasApi=Array.isArray(lj)?lj:[];veicAll=Array.isArray(ve)?ve:[];leadsRaw=Array.isArray(le)?le:[];
+  if(Array.isArray(ra)){repAcessos={};ra.forEach(a=>{repAcessos[a.loja_id]=a;});}
   if(Array.isArray(pc))credenciados=pc.map(p=>({id:p.id||null,painel:!!p.painel,nome:p.nome,nota:Number(p.nota)||0,aval:Number(p.total)||0,site:p.site||'',ramo:p.ramo||'',
     desc:p.descricao||'',end:p.endereco||'',tel:p.telefone||'',wa:p.whatsapp||'',logo:p.logo?'/api/logo?path=logo&parceiro='+encodeURIComponent(p.nome)+(LOGO_NOVA[p.nome]?'&v='+LOGO_NOVA[p.nome]:''):''}));
   if(vs&&vs.ok)VIS=vs;
@@ -1692,10 +1695,12 @@ function camAssoc(e){
    <div class="cm-i" id="ci-${l.id}">
     ${info('Endereço',l.end)}${info('Telefone',l.tel&&fmtTel(l.tel))}${info('WhatsApp',l.wa&&fmtTel(l.wa))}${info('E-mail dos leads',l.email)}
     <div><span>Sincronização</span><p class="${l.erro?'erro':''}">${l.erro?esc(erroLegivel(l.erro)+' · última tentativa '+quando(l.sync)):l.sync?esc('Sincronizado '+quando(l.sync)):'O robô ainda não leu o site'}</p></div>
+    ${infoRepasse(l)}
    </div>
    <div class="cm-b" id="cb-${l.id}">
     <button type="button" class="bt" onclick="importarAgora(${l.id})">${sv(IC.sync,'sm')}Importar agora</button>
     <button type="button" class="bto" onclick="editarAssoc(${l.id})">${sv(IC.lapis,'sm')}Editar</button>
+    <button type="button" class="bto" onclick="acessoRepasse(${l.id})">${sv(IC.repasse,'sm')}${repAcessos[l.id]?'Acesso ao Repasse':'Criar acesso ao Repasse'}</button>
     ${l.n?`<button type="button" class="bto" onclick="verEstoqueDe(${l.id})">${sv(IC.carro,'sm')}Ver o estoque</button>`:''}
     ${l.fora?'':`<a class="bto" href="/associados?loja=${encodeURIComponent(l.nome)}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a>`}
     <button type="button" class="x-p" onclick="excluirLoja(${l.id})">${sv(IC.lixo,'sm')}Excluir</button>
@@ -1745,6 +1750,63 @@ async function salvarAssoc(id){
 }
 async function excluirLoja(id){const l=lojas.find(x=>x.id===id);if(!l||!confirm('Excluir "'+l.nome+'"? Os veículos dela saem do site.'))return;
   try{await api('/api/lojas?path=lojas&id='+id,{method:'DELETE'});assocAberto=null;toast(l.nome+' excluída');await carregarPainel();}catch(e){toast('Não deu para excluir');}}
+/* o acesso da loja ao Repasse (repasse.html, pedido do Luiz em 26/10/2026): quem cria é a Aceima, aqui, com o e-mail, a senha e o WhatsApp
+   que recebe os interessados. A senha só aparece na hora de criar ou trocar (o banco guarda só o embaralhado dela): o painel mostra o
+   acesso pronto para copiar ou mandar no WhatsApp da loja */
+const linkRepasse=()=>location.origin+'/repasse';
+function infoRepasse(l){
+  const a=repAcessos[l.id];
+  const t=!a?'Sem acesso':a.email+(a.ativo?' · '+(a.ultimo_acesso?'último acesso '+quando(a.ultimo_acesso):'ainda não entrou')+(a.carros?' · '+a.carros+(a.carros===1?' carro':' carros')+' no repasse':''):' · desativado');
+  return `<div><span>Repasse</span><p class="${a&&a.ativo?'':'mut'}">${esc(t)}</p></div>`;
+}
+// uma senha fácil de ditar: oito letras e números sem os que se confundem (0 e O, 1 e l), em dois grupos
+function senhaNova(){const A='abcdefghjkmnpqrstuvwxyz23456789',r=crypto.getRandomValues(new Uint32Array(8));return [...r].map(x=>A[x%A.length]).join('').replace(/^(.{4})/,'$1-');}
+function acessoRepasse(id){
+  const l=lojas.find(x=>x.id===id),raw=lojasApi.find(x=>x.id===id)||{},a=repAcessos[id],ci=$('ci-'+id),cb=$('cb-'+id);if(!l||!ci||!cb)return;
+  ci.outerHTML=`<form class="cps" id="ci-${id}" onsubmit="salvarAcesso(${id});return false">
+    ${campo('rEmail','E-mail do acesso',a?a.email:(raw.email||''),'loja@exemplo.com.br',' type="email" autocomplete="off"')}
+    ${campo('rSenha',a?'Senha nova':'Senha',a?'':senhaNova(),a?'Deixe em branco para manter a atual':'',' autocomplete="off"')}
+    ${campo('rWa','WhatsApp dos interessados',fmtTel((a&&a.whatsapp)||raw.whatsapp||''),'(21) 99999-9999',' inputmode="tel"')}
+    <button type="submit" hidden></button>
+  </form>`;
+  cb.innerHTML=`<button type="button" class="bt" onclick="salvarAcesso(${id})">${a?'Salvar':'Criar o acesso'}</button><button type="button" class="bto" onclick="renderAssoc()">Cancelar</button>
+    ${a?`<button type="button" class="bto" onclick="ativarAcesso(${id},${!a.ativo})">${a.ativo?'Desativar o acesso':'Ativar o acesso'}</button><button type="button" class="x-p" onclick="excluirAcesso(${id})">${sv(IC.lixo,'sm')}Excluir o acesso</button>`:''}`;
+  setTimeout(()=>{const e=$('rEmail');if(e)e.focus();},50);
+}
+async function salvarAcesso(id){
+  const l=lojas.find(x=>x.id===id),v=k=>($(k)?$(k).value.trim():''),a=repAcessos[id];if(!l)return;
+  const email=v('rEmail'),senha=v('rSenha'),wa=waDe(v('rWa'));
+  if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){toast('Confira o e-mail');$('rEmail').focus();return;}
+  if((!a||senha)&&senha.length<6){toast('A senha precisa ter pelo menos 6 letras ou números');$('rSenha').focus();return;}
+  const cb=$('cb-'+id);if(cb)cb.innerHTML=`<div class="and"><p>${spin}Salvando…</p></div>`;
+  try{const r=await jsonPost('/api/repasse?path=repasse&acao=acessos',{loja_id:id,email,senha,whatsapp:wa});const d=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(d.erro||'erro '+r.status);
+    await carregarPainel();
+    toast(a?'Acesso de '+l.nome+' atualizado':'Acesso de '+l.nome+' criado');
+    if(senha)acessoPronto(id,email,senha);
+  }catch(e){toast('Não deu para salvar: '+e.message);acessoRepasse(id);}
+}
+// a senha só existe agora: o acesso pronto para copiar ou mandar no WhatsApp da loja
+function acessoPronto(id,email,senha){
+  const l=lojas.find(x=>x.id===id),ci=$('ci-'+id),cb=$('cb-'+id),a=repAcessos[id];if(!l||!ci||!cb)return;
+  const txt=`Olá! Este é o acesso da ${l.nome} ao Repasse da Aceima: ${linkRepasse()}\nE-mail: ${email}\nSenha: ${senha}\nDepois de entrar, dá para trocar a senha.`,wa=(a&&a.whatsapp)||waDe(l.wa);
+  ci.outerHTML=`<div class="cm-i" id="ci-${id}">${info('Endereço do Repasse',linkRepasse())}${info('E-mail',email)}${info('Senha',senha)}<div><span>Repasse</span><p>Mande o acesso para a loja agora: depois, a senha não aparece mais aqui.</p></div></div>`;
+  cb.innerHTML=`<button type="button" class="bt" id="rCop">${sv(IC.check,'sm')}Copiar o acesso</button>${wa?`<a class="bto" href="https://wa.me/${esc(wa)}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">Mandar no WhatsApp da loja${sv(IC.fora,'sm')}</a>`:''}<button type="button" class="bto" onclick="renderAssoc()">Pronto</button>`;
+  $('rCop').onclick=()=>(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Acesso copiado')).catch(()=>toast('Não deu para copiar: selecione o texto'));
+}
+async function ativarAcesso(id,ativo){
+  const l=lojas.find(x=>x.id===id),a=repAcessos[id];if(!l||!a)return;
+  if(!ativo&&!confirm('Desativar o acesso de "'+l.nome+'" ao Repasse? A loja sai na hora e os carros dela somem do repasse até o acesso voltar.'))return;
+  try{const r=await jsonPost('/api/repasse?path=repasse&acao=acessos',{id:a.id,ativo},'PATCH');if(!r.ok)throw new Error('erro '+r.status);
+    await carregarPainel();toast(ativo?'Acesso de '+l.nome+' ativado':'Acesso de '+l.nome+' desativado');}
+  catch(e){toast('Não deu para mudar: '+e.message);}
+}
+async function excluirAcesso(id){
+  const l=lojas.find(x=>x.id===id),a=repAcessos[id];if(!l||!a||!confirm('Excluir o acesso de "'+l.nome+'" ao Repasse? Os carros dela saem do repasse.'))return;
+  try{const r=await api('/api/repasse?path=repasse&acao=acessos&id='+a.id,{method:'DELETE'});if(!r.ok)throw new Error('erro '+r.status);
+    delete repAcessos[id];await carregarPainel();toast('Acesso de '+l.nome+' excluído');}
+  catch(e){toast('Não deu para excluir: '+e.message);}
+}
 /* cadastrar associado, no azul do topo, acima da folha clara (pedidos do Luiz, 20 e 21/10/2026): o nome, o site e o ramo. Loja de
    automóveis: o robô lê no site a logo, os contatos e o estoque. Qualquer outro ramo vira credenciado: o robô não lê estoque, só os dados
    da empresa (a descrição, os contatos e a logo) e as avaliações no Google. O painel só pede o que o robô não achou */

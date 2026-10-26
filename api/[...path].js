@@ -11,12 +11,15 @@
 //    GET  /api/detalhe?id=ID    -> descrição do anúncio, lida no site da loja
 //    GET/POST /api/leads        -> lista / grava lead
 //    GET  /api/importar?loja=ID -> roda o robô (cron de hora em hora)
+//    GET/POST /api/repasse      -> o Repasse das lojas (login próprio de cada loja; acao=acessos: o painel cria os acessos)
+//    GET  /api/rfoto?id=ID      -> foto de um carro do Repasse
 //
 //  O robô lê o SITE PRÓPRIO de cada loja (ex.: autobarra.com.br) e,
 //  por compatibilidade, também o portal por ID numérico (Luma Car #285).
 // ============================================================
 import { Pool } from '@neondatabase/serverless';
 import * as cheerio from 'cheerio';
+import { scrypt, randomBytes, createHash, timingSafeEqual } from 'node:crypto';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const query = (t, p) => pool.query(t, p);
@@ -1754,6 +1757,249 @@ function descricaoDoAnuncio($) {
   return el.text().split('\n').map(s => s.replace(/\s+/g, ' ').trim()).join('\n').replace(/\n{3,}/g, '\n\n').trim().slice(0, 4000);
 }
 
+// ---------------- REPASSE ----------------
+// O Repasse da Aceima (repasse.html, pedido do Luiz em 26/10/2026): cada loja associada entra com o próprio login, que a Aceima cria no
+// painel, e oferece às outras lojas os carros pegos na troca. Quatro tabelas, criadas no primeiro pedido (aprovadas pelo Luiz em 26/10/2026):
+// os acessos das lojas, as sessões, os carros e as fotos. As fotos ficam no próprio banco, a opção sem custo: chegam diminuídas do aparelho,
+// a Vercel guarda cada uma (o endereço de uma foto nunca muda) e elas são apagadas quando o carro sai do repasse, então o espaço usado fica
+// do tamanho dos carros que estão no repasse.
+let repasseProntas = false;
+async function tabelasRepasse() {
+  if (repasseProntas) return;
+  try {
+    await query(`create table if not exists repasse_acessos (
+      id serial primary key, loja_id int not null unique, email text not null unique, senha text not null, whatsapp text,
+      ativo boolean not null default true, falhas int not null default 0, bloqueio timestamptz,
+      criado_em timestamptz not null default now(), ultimo_acesso timestamptz)`);
+  } catch (_) {}
+  try { await query('create table if not exists repasse_sessoes (token text primary key, acesso_id int not null, expira timestamptz not null)'); } catch (_) {}
+  try {
+    // status: enviando (as fotos ainda subindo), ativo, repassado, tirado (pela loja) ou vencido (30 dias no repasse)
+    await query(`create table if not exists repasse_carros (
+      id serial primary key, loja_id int not null, nome text not null, ano text, km int, cambio text, combustivel text, cor text,
+      valor int not null, obs text, placa text, donos text, laudo text, status text not null default 'enviando',
+      criado_em timestamptz not null default now(), status_em timestamptz)`);
+  } catch (_) {}
+  try { await query('create index if not exists repasse_carros_status on repasse_carros (status, criado_em)'); } catch (_) {}
+  try { await query('create table if not exists repasse_fotos (id text primary key, carro_id int not null, ordem int not null, tipo text not null, dados bytea not null, mini bytea)'); } catch (_) {}
+  try { await query('create index if not exists repasse_fotos_carro on repasse_fotos (carro_id, ordem)'); } catch (_) {}
+  repasseProntas = true;
+}
+// a senha da loja fica só como scrypt (nunca o texto); a sessão, como o hash do token que o aparelho guarda
+const scryptP = (s, sal) => new Promise((ok, falha) => scrypt(String(s), sal, 32, (e, k) => (e ? falha(e) : ok(k))));
+async function hashSenha(senha) { const sal = randomBytes(16); return 's1$' + sal.toString('hex') + '$' + (await scryptP(senha, sal)).toString('hex'); }
+async function confereSenha(senha, h) {
+  const [v, sal, k] = String(h || '').split('$');
+  if (v !== 's1' || !sal || !k) return false;
+  const a = await scryptP(senha, Buffer.from(sal, 'hex')), b = Buffer.from(k, 'hex');
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+const hashToken = t => createHash('sha256').update(String(t)).digest('hex');
+const txtR = (v, n) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, n);
+const emailR = s => /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(s);
+// o WhatsApp com o 55 na frente (o wa.me não abre o número sem o país)
+const waR = s => { const d = String(s || '').replace(/\D/g, ''); return !d ? '' : d.length <= 11 ? '55' + d : d.slice(0, 15); };
+const LIMITE_FOTOS_REPASSE = 300e6;   // as fotos do Repasse juntas; o banco inteiro não passa de 460 MB por causa delas (o plano grátis do Neon)
+const CARROS_POR_LOJA = 40;
+
+// a loja da sessão (o token vem no cabeçalho x-repasse-token); acesso desativado ou loja excluída derrubam a sessão na hora
+async function sessaoRepasse(req) {
+  const t = String((req.headers || {})['x-repasse-token'] || '');
+  if (!/^[a-f0-9]{64}$/.test(t)) return null;
+  const { rows: [s] } = await query(
+    `select a.id, a.loja_id, l.nome as loja from repasse_sessoes s join repasse_acessos a on a.id = s.acesso_id join lojas l on l.id = a.loja_id
+      where s.token = $1 and s.expira > now() and a.ativo = true and l.ativa = true`, [hashToken(t)]);
+  return s || null;
+}
+// limpeza, no máximo uma vez por hora: o carro com 30 dias sai do repasse, e as fotos de quem saiu são apagadas (do repassado, 7 dias depois:
+// até lá ele aparece em "Seus carros"); o que ficou no meio do envio some depois de um dia
+let limpezaRepasse = 0;
+async function limparRepasse() {
+  if (Date.now() - limpezaRepasse < 3600e3) return;
+  limpezaRepasse = Date.now();
+  await query(`update repasse_carros set status = 'vencido', status_em = now() where status = 'ativo' and criado_em < now() - interval '30 days'`);
+  await query(`delete from repasse_fotos f using repasse_carros c where f.carro_id = c.id and (c.status in ('tirado', 'vencido')
+                 or (c.status = 'repassado' and c.status_em < now() - interval '7 days') or (c.status = 'enviando' and c.criado_em < now() - interval '1 day'))`);
+  await query(`delete from repasse_carros where status = 'enviando' and criado_em < now() - interval '1 day'`);
+  await query('delete from repasse_sessoes where expira < now()');
+}
+async function entrarRepasse(req, res) {
+  const b = req.body || {}, email = txtR(b.email, 120).toLowerCase(), senha = String(b.senha || '');
+  if (!email || !senha) return res.status(400).json({ erro: 'Escreva o e-mail e a senha.' });
+  const { rows: [a] } = await query('select a.*, l.nome as loja from repasse_acessos a join lojas l on l.id = a.loja_id and l.ativa = true where a.email = $1', [email]);
+  if (a && a.bloqueio && new Date(a.bloqueio) > new Date()) return res.status(429).json({ erro: 'Muitas tentativas com a senha errada. Espere 15 minutos e tente de novo.' });
+  if (!a || !(await confereSenha(senha, a.senha))) {
+    // oito erros seguidos travam o e-mail por 15 minutos
+    if (a) await query(`update repasse_acessos set falhas = falhas + 1, bloqueio = case when falhas + 1 >= 8 then now() + interval '15 minutes' end where id = $1`, [a.id]);
+    await pausa(400);
+    return res.status(401).json({ erro: 'E-mail ou senha não conferem.' });
+  }
+  if (!a.ativo) return res.status(403).json({ erro: 'O acesso da sua loja está desativado. Fale com a Aceima.' });
+  const token = randomBytes(32).toString('hex');
+  await query(`insert into repasse_sessoes (token, acesso_id, expira) values ($1, $2, now() + interval '30 days')`, [hashToken(token), a.id]);
+  await query('update repasse_acessos set falhas = 0, bloqueio = null, ultimo_acesso = now() where id = $1', [a.id]);
+  return res.json({ ok: true, token, loja: a.loja });
+}
+// o mercado: os carros no repasse (30 dias), o repassado só no dia em que foi repassado e, da própria loja, os repassados da última semana
+async function listaRepasse(s, res) {
+  await limparRepasse();
+  query(`update repasse_acessos set ultimo_acesso = now() where id = $1 and (ultimo_acesso is null or ultimo_acesso < now() - interval '1 hour')`, [s.id]).catch(() => {});
+  const { rows } = await query(
+    `select c.*, l.nome as loja, coalesce(nullif(a.whatsapp, ''), l.whatsapp) as wa,
+            coalesce((select json_agg(f.id order by f.ordem) from repasse_fotos f where f.carro_id = c.id), '[]'::json) as fotos
+       from repasse_carros c join lojas l on l.id = c.loja_id and l.ativa = true
+       join repasse_acessos a on a.loja_id = c.loja_id and a.ativo = true
+      where (c.status = 'ativo' and c.criado_em > now() - interval '30 days')
+         or (c.status = 'repassado' and (c.status_em at time zone 'America/Sao_Paulo')::date = (now() at time zone 'America/Sao_Paulo')::date)
+         or (c.loja_id = $1 and c.status = 'repassado' and c.status_em > now() - interval '7 days')
+      order by c.criado_em desc limit 500`, [s.loja_id]);
+  return res.json({ ok: true, loja: s.loja, agora: new Date().toISOString(), carros: rows.map(c => ({
+    id: c.id, nome: c.nome, ano: c.ano || '', km: c.km, cambio: c.cambio || '', comb: c.combustivel || '', cor: c.cor || '', valor: c.valor,
+    obs: c.obs || '', placa: c.placa || '', donos: c.donos || '', laudo: c.laudo || '', loja: c.loja, meu: c.loja_id === s.loja_id,
+    wa: c.loja_id === s.loja_id ? '' : waR(c.wa), fotos: Array.isArray(c.fotos) ? c.fotos : [],
+    criado: c.criado_em, repassado: c.status === 'repassado' ? c.status_em : null })) });
+}
+// publicar é em três passos, para nenhum pedido passar do limite da Vercel (4,5 MB) e o aparelho mostrar o andamento: os dados (o carro
+// nasce "enviando", fora da lista), uma foto por vez e o "pronto", que põe o carro no repasse com a hora daquele momento
+async function publicarRepasse(s, b, res) {
+  const nome = txtR(b.nome, 80), ano = txtR(b.ano, 9), valor = parseInt(b.valor, 10), km = parseInt(b.km, 10), nf = parseInt(b.fotos, 10) || 0;
+  if (nome.length < 3 || !/\d{4}/.test(ano) || !(valor >= 100 && valor <= 20000000)) return res.status(400).json({ erro: 'Faltam a marca e o modelo, o ano ou o valor.' });
+  const { rows: [{ n }] } = await query(`select count(*)::int as n from repasse_carros where loja_id = $1 and status in ('ativo', 'enviando') and criado_em > now() - interval '30 days'`, [s.loja_id]);
+  if (n >= CARROS_POR_LOJA) return res.status(400).json({ erro: `Sua loja já tem ${CARROS_POR_LOJA} carros no repasse. Tire os que já foram vendidos para colocar outros.` });
+  const { rows: [c] } = await query(
+    `insert into repasse_carros (loja_id, nome, ano, km, cambio, combustivel, cor, valor, obs, placa, donos, laudo, status)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) returning id`,
+    [s.loja_id, nome, ano, km >= 0 && km < 3000000 ? km : null, txtR(b.cambio, 20) || null, txtR(b.comb, 20) || null, txtR(b.cor, 30) || null, valor,
+     txtR(b.obs, 1000) || null, (String(b.placa || '').match(/\d(?=\D*$)/) || [null])[0], txtR(b.donos, 12) || null, txtR(b.laudo, 30) || null,
+     nf > 0 ? 'enviando' : 'ativo']);
+  return res.status(201).json({ ok: true, id: c.id });
+}
+const ASSINATURAS = [['image/jpeg', [0xff, 0xd8, 0xff]], ['image/png', [0x89, 0x50, 0x4e, 0x47]], ['image/webp', [0x52, 0x49, 0x46, 0x46]]];
+function imagemDe(dataUrl, max) {
+  const m = String(dataUrl || '').match(/^data:image\/[a-z]+;base64,([A-Za-z0-9+/=]+)$/);
+  if (!m) return null;
+  const buf = Buffer.from(m[1], 'base64'), t = ASSINATURAS.find(([, sig]) => sig.every((x, i) => buf[i] === x));
+  return buf.length && buf.length <= max && t ? { tipo: t[0], b64: m[1] } : null;
+}
+async function fotoRepasse(s, b, res) {
+  const carro = parseInt(b.carro, 10), ordem = parseInt(b.ordem, 10);
+  if (!(ordem >= 0 && ordem < 10)) return res.status(400).json({ erro: 'Foto fora da ordem.' });
+  const { rows: [c] } = await query(`select id from repasse_carros where id = $1 and loja_id = $2 and status = 'enviando'`, [carro, s.loja_id]);
+  if (!c) return res.status(404).json({ erro: 'Carro não encontrado.' });
+  const f = imagemDe(b.dados, 1500000), mi = imagemDe(b.mini, 200000);
+  if (!f) return res.status(400).json({ erro: 'Uma foto não chegou inteira. Tente de novo.' });
+  const { rows: [esp] } = await query(`select coalesce(sum(octet_length(dados) + coalesce(octet_length(mini), 0)), 0)::bigint as fotos,
+                                              pg_database_size(current_database())::bigint as banco from repasse_fotos`);
+  if (Number(esp.fotos) > LIMITE_FOTOS_REPASSE || Number(esp.banco) > 460e6) return res.status(507).json({ erro: 'O espaço das fotos do Repasse acabou. Avise a Aceima.' });
+  const id = randomBytes(16).toString('hex');
+  await query('delete from repasse_fotos where carro_id = $1 and ordem = $2', [carro, ordem]);   // a mesma foto enviada de novo não fica duas vezes
+  await query(`insert into repasse_fotos (id, carro_id, ordem, tipo, dados, mini) values ($1, $2, $3, $4, decode($5, 'base64'), decode($6, 'base64'))`,
+    [id, carro, ordem, f.tipo, f.b64, mi ? mi.b64 : null]);
+  return res.json({ ok: true, id });
+}
+async function prontoRepasse(s, b, res) {
+  const { rows: [c] } = await query(`update repasse_carros set status = 'ativo', criado_em = now() where id = $1 and loja_id = $2 and status = 'enviando' returning id`,
+    [parseInt(b.carro, 10), s.loja_id]);
+  return c ? res.json({ ok: true }) : res.status(404).json({ erro: 'Carro não encontrado.' });
+}
+// "Foi repassado" (fica riscado até o fim do dia) e "Tirar do repasse" (sai na hora, com as fotos), só nos carros da própria loja
+async function mudarRepasse(s, b, res) {
+  const id = parseInt(b.id, 10), st = String(b.status || '');
+  if (!['repassado', 'tirado'].includes(st)) return res.status(400).json({ erro: 'status inválido' });
+  const { rows: [c] } = await query(`update repasse_carros set status = $3, status_em = now() where id = $1 and loja_id = $2 and status = 'ativo' returning id`,
+    [id, s.loja_id, st]);
+  if (!c) return res.status(404).json({ erro: 'Carro não encontrado.' });
+  if (st === 'tirado') await query('delete from repasse_fotos where carro_id = $1', [id]);
+  return res.json({ ok: true });
+}
+async function senhaRepasse(s, b, req, res) {
+  const nova = String(b.nova || '');
+  if (nova.length < 6) return res.status(400).json({ erro: 'A senha nova precisa ter pelo menos 6 letras ou números.' });
+  const { rows: [a] } = await query('select senha from repasse_acessos where id = $1', [s.id]);
+  if (!a || !(await confereSenha(String(b.atual || ''), a.senha))) return res.status(400).json({ erro: 'A senha atual não confere.' });
+  await query('update repasse_acessos set senha = $2 where id = $1', [s.id, await hashSenha(nova)]);
+  // os outros aparelhos saem; este continua
+  await query('delete from repasse_sessoes where acesso_id = $1 and token <> $2', [s.id, hashToken(req.headers['x-repasse-token'])]);
+  return res.json({ ok: true });
+}
+// painel (com a senha do painel): os acessos das lojas. Criar (ou trocar o e-mail, o WhatsApp e a senha), desativar e excluir.
+// A senha só existe no momento em que a Aceima cria: o painel mostra para copiar e o banco guarda só o scrypt
+async function acessosRepasse(req, res) {
+  const b = req.body || {};
+  if (req.method === 'GET') {
+    const { rows } = await query(`select a.id, a.loja_id, a.email, a.whatsapp, a.ativo, a.criado_em, a.ultimo_acesso,
+        (select count(*)::int from repasse_carros c where c.loja_id = a.loja_id and c.status = 'ativo' and c.criado_em > now() - interval '30 days') as carros,
+        (select count(*)::int from repasse_carros c where c.loja_id = a.loja_id and c.status = 'repassado') as repassados
+       from repasse_acessos a order by a.id`);
+    return res.json(rows);
+  }
+  if (req.method === 'POST') {
+    const lojaId = parseInt(b.loja_id, 10), email = txtR(b.email, 120).toLowerCase(), senha = String(b.senha || ''), wa = waR(b.whatsapp) || null;
+    if (!lojaId) return res.status(400).json({ erro: 'loja obrigatória' });
+    if (!emailR(email)) return res.status(400).json({ erro: 'Confira o e-mail.' });
+    const { rows: [ja] } = await query('select id from repasse_acessos where loja_id = $1', [lojaId]);
+    if ((!ja || senha) && senha.length < 6) return res.status(400).json({ erro: 'A senha precisa ter pelo menos 6 letras ou números.' });
+    const { rows: [outro] } = await query('select id from repasse_acessos where email = $1 and loja_id <> $2', [email, lojaId]);
+    if (outro) return res.status(409).json({ erro: 'Esse e-mail já é o acesso de outra loja.' });
+    const h = senha ? await hashSenha(senha) : null;
+    if (ja) {
+      await query('update repasse_acessos set email = $2, whatsapp = $3, senha = coalesce($4, senha), falhas = 0, bloqueio = null where id = $1', [ja.id, email, wa, h]);
+      if (h) await query('delete from repasse_sessoes where acesso_id = $1', [ja.id]);   // senha nova: quem estava dentro entra de novo
+    } else await query('insert into repasse_acessos (loja_id, email, senha, whatsapp) values ($1, $2, $3, $4)', [lojaId, email, h, wa]);
+    return res.json({ ok: true });
+  }
+  if (req.method === 'PATCH') {
+    const id = parseInt(b.id, 10);
+    const { rows: [a] } = await query('update repasse_acessos set ativo = $2 where id = $1 returning id', [id, !!b.ativo]);
+    if (!a) return res.status(404).json({ erro: 'acesso não encontrado' });
+    if (!b.ativo) await query('delete from repasse_sessoes where acesso_id = $1', [id]);
+    return res.json({ ok: true });
+  }
+  if (req.method === 'DELETE') {
+    const id = parseInt((req.query && req.query.id) || b.id, 10);
+    const { rows: [a] } = await query('delete from repasse_acessos where id = $1 returning loja_id', [id]);
+    if (a) {
+      // os carros da loja saem do repasse junto, com as fotos
+      await query('delete from repasse_sessoes where acesso_id = $1', [id]);
+      await query(`update repasse_carros set status = 'tirado', status_em = now() where loja_id = $1 and status in ('ativo', 'enviando')`, [a.loja_id]);
+      await query(`delete from repasse_fotos f using repasse_carros c where f.carro_id = c.id and c.loja_id = $1 and c.status = 'tirado'`, [a.loja_id]);
+    }
+    return res.json({ ok: true });
+  }
+  return res.status(405).end();
+}
+async function rotaRepasse(req, res) {
+  await tabelasRepasse();
+  res.setHeader('Cache-Control', 'no-store');
+  const acao = String((req.query && req.query.acao) || ''), b = req.body || {};
+  if (acao === 'acessos') return autorizado(req) ? await acessosRepasse(req, res) : negar(res);
+  if (acao === 'entrar') return req.method === 'POST' ? await entrarRepasse(req, res) : res.status(405).end();
+  const s = await sessaoRepasse(req);
+  if (!s) return res.status(401).json({ erro: 'Entre de novo.' });
+  if (req.method === 'GET') return await listaRepasse(s, res);
+  if (req.method !== 'POST') return res.status(405).end();
+  if (acao === 'publicar') return await publicarRepasse(s, b, res);
+  if (acao === 'foto') return await fotoRepasse(s, b, res);
+  if (acao === 'pronto') return await prontoRepasse(s, b, res);
+  if (acao === 'status') return await mudarRepasse(s, b, res);
+  if (acao === 'senha') return await senhaRepasse(s, b, req, res);
+  if (acao === 'sair') { await query('delete from repasse_sessoes where token = $1', [hashToken(req.headers['x-repasse-token'])]); return res.json({ ok: true }); }
+  return res.status(404).json({ erro: 'ação não encontrada' });
+}
+// a foto de um carro do repasse, pelo endereço sorteado dela (m=1: a pequena, da lista). O conteúdo de um endereço nunca muda, então a
+// Vercel guarda por um ano e o banco só trabalha na primeira vez
+async function rotaFotoRepasse(req, res) {
+  const id = String((req.query && req.query.id) || ''), mini = req.query && req.query.m === '1';
+  if (!/^[a-f0-9]{32}$/.test(id)) return res.status(404).end();
+  await tabelasRepasse();
+  const { rows: [f] } = await query(`select tipo, encode(${mini ? 'coalesce(mini, dados)' : 'dados'}, 'base64') as b64 from repasse_fotos where id = $1`, [id]);
+  if (!f) { res.setHeader('Cache-Control', 'no-store'); return res.status(404).end(); }
+  res.setHeader('Content-Type', f.tipo);
+  res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  return res.end(Buffer.from(f.b64, 'base64'));
+}
+
 // ---------------- ROTEADOR ----------------
 export default async function handler(req, res) {
   let rota;
@@ -1778,6 +2024,8 @@ export default async function handler(req, res) {
     if (rota === 'publicacoes') return autorizado(req) ? await rotaPublicacoes(req, res) : negar(res);
     if (rota === 'visita') return await rotaVisita(req, res);
     if (rota === 'visitas') return autorizado(req) ? await rotaVisitas(req, res) : negar(res);
+    if (rota === 'repasse') return await rotaRepasse(req, res);
+    if (rota === 'rfoto') return await rotaFotoRepasse(req, res);
     if (rota === 'avaliacoes') {
       const lista = await avaliacoesGoogle();
       // 1h nova; depois, por até 7 dias, a Vercel entrega a anterior na hora e busca a nova por trás

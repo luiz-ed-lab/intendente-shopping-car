@@ -1575,6 +1575,8 @@ function numRua(end){if(!end||!/intendente/i.test(end))return null;const m=Strin
 // Computador: barra em pílula fixa embaixo, no centro (componente Bottom Nav Bar, 21st.dev); a página ativa mostra o nome.
 // Celular: só o ícone da página no canto de cima; ao tocar, o nome aparece e os outros ícones descem, sem nome.
 const PAGINAS=[['home','Início'],['aceima','A Aceima'],['associados','Associados'],['estoque','Estoque'],['publicacoes','Publicações'],['associar','Seja um associado']];
+// o Repasse das lojas (pedido do Luiz, 26/10/2026) fica no fim do menu e no rodapé: é outra página (repasse.html), que o navegador abre
+const REPASSE=['repasse','Repasse'],hrRepasse=()=>HASH?'repasse.html':'/repasse';
 let pagAtual='home';
 // ícones Lucide, os mesmos do componente; o da Aceima é o contorno da logo A (a mesma do bloco da home), com o traço um pouco mais fino porque tem mais linhas
 const ICONES={home:'<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
@@ -1583,6 +1585,7 @@ const ICONES={home:'<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path 
   estoque:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
   publicacoes:'<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>',
   associar:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+  repasse:'<path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>',
   menu:'<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>'};
 const cel=()=>matchMedia('(max-width:760px)').matches;
 const menuDe=()=>pagAtual==='veiculo'?'estoque':pagAtual==='publicacao'?'publicacoes':pagAtual;   // a página do veículo acende o Estoque; a de uma publicação, as Publicações
@@ -1594,12 +1597,12 @@ function montarMenu(){
     document.addEventListener('click',e=>{if(menuAberto&&!n.contains(e.target))fecharMenu();});
     n.addEventListener('mouseleave',()=>passarMenu(null));}
   const at=menuDe(),noMenu=PAGINAS.some(p=>p[0]===at),c=cel();
-  const itens=noMenu||!c?PAGINAS:[['menu','Menu'],...PAGINAS];   // Serviços do polo não está no menu: no celular fica o ícone de menu
+  const itens=(noMenu||!c?PAGINAS:[['menu','Menu'],...PAGINAS]).concat([REPASSE]);   // Serviços do polo não está no menu: no celular fica o ícone de menu
   const on=noMenu?at:(c?'menu':'');
   // cada página é um link de verdade (dá para abrir em outra guia); o de menu, que só abre e fecha, é um botão
   n.innerHTML=itens.map((p,i)=>{const at=`class="nb${p[0]===on?' on':''}" data-p="${p[0]}" style="--i:${i}" aria-label="${p[1]}" onclick="clicarMenu(event,'${p[0]}')" onmouseenter="passarMenu(this)"`,
     dentro=`<span class="nbi">${ic(ICONES[p[0]],22)}<span class="nl"><span>${p[1]}</span></span></span>`;
-    return p[0]==='menu'?`<button type="button" ${at}>${dentro}</button>`:`<a href="${hr(p[0])}" ${at}>${dentro}</a>`;}).join('')
+    return p[0]==='menu'?`<button type="button" ${at}>${dentro}</button>`:p[0]==='repasse'?`<a href="${hrRepasse()}" data-fora ${at}>${dentro}</a>`:`<a href="${hr(p[0])}" ${at}>${dentro}</a>`;}).join('')
     // as páginas do estoque, separadas do resto, uma de cada lado (no celular, ficam ao lado do contador)
     +(c?'':`<button type="button" class="nb-pg nb-ant" aria-label="Página anterior" onclick="irPagina(-1)">${ic('<path d="m15 18-6-6 6-6"/>',20)}<span class="pt"><span>Página anterior</span></span></button>`
       +`<button type="button" class="nb-pg nb-prox" aria-label="Próxima página" onclick="irPagina(1)"><span class="pt"><span>Próxima página</span></span>${ic('<path d="m9 18 6-6-6-6"/>',20)}</button>`);
@@ -1627,6 +1630,7 @@ function atualizarMenu(){if(cel()&&!menuAberto&&!menuTrocando)montarMenu();else 
 // estoque (pedido do Luiz, 07/10/2026). Com Ctrl, Shift ou o botão do meio, o navegador abre a página em outra guia
 function clicarMenu(e,pg){
   if(nova(e))return;
+  if(pg==='repasse'){if(cel()&&!menuAberto){e.preventDefault();menuAberto=true;document.getElementById('nav').classList.add('aberto');abrirNomes();}return;}   // o navegador abre o Repasse
   e.preventDefault();
   const est=pg==='estoque',abre=()=>est?estoqueNovo():go(pg);
   if(!cel()){if(est||pg!==menuDe())abre();return;}
@@ -1642,7 +1646,7 @@ function fecharMenu(){const n=document.getElementById('nav');menuAberto=false;n.
 /* ==================== RODAPÉ ==================== */
 const rodape=()=>`<footer class="rod"><div class="wrap">
   ${logo()}>
-  <nav>${PAGINAS.slice(1).map(p=>`<a href="${hr(p[0])}">${p[1]}</a>`).join('')}<a href="${hr('servicos')}">Serviços do polo</a><a href="${HASH?'painel.html':'/painel'}" data-fora>${T('rodape.painel','Painel')}</a></nav>
+  <nav>${PAGINAS.slice(1).map(p=>`<a href="${hr(p[0])}">${p[1]}</a>`).join('')}<a href="${hr('servicos')}">Serviços do polo</a><a href="${hrRepasse()}" data-fora>${T('rodape.repasse','Repasse')}</a><a href="${HASH?'painel.html':'/painel'}" data-fora>${T('rodape.painel','Painel')}</a></nav>
   <div>${T('rodape.endereco','Estrada Intendente Magalhães, 830 · Vila Valqueire · Rio de Janeiro')}<br>${T('rodape.telefone','(21) 3283-6600')} · <a href="https://wa.me/${WA_ACEIMA}" target="_blank" style="color:#B9C6DA">WhatsApp (21) 99104-1424</a> · © ${new Date().getFullYear()} Aceima · aceima.com.br</div>
 </div></footer>`;
 
