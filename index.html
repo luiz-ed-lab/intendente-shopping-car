@@ -1647,7 +1647,7 @@ function fecharMenu(){const n=document.getElementById('nav');menuAberto=false;n.
 const rodape=()=>`<footer class="rod"><div class="wrap">
   ${logo()}>
   <nav>${PAGINAS.slice(1).map(p=>`<a href="${hr(p[0])}">${p[1]}</a>`).join('')}<a href="${hr('servicos')}">Serviços do polo</a><a href="${hrRepasse()}" data-fora>${T('rodape.repasse','Repasse')}</a><a href="${HASH?'painel.html':'/painel'}" data-fora>${T('rodape.painel','Painel')}</a></nav>
-  <div>${T('rodape.endereco','Estrada Intendente Magalhães, 830 · Vila Valqueire · Rio de Janeiro')}<br>${T('rodape.telefone','(21) 3283-6600')} · <a href="https://wa.me/${WA_ACEIMA}" target="_blank" style="color:#B9C6DA">WhatsApp (21) 99104-1424</a> · © ${new Date().getFullYear()} Aceima · aceima.com.br</div>
+  <div>${T('rodape.endereco','Estrada Intendente Magalhães, 830 · Vila Valqueire · Rio de Janeiro')}<br>${T('rodape.telefone','(21) 3283-6600')} · <a href="https://wa.me/${WA_ACEIMA}" target="_blank" style="color:#B9C6DA">WhatsApp (21) 99104-1424</a> · © ${new Date().getFullYear()} Aceima · aintendente.com.br</div>
 </div></footer>`;
 
 /* ==================== INÍCIO ==================== */

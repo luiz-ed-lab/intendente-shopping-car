@@ -17,6 +17,13 @@
   ],
   "headers": [
     {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "intendente-shopping-car.vercel.app" }],
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex" }
+      ]
+    },
+    {
       "source": "/repasse",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" }

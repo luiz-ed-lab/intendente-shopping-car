@@ -190,7 +190,7 @@ const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
 // o envio cai sozinho no remetente de teste — que só entrega para o dono da conta.
 const REMETENTE = process.env.RESEND_FROM || 'Aceima <leads@intendenteautoshopping.com.br>';
 const REMETENTE_RESERVA = 'Aceima <onboarding@resend.dev>';
-const SITE_URL = process.env.SITE_URL || 'https://intendente-shopping-car.vercel.app';
+const SITE_URL = process.env.SITE_URL || 'https://aintendente.com.br';
 
 // envia pelo Resend tentando o remetente próprio e, se ele for recusado, o de teste
 async function enviarResend(key, payload) {
