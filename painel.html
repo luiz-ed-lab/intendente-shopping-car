@@ -1737,7 +1737,7 @@ function editarAssoc(id){
     ${campo('eNome','Nome',l.nome)}${campo('eSite','Site',raw.autocerto_id||raw.autocerto_url||'','autobarra.com.br')}
     ${campo('eEmail','E-mail dos leads',raw.email,'contato@loja.com.br',' type="email"')}${campo('eWa','WhatsApp',raw.whatsapp?fmtTel(raw.whatsapp):'','(21) 99999-9999',' inputmode="tel"')}
     ${campo('eTel','Telefone',raw.telefone,'(21) 3333-3333',' inputmode="tel"')}${campo('eEnd','Endereço',raw.endereco,'Estrada Intendente Magalhães, 830').replace('class="cp"','class="cp dois"')}
-    <div class="cp"><span>Logo</span><div class="lgc"><span class="lg" id="eLogoPrev">${raw.logo_url?imgLogo(l):''}</span><label class="bto sm" for="eLogo">Trocar a logo</label><input type="file" id="eLogo" accept="image/*" hidden onchange="lerLogo(this,'eLogoPrev')"></div></div>
+    <div class="cp"><span>Logo</span><div class="lgc"><span class="lg" id="eLogoPrev">${raw.logo_url?imgLogo(l):''}</span><label class="bto sm" for="eLogo">Trocar a logo</label><input type="file" id="eLogo" accept="image/*" hidden data-fotos="Solte a logo aqui" onchange="lerLogo(this,'eLogoPrev')"></div></div>
     ${campo('eCor','Fundo da logo',raw.cor,'Automático')}
     <button type="submit" hidden></button>
   </form>`;
@@ -1802,8 +1802,8 @@ async function salvarAcesso(id){
 // a senha só existe agora: o acesso pronto para copiar ou mandar no WhatsApp da loja
 function acessoPronto(id,email,senha){
   const l=lojaRep(id),ci=$('ci-'+id),cb=$('cb-'+id),a=repAcessos[id],daAceima=id===LOJA_ACEIMA;if(!l||!ci||!cb)return;
-  const txt=`Olá! Este é o acesso ${daAceima?'da Aceima ao Repasse':'da '+l.nome+' ao Repasse da Aceima'}: ${linkRepasse(id)}\nE-mail: ${email}\nSenha: ${senha}\nDepois de entrar, dá para trocar a senha.`,wa=!daAceima&&((a&&a.whatsapp)||waDe(l.wa));
-  ci.outerHTML=`<div class="cm-i" id="ci-${id}">${info('Endereço do Repasse',linkRepasse(id))}${info('E-mail',email)}${info('Senha',senha)}<div><span>Repasse</span><p>${daAceima?'Guarde o acesso agora':'Mande o acesso para a loja agora'}: depois, a senha não aparece mais aqui.</p></div></div>`;
+  const txt=`Olá! Este é o acesso ${daAceima?'da Aceima ao Repasse':'da '+l.nome+' ao Repasse da Aceima'}: ${linkRepasse(id)}\nE-mail: ${email}\nSenha: ${senha}`,wa=!daAceima&&((a&&a.whatsapp)||waDe(l.wa));
+  ci.outerHTML=`<div class="cm-i" id="ci-${id}">${info('Endereço do Repasse',linkRepasse(id))}${info('E-mail',email)}${info('Senha',senha)}</div>`;
   cb.innerHTML=`<button type="button" class="bt" id="rCop">${sv(IC.check,'sm')}Copiar o acesso</button>${wa?`<a class="bto" href="https://wa.me/${esc(wa)}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">Mandar no WhatsApp da loja${sv(IC.fora,'sm')}</a>`:''}${daAceima?`<a class="bto" href="${linkRepasse(id)}" target="_blank" rel="noopener">Abrir o Repasse${sv(IC.fora,'sm')}</a>`:''}<button type="button" class="bto" onclick="renderAssoc()">Pronto</button>`;
   $('rCop').onclick=()=>(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Acesso copiado')).catch(()=>toast('Não deu para copiar: selecione o texto'));
 }
@@ -1881,7 +1881,7 @@ const listaE=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' e '+a[a.length-
 // o que o robô não achou: só isso é pedido
 function faltaDe(l){
   const f=[];
-  if(!l.logo)f.push(['logo','a logo',`<div class="cp"><span>Logo</span><div class="lgc"><span class="lg" id="cLogoPrev"></span><label class="bto sm" for="cLogo">Escolher a logo</label><input type="file" id="cLogo" accept="image/*" hidden onchange="lerLogo(this,'cLogoPrev')"></div></div>`]);
+  if(!l.logo)f.push(['logo','a logo',`<div class="cp"><span>Logo</span><div class="lgc"><span class="lg" id="cLogoPrev"></span><label class="bto sm" for="cLogo">Escolher a logo</label><input type="file" id="cLogo" accept="image/*" hidden data-fotos="Solte a logo aqui" onchange="lerLogo(this,'cLogoPrev')"></div></div>`]);
   if(!l.end)f.push(['end','o endereço',campo('cEnd','Endereço','','Estrada Intendente Magalhães, 830')]);
   if(!l.wa)f.push(['wa','o WhatsApp',campo('cWa','WhatsApp','','(21) 99999-9999',' inputmode="tel"')]);
   if(!l.tel)f.push(['tel','o telefone',campo('cTel','Telefone','','(21) 3333-3333',' inputmode="tel"')]);
@@ -1921,7 +1921,7 @@ async function cadastrarCred(nome,site,ramo){
     <div class="cm-b"><button type="button" class="bt" onclick="completarCred(${p.id})">Salvar</button><button type="button" class="bto" onclick="fecharNovo(abrirCredNovo)">Agora não</button></div>`;
 }
 const campoDesc=(id,val)=>`<label class="cp dois"><span>Descrição</span><textarea id="${id}" rows="2" maxlength="200" placeholder="O que a empresa faz, numa frase">${esc(val||'')}</textarea></label>`;
-const campoLogo=(id,rot)=>`<div class="cp"><span>Logo</span><div class="lgc"><span class="lg" id="${id}Prev"></span><label class="bto sm" for="${id}">${rot}</label><input type="file" id="${id}" accept="image/*" hidden onchange="lerLogo(this,'${id}Prev')"></div></div>`;
+const campoLogo=(id,rot)=>`<div class="cp"><span>Logo</span><div class="lgc"><span class="lg" id="${id}Prev"></span><label class="bto sm" for="${id}">${rot}</label><input type="file" id="${id}" accept="image/*" hidden data-fotos="Solte a logo aqui" onchange="lerLogo(this,'${id}Prev')"></div></div>`;
 // o que o robô não achou no credenciado novo: só isso é pedido
 function faltaCred(c){
   const f=[];
@@ -2371,7 +2371,7 @@ function editorPub(p){
      <label class="cp ed-txt"><span>Texto</span><textarea id="pTexto" rows="2" oninput="crescerTexto(this)">${esc(p?p.texto||'':'')}</textarea></label>
     </div>
     <div class="ed-lado">
-     <div class="cp"><span>Fotos</span><div class="ed-fotos" id="pFotos"></div><input type="file" id="pFoto" accept="image/*" multiple hidden onchange="lerFotosPub(this)"></div>
+     <div class="cp"><span>Fotos</span><div class="ed-fotos" id="pFotos" data-ordem="moverFotoPub"></div><input type="file" id="pFoto" accept="image/*" multiple hidden data-fotos="Solte as fotos da publicação aqui" onchange="lerFotosPub(this)"></div>
      <div class="ed-prev"><span>Como aparece no site</span><div id="pPrev"></div></div>
     </div>
    </div>
@@ -2413,11 +2413,13 @@ function prevPub(){const box=$('pPrev');if(!box)return;const capa=pubFotos[0]?sr
 // as fotos pequenas: tocada, uma foto vira a capa; o x tira a foto
 function pintarFotosPub(){
   const b=$('pFotos');if(!b)return;
-  b.innerHTML=pubFotos.map((f,i)=>`<div class="ed-f${i?'':' capa'}" style="background-image:url('${esc(srcFotoPub(f))}')"${i?` role="button" tabindex="0" title="Fazer desta a capa" aria-label="Foto ${i+1}: fazer desta a capa" onclick="capaPub(${i})" onkeydown="if(event.key==='Enter')capaPub(${i})"`:''}>${i?'':'<em>Capa</em>'}<button type="button" class="x" aria-label="Tirar a foto" onclick="event.stopPropagation();tirarFotoPub(${i})">${sv(IC.x,'sm')}</button></div>`).join('')
+  b.innerHTML=pubFotos.map((f,i)=>`<div class="ed-f${i?'':' capa'}" data-i="${i}" style="background-image:url('${esc(srcFotoPub(f))}')"${i?` role="button" tabindex="0" title="Fazer desta a capa" aria-label="Foto ${i+1}: fazer desta a capa" onclick="capaPub(${i})" onkeydown="if(event.key==='Enter')capaPub(${i})"`:''}>${i?'':'<em>Capa</em>'}<button type="button" class="x" data-x aria-label="Tirar a foto" onclick="event.stopPropagation();tirarFotoPub(${i})">${sv(IC.x,'sm')}</button></div>`).join('')
     +(pubFotos.length<MAX_FOTOS_PUB?`<label class="ed-mais" for="pFoto">${sv(IC.foto)}<span>${pubFotos.length?'Mais fotos':'Escolher fotos'}</span></label>`:'');
   prevPub();
 }
 function capaPub(i){const [f]=pubFotos.splice(i,1);pubFotos.unshift(f);pintarFotosPub();}
+// arrastar uma foto muda a ordem (fotos.js), e a primeira é a capa
+function moverFotoPub(de,para){pubFotos.splice(para,0,pubFotos.splice(de,1)[0]);pintarFotosPub();}
 function tirarFotoPub(i){pubFotos.splice(i,1);pintarFotosPub();}
 // a foto sobe diminuída (no máximo 1600 px no lado maior, em webp): cabe no envio e o site carrega rápido. De arquivo ou de outra foto já lida
 async function reduzirFoto(fonte,max,q){
@@ -2672,5 +2674,6 @@ function abrirPainel(token){
 /* sessão de 1 hora: ainda valendo, entra direto */
 (function(){const s=lerSessao();if(s&&s.t)abrirPainel(s.t);else{mostrarEntrada();setTimeout(()=>$('lpass').focus(),100);}})();
 </script>
+<script src="fotos.js"></script>
 </body>
 </html>

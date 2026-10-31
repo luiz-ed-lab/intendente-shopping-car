@@ -8,7 +8,7 @@
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.45s;animation-timing-function:ease}
 ::view-transition-group(nav),::view-transition-image-pair(nav),::view-transition-new(nav){animation:none}
 ::view-transition-old(nav){display:none}
-#nav{position:fixed;z-index:350;left:50%;bottom:24px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;height:52px;padding:8px;border-radius:999px;
+#nav{position:fixed;z-index:350;left:50%;bottom:24px;transform:translate(-50%,calc(-1 * var(--sobe,0px)));display:flex;align-items:center;gap:4px;height:52px;padding:8px;border-radius:999px;
   background:#fff;border:1px solid #E5E5E5;box-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);view-transition-name:nav}
 #nav .nb{display:flex;align-items:center;height:40px;min-width:44px;padding:8px 12px;border-radius:999px;color:#737373;transition:background-color .2s,color .2s}
 #nav .nb:hover{background:#F5F5F5}
@@ -87,5 +87,13 @@
   else if (antes) { const b = n.querySelector(`.nb[data-p="${antes}"]`); if (b) b.classList.add('hov'); nomes(); requestAnimationFrame(() => requestAnimationFrame(() => { n.classList.remove('parado'); if (b) b.classList.remove('hov'); nomes(); })); }
   else { nomes(); solta(); }
   if (document.fonts) document.fonts.ready.then(nomes);   // medido de novo com a fonte do site, senão corta a última letra
-  addEventListener('resize', nomes);
+  // no computador e no tablet, descendo até o rodapé (o do Repasse), o menu para com o meio na divisa dele, como no site (menuNoRodape)
+  function noRodape() {
+    const r = document.querySelector('.rod'); let s = 0;
+    if (r && !cel() && r.getClientRects().length) s = Math.max(0, innerHeight - parseFloat(getComputedStyle(n).bottom) - n.offsetHeight / 2 - r.getBoundingClientRect().top);
+    document.documentElement.style.setProperty('--sobe', s.toFixed(1) + 'px');
+  }
+  addEventListener('scroll', noRodape, { passive: true });
+  if (typeof ResizeObserver === 'function') new ResizeObserver(noRodape).observe(document.body);
+  addEventListener('resize', () => { nomes(); noRodape(); });
 })();

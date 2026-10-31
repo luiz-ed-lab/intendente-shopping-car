@@ -73,6 +73,22 @@ sqls = []; r = await chama(rotaRepasse, 'POST', { acao: 'status' }, { id: 55, st
 const up = sqls.find(([s]) => /update repasse_carros set status = \$3/.test(s));
 assert(up && /loja_id = \$2/.test(up[0]) && up[1][1] === 3, 'mudar o status só no carro da própria loja');
 
+// editar o anúncio: só o carro da própria loja que está no repasse; as fotos na ordem nova (as que ficam e o lugar das novas)
+r = await chama(rotaRepasse, 'POST', { acao: 'editar' }, { id: 55, nome: 'Fi', ano: '2020', valor: 50000 }, T);
+assert(r.st === 400, 'editar sem marca e modelo: 400');
+linhas = s => /repasse_sessoes s join/.test(s) ? [{ id: 7, loja_id: 3, loja: 'TurboMix Veículos' }] : /update repasse_carros set nome/.test(s) ? [{ id: 55 }] : [];
+const A = 'a'.repeat(32), B = 'b'.repeat(32);
+sqls = []; r = await chama(rotaRepasse, 'POST', { acao: 'editar' }, { id: 55, nome: 'Fiat Argo Drive', ano: '2021', valor: 57000, fotos: [B, null, A, '../x'] }, T);
+const ed = sqls.find(([s]) => /update repasse_carros set nome/.test(s)), apaga = sqls.find(([s]) => /delete from repasse_fotos where carro_id = \$1 and not/.test(s));
+const ordens = sqls.filter(([s]) => /update repasse_fotos set ordem/.test(s)).map(([, p]) => p[1] + ':' + p[2]);
+assert(r.st === 200 && /loja_id = \$2 and status = 'ativo'/.test(ed[0]) && ed[1][1] === 3, 'editar: só o carro da própria loja, no repasse');
+assert(apaga && JSON.stringify(apaga[1][1]) === JSON.stringify([B, A]) && ordens.join() === `${B}:0,${A}:2`, 'editar: as fotos fora da lista saem, as que ficam vão para a posição nova e o lugar da nova fica livre');
+linhas = s => /repasse_sessoes s join/.test(s) ? [{ id: 7, loja_id: 3, loja: 'TurboMix Veículos' }] : [];
+r = await chama(rotaRepasse, 'POST', { acao: 'editar' }, { id: 99, nome: 'Fiat Argo Drive', ano: '2021', valor: 57000 }, T);
+assert(r.st === 404, 'editar o carro de outra loja (ou fora do repasse): 404');
+sqls = []; await chama(rotaRepasse, 'POST', { acao: 'foto' }, { carro: 55, ordem: 1, dados: 'data:image/jpeg;base64,' + Buffer.from([0xff, 0xd8, 0xff, 0xe0, 1]).toString('base64') }, T);
+assert(usou(/status in \('enviando', 'ativo'\)/), 'a foto nova da edição entra no carro que está no repasse');
+
 // a foto
 sqls = []; r = await chama(rotaFotoRepasse, 'GET', { id: '../x' });
 assert(r.st === 404 && !usou(/from repasse_fotos/), 'endereço de foto fora do formato: 404 sem ir ao banco');

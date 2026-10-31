@@ -1887,10 +1887,11 @@ function imagemDe(dataUrl, max) {
   const buf = Buffer.from(m[1], 'base64'), t = ASSINATURAS.find(([, sig]) => sig.every((x, i) => buf[i] === x));
   return buf.length && buf.length <= max && t ? { tipo: t[0], b64: m[1] } : null;
 }
+// a foto nova chega no carro que está sendo publicado ("enviando") ou no que está sendo editado (no repasse), sempre da própria loja
 async function fotoRepasse(s, b, res) {
   const carro = parseInt(b.carro, 10), ordem = parseInt(b.ordem, 10);
   if (!(ordem >= 0 && ordem < 10)) return res.status(400).json({ erro: 'Foto fora da ordem.' });
-  const { rows: [c] } = await query(`select id from repasse_carros where id = $1 and loja_id = $2 and status = 'enviando'`, [carro, s.loja_id]);
+  const { rows: [c] } = await query(`select id from repasse_carros where id = $1 and loja_id = $2 and status in ('enviando', 'ativo')`, [carro, s.loja_id]);
   if (!c) return res.status(404).json({ erro: 'Carro não encontrado.' });
   const f = imagemDe(b.dados, 1500000), mi = imagemDe(b.mini, 200000);
   if (!f) return res.status(400).json({ erro: 'Uma foto não chegou inteira. Tente de novo.' });
@@ -1902,6 +1903,23 @@ async function fotoRepasse(s, b, res) {
   await query(`insert into repasse_fotos (id, carro_id, ordem, tipo, dados, mini) values ($1, $2, $3, $4, decode($5, 'base64'), decode($6, 'base64'))`,
     [id, carro, ordem, f.tipo, f.b64, mi ? mi.b64 : null]);
   return res.json({ ok: true, id });
+}
+// editar o anúncio (pedido do Luiz, 31/10/2026), só no carro da própria loja que está no repasse: os dados e as fotos, na ordem nova. As
+// fotos vêm numa lista: o endereço de cada foto que fica e, no lugar de cada foto nova, null (a nova chega depois, uma por vez, na posição
+// dela). As que saíram da lista são apagadas. O carro continua no mesmo lugar da lista (a hora em que entrou não muda)
+async function editarRepasse(s, b, res) {
+  const id = parseInt(b.id, 10), nome = txtR(b.nome, 80), ano = txtR(b.ano, 9), valor = parseInt(b.valor, 10), km = parseInt(b.km, 10);
+  if (nome.length < 3 || !/\d{4}/.test(ano) || !(valor >= 100 && valor <= 20000000)) return res.status(400).json({ erro: 'Faltam a marca e o modelo, o ano ou o valor.' });
+  const { rows: [c] } = await query(
+    `update repasse_carros set nome = $3, ano = $4, km = $5, cambio = $6, combustivel = $7, cor = $8, valor = $9, obs = $10, placa = $11, donos = $12, laudo = $13
+      where id = $1 and loja_id = $2 and status = 'ativo' returning id`,
+    [id, s.loja_id, nome, ano, km >= 0 && km < 3000000 ? km : null, txtR(b.cambio, 20) || null, txtR(b.comb, 20) || null, txtR(b.cor, 30) || null, valor,
+     txtR(b.obs, 1000) || null, (String(b.placa || '').match(/\d(?=\D*$)/) || [null])[0], txtR(b.donos, 12) || null, txtR(b.laudo, 30) || null]);
+  if (!c) return res.status(404).json({ erro: 'Carro não encontrado.' });
+  const lista = (Array.isArray(b.fotos) ? b.fotos : []).slice(0, 10).map(x => (/^[a-f0-9]{32}$/.test(String(x)) ? String(x) : null));
+  await query('delete from repasse_fotos where carro_id = $1 and not (id = any($2::text[]))', [id, lista.filter(Boolean)]);
+  for (let i = 0; i < lista.length; i++) if (lista[i]) await query('update repasse_fotos set ordem = $3 where carro_id = $1 and id = $2', [id, lista[i], i]);
+  return res.json({ ok: true });
 }
 async function prontoRepasse(s, b, res) {
   const { rows: [c] } = await query(`update repasse_carros set status = 'ativo', criado_em = now() where id = $1 and loja_id = $2 and status = 'enviando' returning id`,
@@ -1987,6 +2005,7 @@ async function rotaRepasse(req, res) {
   if (acao === 'publicar') return await publicarRepasse(s, b, res);
   if (acao === 'foto') return await fotoRepasse(s, b, res);
   if (acao === 'pronto') return await prontoRepasse(s, b, res);
+  if (acao === 'editar') return await editarRepasse(s, b, res);
   if (acao === 'status') return await mudarRepasse(s, b, res);
   if (acao === 'senha') return await senhaRepasse(s, b, req, res);
   if (acao === 'sair') { await query('delete from repasse_sessoes where token = $1', [hashToken(req.headers['x-repasse-token'])]); return res.json({ ok: true }); }

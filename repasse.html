@@ -48,8 +48,6 @@ html{scrollbar-color:#C9C3BB transparent}
 .contorno:hover{box-shadow:inset 0 0 0 1px var(--ink)}
 .redondo{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;background:rgba(255,255,255,.08);color:#CFD9E8;transition:background .2s,color .2s}
 .redondo:hover{background:rgba(255,255,255,.16);color:#fff}
-.lk{font:600 13.5px var(--f2);color:var(--goldtx);white-space:nowrap;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
-.lk:hover{color:var(--ink)}
 
 /* ===== entrada ===== */
 .entrada{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px var(--lado);color:#fff;text-align:center}
@@ -86,11 +84,10 @@ a.marca:hover{opacity:.85}
 .busca input::placeholder{color:#8D9BB3}
 .abas{display:none}
 
-/* o formulário de repassar abre no azul do topo, acima da folha */
-.form-rep{overflow:hidden}
+/* o cadastro (e a edição) abre no azul do topo, acima da folha */
 .form-in{margin-top:34px;padding:30px 0 6px;border-top:1px solid rgba(255,255,255,.12)}
 .form-cab{display:flex;align-items:center;justify-content:space-between;gap:20px}
-.form-cab h2{font:500 30px/1.1 var(--f1);letter-spacing:-.015em}.form-cab h2 em{font-style:italic;color:var(--gold3)}
+.form-cab h2{font:500 30px/1.1 var(--f1);letter-spacing:-.015em}
 .fg{margin-top:22px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 14px}
 .fg .c2{grid-column:span 2}.fg .c4{grid-column:1/-1}
 .fc{display:flex;flex-direction:column;gap:8px;min-width:0}
@@ -107,50 +104,66 @@ a.marca:hover{opacity:.85}
 .fotos input{position:absolute;width:1px;height:1px;opacity:0}
 .fotos figure{position:relative;width:120px;height:90px;border-radius:14px;overflow:hidden;background:#1a2233}
 .fotos .capa-bt{display:block;width:100%;height:100%}
-.fotos figure img{display:block;width:100%;height:100%;object-fit:cover}
+.fotos figure img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
 .fotos figure figcaption{position:absolute;left:8px;bottom:8px;height:22px;padding:0 8px;border-radius:99px;background:rgba(0,9,26,.75);color:#fff;font:600 11px/22px var(--f2);pointer-events:none}
 .fotos .fx{position:absolute;right:6px;top:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,9,26,.75);color:#fff;display:grid;place-items:center}
 .form-acoes{margin-top:22px;display:flex;align-items:center;gap:12px}
 .form-acoes .ouro{height:52px;padding:0 30px}
 .form-acoes .sair-f{height:52px;padding:0 22px;border-radius:99px;color:#CFD9E8;font:600 15px var(--f2)}
 .form-acoes .sair-f:hover{color:#fff}
-.form-acoes small{margin-left:auto;font-size:13px;color:#9FB0C9}
 
 /* ===== folha clara ===== */
-.folha{position:relative;margin-top:calc(-1 * var(--canto));min-height:60vh;padding:34px var(--lado) 110px;border-radius:var(--canto) var(--canto) 0 0;background:var(--cl)}
+.folha{position:relative;margin-top:calc(-1 * var(--canto));min-height:60vh;padding:34px var(--lado) 96px;border-radius:var(--canto) var(--canto) 0 0;background:var(--cl)}
 .folha-in{max-width:1660px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:44px;align-items:start}
 .fil{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .chip{height:38px;padding:0 15px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);display:inline-flex;align-items:center;gap:7px;font:500 14px/1.2 var(--f2);white-space:nowrap;transition:background .2s,color .2s,box-shadow .2s}
 .chip:hover{box-shadow:inset 0 0 0 1px #C9C3BB}
 .chip small{color:var(--mut);font-size:12.5px;font-variant-numeric:tabular-nums}
 .chip.on{background:var(--navy);color:#fff;box-shadow:none}.chip.on small{color:var(--clara)}
-.ord{margin-left:auto;position:relative}
-.ord select{appearance:none;-webkit-appearance:none;height:38px;padding:0 38px 0 16px;border-radius:99px;border:0;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:600 14px var(--f2);color:var(--ink);cursor:pointer}
-.ord svg{position:absolute;right:14px;top:50%;margin-top:-7.5px;pointer-events:none}
+/* a ordem: a lista própria, com os cantos redondos (a do navegador abria quadrada; pedido do Luiz, 31/10/2026) */
+.ord{margin-left:auto}
+.ord-t{display:inline-flex;align-items:center;gap:10px;height:38px;padding:0 14px 0 16px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:600 14px var(--f2);color:var(--ink);white-space:nowrap;transition:box-shadow .2s}
+.ord-t:hover{box-shadow:inset 0 0 0 1px #C9C3BB}
+.ord-t svg{transition:transform .25s var(--ease)}
+.ord-t[aria-expanded="true"]{box-shadow:inset 0 0 0 1px var(--ink)}
+.ord-t[aria-expanded="true"] svg{transform:rotate(180deg)}
+.ord-t.anda>span{animation:ordTexto .32s var(--ease) both}
+@keyframes ordTexto{from{opacity:0;transform:translateY(5px)}}
+.ord-p{position:fixed;z-index:60;min-width:180px;padding:6px;border-radius:16px;background:#fff;box-shadow:0 22px 50px -18px rgba(0,9,26,.42),0 0 0 1px rgba(11,26,51,.06);animation:dropEntra .2s var(--ease) both;transform-origin:top right}
+.ord-p.sai{animation:dropSai .14s ease-in both;pointer-events:none}
+.ord-p button{display:block;width:100%;padding:9px 12px;border-radius:10px;font:500 14px var(--f2);color:var(--ink);white-space:nowrap;transition:background .15s}
+.ord-p button:hover,.ord-p button:focus-visible{background:#F4F1EC;outline:0}
+.ord-p button[aria-selected="true"]{font-weight:700}
+@keyframes dropEntra{from{opacity:0;transform:translateY(-6px) scale(.98)}}
+@keyframes dropSai{to{opacity:0;transform:translateY(-4px) scale(.98)}}
 
 /* a lista por dia */
 .dia{display:flex;align-items:baseline;gap:10px;margin:22px 0 4px}
 .dia h2{font:600 23px/1 var(--f1);letter-spacing:-.01em}
 .dia span{font-size:14px;color:var(--mut)}
-.ln{position:relative;display:grid;grid-template-columns:116px minmax(0,1fr) 150px 170px 86px;gap:20px;align-items:center;padding:12px 10px;margin:0 -10px;border-radius:16px;cursor:pointer;transition:background .2s}
-.ln+.ln,.abre+.ln{border-top:1px solid var(--fio)}
+/* a linha: a foto, o nome com os dados e, no canto direito, o valor e a loja (o WhatsApp das outras lojas fica antes deles) */
+.ln{position:relative;display:grid;grid-template-columns:116px minmax(0,1fr) auto auto;gap:20px;align-items:center;padding:12px 10px;margin:0 -10px;border-radius:16px;cursor:pointer;transition:background .2s}
+.ln+.ln{border-top:1px solid var(--fio)}
 .ln:hover{background:rgba(255,255,255,.7)}
-.ln.on{background:#fff;border-radius:16px 16px 0 0}
 .ph{position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(160deg,#5d6676,#262e3d 62%,#151b27)}
 .ph svg{position:absolute;left:8%;bottom:11%;width:84%;height:auto;fill:rgba(255,255,255,.18)}
 .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.ln .ph{width:116px;height:87px}
-.ln .nm b{display:flex;align-items:center;gap:8px;font:600 17px/1.3 var(--f2)}
-.ln .nm span{display:block;margin-top:4px;font-size:14px;color:var(--mut)}
+.ln>.ph{width:116px;height:87px}
+.nm{min-width:0}
+.t{display:flex;align-items:center;gap:8px;font:600 17px/1.3 var(--f2)}
+.t>span:first-child{min-width:0}
+.dl{display:block;margin-top:4px;font-size:14px;color:var(--mut)}
 .novo{flex:none;height:21px;padding:0 9px;border-radius:99px;background:#FBE7CC;color:#7A4A10;font:600 11.5px/21px var(--f2)}
-.ln em{font:600 22px/1 var(--f1);font-style:normal;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
-.ln .q{font-size:13.5px;line-height:1.4;color:var(--mut)}.ln .q strong{display:block;color:var(--ink);font-weight:600}
-.zap{justify-self:end;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;transition:filter .2s,transform .2s var(--ease)}
+.zap{grid-column:3;justify-self:end;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;transition:filter .2s,transform .2s var(--ease)}
 .zap:hover{filter:brightness(1.06)}.zap:active{transform:scale(.94)}
-/* o carro repassado continua na lista, riscado, até o fim do dia */
+.pr{grid-column:4;width:190px;display:flex;flex-direction:column;align-items:flex-end;text-align:right}
+.pr small{font-size:13.5px;color:var(--mut)}
+.vl{display:block;font:600 22px/1.1 var(--f1);font-style:normal;font-variant-numeric:tabular-nums;white-space:nowrap}
+.an{display:block;max-width:100%;margin-top:6px;font-size:13.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* o carro vendido continua na lista, riscado, até o fim do dia */
 .ln.foi{cursor:default}
-.ln.foi .ph{opacity:.45}
-.ln.foi .nm b,.ln.foi em{color:var(--mut);text-decoration:line-through;text-decoration-thickness:1px}
+.ln.foi>.ph{opacity:.45}
+.ln.foi .t>span:first-child,.ln.foi .vl{color:var(--mut);text-decoration:line-through;text-decoration-thickness:1px}
 .ln.foi .zap{background:#E9E5DF;color:var(--mut);pointer-events:none}
 /* o carro que chega entra no topo com um brilho dourado, uma vez */
 .ln.chega{animation:chega .9s var(--ease) both}
@@ -158,59 +171,65 @@ a.marca:hover{opacity:.85}
 @keyframes chega{from{opacity:0;transform:translateY(-12px)}}
 @keyframes brilho{from{background-position:120% 0}to{background-position:-60% 0;opacity:0}}
 
-/* a linha aberta: as fotos e os detalhes no lugar */
-.abre{overflow:hidden;margin:0 -10px;padding:0 10px;background:#fff;border-radius:0 0 16px 16px;box-shadow:0 26px 40px -34px rgba(0,0,0,.35)}
-.abre-in{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:34px;padding:10px 0 26px}
-.galeria .grande{display:block;width:100%;aspect-ratio:4/3;border-radius:16px}
-.galeria .tiras{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
-.galeria .tiras button{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#E9E5DF;opacity:.75;transition:opacity .2s}
-.galeria .tiras button:hover,.galeria .tiras button.on{opacity:1}
-.galeria .tiras img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.det h3{font:600 26px/1.15 var(--f1);letter-spacing:-.015em}
-.det .ver{margin-top:4px;font-size:15px;color:var(--mut)}
-.dados{margin-top:18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line)}
-.dados div{padding:11px 0;border-bottom:1px solid var(--line)}
-.dados small{display:block;font:600 11px/1.2 var(--f2);letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
-.dados strong{display:block;margin-top:5px;font:500 18px/1.2 var(--f1);font-variant-numeric:tabular-nums}
-.obs{margin-top:16px;font-size:15px;line-height:1.6;color:#33415a}.obs b{font-weight:600;color:var(--ink)}
-.det .valor{margin-top:16px;display:flex;align-items:baseline;gap:12px}
-.det .valor small{font-size:14px;color:var(--mut)}
-.det .valor strong{font:600 34px/1 var(--f1);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.det .acoes{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+/* a linha aberta vira o anúncio inteiro, no mesmo lugar (pedido do Luiz, 31/10/2026): a foto cresce, o nome, os dados, o valor e a loja
+   andam até o lugar deles e o resto chega em fusão. Nada aparece duas vezes */
+.ln.on,.ln.fecha{background:#fff;border-radius:22px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 26px 48px -30px rgba(0,0,0,.35)}
+.ln.on{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:34px;align-items:start;padding:14px 14px 24px;cursor:default}
+.ln.on,.ln.on+.ln,.ln.fecha,.ln.fecha+.ln{border-top-color:transparent}
+.ln.on:hover{background:#fff}
+.ln.on .ph.grande{display:block;width:100%;aspect-ratio:4/3;border-radius:16px}
+.tiras{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+.tiras button{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#E9E5DF;opacity:.75;transition:opacity .2s}
+.tiras button:hover,.tiras button.on{opacity:1}
+.tiras img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.det{min-width:0;padding-top:8px}
+.cab{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:start;cursor:pointer}
+.ln.on .t{font:600 27px/1.15 var(--f1);letter-spacing:-.015em}
+.ln.on .dl{margin-top:8px;font-size:15px}
+.ln.on .pr{width:auto}
+.ln.on .vl{margin-top:4px;font-size:32px;letter-spacing:-.02em}
+.ln.on .an{margin-top:8px}
+.dados{margin-top:26px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.dados small,.desc small{display:block;font:600 11px/1.2 var(--f2);letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.dados strong{display:block;margin-top:6px;font:500 18px/1.2 var(--f1)}
+.desc{margin-top:24px}
+.desc p{margin-top:8px;font-size:15px;line-height:1.6;color:#33415a;white-space:pre-line}
+.acoes{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap}
 
 .vazio{padding:46px 0;text-align:center;color:var(--mut)}
 .vazio b{display:block;font:600 21px/1.3 var(--f1);color:var(--ink)}
 .vazio button{margin-top:16px}
 
-/* seus carros no repasse */
+/* seus carros */
 .meus{position:sticky;top:24px;background:#fff;border-radius:24px;padding:24px 22px 22px;box-shadow:var(--sombra)}
 .meus h2{font:600 20px/1.2 var(--f1);letter-spacing:-.01em}
 .meus>p{margin-top:4px;font-size:14px;color:var(--mut)}
-.mi{display:grid;grid-template-columns:62px minmax(0,1fr);gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--fio)}
-.mi .ph{width:62px;height:47px;border-radius:9px}
-.mi b{display:block;font:600 14.5px/1.3 var(--f2)}
-.mi .lh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:3px;font-size:13px;color:var(--mut);font-variant-numeric:tabular-nums}
-.pl{height:22px;padding:0 9px;border-radius:99px;font:600 11.5px/22px var(--f2);white-space:nowrap}
-.pl.ok{background:#DCEFE4;color:#1D5B3A}.pl.foi{background:#ECE8E2;color:var(--mut)}
-.ln .pl.meu{justify-self:end;background:#E6ECF5;color:#24406b}.pl.meu i{font-style:normal}.pl.meu i+i{display:none}
-.ln .nm .dc{display:none}
-.mi .ac{grid-column:2;display:flex;gap:14px;margin-top:2px}
+.ml{display:grid;gap:14px;margin-top:18px}
+.mi{display:grid;grid-template-columns:88px minmax(0,1fr) auto;gap:14px;align-items:center}
+.mi .ph{width:88px;height:66px;border-radius:10px}
+.mi b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font:600 14.5px/1.3 var(--f2)}
+.mi .vm{display:block;margin-top:2px;font:600 15px/1.25 var(--f1);font-variant-numeric:tabular-nums}
+.mi .ac{display:flex;gap:16px;margin-top:5px}
 .mi .ac button{font:600 13px var(--f2);color:var(--goldtx);white-space:nowrap;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
 .mi .ac button:hover{color:var(--ink)}
-.meus .ouro{width:100%;margin-top:18px;height:50px}
-.meus .nada{padding:14px 0 4px;font-size:14px;color:var(--mut)}
-.conta{margin-top:16px;text-align:center}
-/* trocar a senha: dois campos no próprio quadro */
-.senha-f{display:grid;gap:10px;text-align:left}
-.senha-f label{display:grid;gap:6px;font-size:13px;color:var(--mut)}
-.senha-f input{height:46px;border-radius:12px;border:1px solid var(--line);background:#fff;padding:0 14px;color:var(--ink);font-size:16px;outline:0;transition:border-color .2s}
-.senha-f input:focus{border-color:var(--gold)}
-.senha-f div{display:flex;align-items:center;gap:14px;margin-top:4px}
-.senha-f .ouro{width:auto;margin:0;height:44px;padding:0 20px;font-size:14px}
-
+.mi .ed{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#F3EFEA;color:var(--ink);transition:background .2s}
+.mi .ed:hover{background:#E9E3DB}
+.mi.foi .ph{opacity:.5}.mi.foi b,.mi.foi .vm{color:var(--mut)}
+.pl{display:inline-block;height:22px;margin-top:5px;padding:0 9px;border-radius:99px;font:600 11.5px/22px var(--f2);white-space:nowrap}
+.pl.foi{background:#ECE8E2;color:var(--mut)}
+.meus .ouro{width:100%;margin-top:20px;height:50px}
+.meus .nada{margin-top:14px;font-size:14px;color:var(--mut)}
 .aviso{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding:14px 16px;border-radius:16px;background:#F3EEE6;font-size:13.5px;line-height:1.5;color:#5b4a35}
 .aviso svg{color:var(--gold);margin-top:2px}
-#btRepassar{display:none}   /* no computador, o Repassar fica na coluna dos seus carros; no tablet e no celular, no topo */
+#btAnunciar{display:none}   /* no computador, o Anunciar fica no quadro dos seus carros; no tablet e no celular, no topo */
+
+/* ===== rodapé: o mesmo do site ===== */
+.rod{position:relative;background:var(--navy);border-top:1px solid rgba(255,255,255,.08);color:#7C8CA5;font:12.8px/normal var(--f2)}
+.rod-in{max-width:1780px;margin:0 auto;padding:40px var(--lado) 36px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px}
+.rod-in img{display:block;height:40px;width:auto}
+.rod nav{display:flex;flex-wrap:wrap;gap:6px 20px}
+.rod a{color:#B9C6DA;transition:color .2s}
+.rod nav a:hover{color:var(--gold3)}
 
 .toast{position:fixed;left:50%;bottom:28px;z-index:50;transform:translate(-50%,16px);width:max-content;max-width:min(560px,calc(100vw - 32px));padding:13px 20px;border-radius:23px;background:var(--navy);color:#fff;font:500 14.5px/1.4 var(--f2);box-shadow:0 18px 40px -16px rgba(0,9,26,.6);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s var(--ease)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
@@ -224,12 +243,12 @@ a.marca:hover{opacity:.85}
   .abas button small{font-weight:500;color:#9FB0C9}
   .abas button.on{background:#fff;color:var(--ink)}.abas button.on small{color:var(--mut)}
   .so-mercado .meus-col{display:none}
-  #btRepassar{display:inline-flex}
+  #btAnunciar{display:inline-flex}
   .so-meus .mercado{display:none}
   .meus{position:static}
-  .ln{grid-template-columns:104px minmax(0,1fr) 130px 86px}
-  .ln .q{display:none}
-  .ln .nm .qm{display:block!important}
+  .ln{grid-template-columns:104px minmax(0,1fr) auto auto;gap:16px}
+  .ln>.ph{width:104px;height:78px}
+  .pr{width:170px}
 }
 @media (max-width:760px){
   :root{--lado:5.63vw;--canto:28px}
@@ -238,7 +257,7 @@ a.marca:hover{opacity:.85}
   .marca{font-size:4.36vw;gap:2.56vw}.marca img{height:5.64vw}.marca i{height:4.6vw}
   .loja{display:none}
   .redondo{width:10.77vw;height:10.77vw}
-  .barra .ouro{width:10.77vw;height:10.77vw;padding:0}.barra .ouro span{display:none}
+  .barra .ouro{flex:none;width:10.77vw;height:10.77vw;padding:0}.barra .ouro span{display:none}
   .linha{display:block;margin-top:26px}
   .titulo h1{font-size:8.72vw}
   .res{font-size:3.3vw;margin-top:2.05vw}
@@ -250,40 +269,54 @@ a.marca:hover{opacity:.85}
   .fil::-webkit-scrollbar{display:none}
   .ord{margin-left:0}
   .chip{height:9.74vw;padding:0 3.85vw;font-size:3.3vw}.chip small{font-size:3vw}
-  .ord select{height:9.74vw;font-size:3.3vw}
+  .ord-t{height:9.74vw;font-size:3.3vw}
+  .ord-p button{font-size:3.6vw}
   .dia{margin-top:4.6vw}.dia h2{font-size:5.13vw}.dia span{font-size:3.3vw}
-  .ln{grid-template-columns:23.6vw minmax(0,1fr) 10.77vw;gap:3.08vw;padding:2.56vw 2.05vw;margin:0 -2.05vw}
-  .ln .ph{width:23.6vw;height:17.7vw;border-radius:2.56vw}
-  .ln .nm b{display:block;font-size:3.87vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .ln .nm b .novo{display:none}
-  .ln .nm .qm .novo{display:inline-block;height:auto;margin-left:1.54vw;padding:0 1.8vw;font-size:2.82vw;line-height:1.6}
-  .ln .nm span{font-size:3vw;margin-top:.5vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .ln .nm .dl{display:none}.ln .nm .dc{display:block}
-  .ln .pl.meu{padding:0 1.8vw;font-size:2.82vw}.pl.meu i{display:none}.pl.meu i+i{display:inline}
-  .ln em{display:none}
-  .ln .nm .pm{display:block!important;margin-top:1.28vw;font:600 4.1vw/1 var(--f1);color:var(--ink);font-variant-numeric:tabular-nums}
-  .zap{width:10.77vw;height:10.77vw}
-  .abre-in{grid-template-columns:minmax(0,1fr);gap:18px;padding:10px 0 22px}
-  .galeria .tiras{gap:1.54vw}
-  .dados{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .det h3{font-size:5.64vw}.det .ver,.obs{font-size:3.47vw}
-  .dados strong{font-size:4.1vw}.dados small{font-size:2.56vw}
-  .det .valor strong{font-size:7.18vw}.det .valor small{font-size:3.3vw}
-  .det .acoes .ouro,.det .acoes .contorno{flex:1 1 100%;white-space:normal;text-align:center;height:auto;min-height:48px;padding:12px 20px}
+  /* no celular, o nome vai de ponta a ponta e, embaixo dele, os dados à esquerda e o valor com a loja no canto direito */
+  .ln{grid-template-columns:23.6vw minmax(0,1fr) auto;grid-template-areas:"ph t t" "ph dl pr";gap:1vw 3.08vw;padding:2.56vw 2.05vw;margin:0 -2.05vw;align-items:end}
+  .ln>.ph{grid-area:ph;width:23.6vw;height:17.7vw;border-radius:2.56vw;align-self:center}
+  .ln .nm{display:contents}
+  .ln .t{grid-area:t;align-self:start;font-size:3.87vw}
+  .ln .t>span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ln .dl{grid-area:dl;margin:0;font-size:3vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ln:not(.on) .dl-x{display:none}
+  .ln .pr{grid-area:pr;width:auto}
+  .ln .vl{font-size:4.1vw}
+  .ln .an{margin-top:.8vw;font-size:2.82vw}
+  .ln .zap{display:none}   /* no celular, o WhatsApp fica no anúncio aberto */
+  .novo{height:auto;padding:0 1.8vw;font-size:2.82vw;line-height:1.6}
+  .ln.on{grid-template-columns:minmax(0,1fr);grid-template-areas:none;gap:4.1vw;padding:2.56vw 2.56vw 5.13vw;border-radius:4.1vw;align-items:start}
+  .ln.on .cab{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"t t" "dl pr";gap:1.5vw 3vw;align-items:end}
+  .ln.on .t{font-size:5.64vw}
+  .ln.on .t>span:first-child{white-space:normal}
+  .ln.on .dl{font-size:3.3vw;white-space:normal}
+  .ln.on .vl{margin-top:.5vw;font-size:6.15vw}
+  .ln.on .an{font-size:3vw}
+  .pr small{font-size:3vw}
+  .det{padding-top:0}
+  .tiras{gap:1.54vw}
+  .dados{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:5.13vw;gap:3.08vw}
+  .dados strong{font-size:4.1vw}.dados small,.desc small{font-size:2.56vw}
+  .desc{margin-top:5.13vw}.desc p{font-size:3.47vw}
+  .acoes{margin-top:5.13vw}
+  .acoes .ouro,.acoes .contorno{flex:1 1 100%;white-space:normal;text-align:center;height:auto;min-height:48px;padding:12px 20px}
   .fg{grid-template-columns:repeat(2,minmax(0,1fr))}
   .fg .c2{grid-column:1/-1}
   .form-cab h2{font-size:6.15vw}
   .fc>span{font-size:3.3vw}.fc .campo,.campo{font-size:max(16px,3.6vw)}
   .seg button{font-size:3.3vw;padding:0 1.5vw;white-space:normal;line-height:1.2}
   .ouro,.contorno{font-size:3.3vw}
-  .form-acoes{flex-wrap:wrap}.form-acoes .ouro{flex:1 1 100%}.form-acoes small{margin:0 auto}
+  .form-acoes{flex-wrap:wrap}.form-acoes .ouro{flex:1 1 100%}
   .fotos label,.fotos figure{width:calc(33.33% - 7px);height:auto;aspect-ratio:4/3}
   .entrada{padding:40px var(--lado)}
   .entrada .logo{height:26px}
   .entrada h1{font-size:9.74vw}
   .ent-form label,.ent-nota{font-size:3.3vw}
-  .meus h2{font-size:5.13vw}.meus>p,.mi .lh{font-size:3.3vw}.mi b{font-size:3.72vw}.mi .ac button,.lk{font-size:3.3vw}
-  .senha-f label{font-size:3.3vw}.senha-f .ouro{font-size:3.3vw}
+  .meus h2{font-size:5.13vw}.meus>p{font-size:3.3vw}
+  .mi{grid-template-columns:22vw minmax(0,1fr) auto;gap:3.08vw}
+  .mi .ph{width:22vw;height:16.5vw}
+  .mi b{font-size:3.72vw}.mi .vm{font-size:3.87vw}.mi .ac button{font-size:3.3vw}
+  .rod-in{flex-direction:column;align-items:flex-start;padding:28px var(--lado)}
   .toast{bottom:20px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
@@ -301,6 +334,7 @@ a.marca:hover{opacity:.85}
  <symbol id="copia" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
  <symbol id="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
  <symbol id="foto" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 17-5-5-9 7"/></symbol>
+ <symbol id="lapis" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
 </defs></svg>
 
 <!-- ===== ENTRADA ===== -->
@@ -325,7 +359,7 @@ a.marca:hover{opacity:.85}
     <a class="marca" href="/" title="Site da Aceima"><img src="marca-nova/aceima-nova.png" alt="Aceima"><i></i>Repasse</a>
     <div class="esp"></div>
     <div class="loja" id="lojaChip"></div>
-    <button class="ouro" type="button" id="btRepassar" onclick="abrirForm()"><svg class="i"><use href="#mais"/></svg><span>Repassar um carro</span></button>
+    <button class="ouro" type="button" id="btAnunciar" onclick="abrirForm()"><svg class="i"><use href="#mais"/></svg><span>Anunciar</span></button>
     <button class="redondo" type="button" aria-label="Sair" title="Sair" onclick="sair()"><svg class="i"><use href="#sair"/></svg></button>
    </div>
    <div class="linha">
@@ -336,7 +370,7 @@ a.marca:hover{opacity:.85}
     <button type="button" role="tab" class="on" id="abaMercado" aria-selected="true" onclick="aba('mercado')">Mercado <small id="nMercado"></small></button>
     <button type="button" role="tab" id="abaMeus" aria-selected="false" onclick="aba('meus')">Seus carros <small id="nMeus"></small></button>
    </div>
-   <section class="form-rep oculto" id="formRep" aria-label="Repassar um carro"></section>
+   <section class="form-rep oculto" id="formRep" aria-label="Cadastro"></section>
   </div>
  </header>
  <main class="folha">
@@ -349,6 +383,12 @@ a.marca:hover{opacity:.85}
   </div>
  </main>
 </div>
+<!-- o rodapé do site (pedido do Luiz, 31/10/2026) -->
+<footer class="rod"><div class="rod-in">
+ <a href="/" aria-label="Site da Aceima"><img src="marca-nova/intendente-site.webp" alt="Intendente, Polo Comercial e Automotivo do Rio"></a>
+ <nav><a href="/a-aceima">A Aceima</a><a href="/associados">Associados</a><a href="/estoque">Estoque</a><a href="/publicacoes">Publicações</a><a href="/seja-um-associado">Seja um associado</a><a href="/servicos">Serviços do polo</a><a href="/repasse">Repasse</a><a href="/painel">Painel</a></nav>
+ <div>Estrada Intendente Magalhães, 830 · Vila Valqueire · Rio de Janeiro<br>(21) 3283-6600 · <a href="https://wa.me/5521991041424" target="_blank" rel="noopener">WhatsApp (21) 99104-1424</a> · © <span id="ano"></span> Aceima · aintendente.com.br</div>
+</div></footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -359,6 +399,7 @@ const reais=n=>'R$ '+fmt(n);
 const reduz=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sv=(id,cl)=>`<svg class="i${cl?' '+cl:''}" aria-hidden="true"><use href="#${id}"/></svg>`;
 const carroSv='<svg viewBox="0 0 120 44" aria-hidden="true"><use href="#carro"/></svg>';
+$('ano').textContent=new Date().getFullYear();
 // o endereço de uma foto (m=1: a pequena, para a lista); sem foto, o desenho do carro
 const FOTO=(id,mini)=>`/api/rfoto?path=rfoto&id=${id}${mini?'&m=1':''}`;
 const capa=c=>c.fotos.length?`<div class="ph"><img src="${FOTO(c.fotos[0],true)}" alt="" loading="lazy" decoding="async"></div>`:`<div class="ph">${carroSv}</div>`;
@@ -378,8 +419,9 @@ const titulo=s=>String(s||'').trim().split(/\s+/).filter(Boolean).map((w,i)=>{
 const nomeBom=s=>{s=String(s||'').replace(/\s+/g,' ').trim();return /[a-zà-ÿ]/.test(s)?s:titulo(s);};
 
 let CARROS=[],EU='',F={chip:'todos',q:'',ord:'novos'},aberto=null,novoId=null,abaAtual='mercado';
-let vistos=null,chegaram=new Set(),assinatura='',senhaAberta=false,enviando=false,poll=null;
+let vistos=null,chegaram=new Set(),assinatura='',enviando=false,poll=null,EDITA=null;
 const CHIPS=[['todos','Todos'],['hoje','Hoje'],['ate50','Até R$ 50 mil'],['auto','Automáticos']];
+const ORDENS=[['novos','Mais novos'],['menor','Menor preço'],['maior','Maior preço'],['km','Menor km'],['ano','Ano mais novo']];
 
 const hoje0=()=>{const x=new Date();x.setHours(0,0,0,0);return x;};
 const mesmoDia=(a,b)=>a.toDateString()===b.toDateString();
@@ -389,7 +431,7 @@ function nomeDia(d){const h=hoje0(),o=new Date(h);o.setDate(o.getDate()-1);
 const hora=d=>String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
 const anoMod=c=>(String(c.ano).match(/\d{4}/g)||['']).pop();
 const kmT=c=>c.km!=null?fmt(c.km)+' km':'';
-// no mercado: todos os carros, os da própria loja também (como no grupo); o repassado só no dia em que foi repassado
+// no mercado: todos os carros, os da própria loja também (como no grupo); o vendido só no dia em que foi vendido
 const noMercado=c=>!c.repassado||mesmoDia(c.repassado,new Date());
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 
@@ -406,73 +448,160 @@ function filtrar(){
 function contaChip(k){const base=CARROS.filter(noMercado);return k==='todos'?base.length:k==='hoje'?base.filter(c=>mesmoDia(c.criado,new Date())).length:k==='ate50'?base.filter(c=>c.valor<=50000).length:base.filter(c=>c.cambio&&c.cambio!=='Manual').length;}
 
 function pintarTopo(){
-  const m=CARROS.filter(noMercado),lojas=new Set(m.map(c=>c.loja)).size,hj=m.filter(c=>mesmoDia(c.criado,new Date())).length,meus=CARROS.filter(c=>c.meu&&!c.repassado).length;
-  $('resumo').innerHTML=`<b>${m.length} ${m.length===1?'carro':'carros'}</b> de ${lojas} ${lojas===1?'loja':'lojas'} · ${hj} ${hj===1?'chegou':'chegaram'} hoje`;
+  const m=CARROS.filter(noMercado),lojas=new Set(m.map(c=>c.loja)).size,meus=CARROS.filter(c=>c.meu&&!c.repassado).length;
+  $('resumo').innerHTML=m.length?`<b>${m.length} ${m.length===1?'carro':'carros'}</b> de ${lojas} ${lojas===1?'loja':'lojas'}`:'';
+  $('resumo').classList.toggle('oculto',!m.length);
   $('nMercado').textContent=m.length;$('nMeus').textContent=meus;
   $('lojaChip').innerHTML=EU?`<b>${esc(iniciais(EU))}</b>${esc(EU)}`:'';
 }
 function pintarFiltros(){
+  const o=ORDENS.find(x=>x[0]===F.ord)||ORDENS[0];
   $('filtros').innerHTML=CHIPS.map(([k,t])=>`<button type="button" class="chip${F.chip===k?' on':''}" aria-pressed="${F.chip===k}" onclick="escolherChip('${k}')">${t} <small>${contaChip(k)}</small></button>`).join('')
-    +`<label class="ord"><span class="oculto">Ordem</span><select id="ordem" aria-label="Ordem" onchange="F.ord=this.value;pintarLista(true)">${[['novos','Mais novos'],['menor','Menor preço'],['maior','Maior preço'],['km','Menor km'],['ano','Ano mais novo']].map(([v,t])=>`<option value="${v}"${F.ord===v?' selected':''}>${t}</option>`).join('')}</select>${sv('baixo','sm')}</label>`;
+    +`<div class="ord"><button type="button" class="ord-t" id="ordT" aria-haspopup="listbox" aria-expanded="false" aria-label="Ordem: ${o[1]}" onclick="abrirOrdem()"><span>${o[1]}</span>${sv('baixo','sm')}</button></div>`;
 }
 function escolherChip(k){F.chip=k;pintarFiltros();pintarLista(true);}
+// a lista da ordem fica no corpo da página, presa à tela, embaixo do botão (no celular, os filtros rolam de lado e cortariam a lista)
+let ordP=null;
+function abrirOrdem(){
+  if(ordP){fecharOrdem();return;}
+  const t=$('ordT');if(!t)return;
+  const p=document.createElement('div');p.className='ord-p';p.setAttribute('role','listbox');p.setAttribute('aria-label','Ordem');
+  p.innerHTML=ORDENS.map(([v,x])=>`<button type="button" role="option" aria-selected="${F.ord===v}" data-v="${v}">${x}</button>`).join('');
+  document.body.appendChild(p);ordP=p;t.setAttribute('aria-expanded','true');posOrdem();
+  p.onclick=e=>{const b=e.target.closest('button');if(!b)return;const v=b.dataset.v;fecharOrdem();
+    if(v!==F.ord){const w0=$('ordT').offsetWidth;F.ord=v;pintarFiltros();animaOrdem(w0);pintarLista(true);}};
+  const s=p.querySelector('[aria-selected="true"]');if(s)s.focus({preventScroll:true});
+}
+function posOrdem(){if(!ordP)return;const t=$('ordT');if(!t){fecharOrdem();return;}const r=t.getBoundingClientRect(),w=ordP.offsetWidth;
+  ordP.style.top=(r.bottom+6)+'px';ordP.style.left=Math.max(8,Math.min(r.right-w,innerWidth-w-8))+'px';}
+function fecharOrdem(){const p=ordP;if(!p)return;ordP=null;const t=$('ordT');if(t)t.setAttribute('aria-expanded','false');
+  if(reduz()){p.remove();return;}p.classList.add('sai');setTimeout(()=>p.remove(),150);}
+// escolhida a ordem, o botão vai do tamanho antigo ao novo e o texto novo surge (como os filtros do site)
+function animaOrdem(w0){const t=$('ordT');if(!t||reduz())return;const w1=t.offsetWidth;t.classList.add('anda');
+  if(Math.abs(w1-w0)>.5){t.style.overflow='hidden';t.animate([{width:w0+'px'},{width:w1+'px'}],{duration:420,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>{t.style.overflow='';};}}
+document.addEventListener('pointerdown',e=>{if(ordP&&!e.target.closest('.ord-p,#ordT'))fecharOrdem();});
+addEventListener('scroll',()=>{if(ordP)posOrdem();},true);
+addEventListener('resize',()=>{if(ordP)posOrdem();});
 
+// a linha fechada e o anúncio aberto são o mesmo bloco: o nome (.t), os dados (.dl), o valor (.vl) e a loja (.an) existem uma vez só e
+// mudam de lugar ao abrir; a foto da linha vira a foto grande
 function linha(c){
-  const foi=!!c.repassado,ab=aberto===c.id,novo=novoId===c.id||(mesmoDia(c.criado,new Date())&&!foi&&c===filtrarPrimeiroDeHoje());
-  const fim=foi?' · repassado às '+hora(c.repassado):'';
-  const dados=[anoMod(c),kmT(c),c.cambio,c.comb].filter(Boolean).join(' · ')+fim,curto=[anoMod(c),kmT(c),c.cambio].filter(Boolean).join(' · ')+fim;
-  return `<div class="ln${foi?' foi':''}${ab?' on':''}${novoId===c.id||chegaram.has(c.id)?' chega':''}" data-id="${c.id}" ${foi?'aria-disabled="true"':`role="button" tabindex="0" aria-expanded="${ab}"`}>
-   ${capa(c)}
-   <div class="nm"><b>${esc(c.nome)}${novo?'<span class="novo">novo</span>':''}</b><span class="dl">${esc(dados)}</span><span class="dc">${esc(curto)}</span><span class="qm" style="display:none">${esc(c.loja)} · ${hora(c.criado)}${novo?'<span class="novo">novo</span>':''}</span><span class="pm" style="display:none">${reais(c.valor)}</span></div>
-   <em>${reais(c.valor)}</em>
-   <div class="q"><strong>${esc(c.loja)}</strong>${hora(c.criado)}</div>
-   ${c.meu?`<span class="pl meu" title="Carro da sua loja"><i>Seu carro</i><i>Seu</i></span>`:`<button type="button" class="zap" data-zap="${c.id}" aria-label="Chamar a ${esc(c.loja)} no WhatsApp" title="Chamar no WhatsApp"${foi?' tabindex="-1"':''}>${sv('zap')}</button>`}
-  </div>${ab?abertoHtml(c):''}`;
-}
-// o mais novo de hoje ganha a etiqueta "novo"
-function filtrarPrimeiroDeHoje(){return CARROS.filter(c=>noMercado(c)&&!c.repassado&&mesmoDia(c.criado,new Date())).sort((a,b)=>b.criado-a.criado)[0];}
-function abertoHtml(c){
-  const fs=c.fotos;
-  // a foto grande abre inteira numa aba (no celular, dá para ampliar); as pequenas trocam a grande
-  const gal=fs.length?`<a class="grande ph" id="grande${c.id}" href="${FOTO(fs[0])}" target="_blank" rel="noopener" aria-label="Abrir a foto inteira"><img src="${FOTO(fs[0])}" alt="${esc(c.nome)}"></a>
-     ${fs.length>1?`<div class="tiras">${fs.map((f,i)=>`<button type="button" class="${i===0?'on':''}" aria-label="Foto ${i+1}" onclick="trocarFoto(${c.id},'${f}',this)"><img src="${FOTO(f,true)}" alt="" loading="lazy"></button>`).join('')}</div>`:''}`
-    :`<div class="grande ph">${carroSv}</div>`;
-  return `<div class="abre" id="abre${c.id}"><div class="abre-in">
-   <div class="galeria">${gal}</div>
-   <div class="det">
-    <h3>${esc(c.nome)}</h3><p class="ver">${esc([c.cambio,c.comb,c.cor].filter(Boolean).join(' · '))}</p>
-    <div class="dados"><div><small>Ano</small><strong>${esc(c.ano||'-')}</strong></div><div><small>Km</small><strong>${c.km!=null?fmt(c.km):'-'}</strong></div><div><small>Final da placa</small><strong>${esc(c.placa||'-')}</strong></div>
-     <div><small>Donos</small><strong>${esc(c.donos||'-')}</strong></div><div><small>Laudo</small><strong>${esc(c.laudo||'-')}</strong></div><div><small>Fotos</small><strong>${fs.length}</strong></div></div>
-    ${c.obs?`<p class="obs"><b>Da loja:</b> ${esc(c.obs)}</p>`:''}
-    <div class="valor"><small>Valor de repasse</small><strong>${reais(c.valor)}</strong></div>
+  const foi=!!c.repassado,ab=aberto===c.id,novo=!foi&&(novoId===c.id||c===filtrarPrimeiroDeHoje());
+  const t=`<b class="t"><span>${esc(c.nome)}</span>${novo?'<span class="novo">Novo</span>':''}</b>`;
+  const dados=[ab?c.ano:anoMod(c),kmT(c),c.cambio].filter(Boolean).join(' · ');
+  const dl=`<span class="dl">${esc(dados)}${c.comb?`<span class="dl-x"> · ${esc(c.comb)}</span>`:''}${foi?' · vendido às '+hora(c.repassado):''}</span>`;
+  const pr=`<div class="pr">${ab?'<small>Valor de repasse</small>':''}<em class="vl">${reais(c.valor)}</em><span class="an">${esc(c.loja)} · ${hora(c.criado)}</span></div>`;
+  const at=`class="ln${foi?' foi':''}${ab?' on':''}${chegaram.has(c.id)||novoId===c.id?' chega':''}" data-id="${c.id}" ${foi?'aria-disabled="true"':`role="button" tabindex="0" aria-expanded="${ab}"`}`;
+  if(!ab)return `<div ${at}>${capa(c)}<div class="nm">${t}${dl}</div>${c.meu?'':`<button type="button" class="zap" data-zap="${c.id}" aria-label="Chamar a ${esc(c.loja)} no WhatsApp" title="Chamar no WhatsApp"${foi?' tabindex="-1"':''}>${sv('zap')}</button>`}${pr}</div>`;
+  const ds=[['Cor',c.cor],['Final da placa',c.placa],['Donos',c.donos],['Laudo',c.laudo]].filter(x=>x[1]);
+  return `<div ${at}>${galeria(c)}<div class="det"><div class="cab"><div class="nm">${t}${dl}</div>${pr}</div>
+    ${ds.length?`<div class="dados">${ds.map(([k,v])=>`<div><small>${k}</small><strong>${esc(v)}</strong></div>`).join('')}</div>`:''}
+    ${c.obs?`<div class="desc"><small>Descrição</small><p>${esc(c.obs)}</p></div>`:''}
     <div class="acoes">${c.meu
-      ?`<button type="button" class="ouro" onclick="marcarRepassado(${c.id})">Foi repassado</button><button type="button" class="contorno" onclick="tirar(${c.id})">Tirar do repasse</button>`
-      :`<button type="button" class="ouro" data-zap="${c.id}">${sv('zap')}Chamar a ${esc(c.loja)} no WhatsApp</button><button type="button" class="contorno" onclick="copiar(${c.id})">${sv('copia')}Copiar os dados</button>`}</div>
-   </div></div></div>`;
+      ?`<button type="button" class="ouro" onclick="marcarVendido(${c.id})">Vendido</button><button type="button" class="contorno" onclick="tirar(${c.id})">Remover</button><button type="button" class="contorno" onclick="editar(${c.id})">${sv('lapis','sm')}Editar</button>`
+      :`<button type="button" class="ouro" data-zap="${c.id}">${sv('zap')}Chamar no WhatsApp</button><button type="button" class="contorno" onclick="copiar(${c.id})">${sv('copia')}Copiar os dados</button>`}</div></div></div>`;
 }
+// a foto grande começa com a pequena (que já veio com a lista) e troca pela inteira quando ela chega; a grande abre inteira numa aba
+// (no celular, dá para ampliar) e as pequenas trocam a grande
+function galeria(c){
+  const fs=c.fotos;
+  if(!fs.length)return `<div class="ga"><div class="ph grande">${carroSv}</div></div>`;
+  return `<div class="ga"><a class="ph grande" id="grande${c.id}" href="${FOTO(fs[0])}" target="_blank" rel="noopener" aria-label="Abrir a foto inteira"><img src="${FOTO(fs[0],true)}" data-inteira="${FOTO(fs[0])}" alt="${esc(c.nome)}"></a>
+    ${fs.length>1?`<div class="tiras">${fs.map((f,i)=>`<button type="button" class="${i===0?'on':''}" aria-label="Foto ${i+1}" onclick="trocarFoto(${c.id},'${f}',this)"><img src="${FOTO(f,true)}" alt="" loading="lazy"></button>`).join('')}</div>`:''}</div>`;
+}
+// o mais novo de hoje ganha a etiqueta "Novo"
+function filtrarPrimeiroDeHoje(){return CARROS.filter(c=>noMercado(c)&&!c.repassado&&mesmoDia(c.criado,new Date())).sort((a,b)=>b.criado-a.criado)[0];}
 function pintarLista(trocou){
   const l=filtrar(),box=$('lista');
-  if(!CARROS.some(noMercado)){box.innerHTML=`<div class="vazio"><b>Nenhum carro no repasse agora.</b>Os carros que as lojas oferecem aparecem aqui, do mais novo para o mais antigo.<br><button type="button" class="contorno" onclick="abrirForm()">Repassar um carro</button></div>`;return;}
+  if(!CARROS.some(noMercado)){box.innerHTML=`<div class="vazio"><b>Nenhum carro no momento.</b><button type="button" class="contorno" onclick="abrirForm()">${sv('mais')}Anunciar</button></div>`;return;}
   if(!l.length){box.innerHTML=`<div class="vazio"><b>Nenhum carro com esse filtro.</b>Tente outra busca ou veja todos os carros.<br><button type="button" class="contorno" onclick="limpar()">Ver todos</button></div>`;return;}
   // agrupa por dia só na ordem "mais novos"; nas outras ordens, a lista vai direto
   let h='';
   if(F.ord==='novos'){let dia='';l.forEach(c=>{const d=nomeDia(c.criado);if(d!==dia){dia=d;const n=l.filter(x=>nomeDia(x.criado)===d).length;h+=`<div class="dia"><h2>${d}</h2><span>${n} ${n===1?'carro':'carros'}</span></div>`;}h+=linha(c);});}
   else h=`<div class="dia"><h2>${{menor:'Do menor preço',maior:'Do maior preço',km:'Da menor quilometragem',ano:'Do ano mais novo'}[F.ord]}</h2><span>${l.length} ${l.length===1?'carro':'carros'}</span></div>`+l.map(linha).join('');
   box.innerHTML=h;
+  inteiras();
   if(trocou&&!reduz())box.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:320,easing:'cubic-bezier(.2,.8,.2,1)'});
 }
+function inteiras(){document.querySelectorAll('#lista .grande img[data-inteira]').forEach(im=>{const f=new Image();f.onload=()=>{im.src=f.src;};f.src=im.dataset.inteira;im.removeAttribute('data-inteira');});}
 function limpar(){F={chip:'todos',q:'',ord:'novos'};$('busca').value='';pintarFiltros();pintarLista(true);}
 
-// a linha abre no lugar, com as fotos e os detalhes; tocar de novo fecha
-function alternar(id){
-  const antes=aberto;aberto=aberto===id?null:id;
-  const velho=antes!=null?$('abre'+antes):null;
-  if(velho&&!reduz()){const h=velho.offsetHeight;velho.animate([{height:h+'px',opacity:1},{height:'0px',opacity:0}],{duration:260,easing:'cubic-bezier(.45,0,.25,1)'});}
-  setTimeout(()=>{pintarLista(false);const novo=aberto!=null?$('abre'+aberto):null;
-    if(novo&&!reduz()){const h=novo.offsetHeight;novo.animate([{height:'0px',opacity:0},{height:h+'px',opacity:1}],{duration:420,easing:'cubic-bezier(.2,.8,.2,1)'});
-      const ln=document.querySelector(`.ln[data-id="${aberto}"]`);if(ln){const r=ln.getBoundingClientRect();if(r.top<0||r.top>innerHeight*.6)scrollTo({top:scrollY+r.top-90,behavior:'smooth'});}}},velho&&!reduz()?240:0);
+/* abrir e fechar o anúncio no lugar (pedido do Luiz, 31/10/2026): as partes que existem nos dois saem de onde estavam e vão para o lugar
+   novo (cada uma é medida antes e depois, e anda da posição antiga até a nova); o bloco cresce ou diminui junto e o resto chega ou sai em
+   fusão. Abrindo outro, o aberto fecha primeiro */
+const PARTES=['.ph','.t','.dl','.vl','.an'],EXTRAS='.tiras,.dados,.desc,.acoes,.pr small';
+// o nome e os dados mudam de tamanho e de quebra de linha: a cópia do jeito antigo vai junto até o lugar novo e some em fusão, enquanto o
+// novo chega do lugar antigo
+const CRUZA=['.t','.dl'];
+const EASE='cubic-bezier(.2,.8,.2,1)';
+const elLinha=id=>document.querySelector(`#lista .ln[data-id="${id}"]`);
+function medir(el,copia){
+  const o={};
+  PARTES.forEach(s=>{const e=el.querySelector(s);if(!e)return;const r=e.getBoundingClientRect(),cs=getComputedStyle(e);
+    o[s]={r,fs:parseFloat(cs.fontSize)};
+    if(copia&&CRUZA.includes(s)){const g=e.cloneNode(true);
+      Object.assign(g.style,{position:'absolute',left:r.left+scrollX+'px',top:r.top+scrollY+'px',width:r.width+'px',margin:'0',zIndex:4,pointerEvents:'none',transformOrigin:'0 0',
+        font:cs.font,color:cs.color,letterSpacing:cs.letterSpacing,whiteSpace:cs.whiteSpace,display:cs.display,alignItems:cs.alignItems,gap:cs.gap});
+      o[s].g=g;}});
+  return o;
 }
-function trocarFoto(id,f,bt){const g=$('grande'+id);if(g){g.href=FOTO(f);g.querySelector('img').src=FOTO(f);}bt.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===bt));}
+function andar(el,b,a,dur){
+  PARTES.forEach(s=>{const e=el.querySelector(s),B=b[s],A=a[s];if(!e||!B||!A||!A.r.width)return;
+    const dir=s==='.vl'||s==='.an',k=B.fs/A.fs,dx=dir?B.r.right-A.r.right:B.r.left-A.r.left,dy=B.r.top-A.r.top;
+    let tf;
+    if(s==='.ph'){tf=`translate(${dx}px,${dy}px) scale(${B.r.width/A.r.width},${B.r.height/A.r.height})`;e.style.transformOrigin='0 0';}
+    else{tf=`translate(${dx}px,${dy}px) scale(${k})`;e.style.transformOrigin=dir?'100% 0':'0 0';}
+    if(!B.g){e.animate([{transform:tf},{transform:'none'}],{duration:dur,easing:EASE});return;}
+    document.body.appendChild(B.g);
+    B.g.animate([{transform:'none',opacity:1},{opacity:0,offset:.45},{transform:`translate(${-dx}px,${-dy}px) scale(${1/k})`,opacity:0}],{duration:dur,easing:EASE,fill:'forwards'}).onfinish=()=>B.g.remove();
+    e.animate([{transform:tf,opacity:0},{opacity:1,offset:.55},{transform:'none',opacity:1}],{duration:dur,easing:EASE});});
+}
+// o que só existe na linha fechada (o WhatsApp redondo) some em fusão onde estava
+function fantasma(e){if(!e)return;const r=e.getBoundingClientRect(),g=e.cloneNode(true);
+  Object.assign(g.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',margin:0,zIndex:5,pointerEvents:'none'});
+  document.body.appendChild(g);g.animate([{opacity:1,transform:'none'},{opacity:0,transform:'scale(.8)'}],{duration:180,easing:'ease-in',fill:'forwards'}).onfinish=()=>g.remove();}
+let mexendo=false;
+async function alternar(id){
+  if(mexendo)return;mexendo=true;
+  try{const antes=aberto;if(antes!=null)await fecharAnuncio(antes);if(antes!==id)abrirAnuncio(id);}
+  finally{mexendo=false;}
+}
+function abrirAnuncio(id){
+  const ln=elLinha(id),c=CARROS.find(x=>x.id===id);if(!ln||!c)return;
+  const b=medir(ln,!reduz()),h0=ln.offsetHeight;if(!reduz())fantasma(ln.querySelector('.zap'));
+  aberto=id;ln.outerHTML=linha(c);
+  const card=elLinha(id);inteiras();
+  if(!reduz()){
+    const a=medir(card),h1=card.offsetHeight,D=560;
+    card.style.overflow='hidden';
+    card.animate([{height:h0+'px'},{height:h1+'px'}],{duration:D,easing:EASE}).onfinish=()=>{card.style.overflow='';};
+    andar(card,b,a,D);
+    card.querySelectorAll(EXTRAS).forEach((e,i)=>e.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:380,delay:180+i*50,easing:EASE,fill:'backwards'}));
+  }
+  // o anúncio inteiro na tela
+  setTimeout(()=>{const r=card.getBoundingClientRect(),cel=matchMedia('(max-width:760px)').matches;
+    if(r.top<20||r.top>innerHeight*(cel?.35:.55))scrollTo({top:scrollY+r.top-(cel?16:24),behavior:reduz()?'auto':'smooth'});},reduz()?0:120);
+}
+function fecharAnuncio(id){return new Promise(ok=>{
+  const card=elLinha(id),c=CARROS.find(x=>x.id===id);
+  aberto=null;
+  if(!card||!c||!card.classList.contains('on')){ok();return;}
+  if(reduz()){card.outerHTML=linha(c);ok();return;}
+  card.querySelectorAll(EXTRAS).forEach(e=>e.animate([{opacity:1},{opacity:0}],{duration:150,easing:'ease-in',fill:'forwards'}));
+  setTimeout(()=>{
+    if(!card.isConnected){ok();return;}   // a lista foi desenhada de novo nesse meio tempo
+    const b=medir(card,true),h0=card.offsetHeight;
+    card.outerHTML=linha(c);
+    const ln=elLinha(id);if(!ln){ok();return;}
+    const a=medir(ln),h1=ln.offsetHeight,D=440;
+    ln.classList.add('fecha');ln.style.overflow='hidden';
+    ln.animate([{height:h0+'px'},{height:h1+'px'}],{duration:D,easing:EASE}).onfinish=()=>{ln.classList.remove('fecha');ln.style.overflow='';ok();};
+    andar(ln,b,a,D);
+    const z=ln.querySelector('.zap');if(z)z.animate([{opacity:0,transform:'scale(.8)'},{opacity:1,transform:'none'}],{duration:220,delay:D-160,easing:EASE,fill:'backwards'});
+  },150);
+});}
+function trocarFoto(id,f,bt){const g=$('grande'+id);if(g){g.href=FOTO(f);const im=g.querySelector('img');im.src=FOTO(f,true);const x=new Image();x.onload=()=>{im.src=x.src;};x.src=FOTO(f);}
+  bt.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===bt));}
 
 function zap(id){
   const c=CARROS.find(x=>x.id===id);if(!c)return;
@@ -486,82 +615,83 @@ function copiar(id){
   (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Dados copiados. É só colar no grupo.')).catch(()=>toast(t,7000));
 }
 
-/* ---------- seus carros no repasse ---------- */
+/* ---------- seus carros ---------- */
 function pintarMeus(){
-  if(senhaAberta)return;   // o formulário da senha aberto não some quando a lista atualiza
-  const meus=CARROS.filter(c=>c.meu).sort((a,b)=>(!!a.repassado-!!b.repassado)||(b.criado-a.criado));
-  $('meus').innerHTML=`<h2>Seus carros no repasse</h2><p>${meus.filter(c=>!c.repassado).length} à venda para as outras lojas</p>
-   ${meus.length?meus.map(c=>`<div class="mi">${capa(c)}<div><b>${esc(c.nome)} ${anoMod(c)}</b><span class="lh">${reais(c.valor)}${c.repassado?'<span class="pl foi">Repassado</span>':'<span class="pl ok">No repasse</span>'}</span></div>
-    ${c.repassado?'':`<div class="ac"><button type="button" onclick="marcarRepassado(${c.id})">Foi repassado</button><button type="button" onclick="tirar(${c.id})">Tirar do repasse</button></div>`}</div>`).join('')
-    :'<p class="nada">Nenhum carro seu no repasse ainda.</p>'}
-   <button type="button" class="ouro" onclick="abrirForm()">${sv('mais')}Repassar um carro</button>
-   <div class="aviso">${sv('info','sm')}<span>Cada carro fica 30 dias no repasse.</span></div>
-   <div class="conta" id="conta"><button type="button" class="lk" onclick="abrirSenha()">Trocar a senha da loja</button></div>`;
+  const meus=CARROS.filter(c=>c.meu).sort((a,b)=>(!!a.repassado-!!b.repassado)||(b.criado-a.criado)),n=meus.filter(c=>!c.repassado).length;
+  $('meus').innerHTML=`<h2>Seus carros</h2><p>${n} em estoque</p>
+   ${meus.length?`<div class="ml">${meus.map(c=>`<div class="mi${c.repassado?' foi':''}">${capa(c)}<div><b>${esc(c.nome)} ${anoMod(c)}</b><span class="vm">${reais(c.valor)}</span>
+     ${c.repassado?'<span class="pl foi">Vendido</span>':`<div class="ac"><button type="button" onclick="marcarVendido(${c.id})">Vendido</button><button type="button" onclick="tirar(${c.id})">Remover</button></div>`}</div>
+     ${c.repassado?'':`<button type="button" class="ed" aria-label="Editar o ${esc(c.nome)}" title="Editar" onclick="editar(${c.id})">${sv('lapis','sm')}</button>`}</div>`).join('')}</div>`
+    :'<p class="nada">Nenhum carro seu ainda.</p>'}
+   <button type="button" class="ouro" onclick="abrirForm()">${sv('mais')}Anunciar</button>
+   <div class="aviso">${sv('info','sm')}<span>Cada carro fica 30 dias no repasse.</span></div>`;
 }
-async function marcarRepassado(id){
+async function marcarVendido(id){
   const c=CARROS.find(x=>x.id===id);if(!c)return;
-  try{await api('status',{id,status:'repassado'});c.repassado=new Date();aberto=null;tudo();toast(`${c.nome} marcado como repassado. Ele sai do mercado amanhã.`);}
+  try{await api('status',{id,status:'repassado'});c.repassado=new Date();aberto=null;tudo();toast(`${c.nome} marcado como vendido. Ele sai do mercado amanhã.`);}
   catch(e){if(e.message)toast(e.message);}
 }
 async function tirar(id){
-  const c=CARROS.find(x=>x.id===id);if(!c||!confirm(`Tirar o ${c.nome} do repasse? Ele sai da lista na hora.`))return;
+  const c=CARROS.find(x=>x.id===id);if(!c||!confirm(`Remover o ${c.nome} do repasse? Ele sai da lista na hora.`))return;
   try{await api('status',{id,status:'tirado'});CARROS=CARROS.filter(x=>x.id!==id);aberto=null;tudo();toast(`${c.nome} saiu do repasse.`);}
   catch(e){if(e.message)toast(e.message);}
 }
-function abrirSenha(){
-  senhaAberta=true;
-  $('conta').innerHTML=`<form class="senha-f" onsubmit="trocarSenha(event)">
-   <label>Senha atual<input id="sAtual" type="password" autocomplete="current-password"></label>
-   <label>Senha nova<input id="sNova" type="password" autocomplete="new-password" placeholder="Pelo menos 6 letras ou números"></label>
-   <div><button class="ouro" type="submit" id="sBt">Salvar a senha</button><button type="button" class="lk" onclick="fecharSenha()">Cancelar</button></div></form>`;
-  $('sAtual').focus();
-}
-function fecharSenha(){senhaAberta=false;pintarMeus();}
-async function trocarSenha(e){
-  e.preventDefault();const a=$('sAtual').value,n=$('sNova').value,bt=$('sBt');
-  if(!a){$('sAtual').focus();toast('Escreva a senha atual.');return;}
-  if(n.length<6){$('sNova').focus();toast('A senha nova precisa ter pelo menos 6 letras ou números.');return;}
-  bt.disabled=true;
-  try{await api('senha',{atual:a,nova:n});fecharSenha();toast('Senha trocada. Nos outros aparelhos, a loja entra com a senha nova.',4500);}
-  catch(er){bt.disabled=false;if(er.message)toast(er.message);}
-}
+function editar(id){const c=CARROS.find(x=>x.id===id&&x.meu&&!x.repassado);if(c)abrirForm(c);}
 
-/* ---------- repassar um carro: o formulário abre no azul do topo ---------- */
+/* ---------- o cadastro e a edição: o formulário abre no azul do topo ---------- */
 let NF={};
 const CAMBIOS=['Manual','Automático','CVT'],COMBS=['Flex','Gasolina','Diesel','Híbrido','Elétrico'],DONOS=['1','2','3 ou mais'],LAUDOS=['Aprovado','Com apontamento','Sem laudo'];
 // as escolhas em botões; nas que não são obrigatórias (donos e laudo), tocar de novo tira a escolha
 const seg=(k,ops,opc)=>`<div class="seg">${ops.map(x=>`<button type="button" class="${x===NF[k]?'on':''}" aria-pressed="${x===NF[k]}" onclick="segEscolhe('${k}',this,${opc?1:0})">${x}</button>`).join('')}</div>`;
-function abrirForm(){
-  const f=$('formRep');if(!f.classList.contains('oculto')){$('fMarca').focus();return;}
+// abrindo devagar (pedido do Luiz, 31/10/2026: abria de um golpe, com a página rolando junto): primeiro a página sobe até o topo, depois o
+// espaço do formulário abre devagar e cada parte chega em fusão, uma depois da outra (como no painel)
+function abrirForm(c){
+  const f=$('formRep');c=c&&c.id?c:null;
+  if(!f.classList.contains('oculto')){
+    if((c&&c.id)===(EDITA&&EDITA.id)){const m=$('fMarca');if(m)m.focus();return;}
+    fecharForm(()=>abrirForm(c));return;   // de um carro para outro (ou do novo para a edição): fecha e abre de novo
+  }
   if(abaAtual!=='mercado')aba('mercado');
-  NF={cambio:'Manual',comb:'Flex',donos:'',laudo:'',fotos:[]};
-  f.innerHTML=`<div class="form-in">
-   <div class="form-cab"><h2>Repassar <em>um carro.</em></h2><button type="button" class="redondo" aria-label="Fechar" onclick="fecharForm()">${sv('xis')}</button></div>
-   <div class="fg" oninput="liberar()">
-    <label class="fc c2"><span>Marca, modelo e versão</span><input class="campo" id="fMarca" placeholder="Ex.: Toyota Corolla XEi 2.0" autocomplete="off" maxlength="80"></label>
-    <label class="fc"><span>Ano</span><input class="campo" id="fAno" inputmode="numeric" placeholder="2019/2020" autocomplete="off" oninput="anoFmt(this)"></label>
-    <label class="fc"><span>Quilometragem</span><input class="campo" id="fKm" inputmode="numeric" placeholder="Ex.: 68.000" autocomplete="off" oninput="milhar(this)"></label>
-    <div class="fc c2"><span>Câmbio</span>${seg('cambio',CAMBIOS)}</div>
-    <div class="fc c2"><span>Combustível</span>${seg('comb',COMBS)}</div>
-    <label class="fc"><span>Cor</span><input class="campo" id="fCor" placeholder="Ex.: Prata" maxlength="30"></label>
-    <label class="fc"><span>Final da placa</span><input class="campo" id="fPlaca" inputmode="numeric" placeholder="Ex.: 7" autocomplete="off" oninput="soNum(this,1)"></label>
-    <label class="fc c2"><span>Valor de repasse</span><input class="campo" id="fValor" inputmode="numeric" placeholder="R$" autocomplete="off" oninput="milhar(this,true)"></label>
-    <div class="fc c2"><span>Donos</span>${seg('donos',DONOS,1)}</div>
-    <div class="fc c2"><span>Laudo cautelar</span>${seg('laudo',LAUDOS,1)}</div>
-    <label class="fc c4"><span>Observações</span><textarea class="campo" id="fObs" rows="1" maxlength="1000" placeholder="Estado, revisões, o que precisa de reparo" oninput="crescer(this)"></textarea></label>
-    <div class="fc c4"><span>Fotos (a primeira é a capa)</span><div class="fotos" id="fFotos"></div></div>
-   </div>
-   <div class="form-acoes"><button type="button" class="ouro" id="fPub" disabled onclick="publicar()">Publicar no repasse</button><button type="button" class="sair-f" onclick="fecharForm()">Cancelar</button><small>Marca e modelo, ano e valor são o mínimo.</small></div></div>`;
-  pintarFotos();
-  f.classList.remove('oculto');$('btRepassar').classList.add('oculto');
-  if(!reduz()){const h=f.offsetHeight;f.animate([{height:'0px',opacity:0},{height:h+'px',opacity:0,offset:.45},{height:h+'px',opacity:1}],{duration:760,easing:'cubic-bezier(.2,.8,.2,1)'});}
-  scrollTo({top:0,behavior:reduz()?'auto':'smooth'});setTimeout(()=>$('fMarca').focus({preventScroll:true}),reduz()?0:420);
+  const abre=()=>{
+    EDITA=c;
+    NF={cambio:c?c.cambio:'Manual',comb:c?c.comb:'Flex',donos:c?c.donos:'',laudo:c?c.laudo:'',fotos:c?c.fotos.map(id=>({id,url:FOTO(id,true)})):[]};
+    f.innerHTML=`<div class="form-in">
+     <div class="form-cab"><h2>${c?'Edição.':'Cadastro.'}</h2><button type="button" class="redondo" aria-label="Fechar" onclick="fecharForm()">${sv('xis')}</button></div>
+     <div class="fg" oninput="liberar()">
+      <label class="fc c2"><span>Marca, modelo e versão</span><input class="campo" id="fMarca" placeholder="Ex.: Toyota Corolla XEi 2.0" autocomplete="off" maxlength="80" value="${esc(c?c.nome:'')}"></label>
+      <label class="fc"><span>Ano</span><input class="campo" id="fAno" inputmode="numeric" placeholder="2019/2020" autocomplete="off" oninput="anoFmt(this)" value="${esc(c?c.ano:'')}"></label>
+      <label class="fc"><span>Quilometragem</span><input class="campo" id="fKm" inputmode="numeric" placeholder="Ex.: 68.000" autocomplete="off" oninput="milhar(this)" value="${c&&c.km!=null?fmt(c.km):''}"></label>
+      <div class="fc c2"><span>Câmbio</span>${seg('cambio',CAMBIOS)}</div>
+      <div class="fc c2"><span>Combustível</span>${seg('comb',COMBS)}</div>
+      <label class="fc"><span>Cor</span><input class="campo" id="fCor" placeholder="Ex.: Prata" maxlength="30" value="${esc(c?c.cor:'')}"></label>
+      <label class="fc"><span>Final da placa</span><input class="campo" id="fPlaca" inputmode="numeric" placeholder="Ex.: 7" autocomplete="off" oninput="soNum(this,1)" value="${esc(c?c.placa:'')}"></label>
+      <label class="fc c2"><span>Valor de repasse</span><input class="campo" id="fValor" inputmode="numeric" placeholder="R$" autocomplete="off" oninput="milhar(this,true)" value="${c?reais(c.valor):''}"></label>
+      <div class="fc c2"><span>Donos</span>${seg('donos',DONOS,1)}</div>
+      <div class="fc c2"><span>Laudo cautelar</span>${seg('laudo',LAUDOS,1)}</div>
+      <label class="fc c4"><span>Observações</span><textarea class="campo" id="fObs" rows="1" maxlength="1000" placeholder="Estado, revisões, o que precisa de reparo" oninput="crescer(this)">${esc(c?c.obs:'')}</textarea></label>
+      <div class="fc c4" data-fotos-area><span>Fotos</span><div class="fotos" id="fFotos" data-ordem="moverFoto"></div></div>
+     </div>
+     <div class="form-acoes"><button type="button" class="ouro" id="fPub" disabled onclick="publicar()">${c?'Salvar':'Publicar no repasse'}</button><button type="button" class="sair-f" onclick="fecharForm()">Cancelar</button></div></div>`;
+    pintarFotos();liberar();crescer($('fObs'));
+    f.classList.remove('oculto');$('btAnunciar').classList.add('oculto');
+    if(!reduz()){
+      f.style.overflow='hidden';const h=f.offsetHeight;
+      f.animate([{height:'0px'},{height:h+'px'}],{duration:860,easing:'cubic-bezier(.25,.8,.25,1)'}).onfinish=()=>{f.style.overflow='';};
+      [...f.querySelectorAll('.form-cab,.fg>*,.form-acoes')].forEach((e,i)=>e.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'none'}],{duration:640,delay:240+i*35,easing:EASE,fill:'backwards'}));
+    }
+    setTimeout(()=>{const m=$('fMarca');if(m&&!c)m.focus({preventScroll:true});},reduz()?0:520);
+  };
+  if(scrollY>4&&!reduz()){scrollTo({top:0,behavior:'smooth'});const t0=performance.now();(function espera(){if(scrollY<2||performance.now()-t0>900)abre();else requestAnimationFrame(espera);})();}
+  else{if(scrollY>0)scrollTo(0,0);abre();}
 }
-function fecharForm(){
+function fecharForm(depois){
   const f=$('formRep');if(f.classList.contains('oculto')||enviando)return;
-  const fim=()=>{f.classList.add('oculto');f.innerHTML='';$('btRepassar').classList.remove('oculto');(NF.fotos||[]).forEach(x=>URL.revokeObjectURL(x.url));};
+  const fim=()=>{f.classList.add('oculto');f.innerHTML='';f.style.overflow='';$('btAnunciar').classList.remove('oculto');(NF.fotos||[]).forEach(x=>{if(x.blob)URL.revokeObjectURL(x.url);});EDITA=null;
+    if(typeof depois==='function')depois();};
   if(reduz()){fim();return;}
-  const h=f.offsetHeight;f.animate([{height:h+'px',opacity:1},{height:h+'px',opacity:0,offset:.35},{height:'0px',opacity:0}],{duration:620,easing:'cubic-bezier(.45,0,.25,1)'}).onfinish=fim;
+  f.style.overflow='hidden';const h=f.offsetHeight;
+  f.animate([{height:h+'px',opacity:1},{height:h+'px',opacity:0,offset:.3},{height:'0px',opacity:0}],{duration:640,easing:'cubic-bezier(.45,0,.25,1)',fill:'forwards'})
+    .onfinish=()=>{fim();f.getAnimations().forEach(a=>a.cancel());};
 }
 function segEscolhe(k,b,opc){const v=b.textContent;NF[k]=opc&&NF[k]===v?'':v;
   b.parentNode.querySelectorAll('button').forEach(x=>{const on=x.textContent===NF[k];x.classList.toggle('on',on);x.setAttribute('aria-pressed',on);});}
@@ -569,42 +699,47 @@ function milhar(el,rs){const n=el.value.replace(/\D/g,'').slice(0,9);el.value=n?
 function soNum(el,n){el.value=el.value.replace(/\D/g,'').slice(0,n);}
 // o ano com a barra posta sozinha (o teclado de números do celular não tem barra): 20192020 vira 2019/2020
 function anoFmt(el){const d=el.value.replace(/\D/g,'').slice(0,8);el.value=d.length>4?d.slice(0,4)+'/'+d.slice(4):d;}
-function crescer(t){t.style.height='auto';t.style.height=t.scrollHeight+2+'px';}
+function crescer(t){if(!t)return;t.style.height='auto';t.style.height=t.scrollHeight+2+'px';}
 function liberar(){const b=$('fPub');if(!b||enviando)return;b.disabled=!($('fMarca').value.trim().length>2&&/\d{4}/.test($('fAno').value)&&$('fValor').value.replace(/\D/g,'').length>=3);}
+// as fotos: tocar numa faz dela a capa, arrastar muda a ordem e dá para colar (Ctrl+V) ou soltar fotos na página (fotos.js)
 function pintarFotos(){
   const box=$('fFotos');if(!box)return;
-  box.innerHTML=NF.fotos.map((x,i)=>`<figure><button type="button" class="capa-bt" ${i?`aria-label="Usar a foto ${i+1} como capa" title="Usar como capa" onclick="fazerCapa(${i})"`:'aria-label="Capa" tabindex="-1"'}><img src="${x.url}" alt=""></button>${i===0?'<figcaption>Capa</figcaption>':''}<button type="button" class="fx" aria-label="Tirar a foto ${i+1}" onclick="tirarFoto(${i})">${sv('xis','sm')}</button></figure>`).join('')
-    +(NF.fotos.length<10?`<label>${sv('foto')}Adicionar<input type="file" accept="image/*" multiple onchange="addFotos(this)"></label>`:'');
+  box.innerHTML=NF.fotos.map((x,i)=>`<figure data-i="${i}"><button type="button" class="capa-bt" ${i?`aria-label="Usar a foto ${i+1} como capa" title="Usar como capa" onclick="fazerCapa(${i})"`:'aria-label="Capa" tabindex="-1"'}><img src="${x.url}" alt=""></button>${i===0?'<figcaption>Capa</figcaption>':''}<button type="button" class="fx" data-x aria-label="Tirar a foto ${i+1}" onclick="tirarFoto(${i})">${sv('xis','sm')}</button></figure>`).join('')
+    +(NF.fotos.length<10?`<label>${sv('foto')}Adicionar<input type="file" accept="image/*" multiple data-fotos="Solte as fotos do carro aqui" onchange="addFotos(this)"></label>`:'');
 }
 // cada foto é diminuída assim que entra (a grande com até 1280 px e a pequena da lista com até 400 px, em jpg): publicar fica rápido
 const diminuir=(im,max,q)=>{const k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),cv=document.createElement('canvas');
   cv.width=Math.max(1,Math.round(im.naturalWidth*k));cv.height=Math.max(1,Math.round(im.naturalHeight*k));cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);return cv.toDataURL('image/jpeg',q);};
 const prepararFoto=url=>new Promise(ok=>{const im=new Image();im.onload=()=>{try{ok({dados:diminuir(im,1280,.78),mini:diminuir(im,400,.72)});}catch(e){ok(null);}};im.onerror=()=>ok(null);im.src=url;});
 function addFotos(inp){
-  [...inp.files].filter(f=>/^image\//.test(f.type)).slice(0,10-NF.fotos.length).forEach(f=>{const url=URL.createObjectURL(f);NF.fotos.push({url,pronta:prepararFoto(url)});});
+  [...inp.files].filter(f=>/^image\//.test(f.type)).slice(0,10-NF.fotos.length).forEach(f=>{const url=URL.createObjectURL(f);NF.fotos.push({url,blob:true,pronta:prepararFoto(url)});});
   inp.value='';pintarFotos();
 }
 function fazerCapa(i){NF.fotos.unshift(NF.fotos.splice(i,1)[0]);pintarFotos();}
-function tirarFoto(i){URL.revokeObjectURL(NF.fotos[i].url);NF.fotos.splice(i,1);pintarFotos();}
-// publicar: os dados, uma foto por vez (o botão mostra o andamento) e o "pronto", que põe o carro na lista de todas as lojas
+function moverFoto(de,para){NF.fotos.splice(para,0,NF.fotos.splice(de,1)[0]);pintarFotos();}
+function tirarFoto(i){const x=NF.fotos[i];if(x&&x.blob)URL.revokeObjectURL(x.url);NF.fotos.splice(i,1);pintarFotos();}
+// publicar: os dados, uma foto por vez (o botão mostra o andamento) e o "pronto", que põe o carro na lista de todas as lojas. Na edição,
+// os dados com a lista das fotos na ordem nova (as que ficam e o lugar das novas) e depois as novas, uma por vez
 async function publicar(){
   if(enviando)return;
-  const bt=$('fPub'),volta=()=>{enviando=false;if($('fPub')){bt.textContent='Publicar no repasse';liberar();}};
+  const ed=EDITA,bt=$('fPub'),rot=ed?'Salvar':'Publicar no repasse',volta=()=>{enviando=false;if($('fPub')){bt.textContent=rot;liberar();}};
   const corpo={nome:nomeBom($('fMarca').value),ano:$('fAno').value.trim(),km:$('fKm').value.replace(/\D/g,'')||null,cambio:NF.cambio,comb:NF.comb,cor:$('fCor').value.trim(),
     placa:$('fPlaca').value,valor:Number($('fValor').value.replace(/\D/g,'')),donos:NF.donos,laudo:NF.laudo,obs:$('fObs').value.trim()};
-  enviando=true;bt.disabled=true;bt.textContent=NF.fotos.length?'Preparando as fotos…':'Publicando…';
+  enviando=true;bt.disabled=true;bt.textContent=NF.fotos.some(x=>!x.id)?'Preparando as fotos…':ed?'Salvando…':'Publicando…';
   try{
-    const fotos=(await Promise.all(NF.fotos.map(x=>x.pronta))).filter(Boolean);
-    if(fotos.length<NF.fotos.length)toast('Uma das fotos não abriu e ficou de fora.');
-    const r=await api('publicar',Object.assign(corpo,{fotos:fotos.length}));
-    for(let i=0;i<fotos.length;i++){
-      bt.textContent=`Enviando a foto ${i+1} de ${fotos.length}…`;
-      const manda=()=>api('foto',{carro:r.id,ordem:i,dados:fotos[i].dados,mini:fotos[i].mini});
+    const prontas=await Promise.all(NF.fotos.map(x=>x.id?x:x.pronta));
+    const lista=prontas.filter(Boolean);
+    if(lista.length<NF.fotos.length)toast('Uma das fotos não abriu e ficou de fora.');
+    const id=ed?(await api('editar',Object.assign(corpo,{id:ed.id,fotos:lista.map(x=>x.id||null)})),ed.id):(await api('publicar',Object.assign(corpo,{fotos:lista.length}))).id;
+    const novas=lista.map((x,i)=>[x,i]).filter(([x])=>!x.id);
+    for(let k=0;k<novas.length;k++){
+      const [x,i]=novas[k];bt.textContent=`Enviando a foto ${k+1} de ${novas.length}…`;
+      const manda=()=>api('foto',{carro:id,ordem:i,dados:x.dados,mini:x.mini});
       await manda().catch(e=>e.message?manda():Promise.reject(e));   // uma segunda tentativa, se a internet falhou
     }
-    if(fotos.length)await api('pronto',{carro:r.id});
-    enviando=false;novoId=r.id;fecharForm();await carregar(false,true);
-    toast(`${corpo.nome} está no repasse. As outras lojas já veem.`);setTimeout(()=>{novoId=null;},2200);
+    if(!ed&&lista.length)await api('pronto',{carro:id});
+    enviando=false;if(!ed)novoId=id;fecharForm();await carregar(false,true);
+    toast(ed?`${corpo.nome}: anúncio salvo.`:`${corpo.nome} está no repasse. As outras lojas já veem.`);setTimeout(()=>{novoId=null;},2200);
   }catch(e){volta();if(e.message)toast(e.message,4500);}
 }
 
@@ -636,12 +771,14 @@ async function carregar(primeira,forcar){
   let d;
   try{d=await api('',null);}
   catch(e){if(e.message&&primeira)$('lista').innerHTML=`<div class="vazio"><b>Não deu para abrir o repasse.</b>${esc(e.message)}<br><button type="button" class="contorno" onclick="carregar(true)">Tentar de novo</button></div>`;return;}
-  const ass=new Date().toDateString()+JSON.stringify(d.carros.map(c=>[c.id,c.repassado,c.fotos.length,c.valor]));
+  const ass=new Date().toDateString()+JSON.stringify(d.carros.map(c=>[c.id,c.repassado,c.fotos.join(),c.valor,c.nome,c.ano,c.km,c.obs]));
   if(!primeira&&!forcar&&ass===assinatura)return;
+  if(mexendo&&!forcar)return;   // um anúncio abrindo ou fechando: a lista atualiza na próxima vez
   assinatura=ass;EU=d.loja;
   const lista=d.carros.map(c=>Object.assign(c,{criado:new Date(c.criado),repassado:c.repassado?new Date(c.repassado):null}));
   if(vistos)lista.forEach(c=>{if(!vistos.has(c.id)&&!c.meu)chegaram.add(c.id);});
   vistos=new Set(lista.map(c=>c.id));
+  if(aberto!=null&&!lista.some(c=>c.id===aberto&&noMercado(c)))aberto=null;
   const ref=primeira?null:[...document.querySelectorAll('#lista .ln')].find(x=>x.getBoundingClientRect().top>=0),topo=ref&&ref.getBoundingClientRect().top;
   CARROS=lista;tudo();
   if(ref&&scrollY>200){const o=document.querySelector(`#lista .ln[data-id="${ref.dataset.id}"]`);if(o)scrollBy(0,o.getBoundingClientRect().top-topo);}
@@ -669,16 +806,24 @@ $('entForm').addEventListener('submit',async e=>{e.preventDefault();
 if(TOKEN)abrirApp();else mostrarEntrada();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&TOKEN&&poll)carregar();});
 
-// um ouvinte só para a lista: abrir a linha, o WhatsApp, o teclado
+// um ouvinte só para a lista: abrir e fechar o anúncio, o WhatsApp, o teclado. Aberto, o anúncio fecha tocando no nome ou no valor
 $('lista').addEventListener('click',e=>{
   const z=e.target.closest('[data-zap]');if(z){e.stopPropagation();zap(+z.dataset.zap);return;}
-  if(e.target.closest('.abre'))return;
-  const ln=e.target.closest('.ln');if(ln&&!ln.classList.contains('foi'))alternar(+ln.dataset.id);
+  const ln=e.target.closest('.ln');if(!ln||ln.classList.contains('foi')||e.target.closest('a,button'))return;
+  if(ln.classList.contains('on')&&!e.target.closest('.cab'))return;
+  alternar(+ln.dataset.id);
 });
 $('lista').addEventListener('keydown',e=>{const ln=e.target.closest('.ln');if(!ln||e.target!==ln)return;if(e.key==='Enter'||e.key===' '){e.preventDefault();alternar(+ln.dataset.id);}});
 let bt;$('busca').addEventListener('input',e=>{clearTimeout(bt);bt=setTimeout(()=>{F.q=e.target.value;pintarLista(true);},160);});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('formRep').classList.contains('oculto'))fecharForm();else if(aberto!=null)alternar(aberto);}});
+document.addEventListener('keydown',e=>{
+  if(ordP&&(e.key==='ArrowDown'||e.key==='ArrowUp')){e.preventDefault();const bs=[...ordP.querySelectorAll('button')],i=bs.indexOf(document.activeElement);bs[(i+(e.key==='ArrowDown'?1:-1)+bs.length)%bs.length].focus();return;}
+  if(e.key!=='Escape')return;
+  if(ordP){fecharOrdem();const t=$('ordT');if(t)t.focus();}
+  else if(!$('formRep').classList.contains('oculto'))fecharForm();
+  else if(aberto!=null)alternar(aberto);
+});
 </script>
+<script src="fotos.js"></script>
 <script src="menu-fora.js"></script>
 </body>
 </html>
