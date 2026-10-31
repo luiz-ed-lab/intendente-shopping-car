@@ -56,7 +56,6 @@ html{scrollbar-color:#C9C3BB transparent}
 .entrada .logo{display:block;height:34px;width:auto}
 .entrada h1{margin-top:40px;font:500 clamp(40px,5.2vw,64px)/1.02 var(--f1);letter-spacing:-.03em}
 .entrada h1 em{font-style:italic;color:var(--gold3)}
-.entrada .sub{margin-top:16px;max-width:520px;font-size:17px;color:var(--clara)}
 .ent-form{margin-top:38px;width:min(440px,100%);display:grid;gap:12px;text-align:left}
 .ent-form label{font-size:13px;color:#9FB0C9}
 .campo{width:100%;height:54px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);padding:0 18px;color:#fff;font-size:16px;outline:0;transition:border-color .2s,background .2s}
@@ -65,8 +64,6 @@ html{scrollbar-color:#C9C3BB transparent}
 .ent-form .ouro{margin-top:8px;height:54px;font-size:16px}
 .ent-nota{margin-top:22px;max-width:460px;font-size:14px;color:var(--clara)}
 .ent-nota a{color:var(--gold3);font-weight:600;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
-.ent-volta{margin-top:14px;font-size:14px;color:#9FB0C9;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;transition:color .2s}
-.ent-volta:hover{color:#fff}
 
 /* ===== topo do app ===== */
 .topo{padding:28px var(--lado) calc(var(--canto) + 42px);color:#fff}
@@ -120,7 +117,7 @@ a.marca:hover{opacity:.85}
 .form-acoes small{margin-left:auto;font-size:13px;color:#9FB0C9}
 
 /* ===== folha clara ===== */
-.folha{position:relative;margin-top:calc(-1 * var(--canto));min-height:60vh;padding:34px var(--lado) 70px;border-radius:var(--canto) var(--canto) 0 0;background:var(--cl)}
+.folha{position:relative;margin-top:calc(-1 * var(--canto));min-height:60vh;padding:34px var(--lado) 110px;border-radius:var(--canto) var(--canto) 0 0;background:var(--cl)}
 .folha-in{max-width:1660px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:44px;align-items:start}
 .fil{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .chip{height:38px;padding:0 15px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);display:inline-flex;align-items:center;gap:7px;font:500 14px/1.2 var(--f2);white-space:nowrap;transition:background .2s,color .2s,box-shadow .2s}
@@ -237,7 +234,7 @@ a.marca:hover{opacity:.85}
 @media (max-width:760px){
   :root{--lado:5.63vw;--canto:28px}
   .topo{padding:18px var(--lado) calc(var(--canto) + 26px)}
-  .barra{height:42px;gap:10px}
+  .barra{height:42px;gap:10px;padding-right:10.5vw}   /* o ícone do menu do site fica no canto (menu-fora.js) */
   .marca{font-size:4.36vw;gap:2.56vw}.marca img{height:5.64vw}.marca i{height:4.6vw}
   .loja{display:none}
   .redondo{width:10.77vw;height:10.77vw}
@@ -283,9 +280,8 @@ a.marca:hover{opacity:.85}
   .fotos label,.fotos figure{width:calc(33.33% - 7px);height:auto;aspect-ratio:4/3}
   .entrada{padding:40px var(--lado)}
   .entrada .logo{height:26px}
-  .entrada .sub{font-size:3.87vw}
   .entrada h1{font-size:9.74vw}
-  .ent-form label,.ent-nota,.ent-volta{font-size:3.3vw}
+  .ent-form label,.ent-nota{font-size:3.3vw}
   .meus h2{font-size:5.13vw}.meus>p,.mi .lh{font-size:3.3vw}.mi b{font-size:3.72vw}.mi .ac button,.lk{font-size:3.3vw}
   .senha-f label{font-size:3.3vw}.senha-f .ouro{font-size:3.3vw}
   .toast{bottom:20px}
@@ -310,17 +306,15 @@ a.marca:hover{opacity:.85}
 <!-- ===== ENTRADA ===== -->
 <main class="entrada vidro oculto" id="entrada">
  <a href="/" aria-label="Site da Aceima"><img class="logo" src="marca-nova/aceima-nova.png" alt="Aceima"></a>
- <h1>Repasse <em>da Intendente.</em></h1>
- <p class="sub">Os carros que as lojas associadas pegam na troca, oferecidos primeiro entre elas.</p>
+ <h1>Repasse <em>Intendente.</em></h1>
  <form class="ent-form" id="entForm" novalidate>
-  <label for="entEmail">E-mail da loja</label>
+  <label for="entEmail">E-mail</label>
   <input class="campo" id="entEmail" type="email" autocomplete="username" placeholder="loja@exemplo.com.br" required>
   <label for="entSenha">Senha</label>
   <input class="campo" id="entSenha" type="password" autocomplete="current-password" placeholder="Sua senha" required>
   <button class="ouro" type="submit" id="entBt">Entrar</button>
  </form>
- <p class="ent-nota">Quem cria o acesso de cada loja é a Aceima. Ainda não tem o seu? <a href="https://wa.me/5521991041424?text=Ol%C3%A1!%20Quero%20o%20acesso%20da%20minha%20loja%20ao%20Repasse%20da%20Aceima." target="_blank" rel="noopener">Fale com a associação</a></p>
- <a class="ent-volta" href="/">Voltar para o site</a>
+ <p class="ent-nota">Primeiro acesso? <a href="https://wa.me/5521991041424?text=Ol%C3%A1!%20Quero%20o%20acesso%20da%20minha%20loja%20ao%20Repasse%20da%20Aceima." target="_blank" rel="noopener">Clique aqui.</a></p>
 </main>
 
 <!-- ===== REPASSE ===== -->
@@ -335,7 +329,7 @@ a.marca:hover{opacity:.85}
     <button class="redondo" type="button" aria-label="Sair" title="Sair" onclick="sair()"><svg class="i"><use href="#sair"/></svg></button>
    </div>
    <div class="linha">
-    <div class="titulo"><h1>Repasse <em>da Intendente.</em></h1><p class="res" id="resumo"></p></div>
+    <div class="titulo"><h1>Repasse <em>Intendente.</em></h1><p class="res" id="resumo"></p></div>
     <label class="busca"><svg class="i"><use href="#busca"/></svg><input id="busca" type="search" placeholder="Buscar modelo, ano ou loja" aria-label="Buscar no repasse" autocomplete="off"></label>
    </div>
    <div class="abas" role="tablist" aria-label="O que ver">
@@ -685,5 +679,6 @@ $('lista').addEventListener('keydown',e=>{const ln=e.target.closest('.ln');if(!l
 let bt;$('busca').addEventListener('input',e=>{clearTimeout(bt);bt=setTimeout(()=>{F.q=e.target.value;pintarLista(true);},160);});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('formRep').classList.contains('oculto'))fecharForm();else if(aberto!=null)alternar(aberto);}});
 </script>
+<script src="menu-fora.js"></script>
 </body>
 </html>
