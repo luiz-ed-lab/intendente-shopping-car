@@ -12,7 +12,8 @@
   ],
   "rewrites": [
     { "source": "/painel", "destination": "/painel.html" },
-    { "source": "/repasse", "destination": "/repasse.html" },
+    { "source": "/repasse", "destination": "/repasse-obra.html" },
+    { "source": "/repasse-editar", "destination": "/repasse.html" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [
@@ -24,7 +25,7 @@
       ]
     },
     {
-      "source": "/repasse",
+      "source": "/(repasse|repasse-editar|repasse-obra\\.html)",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
       ]
