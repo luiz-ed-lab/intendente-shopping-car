@@ -19,7 +19,7 @@
 [data-ordem]>[data-i]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 [data-ordem]>[data-i] img{-webkit-user-drag:none;-webkit-touch-callout:none}
 @media (hover:hover){[data-ordem]>[data-i]{cursor:grab}}
-.fotos-arrasta{position:relative;z-index:6;cursor:grabbing!important;box-shadow:0 18px 38px -14px rgba(0,0,0,.6)}
+.fotos-arrasta{position:relative;z-index:60!important;cursor:grabbing!important;box-shadow:0 18px 38px -14px rgba(0,0,0,.6)}
 @media (prefers-reduced-motion:reduce){.fotos-solta,.fotos-solta>div{transition:none}}`;
   document.head.appendChild(st);
   const reduz = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
