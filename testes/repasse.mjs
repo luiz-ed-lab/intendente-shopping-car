@@ -29,11 +29,13 @@ r = await chama(rotaRepasse, 'POST', { acao: 'entrar' }, { email: '', senha: '' 
 assert(r.st === 400, 'entrar sem e-mail e senha: 400');
 
 // login: a sessão guarda o hash do token
-linhas = s => /from repasse_acessos a join lojas/.test(s) ? [{ id: 7, email: 'loja@teste.com', senha: h, ativo: true, loja: 'TurboMix Veículos', falhas: 0, bloqueio: null }] : [];
+linhas = s => /from repasse_acessos a left join lojas/.test(s) ? [{ id: 7, email: 'loja@teste.com', senha: h, ativo: true, loja: 'TurboMix Veículos', falhas: 0, bloqueio: null }] : [];
 sqls = []; r = await chama(rotaRepasse, 'POST', { acao: 'entrar' }, { email: 'Loja@Teste.com ', senha: 'senha-teste-1' });
 const ins = sqls.find(([s]) => /insert into repasse_sessoes/.test(s));
 assert(r.st === 200 && /^[a-f0-9]{64}$/.test(r.corpo.token) && ins && ins[1][0] === createHash('sha256').update(r.corpo.token).digest('hex'), 'login certo: o aparelho recebe o token e o banco guarda só o hash');
-assert(sqls.find(([s]) => /from repasse_acessos a join lojas/.test(s))[1][0] === 'loja@teste.com', 'o e-mail é conferido sem espaços e em minúsculas');
+const ent = sqls.find(([s]) => /from repasse_acessos a left join lojas/.test(s));
+assert(ent[1][0] === 'loja@teste.com', 'o e-mail é conferido sem espaços e em minúsculas');
+assert(/a\.loja_id = 0 or l\.ativa = true/.test(ent[0]) && /coalesce\(l\.nome, 'Aceima'\)/.test(ent[0]), 'o acesso da Aceima (loja 0, que não existe na tabela de lojas) entra como "Aceima"; o das lojas, só com a loja ativa');
 sqls = []; r = await chama(rotaRepasse, 'POST', { acao: 'entrar' }, { email: 'loja@teste.com', senha: 'errada' });
 assert(r.st === 401 && usou(/falhas = falhas \+ 1/), 'senha errada: 401 e conta o erro (oito seguidos travam 15 minutos)');
 
@@ -45,7 +47,7 @@ linhas = s => /repasse_sessoes s join/.test(s) ? [{ id: 7, loja_id: 3, loja: 'Tu
   : /select id from repasse_carros/.test(s) ? [{ id: 55 }]
   : /octet_length/.test(s) ? [{ fotos: '1000', banco: '50000000' }] : [];
 sqls = []; r = await chama(rotaRepasse, 'GET', {}, null, T);
-const lista = sqls.find(([s]) => /from repasse_carros c join lojas/.test(s));
+const lista = sqls.find(([s]) => /from repasse_carros c join repasse_acessos a/.test(s));
 assert(r.st === 200 && lista && /a\.ativo = true/.test(lista[0]) && /l\.ativa = true/.test(lista[0]) && /interval '30 days'/.test(lista[0]), 'a lista só tem carros de lojas com acesso ativo, por 30 dias');
 r = await chama(rotaRepasse, 'POST', { acao: 'publicar' }, { nome: 'Fi', ano: '2020', valor: 50000 }, T);
 assert(r.st === 400, 'publicar sem marca e modelo: 400');
