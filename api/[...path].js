@@ -1801,14 +1801,20 @@ const emailR = s => /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(s);
 const waR = s => { const d = String(s || '').replace(/\D/g, ''); return !d ? '' : d.length <= 11 ? '55' + d : d.slice(0, 15); };
 const LIMITE_FOTOS_REPASSE = 300e6;   // as fotos do Repasse juntas; o banco inteiro não passa de 460 MB por causa delas (o plano grátis do Neon)
 const CARROS_POR_LOJA = 40;
+// o acesso da própria Aceima (pedido do Luiz, 31/10/2026): fica no lugar da loja 0, que não existe na tabela de lojas, então não mexe no
+// cadastro de nenhuma loja do site. Entra como "Aceima" e funciona como o de uma loja
+const LOJA_ACEIMA = 0;
+const LOJA_REPASSE = `left join lojas l on l.id = a.loja_id`;
+const LOJA_ATIVA = `(a.loja_id = ${LOJA_ACEIMA} or l.ativa = true)`;
+const NOME_LOJA = `coalesce(l.nome, 'Aceima')`;
 
 // a loja da sessão (o token vem no cabeçalho x-repasse-token); acesso desativado ou loja excluída derrubam a sessão na hora
 async function sessaoRepasse(req) {
   const t = String((req.headers || {})['x-repasse-token'] || '');
   if (!/^[a-f0-9]{64}$/.test(t)) return null;
   const { rows: [s] } = await query(
-    `select a.id, a.loja_id, l.nome as loja from repasse_sessoes s join repasse_acessos a on a.id = s.acesso_id join lojas l on l.id = a.loja_id
-      where s.token = $1 and s.expira > now() and a.ativo = true and l.ativa = true`, [hashToken(t)]);
+    `select a.id, a.loja_id, ${NOME_LOJA} as loja from repasse_sessoes s join repasse_acessos a on a.id = s.acesso_id ${LOJA_REPASSE}
+      where s.token = $1 and s.expira > now() and a.ativo = true and ${LOJA_ATIVA}`, [hashToken(t)]);
   return s || null;
 }
 // limpeza, no máximo uma vez por hora: o carro com 30 dias sai do repasse, e as fotos de quem saiu são apagadas (do repassado, 7 dias depois:
@@ -1826,7 +1832,7 @@ async function limparRepasse() {
 async function entrarRepasse(req, res) {
   const b = req.body || {}, email = txtR(b.email, 120).toLowerCase(), senha = String(b.senha || '');
   if (!email || !senha) return res.status(400).json({ erro: 'Escreva o e-mail e a senha.' });
-  const { rows: [a] } = await query('select a.*, l.nome as loja from repasse_acessos a join lojas l on l.id = a.loja_id and l.ativa = true where a.email = $1', [email]);
+  const { rows: [a] } = await query(`select a.*, ${NOME_LOJA} as loja from repasse_acessos a ${LOJA_REPASSE} where a.email = $1 and ${LOJA_ATIVA}`, [email]);
   if (a && a.bloqueio && new Date(a.bloqueio) > new Date()) return res.status(429).json({ erro: 'Muitas tentativas com a senha errada. Espere 15 minutos e tente de novo.' });
   if (!a || !(await confereSenha(senha, a.senha))) {
     // oito erros seguidos travam o e-mail por 15 minutos
@@ -1845,13 +1851,13 @@ async function listaRepasse(s, res) {
   await limparRepasse();
   query(`update repasse_acessos set ultimo_acesso = now() where id = $1 and (ultimo_acesso is null or ultimo_acesso < now() - interval '1 hour')`, [s.id]).catch(() => {});
   const { rows } = await query(
-    `select c.*, l.nome as loja, coalesce(nullif(a.whatsapp, ''), l.whatsapp) as wa,
+    `select c.*, ${NOME_LOJA} as loja, coalesce(nullif(a.whatsapp, ''), l.whatsapp) as wa,
             coalesce((select json_agg(f.id order by f.ordem) from repasse_fotos f where f.carro_id = c.id), '[]'::json) as fotos
-       from repasse_carros c join lojas l on l.id = c.loja_id and l.ativa = true
-       join repasse_acessos a on a.loja_id = c.loja_id and a.ativo = true
-      where (c.status = 'ativo' and c.criado_em > now() - interval '30 days')
+       from repasse_carros c join repasse_acessos a on a.loja_id = c.loja_id and a.ativo = true ${LOJA_REPASSE}
+      where ${LOJA_ATIVA}
+        and ((c.status = 'ativo' and c.criado_em > now() - interval '30 days')
          or (c.status = 'repassado' and (c.status_em at time zone 'America/Sao_Paulo')::date = (now() at time zone 'America/Sao_Paulo')::date)
-         or (c.loja_id = $1 and c.status = 'repassado' and c.status_em > now() - interval '7 days')
+         or (c.loja_id = $1 and c.status = 'repassado' and c.status_em > now() - interval '7 days'))
       order by c.criado_em desc limit 500`, [s.loja_id]);
   return res.json({ ok: true, loja: s.loja, agora: new Date().toISOString(), carros: rows.map(c => ({
     id: c.id, nome: c.nome, ano: c.ano || '', km: c.km, cambio: c.cambio || '', comb: c.combustivel || '', cor: c.cor || '', valor: c.valor,
@@ -1935,7 +1941,7 @@ async function acessosRepasse(req, res) {
   }
   if (req.method === 'POST') {
     const lojaId = parseInt(b.loja_id, 10), email = txtR(b.email, 120).toLowerCase(), senha = String(b.senha || ''), wa = waR(b.whatsapp) || null;
-    if (!lojaId) return res.status(400).json({ erro: 'loja obrigatória' });
+    if (!(lojaId >= 0)) return res.status(400).json({ erro: 'loja obrigatória' });   // 0: o acesso da Aceima, sem loja
     if (!emailR(email)) return res.status(400).json({ erro: 'Confira o e-mail.' });
     const { rows: [ja] } = await query('select id from repasse_acessos where loja_id = $1', [lojaId]);
     if ((!ja || senha) && senha.length < 6) return res.status(400).json({ erro: 'A senha precisa ter pelo menos 6 letras ou números.' });
