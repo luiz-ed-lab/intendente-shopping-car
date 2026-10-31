@@ -23,7 +23,8 @@
 @media (prefers-reduced-motion:reduce){.fotos-solta,.fotos-solta>div{transition:none}}`;
   document.head.appendChild(st);
   const reduz = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const visivel = el => !!el && el.getClientRects().length > 0;
+  // na tela de verdade: um passo escondido (o Venda seu veículo deixa os três passos um sobre o outro) não recebe
+  const visivel = el => !!el && el.getClientRects().length > 0 && !el.closest('[inert]') && getComputedStyle(el).visibility !== 'hidden';
   const areaDe = i => i.closest('[data-fotos-area]') || i.parentElement;
   const campo = () => [...document.querySelectorAll('input[type=file][data-fotos]')].find(i => !i.disabled && visivel(areaDe(i)));
   const imagens = l => [...(l || [])].filter(f => /^image\//.test(f.type));
