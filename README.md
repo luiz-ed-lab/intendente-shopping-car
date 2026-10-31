@@ -1,4 +1,4 @@
-# aceima.com.br
+# aintendente.com.br
 
 Site da ACEIMA e da Intendente, o maior polo automotivo da América Latina.
 

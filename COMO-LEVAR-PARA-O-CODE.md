@@ -47,7 +47,7 @@ Com isso a Vercel gera um endereço de prévia do site novo, que você abre no c
 
 ## 5. Publicar (só quando você aprovar)
 
-Aprovou a prévia? Aí é pedir o merge da branch na `main`, e o site novo entra no ar em intendente-shopping-car.vercel.app. A troca para aceima.com.br é um passo à parte, com redirecionamento do domínio antigo. O `CLAUDE.md` já instrui o Claude Code a não publicar nada sem a sua aprovação.
+Aprovou a prévia? Aí é pedir o merge da branch na `main`, e o site novo entra no ar. Foi o que aconteceu em 30/10/2026: o site novo está no ar em aintendente.com.br, e o domínio antigo leva para ele. O `CLAUDE.md` já instrui o Claude Code a não publicar nada sem a sua aprovação.
 
 As senhas (`DATABASE_URL`, `PAINEL_TOKEN`, `RESEND_API_KEY` e as demais) continuam só na Vercel. Nunca cole esses valores no chat nem em arquivo.
 
