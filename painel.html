@@ -2327,7 +2327,7 @@ function fecharPops(){sumir($('gPop'));fecharAvisos();fecharDds();fecharMenu();f
 /* ---------- mural (as publicações do site) ---------- */
 // ficam em publicacoes.json, no próprio site; o painel grava pela API, que faz um commit no ramo desta publicação (pedido do Luiz,
 // 16/10/2026). A foto é diminuída aqui antes de subir, e a que acabou de subir aparece daqui até o site ser publicado de novo
-const CATS_PUB=['Ações no polo','Conquistas','Comunicados','Imprensa'];
+const CATS_PUB=['Ações no polo','Conquistas','Comunicados','Imprensa','Reuniões','Notícias'];   // Reuniões e Notícias: pedido do Luiz, 31/10/2026 (as mesmas do site e da API)
 const FOTO_LOCAL={};
 // as fotos da publicação: cada uma é a que já está no site ({caminho}) ou uma nova ({nova: data URI}); a primeira é a capa
 let pubFiltro='Todas',pubEdit=null,pubFotos=[],pubCat=CATS_PUB[0],pubDest=false,pubsProntas=false;

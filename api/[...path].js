@@ -1311,7 +1311,7 @@ async function rotaConteudo(req, res) {
 // publicações no painel). O painel grava direto no GitHub, no mesmo ramo desta publicação, como o modo de edição: editar na prévia não
 // mexe no site no ar, e nada muda no banco. Cada gravação é um commit só, com a lista e a foto juntas, e a Vercel publica o site em
 // cerca de um minuto. Se outro commit entrar no meio (um texto salvo pelo modo de edição), a gravação é refeita em cima dele.
-const CATEGORIAS_PUB = ['Ações no polo', 'Conquistas', 'Comunicados', 'Imprensa'];
+const CATEGORIAS_PUB = ['Ações no polo', 'Conquistas', 'Comunicados', 'Imprensa', 'Reuniões', 'Notícias'];   // Reuniões e Notícias: pedido do Luiz, 31/10/2026
 const slugPub = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '') || 'publicacao';
 function limparPub(p) {

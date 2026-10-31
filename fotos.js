@@ -1,4 +1,4 @@
-/* Fotos (pedido do Luiz, 31/10/2026): em todo lugar do site onde se escolhem fotos (o Venda seu veículo da página inicial, o Repasse e o
+/* Fotos (pedido do Luiz, 31/10/2026). No fim, o recorte automático das fotos das publicações (enquadrar). Em todo lugar do site onde se escolhem fotos (o Venda seu veículo da página inicial, o Repasse e o
    painel), dá para colar uma foto (Ctrl+V), soltar fotos em qualquer parte da página e arrastar as fotos para mudar a ordem, porque a
    primeira é a capa. Cada página só marca os lugares:
    - data-fotos no campo de arquivo (input type=file): as fotos coladas ou soltas entram por ele, como se tivessem sido escolhidas. Vale o
@@ -166,4 +166,66 @@
   document.addEventListener('click', e => { if (Date.now() < semClique) { e.preventDefault(); e.stopPropagation(); semClique = 0; } }, true);
   document.addEventListener('dragstart', e => { if (e.target.closest && e.target.closest('[data-ordem]')) e.preventDefault(); }, true);
   addEventListener('blur', () => { if (A) soltar(); });
+
+  // o melhor recorte de uma foto (pedido do Luiz, 31/10/2026: a foto de um encontro mostrava só o teto do lugar). A foto é lida pequena e
+  // cada ponto ganha uma nota pelo que costuma interessar numa foto: gente (pele com contorno: rostos e mãos) e contornos. Na moldura, a foto anda até a faixa de
+  // maior nota que cabe nela (object-position), em qualquer tamanho de moldura, no computador e no celular. Vale para toda <img data-foco>
+  // com object-fit: cover; a página chama enquadrar(img) quando a foto carrega, e ele refaz quando a tela muda de tamanho
+  const perfis = {};
+  function perfil(src) {
+    if (perfis[src]) return perfis[src];
+    return (perfis[src] = new Promise(ok => {
+      const im = new Image();
+      im.onload = () => {
+        try {
+          const k = 96 / Math.max(im.naturalWidth, im.naturalHeight), w = Math.max(1, Math.round(im.naturalWidth * k)), h = Math.max(1, Math.round(im.naturalHeight * k));
+          const cv = document.createElement('canvas');
+          cv.width = w; cv.height = h;
+          const g = cv.getContext('2d', { willReadFrequently: true });
+          g.drawImage(im, 0, 0, w, h);
+          const d = g.getImageData(0, 0, w, h).data, L = new Float32Array(w * h), R = new Float64Array(h), C = new Float64Array(w);
+          for (let i = 0; i < w * h; i++) L[i] = .299 * d[i * 4] + .587 * d[i * 4 + 1] + .114 * d[i * 4 + 2];
+          for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+            const i = y * w + x, r = d[i * 4], gg = d[i * 4 + 1], b = d[i * 4 + 2];
+            const borda = (x ? Math.abs(L[i] - L[i - 1]) : 0) + (y ? Math.abs(L[i] - L[i - w]) : 0) + (x < w - 1 ? Math.abs(L[i] - L[i + 1]) : 0) + (y < h - 1 ? Math.abs(L[i] - L[i + w]) : 0);
+            // pele: o tom de pele, menos o da madeira e do couro (azul baixo demais perto do vermelho) e o do teto claro e liso (pouca cor).
+            // Pele com contorno em volta (rosto, mão) vale mais que uma área lisa da mesma cor
+            const mx = Math.max(r, gg, b), mn = Math.min(r, gg, b), sat = mx ? (mx - mn) / mx : 0;
+            const pele = r > 80 && gg > 40 && b > 25 && r - gg > 12 && r > b && b / r > .42 && gg / r > .55 && gg / r < .92 && sat > .24 && L[i] < 215 ? .25 + Math.min(1, borda / 40) : 0;
+            // o teto e o chão (as pontas de cima e de baixo) valem menos que o meio, onde costumam ficar as pessoas
+            const lugar = y < h * .14 ? .55 : y > h * .9 ? .7 : 1;
+            const nota = (Math.min(borda, 160) / 160 * .35 + pele * 1.4) * lugar;
+            R[y] += nota; C[x] += nota;
+          }
+          ok({ w, h, R, C });
+        } catch (e) { ok(null); }   // foto de outro endereço não deixa ler: fica no meio
+      };
+      im.onerror = () => ok(null);
+      im.src = src;
+    }));
+  }
+  // a faixa do tamanho que a moldura mostra com a maior nota, com uma leve preferência pelo meio (um pouco acima, onde ficam os rostos)
+  function faixa(S, n, f) {
+    const m = Math.max(1, Math.round(n * f));
+    if (m >= n) return 50;
+    const P = [0];
+    for (let i = 0; i < n; i++) P.push(P[i] + S[i]);
+    let melhor = -1, bi = 0;
+    for (let i = 0; i + m <= n; i++) { const c = (i + m / 2) / n, v = (P[i + m] - P[i]) * (1 - .45 * Math.abs(c - .44)); if (v > melhor) { melhor = v; bi = i; } }
+    return bi / (n - m) * 100;
+  }
+  async function enquadrar(img) {
+    if (!img || !img.isConnected) return;
+    const p = await perfil(img.currentSrc || img.src);
+    if (!p || !img.isConnected) return;
+    const cw = img.clientWidth, ch = img.clientHeight;
+    if (!cw || !ch) return;
+    const ai = p.w / p.h, ac = cw / ch;
+    img.style.objectPosition = ai < ac ? `50% ${faixa(p.R, p.h, ai / ac).toFixed(1)}%` : ai > ac ? `${faixa(p.C, p.w, ac / ai).toFixed(1)}% 50%` : '50% 50%';
+  }
+  window.enquadrar = enquadrar;
+  const todas = () => document.querySelectorAll('img[data-foco]').forEach(i => { if (i.complete && i.naturalWidth) enquadrar(i); });
+  todas();
+  let rz = 0;
+  addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(todas, 200); });
 })();
