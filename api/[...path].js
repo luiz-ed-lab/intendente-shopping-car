@@ -188,7 +188,7 @@ const ACEIMA_MAIL = process.env.ACEIMA_EMAIL || 'aceima.adm2026@gmail.com';
 // Remetente próprio: mesmo domínio do site (aceima.com.br fica para o PitGest).
 // Enquanto o domínio não estiver verificado no Resend da conta cuja chave está aqui,
 // o envio cai sozinho no remetente de teste — que só entrega para o dono da conta.
-const REMETENTE = process.env.RESEND_FROM || 'Aceima <leads@intendenteautoshopping.com.br>';
+const REMETENTE = process.env.RESEND_FROM || 'Aceima <leads@aintendente.com.br>';
 const REMETENTE_RESERVA = 'Aceima <onboarding@resend.dev>';
 const SITE_URL = process.env.SITE_URL || 'https://aintendente.com.br';
 
