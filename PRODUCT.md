@@ -16,7 +16,7 @@ web
 
 ## Product Purpose
 
-Site da Aceima, a associação dos lojistas da Estrada Intendente Magalhães ("A Intendente"), apresentada como o maior polo automotivo da América Latina. Reúne o estoque das lojas associadas num lugar só, apresenta a associação e os associados (lojas e serviços e comércio credenciados) e leva o visitante até a loja pelo WhatsApp. Substitui o antigo intendenteshoppingcar.com.br, que dependia do Auto Certo; o domínio novo será aceima.com.br.
+Site da Aceima, a associação dos lojistas da Estrada Intendente Magalhães ("A Intendente"), apresentada como o maior polo automotivo da América Latina. Reúne o estoque das lojas associadas num lugar só, apresenta a associação e os associados (lojas e serviços e comércio credenciados) e leva o visitante até a loja pelo WhatsApp. Substitui o antigo intendenteshoppingcar.com.br, que dependia do Auto Certo, e está no ar em aintendente.com.br desde 30/10/2026.
 
 ## Positioning
 
