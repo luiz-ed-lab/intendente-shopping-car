@@ -1645,25 +1645,30 @@ function andamento(box,k,passos){box.innerHTML=`<div class="and"><div class="bar
 
 /* ---------- associados (as lojas e os credenciados) ---------- */
 let assocFiltro='todos',assocAberto=null;   // a linha aberta: "l:ID" (loja) ou "c:Nome" (credenciado)
-function entradasAssoc(){
-  return lojas.map(l=>({k:'l:'+l.id,cred:false,nome:l.nome,l})).concat(credenciados.map(c=>({k:'c:'+c.nome,cred:true,nome:c.nome,c})))
+// no topo de Todos, a linha da própria Aceima, só com o acesso dela ao Repasse (pedido do Luiz, 31/10/2026): não é uma loja e não entra
+// nas contagens nem na busca
+function entradasAssoc(semAceima){
+  const E=lojas.map(l=>({k:'l:'+l.id,cred:false,nome:l.nome,l})).concat(credenciados.map(c=>({k:'c:'+c.nome,cred:true,nome:c.nome,c})))
     .sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+  return semAceima?E:[{k:'a:aceima',aceima:true,nome:'Aceima'}].concat(E);
 }
-const FILTROS_ASSOC=[['todos','Todos',()=>true],['lojas','Lojas',e=>!e.cred],['cred','Credenciados',e=>e.cred],['falha','Com falha',e=>!e.cred&&!!e.l.erro]];
+const FILTROS_ASSOC=[['todos','Todos',()=>true],['lojas','Lojas',e=>!e.cred&&!e.aceima],['cred','Credenciados',e=>!!e.cred],['falha','Com falha',e=>!e.cred&&!e.aceima&&!!e.l.erro]];
 function renderAssoc(rolar){
-  const E=entradasAssoc(),q=f=>E.filter(f[2]).length;
+  const E=entradasAssoc(),q=f=>E.filter(e=>!e.aceima&&f[2](e)).length;
   if(assocFiltro==='falha'&&!q(FILTROS_ASSOC[3]))assocFiltro='todos';
   pintarChips($('assocChips'),dadosProntos?FILTROS_ASSOC.filter(f=>f[0]!=='falha'||q(f)).map(f=>[f[0],f[1],q(f),f[0]==='falha'?'erro':'']):[],assocFiltro,'filtAssoc');
   const vis=E.filter(FILTROS_ASSOC.find(f=>f[0]===assocFiltro)[2]),lista=$('assocLista');
   if(assocAberto&&!vis.some(e=>e.k===assocAberto))assocAberto=null;
   lista.innerHTML=!dadosProntos?Array.from({length:8},(_,i)=>`<div class="lr" style="pointer-events:none"><span class="i"></span><span class="lg esq"></span><span class="nm"><i class="esq" style="width:${[38,30,44,34][i%4]}%;height:14px"></i><i class="esq" style="width:${[22,28,18,24][i%4]}%;height:10px;margin-top:7px"></i></span><span class="q"><i class="esq" style="width:84px;height:14px;margin-left:auto"></i></span><span class="st"><i class="esq" style="width:130px;height:12px"></i></span><span class="chev"></span></div>`).join('')
-    :vis.length?vis.map(linhaAssoc).join(''):'<p class="vazio">Nenhum associado aqui.</p>';
+    :vis.length?vis.map((e,i)=>linhaAssoc(e,vis[0].aceima?i-1:i)).join(''):'<p class="vazio">Nenhum associado aqui.</p>';
   if(assocAberto){const e=vis.find(x=>x.k===assocAberto);reabrirCamada(lista,assocAberto,camAssoc(e));
     if(rolar)setTimeout(()=>{const r=lista.querySelector('.lr.on');if(r)scrollTo({top:r.getBoundingClientRect().top+scrollY-100,behavior:reduz()?'auto':'smooth'});},80);}
 }
 function filtAssoc(f){if(f===assocFiltro)return;assocFiltro=f;assocAberto=null;renderAssoc();entrarLista($('assocLista'));}
 function linhaAssoc(e,i){
   const at=`class="lr${assocAberto===e.k?' on':''}" data-k="${esc(e.k)}" tabindex="0" role="button" aria-expanded="${assocAberto===e.k}" onclick="abrirAssoc(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirAssoc(this)}"`;
+  if(e.aceima){const a=repAcessos[LOJA_ACEIMA];
+    return `<div ${at}><span class="i"></span>${LG_ACEIMA()}<span class="nm"><b>Aceima</b><small>Acesso da associação ao Repasse</small></span><span class="q"></span><span class="st">${a?(a.ativo?esc(a.email):'<span class="pl cinza">Acesso desativado</span>'):'<span class="pl cinza">Sem acesso</span>'}</span>${sv(IC.chev,'chev')}</div>`;}
   if(e.cred){const c=e.c;
     return `<div ${at}><span class="i">${doisD(i+1)}</span>${lgCred(c)}<span class="nm"><b>${esc(c.nome)}</b><small><span class="cred">Credenciado</span>${c.ramo?' · '+esc(c.ramo):''}</small></span><span class="q">${c.nota?`<b>${c.nota.toFixed(1).replace('.',',')}</b> ★`:''}</span><span class="st">${c.aval?fmt(c.aval)+' avaliações':''}</span>${sv(IC.chev,'chev')}</div>`;}
   // a falha já aparece à direita: com ela, o "fora do site" não precisa aparecer (pedido do Luiz, 21/10/2026)
@@ -1677,6 +1682,9 @@ function abrirAssoc(el){
 }
 function camAssoc(e){
   if(!e)return '';
+  if(e.aceima)return `<div class="cm-cab">${LG_ACEIMA(true)}<div class="cm-v"><div class="kk">Acesso da associação</div><h3>Aceima</h3><p>Entra no Repasse sem estar ligado a nenhuma loja do site.</p></div><div class="cm-n"></div></div>
+   <div class="cm-i" id="ci-${LOJA_ACEIMA}">${infoRepasse(lojaRep(LOJA_ACEIMA))}</div>
+   <div class="cm-b" id="cb-${LOJA_ACEIMA}"><button type="button" class="bto" onclick="acessoRepasse(${LOJA_ACEIMA})">${sv(IC.repasse,'sm')}${repAcessos[LOJA_ACEIMA]?'Acesso ao Repasse':'Criar acesso ao Repasse'}</button></div>`;
   // o credenciado com a descrição curta dele (pedido do Luiz, 21/10/2026: no lugar da explicação); o cadastrado pelo painel mostra os dados
   // e dá para editar, ler o site de novo e excluir. Os de sempre ficam no código do site
   if(e.cred){const c=e.c;
@@ -1753,7 +1761,12 @@ async function excluirLoja(id){const l=lojas.find(x=>x.id===id);if(!l||!confirm(
 /* o acesso da loja ao Repasse (repasse.html, pedido do Luiz em 26/10/2026): quem cria é a Aceima, aqui, com o e-mail, a senha e o WhatsApp
    que recebe os interessados. A senha só aparece na hora de criar ou trocar (o banco guarda só o embaralhado dela): o painel mostra o
    acesso pronto para copiar ou mandar no WhatsApp da loja */
-const linkRepasse=()=>location.origin+'/repasse';
+// o acesso da própria Aceima fica no lugar da loja 0, que não existe (pedido do Luiz, 31/10/2026): não mexe no cadastro de nenhuma loja.
+// Enquanto o Repasse está em obra, o endereço dele é o /repasse-editar; o das lojas continua o /repasse
+const LOJA_ACEIMA=0;
+const lojaRep=id=>id===LOJA_ACEIMA?{id,nome:'Aceima',wa:'5521991041424'}:lojas.find(x=>x.id===id);
+const LG_ACEIMA=g=>`<span class="lg${g?' g':''}"><img src="marca-nova/icone-192.png" alt=""></span>`;
+const linkRepasse=id=>location.origin+(id===LOJA_ACEIMA?'/repasse-editar':'/repasse');
 function infoRepasse(l){
   const a=repAcessos[l.id];
   const t=!a?'Sem acesso':a.email+(a.ativo?' · '+(a.ultimo_acesso?'último acesso '+quando(a.ultimo_acesso):'ainda não entrou')+(a.carros?' · '+a.carros+(a.carros===1?' carro':' carros')+' no repasse':''):' · desativado');
@@ -1762,11 +1775,11 @@ function infoRepasse(l){
 // uma senha fácil de ditar: oito letras e números sem os que se confundem (0 e O, 1 e l), em dois grupos
 function senhaNova(){const A='abcdefghjkmnpqrstuvwxyz23456789',r=crypto.getRandomValues(new Uint32Array(8));return [...r].map(x=>A[x%A.length]).join('').replace(/^(.{4})/,'$1-');}
 function acessoRepasse(id){
-  const l=lojas.find(x=>x.id===id),raw=lojasApi.find(x=>x.id===id)||{},a=repAcessos[id],ci=$('ci-'+id),cb=$('cb-'+id);if(!l||!ci||!cb)return;
+  const l=lojaRep(id),raw=lojasApi.find(x=>x.id===id)||{},a=repAcessos[id],ci=$('ci-'+id),cb=$('cb-'+id);if(!l||!ci||!cb)return;
   ci.outerHTML=`<form class="cps" id="ci-${id}" onsubmit="salvarAcesso(${id});return false">
-    ${campo('rEmail','E-mail do acesso',a?a.email:(raw.email||''),'loja@exemplo.com.br',' type="email" autocomplete="off"')}
+    ${campo('rEmail','E-mail do acesso',a?a.email:(raw.email||''),id===LOJA_ACEIMA?'voce@email.com':'loja@exemplo.com.br',' type="email" autocomplete="off"')}
     ${campo('rSenha',a?'Senha nova':'Senha',a?'':senhaNova(),a?'Deixe em branco para manter a atual':'',' autocomplete="off"')}
-    ${campo('rWa','WhatsApp dos interessados',fmtTel((a&&a.whatsapp)||raw.whatsapp||''),'(21) 99999-9999',' inputmode="tel"')}
+    ${campo('rWa','WhatsApp dos interessados',fmtTel((a&&a.whatsapp)||raw.whatsapp||l.wa||''),'(21) 99999-9999',' inputmode="tel"')}
     <button type="submit" hidden></button>
   </form>`;
   cb.innerHTML=`<button type="button" class="bt" onclick="salvarAcesso(${id})">${a?'Salvar':'Criar o acesso'}</button><button type="button" class="bto" onclick="renderAssoc()">Cancelar</button>
@@ -1774,7 +1787,7 @@ function acessoRepasse(id){
   setTimeout(()=>{const e=$('rEmail');if(e)e.focus();},50);
 }
 async function salvarAcesso(id){
-  const l=lojas.find(x=>x.id===id),v=k=>($(k)?$(k).value.trim():''),a=repAcessos[id];if(!l)return;
+  const l=lojaRep(id),v=k=>($(k)?$(k).value.trim():''),a=repAcessos[id];if(!l)return;
   const email=v('rEmail'),senha=v('rSenha'),wa=waDe(v('rWa'));
   if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){toast('Confira o e-mail');$('rEmail').focus();return;}
   if((!a||senha)&&senha.length<6){toast('A senha precisa ter pelo menos 6 letras ou números');$('rSenha').focus();return;}
@@ -1782,27 +1795,27 @@ async function salvarAcesso(id){
   try{const r=await jsonPost('/api/repasse?path=repasse&acao=acessos',{loja_id:id,email,senha,whatsapp:wa});const d=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(d.erro||'erro '+r.status);
     await carregarPainel();
-    toast(a?'Acesso de '+l.nome+' atualizado':'Acesso de '+l.nome+' criado');
+    const de=id===LOJA_ACEIMA?'da Aceima':'de '+l.nome;toast(a?'Acesso '+de+' atualizado':'Acesso '+de+' criado');
     if(senha)acessoPronto(id,email,senha);
   }catch(e){toast('Não deu para salvar: '+e.message);acessoRepasse(id);}
 }
 // a senha só existe agora: o acesso pronto para copiar ou mandar no WhatsApp da loja
 function acessoPronto(id,email,senha){
-  const l=lojas.find(x=>x.id===id),ci=$('ci-'+id),cb=$('cb-'+id),a=repAcessos[id];if(!l||!ci||!cb)return;
-  const txt=`Olá! Este é o acesso da ${l.nome} ao Repasse da Aceima: ${linkRepasse()}\nE-mail: ${email}\nSenha: ${senha}\nDepois de entrar, dá para trocar a senha.`,wa=(a&&a.whatsapp)||waDe(l.wa);
-  ci.outerHTML=`<div class="cm-i" id="ci-${id}">${info('Endereço do Repasse',linkRepasse())}${info('E-mail',email)}${info('Senha',senha)}<div><span>Repasse</span><p>Mande o acesso para a loja agora: depois, a senha não aparece mais aqui.</p></div></div>`;
-  cb.innerHTML=`<button type="button" class="bt" id="rCop">${sv(IC.check,'sm')}Copiar o acesso</button>${wa?`<a class="bto" href="https://wa.me/${esc(wa)}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">Mandar no WhatsApp da loja${sv(IC.fora,'sm')}</a>`:''}<button type="button" class="bto" onclick="renderAssoc()">Pronto</button>`;
+  const l=lojaRep(id),ci=$('ci-'+id),cb=$('cb-'+id),a=repAcessos[id],daAceima=id===LOJA_ACEIMA;if(!l||!ci||!cb)return;
+  const txt=`Olá! Este é o acesso ${daAceima?'da Aceima ao Repasse':'da '+l.nome+' ao Repasse da Aceima'}: ${linkRepasse(id)}\nE-mail: ${email}\nSenha: ${senha}\nDepois de entrar, dá para trocar a senha.`,wa=!daAceima&&((a&&a.whatsapp)||waDe(l.wa));
+  ci.outerHTML=`<div class="cm-i" id="ci-${id}">${info('Endereço do Repasse',linkRepasse(id))}${info('E-mail',email)}${info('Senha',senha)}<div><span>Repasse</span><p>${daAceima?'Guarde o acesso agora':'Mande o acesso para a loja agora'}: depois, a senha não aparece mais aqui.</p></div></div>`;
+  cb.innerHTML=`<button type="button" class="bt" id="rCop">${sv(IC.check,'sm')}Copiar o acesso</button>${wa?`<a class="bto" href="https://wa.me/${esc(wa)}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">Mandar no WhatsApp da loja${sv(IC.fora,'sm')}</a>`:''}${daAceima?`<a class="bto" href="${linkRepasse(id)}" target="_blank" rel="noopener">Abrir o Repasse${sv(IC.fora,'sm')}</a>`:''}<button type="button" class="bto" onclick="renderAssoc()">Pronto</button>`;
   $('rCop').onclick=()=>(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Acesso copiado')).catch(()=>toast('Não deu para copiar: selecione o texto'));
 }
 async function ativarAcesso(id,ativo){
-  const l=lojas.find(x=>x.id===id),a=repAcessos[id];if(!l||!a)return;
+  const l=lojaRep(id),a=repAcessos[id];if(!l||!a)return;
   if(!ativo&&!confirm('Desativar o acesso de "'+l.nome+'" ao Repasse? A loja sai na hora e os carros dela somem do repasse até o acesso voltar.'))return;
   try{const r=await jsonPost('/api/repasse?path=repasse&acao=acessos',{id:a.id,ativo},'PATCH');if(!r.ok)throw new Error('erro '+r.status);
     await carregarPainel();toast(ativo?'Acesso de '+l.nome+' ativado':'Acesso de '+l.nome+' desativado');}
   catch(e){toast('Não deu para mudar: '+e.message);}
 }
 async function excluirAcesso(id){
-  const l=lojas.find(x=>x.id===id),a=repAcessos[id];if(!l||!a||!confirm('Excluir o acesso de "'+l.nome+'" ao Repasse? Os carros dela saem do repasse.'))return;
+  const l=lojaRep(id),a=repAcessos[id];if(!l||!a||!confirm('Excluir o acesso de "'+l.nome+'" ao Repasse? Os carros dela saem do repasse.'))return;
   try{const r=await api('/api/repasse?path=repasse&acao=acessos&id='+a.id,{method:'DELETE'});if(!r.ok)throw new Error('erro '+r.status);
     delete repAcessos[id];await carregarPainel();toast('Acesso de '+l.nome+' excluído');}
   catch(e){toast('Não deu para excluir: '+e.message);}
@@ -2489,7 +2502,7 @@ function buscaGlobal(q){
   const pop=$('gPop');q=(q||'').trim();const n=norm(q);
   if(q.length<2){sumir(pop);return;}
   const out=[];
-  entradasAssoc().filter(e=>norm(e.nome).includes(n)).slice(0,4).forEach(e=>out.push(`<button type="button" class="pi" onclick="fecharPops();${e.cred?`nav('associados',()=>{assocFiltro='todos';assocAberto='c:'+this.dataset.n;renderAssoc(true)})`:`verAssoc(${e.l.id})`}" data-n="${esc(e.nome)}"><b>${esc(e.nome)}</b><span>${e.cred?'Credenciado':'Associado · '+fmt(e.l.n)+' veículos'}</span></button>`));
+  entradasAssoc(true).filter(e=>norm(e.nome).includes(n)).slice(0,4).forEach(e=>out.push(`<button type="button" class="pi" onclick="fecharPops();${e.cred?`nav('associados',()=>{assocFiltro='todos';assocAberto='c:'+this.dataset.n;renderAssoc(true)})`:`verAssoc(${e.l.id})`}" data-n="${esc(e.nome)}"><b>${esc(e.nome)}</b><span>${e.cred?'Credenciado':'Associado · '+fmt(e.l.n)+' veículos'}</span></button>`));
   buscarVeic(veicAll,q,true).slice(0,5).forEach(v=>out.push(`<button type="button" class="pi" onclick="irBusca('veiculos',this.dataset.t)" data-t="${esc(q)}"><b>${esc(nomeV(v))} ${esc(v.ano_modelo||'')}</b><span>${precoV(v)} · ${esc(v.loja_nome||'')}</span></button>`));
   leads.filter(l=>norm(l.nome).includes(n)||(soDig(q).length>3&&soDig(l.tel).includes(soDig(q)))).slice(0,4).forEach(l=>out.push(`<button type="button" class="pi" onclick="verLead(${l.id})"><b>${esc(l.nome)}</b><span>Lead · ${tipoDe(l)[0]}</span></button>`));
   PUBS.filter(p=>norm(p.titulo).includes(n)).slice(0,3).forEach(p=>out.push(`<button type="button" class="pi" onclick="fecharPops();abrirPub('${p.id}')"><b>${esc(p.titulo)}</b><span>Mural · ${esc(p.categoria)}</span></button>`));
