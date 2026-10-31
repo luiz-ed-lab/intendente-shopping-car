@@ -704,6 +704,9 @@ body.lb-on{overflow:hidden}
 #nav{view-transition-name:nav}
 ::view-transition-group(nav),::view-transition-image-pair(nav),::view-transition-new(nav){animation:none}
 ::view-transition-old(nav){display:none}
+/* entre o site e o Repasse, que é outra página, a mesma fusão, com o menu parado (pedido do Luiz, 31/10/2026; menu-fora.js) */
+@view-transition{navigation:auto}
+#nav.parado .nb,#nav.parado .nl,#nav.parado svg{transition:none!important}
 /* entrando ou saindo da página da Aceima, as logos giram entre si para cima, como as faces de um cubo, e somem em fusão
    (pedido do Luiz, 30/09/2026): a que sai deita para cima e a que entra vem de baixo. Cada uma tem o seu nome na transição
    (logo-sai, logo-entra): gira no próprio lugar, sem andar para o lado como antes no celular */
@@ -3323,6 +3326,15 @@ addEventListener('resize',()=>{AV.P=0;if(pagAtual==='home'){alturaCategorias();a
 
 rota();
 montarMenu();
+// voltando do Repasse, que é outra página (menu-fora.js): o menu fica no lugar, como numa troca de página dentro do site (pedido do Luiz,
+// 31/10/2026). A barra não entra de novo, e o nome do Repasse fecha (no celular, o menu aberto fecha em volta do ícone da página)
+(()=>{let p='';try{const r=new URL(document.referrer);if(r.origin===location.origin)p=r.pathname;}catch(e){}
+  if(!/^\/repasse(-editar)?\/?$/.test(p))return;
+  const n=document.getElementById('nav'),solta=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>n.classList.remove('parado')));
+  n.style.animation='none';n.classList.add('parado');
+  if(cel()){menuTrocando=true;menuAberto=true;n.classList.add('aberto');abrirNomes();solta();setTimeout(()=>{menuTrocando=false;fecharMenu();},650);return;}
+  const b=n.querySelector('.nb[data-p="repasse"]');if(b)b.classList.add('hov');abrirNomes();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{n.classList.remove('parado');if(b)b.classList.remove('hov');abrirNomes();}));})();
 document.fonts.ready.then(abrirNomes);   // o nome da página é medido de novo com a fonte do site: antes dela, saía mais estreito e cortava a última letra
 carregar();
 if(/[?&]editar\b/.test(location.search))entrar(sessao());
