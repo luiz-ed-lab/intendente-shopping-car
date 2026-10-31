@@ -129,13 +129,8 @@ html:has(.app.on){overflow-y:scroll}
 /* a mesma largura das páginas do site (.wrap do site: até 1780 px, com 60 px de cada lado): o painel vai até as bordas como elas
    (pedido do Luiz, 20/10/2026: antes ficava numa coluna de 1320 px no meio da tela) */
 .topo-in{max-width:1660px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;grid-template-areas:"busca logo acoes" "tit tit tit" "form form form" "kpi kpi kpi" "graf graf graf";align-items:center;column-gap:20px}
-/* a busca e o "+" da parte aberta na mesma linha (pedido do Luiz, 22/10/2026); o "+" some enquanto o formulário está aberto */
 .tbusca{grid-area:busca;justify-self:start;display:flex;align-items:center;gap:10px}
 .busca{display:flex;align-items:center;gap:10px;width:300px;height:44px;padding:0 16px;border-radius:99px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);color:var(--clara)}
-.mais{width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(135deg,#C8862E,#F0AD57);color:var(--navy);box-shadow:0 10px 24px -12px rgba(232,160,72,.7);transition:width .45s var(--ease),margin .45s var(--ease),opacity .3s,transform .45s var(--ease)}
-.mais:hover{background:linear-gradient(135deg,#D3913A,#F5B866)}
-.mais .ic{width:22px;height:22px;stroke-width:2.2}
-.mais.fora{width:0;margin-left:-10px;opacity:0;transform:scale(.5) rotate(-90deg);pointer-events:none}
 /* puxando a tela além do começo, aparece o azul do topo; além do fim, o claro da folha (no celular, aparecia branco em cima do topo) */
 html{background:var(--navy)}
 html.no-fim{background:var(--cl)}
@@ -207,7 +202,7 @@ html.no-fim{background:var(--cl)}
 .gf-per{transition:opacity .3s,visibility .3s}
 .hgraf.rec .gf-per{opacity:0;visibility:hidden}
 .gf-per.cel{display:none}   /* no celular, o período fica no começo dos gráficos e recolhe junto com eles */
-.gf-corpo{padding-top:18px}
+.gf-corpo{padding-top:24px}
 .hgraf.fechado .gf-corpo{display:none}
 .esq-cols{position:absolute;inset:0 0 22px;display:flex;align-items:flex-end;gap:1.2%}
 .esq-cols i{flex:1;border-radius:4px 4px 0 0}
@@ -215,17 +210,18 @@ html.no-fim{background:var(--cl)}
 .gf-per button{height:32px;padding:0 14px;border-radius:99px;color:#B9C6DA;font:600 12.5px/1 var(--f2);transition:background .2s,color .2s}
 .gf-per button:hover{color:#fff}
 .gf-per button.on{background:#fff;color:var(--ink)}
-.gf-grade{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;transition:opacity .25s}
+.gf-grade{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:20px;transition:opacity .25s}
 .gf-grade.carrega{opacity:.45}   /* trocando o período, os gráficos ficam apagados até os números novos chegarem */
-.gc{min-width:0;padding:22px 24px 24px;border-radius:22px;background:rgba(255,255,255,.035);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+/* mais respiro dentro dos cartões e entre os textos (pedido do Luiz, 31/10/2026: tudo muito junto da borda) */
+.gc{min-width:0;padding:30px 32px 32px;border-radius:22px;background:rgba(255,255,255,.035);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
 .gc-dia{grid-column:span 4}
 .gc-tempo,.gc-carros,.gc-origem,.gc-hora{grid-column:span 2}
 .gc-busca,.gc-lojas{grid-column:span 3}
 .gc h3{font:500 17px/1.25 var(--f1);letter-spacing:-.01em}
-.gc .gsub{margin-top:3px;font-size:13px;color:#8592AA}
-.gc .gvazio{margin-top:18px;font-size:13.5px;color:#8592AA}
+.gc .gsub{margin-top:6px;font-size:13px;color:#8592AA}
+.gc .gvazio{margin-top:22px;font-size:13.5px;color:#8592AA}
 .gtopo{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px 30px}
-.gnum{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:12px}
+.gnum{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:18px}
 .gnum b{font:500 42px/1 var(--f1);letter-spacing:-.03em}
 .gnum span{font-size:14px;color:#B9C6DA}
 .gdelta{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 9px;border-radius:99px;font:600 12px/1 var(--f2);white-space:nowrap}
@@ -235,7 +231,7 @@ html.no-fim{background:var(--cl)}
 .gmini{display:flex;flex-wrap:wrap;gap:8px 28px;font-size:12.5px;color:#8592AA}
 .gmini b{display:block;margin-bottom:3px;font:500 20px/1.1 var(--f1);color:#fff}
 /* a linha das visitas por dia e as colunas do horário: SVG do tamanho da caixa, desenhado de novo quando a tela muda */
-.gplot{position:relative;margin-top:18px;height:210px;touch-action:pan-y}
+.gplot{position:relative;margin-top:26px;height:210px;touch-action:pan-y}
 /* a linha e as colunas ocupam a altura que sobra no cartão (a fileira tem a altura do cartão mais alto) */
 .gc-dia,.gc-hora{display:flex;flex-direction:column}
 .gc-dia .gplot,.gc-hora .gplot{flex:1 1 auto;height:auto;min-height:210px}
@@ -254,16 +250,16 @@ html.no-fim{background:var(--cl)}
 .gplot.cols.on .col{transform:none}
 .gplot:focus-visible{outline:2px solid var(--gold3);outline-offset:6px;border-radius:8px}
 /* barras: o nome, o valor na ponta e a barra embaixo (quadrada na base, redonda na ponta) */
-.gbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:12px;row-gap:6px;margin-top:13px}
+.gbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:12px;row-gap:7px;margin-top:17px}
 .gbar>span{min-width:0;font-size:13.5px;color:#CFD9E8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gbar>b{font:600 13px/1 var(--f2);color:#fff;font-variant-numeric:tabular-nums}
 .gbar>b small{margin-left:6px;font-weight:500;color:#8592AA}
 .gbar>i{grid-column:1/-1;height:6px;border-radius:0 3px 3px 0;background:rgba(255,255,255,.07)}
 .gbar>i>u{display:block;height:100%;width:0;border-radius:0 3px 3px 0;background:linear-gradient(90deg,#C8862E,#F0AD57);transition:width 1s cubic-bezier(.2,.8,.2,1)}
-.gfim{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:13px;color:#B9C6DA}
+.gfim{margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08);font-size:13px;color:#B9C6DA}
 .gfim b{color:#fff;font-weight:600}
 /* os carros mais visitados: a foto, o nome, a loja e a barra; tocado, abre o carro em Veículos */
-.gcar{display:grid;grid-template-columns:60px minmax(0,1fr) auto;gap:12px;align-items:center;width:calc(100% + 16px);margin:10px -8px 0;padding:6px 8px;border-radius:14px;text-align:left;transition:background .2s}
+.gcar{display:grid;grid-template-columns:60px minmax(0,1fr) auto;gap:12px;align-items:center;width:calc(100% + 16px);margin:14px -8px 0;padding:6px 8px;border-radius:14px;text-align:left;transition:background .2s}
 .gcar:hover{background:rgba(255,255,255,.05)}
 .gcar .ft{width:60px;aspect-ratio:4/3;border-radius:9px;background:#0A1A33 center/cover no-repeat}
 .gcar .nm{min-width:0}
@@ -585,6 +581,25 @@ button.row:hover .row-tx b{color:var(--gold)}
 .pc h3{margin-top:6px;font:500 19px/1.25 var(--f1)}
 .pc p{margin-top:6px;font-size:13.5px;color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pc-tags{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+/* os cartões do mesmo tamanho (pedido do Luiz, 31/10/2026): as etiquetas em cima da foto, a linha de cima numa linha só, o título em até
+   duas linhas e o texto em duas, com o lugar guardado */
+.pc-f{position:relative}
+.pc-f img{position:absolute;inset:0}
+.pc-f .pc-tags{position:absolute;left:12px;top:12px;margin:0}
+.pc-k{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc h3{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.5em}
+.pc p{line-height:1.5;min-height:3em}
+/* o mural: os filtros e, à direita, a grade ou a lista (pedido do Luiz, 31/10/2026) */
+.mbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.plista{margin-top:20px}
+.prow{display:grid;grid-template-columns:112px minmax(0,1fr) auto auto auto;gap:22px;align-items:center;padding:12px 0;border-bottom:1px solid var(--fio)}
+.prow.on .pr-c h3{color:var(--goldtx)}
+.pr-f{position:relative;aspect-ratio:16/10;border-radius:12px;overflow:hidden;background:#E9E4DD;display:flex;align-items:center;justify-content:center;color:#A9A198}
+.pr-f img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pr-c{min-width:0}
+.pr-c h3{margin-top:4px;font:500 18px/1.25 var(--f1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
+.pr-t .pc-tags{margin:0}
+.plista>.cam{margin-top:-1px}
 /* "Ver no site" à esquerda e, à direita, só a bolinha de editar; com o mouse em cima, o excluir sai de baixo dela (pedido do Luiz, 20/10/2026) */
 .pc-a{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 16px 18px}
 .pc-ed{position:relative;display:flex}
@@ -744,12 +759,13 @@ button.row:hover .row-tx b{color:var(--gold)}
   .topo{padding:18px var(--lado) calc(var(--canto) + 30px)}
   .topo-in{grid-template-columns:auto 1fr;grid-template-areas:"logo acoes" "tit tit" "form form" "busca busca" "kpi kpi" "graf graf";column-gap:12px}
   .hgraf{margin-top:36px}
-  .gf-cab{flex-wrap:wrap}
+  .gf-cab{flex-wrap:wrap;justify-content:center;min-height:0}   /* "Visitas ao site" e os períodos no meio, um perto do outro (pedido do Luiz, 31/10/2026) */
   .gf-cab .gf-per{display:none}
-  .gf-per.cel{display:flex;width:max-content;margin-bottom:14px}
-  .gf-grade{grid-template-columns:minmax(0,1fr);gap:12px}
+  .gf-corpo{padding-top:10px}
+  .gf-per.cel{display:flex;width:max-content;margin:0 auto 18px}
+  .gf-grade{grid-template-columns:minmax(0,1fr);gap:14px}
   .gc-dia,.gc-tempo,.gc-carros,.gc-origem,.gc-hora,.gc-busca,.gc-lojas{grid-column:auto}
-  .gc{padding:18px 18px 20px;border-radius:18px}
+  .gc{padding:24px 22px 26px;border-radius:18px}
   .gnum b{font-size:34px}
   .gtopo>div:first-child,.gmini{width:100%}
   .gmini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 14px}
@@ -758,6 +774,10 @@ button.row:hover .row-tx b{color:var(--gold)}
   .na-g{grid-template-columns:minmax(0,1fr)}
   .na-g .cm-b .bt,.na-g .cm-b .bto{flex:1 1 0;justify-content:center}
   .ed-fotos{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .mbar{justify-content:center}
+  .prow{grid-template-columns:22vw minmax(0,1fr) auto;gap:12px}
+  .prow .pr-t,.prow>.lk{display:none}
+  .pr-c h3{font-size:15px}
   .vc .vm{font-size:11.5px}
   .cv-acoes .bto{flex:1 1 calc(50% - 5px);justify-content:center;padding:0 12px}
   .cv-acoes .sw-l{margin-left:0;flex-basis:100%}
@@ -904,13 +924,11 @@ button.row:hover .row-tx b{color:var(--gold)}
 <div class="app" id="app">
   <header class="topo vidro">
     <div class="topo-in">
-      <!-- a busca e, ao lado dela, o "+" da parte aberta (cadastrar associado ou nova publicação), que some enquanto o formulário está aberto -->
       <div class="tbusca">
         <label class="busca" id="buscaBox">
           <svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           <input id="gBusca" placeholder="Buscar no painel" aria-label="Buscar associado, veículo, lead ou publicação" autocomplete="off" oninput="buscaGlobal(this.value)" onkeydown="if(event.key==='Escape'){this.value='';buscaGlobal('');}">
         </label>
-        <button type="button" class="mais fora" id="btMais" aria-hidden="true" tabindex="-1" onclick="acaoMais()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
       </div>
       <img class="tlogo" src="marca-nova/aceima-nova.png" alt="Aceima">
       <div class="tacoes">
@@ -987,7 +1005,13 @@ button.row:hover .row-tx b{color:var(--gold)}
 
       <!-- ===== MURAL ===== -->
       <section class="view" id="v-mural">
-        <div class="chips" id="pubChips"></div>
+        <div class="mbar">
+          <div class="chips" id="pubChips"></div>
+          <div class="modo" role="group" aria-label="Visualização">
+            <button type="button" data-m="grade" title="Em grade" aria-label="Em grade" onclick="modoMural('grade')"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
+            <button type="button" data-m="lista" title="Em lista" aria-label="Em lista" onclick="modoMural('lista')"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg></button>
+          </div>
+        </div>
         <div class="pgrid" id="pubsGrid"></div>
       </section>
     </div>
@@ -1165,13 +1189,14 @@ function pintarHero(animar){
   $('heroTit').classList.toggle('centro',v==='dash');   // na visão geral, a data no meio
   pintarMais();pintarResumo();pintarKpis(false);pintarGraf(false);
 }
-// o "+" fica ao lado da busca, na mesma linha (pedido do Luiz, 22/10/2026): em Associados cadastra, no Mural publica. Some enquanto o
-// formulário está aberto
+// cadastrar associado e nova publicação (pedido do Luiz, 31/10/2026: o "+" ao lado da busca ficava escondido): um botão com o nome, à
+// direita do título da parte, no azul do topo; no celular, embaixo do título, de ponta a ponta. Some enquanto o formulário está aberto
 const MAIS={associados:['Cadastrar associado',()=>abrirNovo()],mural:['Nova publicação',()=>abrirPub()]};
 function pintarMais(){
-  const b=$('btMais'),m=MAIS[vistaAtual],aberto=(vistaAtual==='associados'&&!$('novoAssoc').hidden)||(vistaAtual==='mural'&&!$('pubEd').hidden);
-  const mostra=!!m&&!aberto;b.classList.toggle('fora',!mostra);b.setAttribute('aria-hidden',String(!mostra));b.tabIndex=mostra?0:-1;
-  if(m){b.title=m[0];b.setAttribute('aria-label',m[0]);}
+  const a=$('htA'),m=MAIS[vistaAtual],aberto=(vistaAtual==='associados'&&!$('novoAssoc').hidden)||(vistaAtual==='mural'&&!$('pubEd').hidden),k=m&&!aberto?vistaAtual:'';
+  if(a.dataset.k===k)return;
+  a.dataset.k=k;a.innerHTML=k?`<button type="button" class="bt" onclick="acaoMais()">${sv(IC.mais,'sm')}${m[0]}</button>`:'';
+  if(k&&!reduz())a.firstChild.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:420,easing:'cubic-bezier(.2,.8,.2,1)'});
 }
 function acaoMais(){const m=MAIS[vistaAtual];if(m)m[1]();}
 function pintarResumo(animar){
@@ -2096,7 +2121,7 @@ function renderVeic(trocou){
   $('veicCount').innerHTML=!dadosProntos?'':list.length?`<b>${fmt(ini+1)}–${fmt(ini+pag.length)}</b> de ${fmt(list.length)} ${list.length===1?'veículo':'veículos'}${pags>1?` · página ${VPAG+1} de ${pags}`:''}${semFoto&&!$('fVBusca').value?` · <span class="alerta">${semFoto} sem foto</span>`:''}`:'Nenhum veículo';
   const mexeu=['fVBusca','fVLoja','fVMarca'].some(id=>$(id).value)||$('fVStatus').value!=='todos'||$('fVOrd').value!=='recentes';
   $('btnLimparVeic').classList.toggle('on',mexeu);
-  document.querySelectorAll('.modo button').forEach(b=>b.classList.toggle('on',b.dataset.m===VMODO));
+  $('v-veiculos').querySelectorAll('.modo button').forEach(b=>b.classList.toggle('on',b.dataset.m===VMODO));
   const box=$('veicLista');
   if(!pag.some(v=>v.id===veicAberto))veicAberto=null;
   // antes dos dados, o esqueleto da grade ou da lista
@@ -2337,24 +2362,43 @@ const fotosDaPub=p=>Array.isArray(p.fotos)&&p.fotos.length?p.fotos:(p.foto?[p.fo
 const srcFotoPub=f=>f.nova||FOTO_LOCAL[f.caminho]||f.caminho;
 // o começo do texto, no lugar do resumo (o resumo saiu: eram dois textos; pedido do Luiz, 22/10/2026)
 const trechoPub=p=>{const t=String(p.texto||'').replace(/\s+/g,' ').trim();return t.length>160?t.slice(0,160).replace(/\s+\S*$/,'')+'…':t;};
+// a foto com o recorte automático (enquadrar, em fotos.js: a foto anda até a melhor parte dela)
+const imgPub=f=>`<img src="${esc(f)}" alt="" loading="lazy" data-foco onload="window.enquadrar&&enquadrar(this)">`;
+const etiquetasPub=p=>p.destaque||p.exemplo?`<div class="pc-tags">${p.destaque?'<span class="pl ouro sem">Destaque</span>':''}${p.exemplo?'<span class="pl cinza sem">Exemplo</span>':''}</div>`:'';
+// os cartões têm todos o mesmo tamanho (pedido do Luiz, 31/10/2026): as etiquetas ficam em cima da foto, o título em até duas linhas e o
+// texto em duas, com o lugar delas guardado mesmo quando são mais curtos
 function cartaoPub(p){const f=fotoPub(p),n=fotosDaPub(p).length,tr=trechoPub(p);
   return `<article class="pc" data-k="${esc(p.id)}">
-    <div class="pc-f">${f?`<img src="${esc(f)}" alt="" loading="lazy">`:sv(IC.foto)}</div>
-    <div class="pc-b"><div class="pc-k"><b>${esc(p.categoria)}</b> · ${dataLonga(p.data)}${n>1?` · ${n} fotos`:''}</div><h3>${esc(p.titulo||'Título da publicação')}</h3>${tr?`<p>${esc(tr)}</p>`:''}
-     ${p.destaque||p.exemplo?`<div class="pc-tags">${p.destaque?'<span class="pl ouro sem">Destaque</span>':''}${p.exemplo?'<span class="pl cinza sem">Exemplo</span>':''}</div>`:''}</div>
+    <div class="pc-f">${f?imgPub(f):sv(IC.foto)}${etiquetasPub(p)}</div>
+    <div class="pc-b"><div class="pc-k"><b>${esc(p.categoria)}</b> · ${dataLonga(p.data)}${n>1?` · ${n} fotos`:''}</div><h3>${esc(p.titulo||'Título da publicação')}</h3><p>${esc(tr)}</p></div>
     <div class="pc-a"><a class="lk" href="/publicacoes/${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a>
      <div class="pc-ed"><button type="button" class="pc-x" title="Excluir" aria-label="Excluir a publicação" onclick="excluirPub('${p.id}')">${sv(IC.lixo,'sm')}</button><button type="button" class="pc-e" title="Editar" aria-label="Editar a publicação" onclick="abrirPub('${p.id}')">${sv(IC.lapis,'sm')}</button></div></div>
   </article>`;}
+// o mural em lista (pedido do Luiz, 31/10/2026): uma publicação por linha, com a foto pequena, a categoria e a data, o título numa linha,
+// as etiquetas e as ações. A escolha fica guardada no aparelho, como a de Veículos
+function linhaPub(p){const f=fotoPub(p),n=fotosDaPub(p).length;
+  return `<article class="prow" data-k="${esc(p.id)}">
+    <div class="pr-f">${f?imgPub(f):sv(IC.foto)}</div>
+    <div class="pr-c"><div class="pc-k"><b>${esc(p.categoria)}</b> · ${dataLonga(p.data)}${n>1?` · ${n} fotos`:''}</div><h3>${esc(p.titulo||'Título da publicação')}</h3></div>
+    <div class="pr-t">${etiquetasPub(p)}</div>
+    <a class="lk" href="/publicacoes/${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a>
+    <div class="pc-ed"><button type="button" class="pc-x" title="Excluir" aria-label="Excluir a publicação" onclick="excluirPub('${p.id}')">${sv(IC.lixo,'sm')}</button><button type="button" class="pc-e" title="Editar" aria-label="Editar a publicação" onclick="abrirPub('${p.id}')">${sv(IC.lapis,'sm')}</button></div>
+  </article>`;}
+let MMODO=(()=>{try{return localStorage.getItem('painel_mmodo')||'grade';}catch(e){return 'grade';}})();
+function modoMural(m){if(m===MMODO)return;MMODO=m;try{localStorage.setItem('painel_mmodo',m);}catch(e){}
+  if(pubEdit&&$('pubEd').hidden){fecharCal();pubEdit=null;}renderPubs();entrarLista($('pubsGrid'));}
 function filtPub(c){if(c===pubFiltro)return;pubFiltro=c;pubEdit=null;fecharCal();renderPubs();entrarLista($('pubsGrid'));}
 function renderPubs(){
   const g=$('pubsGrid'),ch=$('pubChips');
   if(pubsErro){ch.innerHTML='';g.innerHTML=`<p class="vazio" style="grid-column:1/-1">Não deu para abrir as publicações: ${esc(pubsErro)}</p>`;return;}
   // antes de as publicações chegarem, o esqueleto dos cartões
-  if(!pubsProntas){ch.innerHTML='';g.innerHTML=Array.from({length:6},()=>'<article class="pc"><div class="pc-f esq" style="border-radius:0"></div><div class="pc-b"><i class="esq" style="width:46%;height:11px"></i><i class="esq" style="width:82%;height:16px;margin-top:10px"></i><i class="esq" style="width:64%;height:12px;margin-top:8px"></i></div><div class="pc-a"><i class="esq" style="width:90px;height:13px"></i><i class="esq" style="width:40px;height:40px;border-radius:50%"></i></div></article>').join('');return;}
+  if(!pubsProntas){ch.innerHTML='';g.className='pgrid';g.innerHTML=Array.from({length:6},()=>'<article class="pc"><div class="pc-f esq" style="border-radius:0"></div><div class="pc-b"><i class="esq" style="width:46%;height:11px"></i><i class="esq" style="width:82%;height:16px;margin-top:10px"></i><i class="esq" style="width:64%;height:12px;margin-top:8px"></i></div><div class="pc-a"><i class="esq" style="width:90px;height:13px"></i><i class="esq" style="width:40px;height:40px;border-radius:50%"></i></div></article>').join('');return;}
   const cont={Todas:PUBS.length};PUBS.forEach(p=>{cont[p.categoria]=(cont[p.categoria]||0)+1;});
   pintarChips(ch,['Todas',...CATS_PUB].map(c=>[c,c,cont[c]||0]),pubFiltro,'filtPub');
   const lista=PUBS.filter(p=>pubFiltro==='Todas'||p.categoria===pubFiltro);
-  g.innerHTML=lista.length?lista.map(p=>cartaoPub(p)).join(''):`<p class="vazio" style="grid-column:1/-1">${PUBS.length?'Nenhuma publicação nesta categoria.':'Nenhuma publicação ainda.'}</p>`;
+  $('v-mural').querySelectorAll('.modo button').forEach(b=>b.classList.toggle('on',b.dataset.m===MMODO));
+  g.className=MMODO==='lista'?'plista':'pgrid';
+  g.innerHTML=lista.length?lista.map(p=>MMODO==='lista'?linhaPub(p):cartaoPub(p)).join(''):`<p class="vazio" style="grid-column:1/-1">${PUBS.length?'Nenhuma publicação nesta categoria.':'Nenhuma publicação ainda.'}</p>`;
 }
 /* o editor do mural, no padrão do site e menor (pedidos do Luiz, 20, 21 e 22/10/2026): o título, a data e o destaque numa linha, as
    categorias numa linha, o texto que cresce conforme se escreve e, ao lado, as fotos pequenas (a primeira é a capa) e a prévia. A nova
@@ -2388,10 +2432,10 @@ function abrirPub(id){
     if(p){
       if(pubEdit===p.id&&b.hidden){fecharPub();return;}   // tocar de novo no editar fecha
       if(!b.hidden)fecharBloco(b);
-      let card=g.querySelector(`.pc[data-k="${CSS.escape(p.id)}"]`);
-      if(!card){pubFiltro='Todas';renderPubs();card=g.querySelector(`.pc[data-k="${CSS.escape(p.id)}"]`);if(!card)return;}
+      let card=g.querySelector(`:scope>[data-k="${CSS.escape(p.id)}"]`);
+      if(!card){pubFiltro='Todas';renderPubs();card=g.querySelector(`:scope>[data-k="${CSS.escape(p.id)}"]`);if(!card)return;}
       pubEdit=p.id;pubFotos=fotosDaPub(p).map(c=>({caminho:c}));pubCat=CATS_PUB.includes(p.categoria)?p.categoria:CATS_PUB[0];pubDest=!!p.destaque;
-      abrirCamada(g,card,editorPub(p),true,ancoraGrade(g,card));
+      if(MMODO==='lista')abrirCamada(g,card,editorPub(p),true);else abrirCamada(g,card,editorPub(p),true,ancoraGrade(g,card));
       pintarFotosPub();crescerTexto($('pTexto'));
       return;
     }
