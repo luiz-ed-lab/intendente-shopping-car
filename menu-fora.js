@@ -1,5 +1,5 @@
-// O menu do site nas páginas que ficam fora dele: o Repasse e a página de obra (pedido do Luiz, 31/10/2026: o menu precisa ficar no lugar
-// quando a página abre). É a mesma barra do index.html (montarMenu), com o Repasse aceso: no computador, a pílula embaixo, no centro; no
+// O menu do site na página que fica fora dele: o Repasse (pedido do Luiz, 31/10/2026: o menu precisa ficar no lugar quando a página
+// abre). É a mesma barra do index.html (montarMenu), com o Repasse aceso: no computador, a pílula embaixo, no centro; no
 // celular, só o ícone no canto de cima, que abre a lista. Os links levam às páginas do site. Entre o site e estas páginas, o navegador faz a
 // fusão de página (view transition entre documentos) com o menu parado, como numa troca de página dentro do site: o nome da página de onde
 // se veio fecha (no celular, o menu aberto fecha em volta do ícone do Repasse).
@@ -87,11 +87,18 @@
   else if (antes) { const b = n.querySelector(`.nb[data-p="${antes}"]`); if (b) b.classList.add('hov'); nomes(); requestAnimationFrame(() => requestAnimationFrame(() => { n.classList.remove('parado'); if (b) b.classList.remove('hov'); nomes(); })); }
   else { nomes(); solta(); }
   if (document.fonts) document.fonts.ready.then(nomes);   // medido de novo com a fonte do site, senão corta a última letra
-  // no computador e no tablet, descendo até o rodapé (o do Repasse), o menu para com o meio na divisa dele, como no site (menuNoRodape)
+  // no computador e no tablet, descendo até o rodapé (o do Repasse), o menu para com o meio na divisa dele, como no site (menuNoRodape).
+  // Uma conta por quadro, e a medida vai só no menu, quando muda: na raiz da página, ela fazia o navegador recalcular a página inteira
+  let pedido = 0, sobe = '';
   function noRodape() {
-    const r = document.querySelector('.rod'); let s = 0;
-    if (r && !cel() && r.getClientRects().length) s = Math.max(0, innerHeight - parseFloat(getComputedStyle(n).bottom) - n.offsetHeight / 2 - r.getBoundingClientRect().top);
-    document.documentElement.style.setProperty('--sobe', s.toFixed(1) + 'px');
+    if (pedido) return;
+    pedido = requestAnimationFrame(() => {
+      pedido = 0;
+      const r = document.querySelector('.rod'); let s = 0;
+      if (r && !cel() && r.getClientRects().length) s = Math.max(0, innerHeight - parseFloat(getComputedStyle(n).bottom) - n.offsetHeight / 2 - r.getBoundingClientRect().top);
+      const v = s.toFixed(1) + 'px';
+      if (v !== sobe) { sobe = v; n.style.setProperty('--sobe', v); }
+    });
   }
   addEventListener('scroll', noRodape, { passive: true });
   if (typeof ResizeObserver === 'function') new ResizeObserver(noRodape).observe(document.body);

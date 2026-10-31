@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#00091A">
-<title>Repasse · Aceima</title>
-<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
-<link rel="icon" type="image/png" sizes="32x32" href="marca-nova/icone-32.png">
-<link rel="apple-touch-icon" href="marca-nova/apple-touch-icon.png">
+<title>Repasse Intendente · Aceima</title>
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="/marca-nova/icone-32.png">
+<link rel="apple-touch-icon" href="/marca-nova/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -23,7 +23,8 @@
   --line:#E3DFDA;--fio:#ECE7E1;--lado:60px;--canto:44px;--ease:cubic-bezier(.2,.8,.2,1);--f1:Outfit,sans-serif;--f2:Figtree,sans-serif;
   --sombra:0 1px 0 rgba(0,0,0,.04),0 22px 44px -30px rgba(0,0,0,.3)}
 *{box-sizing:border-box;margin:0;padding:0}
-html{background:var(--navy);-webkit-text-size-adjust:100%}
+/* a barra de rolagem fica sempre na tela: abrindo um anúncio, a página cresce e nada anda para o lado (pedido do Luiz, 31/10/2026) */
+html{background:var(--navy);-webkit-text-size-adjust:100%;overflow-x:hidden;overflow-y:scroll}
 body{min-height:100vh;background:var(--navy);color:var(--ink);font:16px/1.5 var(--f2);-webkit-font-smoothing:antialiased;caret-color:var(--gold)}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none;text-align:inherit}
@@ -37,7 +38,7 @@ html{scrollbar-color:#C9C3BB transparent}
 
 /* ===== o vidro do topo: o quadro parado do vídeo do site, discreto ===== */
 .vidro{position:relative;background:var(--navy);isolation:isolate}
-.vidro::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:url(fundo-animado-frame.jpg) center/cover no-repeat;opacity:.17;mix-blend-mode:screen;filter:brightness(.78)}
+.vidro::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:url(/fundo-animado-frame.jpg) center/cover no-repeat;opacity:.17;mix-blend-mode:screen;filter:brightness(.78)}
 
 /* ===== botões ===== */
 .ouro{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:46px;padding:0 24px;border-radius:99px;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;font:600 15px/1.25 var(--f2);white-space:nowrap;transition:filter .2s,transform .2s var(--ease)}
@@ -84,11 +85,10 @@ a.marca:hover{opacity:.85}
 .busca input::placeholder{color:#8D9BB3}
 .abas{display:none}
 
-/* o cadastro (e a edição) abre no azul do topo, acima da folha */
+/* o cadastro (e a edição) abre no azul do topo, acima da folha, direto nos campos: sem título e sem o x (pedido do Luiz, 31/10/2026);
+   fecha pelo Cancelar */
 .form-in{margin-top:34px;padding:30px 0 6px;border-top:1px solid rgba(255,255,255,.12)}
-.form-cab{display:flex;align-items:center;justify-content:space-between;gap:20px}
-.form-cab h2{font:500 30px/1.1 var(--f1);letter-spacing:-.015em}
-.fg{margin-top:22px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 14px}
+.fg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 14px}
 .fg .c2{grid-column:span 2}.fg .c4{grid-column:1/-1}
 .fc{display:flex;flex-direction:column;gap:8px;min-width:0}
 .fc>span{font-size:13px;color:#9FB0C9}
@@ -113,7 +113,10 @@ a.marca:hover{opacity:.85}
 .form-acoes .sair-f:hover{color:#fff}
 
 /* ===== folha clara ===== */
-.folha{position:relative;margin-top:calc(-1 * var(--canto));min-height:60vh;padding:34px var(--lado) 96px;border-radius:var(--canto) var(--canto) 0 0;background:var(--cl)}
+/* o topo e a folha ocupam a tela inteira, e o rodapé vem logo depois (pedido do Luiz, 31/10/2026): com poucos carros, sobrava um espaço
+   vazio embaixo do rodapé e o menu subia até a divisa dele. Assim o menu abre no lugar de sempre e só para na divisa descendo até o fim */
+#app{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.folha{position:relative;flex:1 0 auto;margin-top:calc(-1 * var(--canto));padding:34px var(--lado) 72px;border-radius:var(--canto) var(--canto) 0 0;background:var(--cl)}
 .folha-in{max-width:1660px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:44px;align-items:start}
 .fil{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .chip{height:38px;padding:0 15px;border-radius:99px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);display:inline-flex;align-items:center;gap:7px;font:500 14px/1.2 var(--f2);white-space:nowrap;transition:background .2s,color .2s,box-shadow .2s}
@@ -141,9 +144,14 @@ a.marca:hover{opacity:.85}
 .dia{display:flex;align-items:baseline;gap:10px;margin:22px 0 4px}
 .dia h2{font:600 23px/1 var(--f1);letter-spacing:-.01em}
 .dia span{font-size:14px;color:var(--mut)}
-/* a linha: a foto, o nome com os dados e, no canto direito, o valor e a loja (o WhatsApp das outras lojas fica antes deles) */
-.ln{position:relative;display:grid;grid-template-columns:116px minmax(0,1fr) auto auto;gap:20px;align-items:center;padding:12px 10px;margin:0 -10px;border-radius:16px;cursor:pointer;transition:background .2s}
-.ln+.ln{border-top:1px solid var(--fio)}
+/* a linha: a foto, o nome com os dados e, no canto direito, o valor e a loja, com o botão redondo à esquerda deles (a mensagem para a loja
+   ou, no carro da própria loja, editar; pedido do Luiz, 31/10/2026). As linhas dividem as colunas da lista (subgrid): os botões ficam todos
+   na mesma linha, encostados na coluna do valor, que tem a largura do maior texto dela */
+#lista{display:grid;grid-template-columns:116px minmax(0,1fr) auto auto;column-gap:20px}
+#lista>*{grid-column:1/-1}
+.ln{position:relative;display:grid;grid-template-columns:subgrid;column-gap:20px;align-items:center;padding:16px 22px;margin:0 -22px;border-radius:18px;cursor:pointer;transition:background .2s}
+/* a linha entre os carros é reta e vai da foto ao valor (com a borda redonda, as pontas dela curvavam) */
+.ln+.ln::before{content:"";position:absolute;left:22px;right:22px;top:0;height:1px;background:var(--fio);pointer-events:none}
 .ln:hover{background:rgba(255,255,255,.7)}
 .ph{position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(160deg,#5d6676,#262e3d 62%,#151b27)}
 .ph svg{position:absolute;left:8%;bottom:11%;width:84%;height:auto;fill:rgba(255,255,255,.18)}
@@ -154,10 +162,13 @@ a.marca:hover{opacity:.85}
 .t>span:first-child{min-width:0}
 .dl{display:block;margin-top:4px;font-size:14px;color:var(--mut)}
 .novo{flex:none;height:21px;padding:0 9px;border-radius:99px;background:#FBE7CC;color:#7A4A10;font:600 11.5px/21px var(--f2)}
-.zap{grid-column:3;justify-self:end;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;transition:filter .2s,transform .2s var(--ease)}
-.zap:hover{filter:brightness(1.06)}.zap:active{transform:scale(.94)}
-.pr{grid-column:4;width:190px;display:flex;flex-direction:column;align-items:flex-end;text-align:right}
-.pr small{font-size:13.5px;color:var(--mut)}
+.rb{grid-column:3;justify-self:end;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;transition:filter .2s,transform .2s var(--ease),background .2s}
+.rb:active{transform:scale(.94)}
+.rb.zap{background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128}
+.rb.zap:hover{filter:brightness(1.06)}
+.rb.edt{background:#EFEAE3;color:var(--ink)}
+.rb.edt:hover{background:#E5DED4}
+.pr{grid-column:4;display:flex;flex-direction:column;align-items:flex-end;text-align:right;min-width:0}
 .vl{display:block;font:600 22px/1.1 var(--f1);font-style:normal;font-variant-numeric:tabular-nums;white-space:nowrap}
 .an{display:block;max-width:100%;margin-top:6px;font-size:13.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* o carro vendido continua na lista, riscado, até o fim do dia */
@@ -167,28 +178,30 @@ a.marca:hover{opacity:.85}
 .ln.foi .zap{background:#E9E5DF;color:var(--mut);pointer-events:none}
 /* o carro que chega entra no topo com um brilho dourado, uma vez */
 .ln.chega{animation:chega .9s var(--ease) both}
-.ln.chega::after{content:"";position:absolute;inset:0;border-radius:16px;pointer-events:none;background:linear-gradient(100deg,transparent 0%,rgba(244,176,92,.28) 45%,transparent 70%);background-size:220% 100%;animation:brilho 1.5s .2s ease-out both}
+.ln.chega::after{content:"";position:absolute;inset:0;border-radius:18px;pointer-events:none;background:linear-gradient(100deg,transparent 0%,rgba(244,176,92,.28) 45%,transparent 70%);background-size:220% 100%;animation:brilho 1.5s .2s ease-out both}
 @keyframes chega{from{opacity:0;transform:translateY(-12px)}}
 @keyframes brilho{from{background-position:120% 0}to{background-position:-60% 0;opacity:0}}
 
 /* a linha aberta vira o anúncio inteiro, no mesmo lugar (pedido do Luiz, 31/10/2026): a foto cresce, o nome, os dados, o valor e a loja
    andam até o lugar deles e o resto chega em fusão. Nada aparece duas vezes */
-.ln.on,.ln.fecha{background:#fff;border-radius:22px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 26px 48px -30px rgba(0,0,0,.35)}
-.ln.on{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:34px;align-items:start;padding:14px 14px 24px;cursor:default}
-.ln.on,.ln.on+.ln,.ln.fecha,.ln.fecha+.ln{border-top-color:transparent}
+.ln.on,.ln.fecha{background:#fff;border-radius:26px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 26px 48px -30px rgba(0,0,0,.35)}
+.ln.on{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:40px;align-items:start;padding:24px 24px 30px;cursor:default}
+.ln.on::before,.ln.on+.ln::before,.ln.fecha::before,.ln.fecha+.ln::before{display:none}
 .ln.on:hover{background:#fff}
 .ln.on .ph.grande{display:block;width:100%;aspect-ratio:4/3;border-radius:16px}
 .tiras{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
 .tiras button{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#E9E5DF;opacity:.75;transition:opacity .2s}
 .tiras button:hover,.tiras button.on{opacity:1}
 .tiras img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.det{min-width:0;padding-top:8px}
-.cab{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:start;cursor:pointer}
+.det{min-width:0;padding-top:6px}
+/* aberto, o valor e a loja vão para baixo do nome (pedido do Luiz, 31/10/2026) */
+.cab{cursor:pointer}
 .ln.on .t{font:600 27px/1.15 var(--f1);letter-spacing:-.015em}
 .ln.on .dl{margin-top:8px;font-size:15px}
-.ln.on .pr{width:auto}
-.ln.on .vl{margin-top:4px;font-size:32px;letter-spacing:-.02em}
-.ln.on .an{margin-top:8px}
+.ln.on .pr{margin-top:22px;align-items:flex-start;text-align:left}
+.ln.on .pr small{font:600 11px/1.2 var(--f2);letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.ln.on .vl{margin-top:7px;font-size:32px;letter-spacing:-.02em}
+.ln.on .an{margin-top:7px}
 .dados{margin-top:26px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 .dados small,.desc small{display:block;font:600 11px/1.2 var(--f2);letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
 .dados strong{display:block;margin-top:6px;font:500 18px/1.2 var(--f1)}
@@ -202,8 +215,8 @@ a.marca:hover{opacity:.85}
 
 /* seus carros */
 .meus{position:sticky;top:24px;background:#fff;border-radius:24px;padding:24px 22px 22px;box-shadow:var(--sombra)}
-.meus h2{font:600 20px/1.2 var(--f1);letter-spacing:-.01em}
-.meus>p{margin-top:4px;font-size:14px;color:var(--mut)}
+.meus h2{font:600 20px/1 var(--f1);letter-spacing:-.01em}
+.meus>p{margin-top:3px;font-size:14px;line-height:1.25;color:var(--mut)}   /* o título e a contagem bem juntos (pedido do Luiz, 31/10/2026) */
 .ml{display:grid;gap:14px;margin-top:18px}
 .mi{display:grid;grid-template-columns:88px minmax(0,1fr) auto;gap:14px;align-items:center}
 .mi .ph{width:88px;height:66px;border-radius:10px}
@@ -219,8 +232,6 @@ a.marca:hover{opacity:.85}
 .pl.foi{background:#ECE8E2;color:var(--mut)}
 .meus .ouro{width:100%;margin-top:20px;height:50px}
 .meus .nada{margin-top:14px;font-size:14px;color:var(--mut)}
-.aviso{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding:14px 16px;border-radius:16px;background:#F3EEE6;font-size:13.5px;line-height:1.5;color:#5b4a35}
-.aviso svg{color:var(--gold);margin-top:2px}
 #btAnunciar{display:none}   /* no computador, o Anunciar fica no quadro dos seus carros; no tablet e no celular, no topo */
 
 /* ===== rodapé: o mesmo do site ===== */
@@ -246,9 +257,9 @@ a.marca:hover{opacity:.85}
   #btAnunciar{display:inline-flex}
   .so-meus .mercado{display:none}
   .meus{position:static}
-  .ln{grid-template-columns:104px minmax(0,1fr) auto auto;gap:16px}
+  #lista{grid-template-columns:104px minmax(0,1fr) auto auto;column-gap:16px}
+  .ln{column-gap:16px}
   .ln>.ph{width:104px;height:78px}
-  .pr{width:170px}
 }
 @media (max-width:760px){
   :root{--lado:5.63vw;--canto:28px}
@@ -272,37 +283,42 @@ a.marca:hover{opacity:.85}
   .ord-t{height:9.74vw;font-size:3.3vw}
   .ord-p button{font-size:3.6vw}
   .dia{margin-top:4.6vw}.dia h2{font-size:5.13vw}.dia span{font-size:3.3vw}
-  /* no celular, o nome vai de ponta a ponta e, embaixo dele, os dados à esquerda e o valor com a loja no canto direito */
-  .ln{grid-template-columns:23.6vw minmax(0,1fr) auto;grid-template-areas:"ph t t" "ph dl pr";gap:1vw 3.08vw;padding:2.56vw 2.05vw;margin:0 -2.05vw;align-items:end}
-  .ln>.ph{grid-area:ph;width:23.6vw;height:17.7vw;border-radius:2.56vw;align-self:center}
+  /* no celular, o nome e os dados vão de ponta a ponta e, embaixo deles, no canto direito, o botão redondo e o valor com a loja. Cada
+     linha tem a sua grade; o valor tem uma largura fixa, para os botões ficarem na mesma linha */
+  #lista{display:block}
+  .ln{grid-template-columns:23.6vw minmax(0,1fr) auto auto;grid-template-areas:"ph t t t" "ph dl dl dl" "ph . rb pr";gap:.6vw 3.08vw;padding:3.08vw 3.6vw;margin:0 -3.6vw;border-radius:4.1vw;align-items:center}
+  .ln+.ln::before{left:3.6vw;right:3.6vw}
+  .ln>.ph{grid-area:ph;width:23.6vw;height:17.7vw;border-radius:2.56vw}
   .ln .nm{display:contents}
-  .ln .t{grid-area:t;align-self:start;font-size:3.87vw}
+  .ln .t{grid-area:t;font-size:3.87vw}
   .ln .t>span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ln .dl{grid-area:dl;margin:0;font-size:3vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ln:not(.on) .dl-x{display:none}
-  .ln .pr{grid-area:pr;width:auto}
+  .ln .rb{grid-area:rb;width:9.2vw;height:9.2vw}
+  .ln .rb svg{width:4.1vw;height:4.1vw}
+  .ln .pr{grid-area:pr;width:27vw;margin-top:1vw}
   .ln .vl{font-size:4.1vw}
   .ln .an{margin-top:.8vw;font-size:2.82vw}
-  .ln .zap{display:none}   /* no celular, o WhatsApp fica no anúncio aberto */
   .novo{height:auto;padding:0 1.8vw;font-size:2.82vw;line-height:1.6}
-  .ln.on{grid-template-columns:minmax(0,1fr);grid-template-areas:none;gap:4.1vw;padding:2.56vw 2.56vw 5.13vw;border-radius:4.1vw;align-items:start}
-  .ln.on .cab{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"t t" "dl pr";gap:1.5vw 3vw;align-items:end}
+  .ln.on{grid-template-columns:minmax(0,1fr);grid-template-areas:none;gap:4.6vw;padding:3.6vw 3.6vw 6.15vw;border-radius:5.13vw;align-items:start}
   .ln.on .t{font-size:5.64vw}
   .ln.on .t>span:first-child{white-space:normal}
-  .ln.on .dl{font-size:3.3vw;white-space:normal}
-  .ln.on .vl{margin-top:.5vw;font-size:6.15vw}
-  .ln.on .an{font-size:3vw}
-  .pr small{font-size:3vw}
+  .ln.on .dl{display:block;margin-top:1.5vw;font-size:3.3vw}
+  .ln.on .pr{width:auto;margin-top:4.6vw}
+  .ln.on .pr small{font-size:2.56vw}
+  .ln.on .vl{margin-top:1.5vw;font-size:6.15vw}
+  .ln.on .an{margin-top:1.2vw;font-size:3vw}
   .det{padding-top:0}
   .tiras{gap:1.54vw}
   .dados{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:5.13vw;gap:3.08vw}
   .dados strong{font-size:4.1vw}.dados small,.desc small{font-size:2.56vw}
   .desc{margin-top:5.13vw}.desc p{font-size:3.47vw}
   .acoes{margin-top:5.13vw}
-  .acoes .ouro,.acoes .contorno{flex:1 1 100%;white-space:normal;text-align:center;height:auto;min-height:48px;padding:12px 20px}
+  /* o botão principal de ponta a ponta e os outros dois a dois */
+  .acoes .ouro,.acoes .contorno{flex:1 1 40%;white-space:normal;text-align:center;height:auto;min-height:48px;padding:12px 16px}
+  .acoes .ouro{flex-basis:100%}
   .fg{grid-template-columns:repeat(2,minmax(0,1fr))}
   .fg .c2{grid-column:1/-1}
-  .form-cab h2{font-size:6.15vw}
   .fc>span{font-size:3.3vw}.fc .campo,.campo{font-size:max(16px,3.6vw)}
   .seg button{font-size:3.3vw;padding:0 1.5vw;white-space:normal;line-height:1.2}
   .ouro,.contorno{font-size:3.3vw}
@@ -335,11 +351,12 @@ a.marca:hover{opacity:.85}
  <symbol id="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
  <symbol id="foto" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 17-5-5-9 7"/></symbol>
  <symbol id="lapis" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+ <symbol id="partilha" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"/></symbol>
 </defs></svg>
 
 <!-- ===== ENTRADA ===== -->
 <main class="entrada vidro oculto" id="entrada">
- <a href="/" aria-label="Site da Aceima"><img class="logo" src="marca-nova/aceima-nova.png" alt="Aceima"></a>
+ <a href="/" aria-label="Site da Aceima"><img class="logo" src="/marca-nova/aceima-nova.png" alt="Aceima"></a>
  <h1>Repasse <em>Intendente.</em></h1>
  <form class="ent-form" id="entForm" novalidate>
   <label for="entEmail">E-mail</label>
@@ -348,7 +365,7 @@ a.marca:hover{opacity:.85}
   <input class="campo" id="entSenha" type="password" autocomplete="current-password" placeholder="Sua senha" required>
   <button class="ouro" type="submit" id="entBt">Entrar</button>
  </form>
- <p class="ent-nota">Primeiro acesso? <a href="https://wa.me/5521991041424?text=Ol%C3%A1!%20Quero%20o%20acesso%20da%20minha%20loja%20ao%20Repasse%20da%20Aceima." target="_blank" rel="noopener">Clique aqui.</a></p>
+ <p class="ent-nota">Primeiro acesso? <a href="https://wa.me/5521991041424?text=Ol%C3%A1!%20Quero%20o%20acesso%20da%20minha%20loja%20ao%20Repasse%20Intendente." target="_blank" rel="noopener">Clique aqui.</a></p>
 </main>
 
 <!-- ===== REPASSE ===== -->
@@ -356,7 +373,7 @@ a.marca:hover{opacity:.85}
  <header class="topo vidro">
   <div class="topo-in">
    <div class="barra">
-    <a class="marca" href="/" title="Site da Aceima"><img src="marca-nova/aceima-nova.png" alt="Aceima"><i></i>Repasse</a>
+    <a class="marca" href="/" title="Site da Aceima"><img src="/marca-nova/aceima-nova.png" alt="Aceima"><i></i>Repasse</a>
     <div class="esp"></div>
     <div class="loja" id="lojaChip"></div>
     <button class="ouro" type="button" id="btAnunciar" onclick="abrirForm()"><svg class="i"><use href="#mais"/></svg><span>Anunciar</span></button>
@@ -385,7 +402,7 @@ a.marca:hover{opacity:.85}
 </div>
 <!-- o rodapé do site (pedido do Luiz, 31/10/2026) -->
 <footer class="rod"><div class="rod-in">
- <a href="/" aria-label="Site da Aceima"><img src="marca-nova/intendente-site.webp" alt="Intendente, Polo Comercial e Automotivo do Rio"></a>
+ <a href="/" aria-label="Site da Aceima"><img src="/marca-nova/intendente-site.webp" alt="Intendente, Polo Comercial e Automotivo do Rio"></a>
  <nav><a href="/a-aceima">A Aceima</a><a href="/associados">Associados</a><a href="/estoque">Estoque</a><a href="/publicacoes">Publicações</a><a href="/seja-um-associado">Seja um associado</a><a href="/servicos">Serviços do polo</a><a href="/repasse">Repasse</a><a href="/painel">Painel</a></nav>
  <div>Estrada Intendente Magalhães, 830 · Vila Valqueire · Rio de Janeiro<br>(21) 3283-6600 · <a href="https://wa.me/5521991041424" target="_blank" rel="noopener">WhatsApp (21) 99104-1424</a> · © <span id="ano"></span> Aceima · aintendente.com.br</div>
 </div></footer>
@@ -419,6 +436,7 @@ const titulo=s=>String(s||'').trim().split(/\s+/).filter(Boolean).map((w,i)=>{
 const nomeBom=s=>{s=String(s||'').replace(/\s+/g,' ').trim();return /[a-zà-ÿ]/.test(s)?s:titulo(s);};
 
 let CARROS=[],EU='',F={chip:'todos',q:'',ord:'novos'},aberto=null,novoId=null,abaAtual='mercado';
+let DO_LINK=(location.pathname.match(/^\/repasse\/(\d+)/)||[])[1];DO_LINK=DO_LINK?+DO_LINK:null;   // o anúncio do link (/repasse/12-...)
 let vistos=null,chegaram=new Set(),assinatura='',enviando=false,poll=null,EDITA=null;
 const CHIPS=[['todos','Todos'],['hoje','Hoje'],['ate50','Até R$ 50 mil'],['auto','Automáticos']];
 const ORDENS=[['novos','Mais novos'],['menor','Menor preço'],['maior','Maior preço'],['km','Menor km'],['ano','Ano mais novo']];
@@ -492,14 +510,25 @@ function linha(c){
   const dl=`<span class="dl">${esc(dados)}${c.comb?`<span class="dl-x"> · ${esc(c.comb)}</span>`:''}${foi?' · vendido às '+hora(c.repassado):''}</span>`;
   const pr=`<div class="pr">${ab?'<small>Valor de repasse</small>':''}<em class="vl">${reais(c.valor)}</em><span class="an">${esc(c.loja)} · ${hora(c.criado)}</span></div>`;
   const at=`class="ln${foi?' foi':''}${ab?' on':''}${chegaram.has(c.id)||novoId===c.id?' chega':''}" data-id="${c.id}" ${foi?'aria-disabled="true"':`role="button" tabindex="0" aria-expanded="${ab}"`}`;
-  if(!ab)return `<div ${at}>${capa(c)}<div class="nm">${t}${dl}</div>${c.meu?'':`<button type="button" class="zap" data-zap="${c.id}" aria-label="Chamar a ${esc(c.loja)} no WhatsApp" title="Chamar no WhatsApp"${foi?' tabindex="-1"':''}>${sv('zap')}</button>`}${pr}</div>`;
+  // fechado, o botão redondo à esquerda do valor e da loja: a mensagem para quem anunciou ou, no carro da própria loja, editar
+  const rb=c.meu?(foi?'':`<button type="button" class="rb edt" data-ed="${c.id}" aria-label="Editar o ${esc(c.nome)}" title="Editar">${sv('lapis')}</button>`)
+    :`<button type="button" class="rb zap" data-zap="${c.id}" aria-label="Entrar em contato com a ${esc(c.loja)}" title="Entrar em contato"${foi?' tabindex="-1"':''}>${sv('zap')}</button>`;
+  if(!ab)return `<div ${at}>${capa(c)}<div class="nm">${t}${dl}</div>${rb}${pr}</div>`;
   const ds=[['Cor',c.cor],['Final da placa',c.placa],['Donos',c.donos],['Laudo',c.laudo]].filter(x=>x[1]);
+  const parte=`<button type="button" class="contorno" onclick="compartilhar(${c.id})">${sv('partilha','sm')}Compartilhar</button>`;
   return `<div ${at}>${galeria(c)}<div class="det"><div class="cab"><div class="nm">${t}${dl}</div>${pr}</div>
     ${ds.length?`<div class="dados">${ds.map(([k,v])=>`<div><small>${k}</small><strong>${esc(v)}</strong></div>`).join('')}</div>`:''}
     ${c.obs?`<div class="desc"><small>Descrição</small><p>${esc(c.obs)}</p></div>`:''}
     <div class="acoes">${c.meu
-      ?`<button type="button" class="ouro" onclick="marcarVendido(${c.id})">Vendido</button><button type="button" class="contorno" onclick="tirar(${c.id})">Remover</button><button type="button" class="contorno" onclick="editar(${c.id})">${sv('lapis','sm')}Editar</button>`
-      :`<button type="button" class="ouro" data-zap="${c.id}">${sv('zap')}Chamar no WhatsApp</button><button type="button" class="contorno" onclick="copiar(${c.id})">${sv('copia')}Copiar os dados</button>`}</div></div></div>`;
+      ?`<button type="button" class="ouro" onclick="marcarVendido(${c.id})">Vendido</button><button type="button" class="contorno" onclick="tirar(${c.id})">Remover</button><button type="button" class="contorno" onclick="editar(${c.id})">${sv('lapis','sm')}Editar</button>${parte}`
+      :`<button type="button" class="ouro" data-zap="${c.id}">${sv('zap')}Entrar em contato</button><button type="button" class="contorno" onclick="copiar(${c.id})">${sv('copia')}Copiar dados</button>${parte}`}</div></div></div>`;
+}
+// o link de cada anúncio (pedido do Luiz, 31/10/2026): /repasse/12-toyota-corolla-xei-2-0-2020. Abre o Repasse com o anúncio aberto (sem o
+// acesso, depois de entrar)
+const linkDe=c=>'/repasse/'+c.id+'-'+norm(c.nome+' '+anoMod(c)).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+function marcarEndereco(){
+  const c=aberto!=null&&CARROS.find(x=>x.id===aberto),q=c?linkDe(c):'/repasse';
+  if(location.pathname!==q)try{history.replaceState(history.state,'',q);}catch(e){}
 }
 // a foto grande começa com a pequena (que já veio com a lista) e troca pela inteira quando ela chega; a grande abre inteira numa aba
 // (no celular, dá para ampliar) e as pequenas trocam a grande
@@ -513,6 +542,8 @@ function galeria(c){
 function filtrarPrimeiroDeHoje(){return CARROS.filter(c=>noMercado(c)&&!c.repassado&&mesmoDia(c.criado,new Date())).sort((a,b)=>b.criado-a.criado)[0];}
 function pintarLista(trocou){
   const l=filtrar(),box=$('lista');
+  if(aberto!=null&&!l.some(c=>c.id===aberto))aberto=null;   // o aberto saiu da lista (filtro, busca, vendido): o endereço volta ao Repasse
+  marcarEndereco();
   if(!CARROS.some(noMercado)){box.innerHTML=`<div class="vazio"><b>Nenhum carro no momento.</b><button type="button" class="contorno" onclick="abrirForm()">${sv('mais')}Anunciar</button></div>`;return;}
   if(!l.length){box.innerHTML=`<div class="vazio"><b>Nenhum carro com esse filtro.</b>Tente outra busca ou veja todos os carros.<br><button type="button" class="contorno" onclick="limpar()">Ver todos</button></div>`;return;}
   // agrupa por dia só na ordem "mais novos"; nas outras ordens, a lista vai direto
@@ -527,8 +558,8 @@ function inteiras(){document.querySelectorAll('#lista .grande img[data-inteira]'
 function limpar(){F={chip:'todos',q:'',ord:'novos'};$('busca').value='';pintarFiltros();pintarLista(true);}
 
 /* abrir e fechar o anúncio no lugar (pedido do Luiz, 31/10/2026): as partes que existem nos dois saem de onde estavam e vão para o lugar
-   novo (cada uma é medida antes e depois, e anda da posição antiga até a nova); o bloco cresce ou diminui junto e o resto chega ou sai em
-   fusão. Abrindo outro, o aberto fecha primeiro */
+   novo (cada uma é medida antes e depois, e anda da posição antiga até a nova; aberto, o valor e a loja vão para baixo do nome); o bloco
+   cresce ou diminui junto e o resto chega ou sai em fusão. Abrindo outro, o aberto fecha primeiro */
 const PARTES=['.ph','.t','.dl','.vl','.an'],EXTRAS='.tiras,.dados,.desc,.acoes,.pr small';
 // o nome e os dados mudam de tamanho e de quebra de linha: a cópia do jeito antigo vai junto até o lugar novo e some em fusão, enquanto o
 // novo chega do lugar antigo
@@ -545,18 +576,28 @@ function medir(el,copia){
       o[s].g=g;}});
   return o;
 }
+// cada parte anda presa pelo canto de cima à esquerda (o valor e a loja têm a largura do texto, à direita na linha e embaixo do nome no
+// anúncio aberto)
 function andar(el,b,a,dur){
+  // as cópias que crescem ficam presas na largura do anúncio: passando da borda da tela, a página ganhava uma rolagem de lado no meio da
+  // animação e tudo pulava ("abrir o anúncio desalinha a página", 31/10/2026)
+  let caixa=null;const er=el.getBoundingClientRect();
   PARTES.forEach(s=>{const e=el.querySelector(s),B=b[s],A=a[s];if(!e||!B||!A||!A.r.width)return;
-    const dir=s==='.vl'||s==='.an',k=B.fs/A.fs,dx=dir?B.r.right-A.r.right:B.r.left-A.r.left,dy=B.r.top-A.r.top;
+    const k=B.fs/A.fs,dx=B.r.left-A.r.left,dy=B.r.top-A.r.top;
     let tf;
-    if(s==='.ph'){tf=`translate(${dx}px,${dy}px) scale(${B.r.width/A.r.width},${B.r.height/A.r.height})`;e.style.transformOrigin='0 0';}
-    else{tf=`translate(${dx}px,${dy}px) scale(${k})`;e.style.transformOrigin=dir?'100% 0':'0 0';}
+    if(s==='.ph')tf=`translate(${dx}px,${dy}px) scale(${B.r.width/A.r.width},${B.r.height/A.r.height})`;
+    else tf=`translate(${dx}px,${dy}px) scale(${k})`;
+    e.style.transformOrigin='0 0';
     if(!B.g){e.animate([{transform:tf},{transform:'none'}],{duration:dur,easing:EASE});return;}
-    document.body.appendChild(B.g);
+    if(!caixa){caixa=document.createElement('div');
+      Object.assign(caixa.style,{position:'absolute',left:er.left+scrollX+'px',top:er.top+scrollY+'px',width:er.width+'px',height:'0',overflowX:'clip',overflowY:'visible',zIndex:4,pointerEvents:'none'});
+      document.body.appendChild(caixa);setTimeout(()=>caixa.remove(),dur+80);}
+    Object.assign(B.g.style,{left:B.r.left-er.left+'px',top:B.r.top-er.top+'px'});
+    caixa.appendChild(B.g);
     B.g.animate([{transform:'none',opacity:1},{opacity:0,offset:.45},{transform:`translate(${-dx}px,${-dy}px) scale(${1/k})`,opacity:0}],{duration:dur,easing:EASE,fill:'forwards'}).onfinish=()=>B.g.remove();
     e.animate([{transform:tf,opacity:0},{opacity:1,offset:.55},{transform:'none',opacity:1}],{duration:dur,easing:EASE});});
 }
-// o que só existe na linha fechada (o WhatsApp redondo) some em fusão onde estava
+// o que só existe na linha fechada (o botão redondo) some em fusão onde estava
 function fantasma(e){if(!e)return;const r=e.getBoundingClientRect(),g=e.cloneNode(true);
   Object.assign(g.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',margin:0,zIndex:5,pointerEvents:'none'});
   document.body.appendChild(g);g.animate([{opacity:1,transform:'none'},{opacity:0,transform:'scale(.8)'}],{duration:180,easing:'ease-in',fill:'forwards'}).onfinish=()=>g.remove();}
@@ -568,8 +609,8 @@ async function alternar(id){
 }
 function abrirAnuncio(id){
   const ln=elLinha(id),c=CARROS.find(x=>x.id===id);if(!ln||!c)return;
-  const b=medir(ln,!reduz()),h0=ln.offsetHeight;if(!reduz())fantasma(ln.querySelector('.zap'));
-  aberto=id;ln.outerHTML=linha(c);
+  const b=medir(ln,!reduz()),h0=ln.offsetHeight;if(!reduz())fantasma(ln.querySelector('.rb'));
+  aberto=id;ln.outerHTML=linha(c);marcarEndereco();
   const card=elLinha(id);inteiras();
   if(!reduz()){
     const a=medir(card),h1=card.offsetHeight,D=560;
@@ -584,7 +625,7 @@ function abrirAnuncio(id){
 }
 function fecharAnuncio(id){return new Promise(ok=>{
   const card=elLinha(id),c=CARROS.find(x=>x.id===id);
-  aberto=null;
+  aberto=null;marcarEndereco();
   if(!card||!c||!card.classList.contains('on')){ok();return;}
   if(reduz()){card.outerHTML=linha(c);ok();return;}
   card.querySelectorAll(EXTRAS).forEach(e=>e.animate([{opacity:1},{opacity:0}],{duration:150,easing:'ease-in',fill:'forwards'}));
@@ -597,7 +638,7 @@ function fecharAnuncio(id){return new Promise(ok=>{
     ln.classList.add('fecha');ln.style.overflow='hidden';
     ln.animate([{height:h0+'px'},{height:h1+'px'}],{duration:D,easing:EASE}).onfinish=()=>{ln.classList.remove('fecha');ln.style.overflow='';ok();};
     andar(ln,b,a,D);
-    const z=ln.querySelector('.zap');if(z)z.animate([{opacity:0,transform:'scale(.8)'},{opacity:1,transform:'none'}],{duration:220,delay:D-160,easing:EASE,fill:'backwards'});
+    const z=ln.querySelector('.rb');if(z)z.animate([{opacity:0,transform:'scale(.8)'},{opacity:1,transform:'none'}],{duration:220,delay:D-160,easing:EASE,fill:'backwards'});
   },150);
 });}
 function trocarFoto(id,f,bt){const g=$('grande'+id);if(g){g.href=FOTO(f);const im=g.querySelector('img');im.src=FOTO(f,true);const x=new Image();x.onload=()=>{im.src=x.src;};x.src=FOTO(f);}
@@ -606,13 +647,20 @@ function trocarFoto(id,f,bt){const g=$('grande'+id);if(g){g.href=FOTO(f);const i
 function zap(id){
   const c=CARROS.find(x=>x.id===id);if(!c)return;
   if(!c.wa){toast(`A ${c.loja} ainda não tem WhatsApp no Repasse. Quem cadastra é a Aceima.`,4500);return;}
-  const msg=`Olá! Vi no Repasse da Aceima o ${c.nome} ${anoMod(c)} (${reais(c.valor)}) e tenho interesse. Sou da ${EU}.`;
+  const msg=`Olá! Vi seu anúncio do ${c.nome} ${anoMod(c)} (${reais(c.valor)}) no Repasse Intendente e tenho interesse. Sou da ${EU}.`;
   open('https://wa.me/'+c.wa+'?text='+encodeURIComponent(msg),'_blank','noopener');
 }
 function copiar(id){
   const c=CARROS.find(x=>x.id===id);if(!c)return;
-  const t=[c.nome+' '+c.ano,kmT(c),c.cambio,c.comb,c.cor,reais(c.valor)].filter(Boolean).join(' · ')+` · ${c.loja} (Repasse da Aceima)`;
+  const t=[c.nome+' '+c.ano,kmT(c),c.cambio,c.comb,c.cor,reais(c.valor)].filter(Boolean).join(' · ')+` · ${c.loja} (Repasse Intendente)`;
   (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Dados copiados. É só colar no grupo.')).catch(()=>toast(t,7000));
+}
+// compartilhar o link do anúncio: no celular, a janela de compartilhar do aparelho; no computador, o link vai para a área de transferência
+function compartilhar(id){
+  const c=CARROS.find(x=>x.id===id);if(!c)return;
+  const url=location.origin+linkDe(c);
+  if(navigator.share&&matchMedia('(hover:none)').matches){navigator.share({title:'Repasse Intendente',text:`${c.nome} ${anoMod(c)} · ${reais(c.valor)}`,url}).catch(()=>{});return;}
+  (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(()=>toast('Link do anúncio copiado.')).catch(()=>toast(url,7000));
 }
 
 /* ---------- seus carros ---------- */
@@ -623,8 +671,7 @@ function pintarMeus(){
      ${c.repassado?'<span class="pl foi">Vendido</span>':`<div class="ac"><button type="button" onclick="marcarVendido(${c.id})">Vendido</button><button type="button" onclick="tirar(${c.id})">Remover</button></div>`}</div>
      ${c.repassado?'':`<button type="button" class="ed" aria-label="Editar o ${esc(c.nome)}" title="Editar" onclick="editar(${c.id})">${sv('lapis','sm')}</button>`}</div>`).join('')}</div>`
     :'<p class="nada">Nenhum carro seu ainda.</p>'}
-   <button type="button" class="ouro" onclick="abrirForm()">${sv('mais')}Anunciar</button>
-   <div class="aviso">${sv('info','sm')}<span>Cada carro fica 30 dias no repasse.</span></div>`;
+   <button type="button" class="ouro" onclick="abrirForm()">${sv('mais')}Anunciar</button>`;
 }
 async function marcarVendido(id){
   const c=CARROS.find(x=>x.id===id);if(!c)return;
@@ -640,7 +687,7 @@ function editar(id){const c=CARROS.find(x=>x.id===id&&x.meu&&!x.repassado);if(c)
 
 /* ---------- o cadastro e a edição: o formulário abre no azul do topo ---------- */
 let NF={};
-const CAMBIOS=['Manual','Automático','CVT'],COMBS=['Flex','Gasolina','Diesel','Híbrido','Elétrico'],DONOS=['1','2','3 ou mais'],LAUDOS=['Aprovado','Com apontamento','Sem laudo'];
+const CAMBIOS=['Manual','Automático'],COMBS=['Flex','Gasolina','Diesel','Híbrido','Elétrico'],DONOS=['1','2','3 ou mais'],LAUDOS=['Aprovado','Com apontamento','Sem laudo'];
 // as escolhas em botões; nas que não são obrigatórias (donos e laudo), tocar de novo tira a escolha
 const seg=(k,ops,opc)=>`<div class="seg">${ops.map(x=>`<button type="button" class="${x===NF[k]?'on':''}" aria-pressed="${x===NF[k]}" onclick="segEscolhe('${k}',this,${opc?1:0})">${x}</button>`).join('')}</div>`;
 // abrindo devagar (pedido do Luiz, 31/10/2026: abria de um golpe, com a página rolando junto): primeiro a página sobe até o topo, depois o
@@ -654,9 +701,9 @@ function abrirForm(c){
   if(abaAtual!=='mercado')aba('mercado');
   const abre=()=>{
     EDITA=c;
-    NF={cambio:c?c.cambio:'Manual',comb:c?c.comb:'Flex',donos:c?c.donos:'',laudo:c?c.laudo:'',fotos:c?c.fotos.map(id=>({id,url:FOTO(id,true)})):[]};
+    // o CVT saiu da lista (pedido do Luiz, 31/10/2026): o carro que estava com ele abre como automático
+    NF={cambio:c?(c.cambio==='CVT'?'Automático':c.cambio):'Manual',comb:c?c.comb:'Flex',donos:c?c.donos:'',laudo:c?c.laudo:'',fotos:c?c.fotos.map(id=>({id,url:FOTO(id,true)})):[]};
     f.innerHTML=`<div class="form-in">
-     <div class="form-cab"><h2>${c?'Edição.':'Cadastro.'}</h2><button type="button" class="redondo" aria-label="Fechar" onclick="fecharForm()">${sv('xis')}</button></div>
      <div class="fg" oninput="liberar()">
       <label class="fc c2"><span>Marca, modelo e versão</span><input class="campo" id="fMarca" placeholder="Ex.: Toyota Corolla XEi 2.0" autocomplete="off" maxlength="80" value="${esc(c?c.nome:'')}"></label>
       <label class="fc"><span>Ano</span><input class="campo" id="fAno" inputmode="numeric" placeholder="2019/2020" autocomplete="off" oninput="anoFmt(this)" value="${esc(c?c.ano:'')}"></label>
@@ -677,7 +724,7 @@ function abrirForm(c){
     if(!reduz()){
       f.style.overflow='hidden';const h=f.offsetHeight;
       f.animate([{height:'0px'},{height:h+'px'}],{duration:860,easing:'cubic-bezier(.25,.8,.25,1)'}).onfinish=()=>{f.style.overflow='';};
-      [...f.querySelectorAll('.form-cab,.fg>*,.form-acoes')].forEach((e,i)=>e.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'none'}],{duration:640,delay:240+i*35,easing:EASE,fill:'backwards'}));
+      [...f.querySelectorAll('.fg>*,.form-acoes')].forEach((e,i)=>e.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'none'}],{duration:640,delay:240+i*35,easing:EASE,fill:'backwards'}));
     }
     setTimeout(()=>{const m=$('fMarca');if(m&&!c)m.focus({preventScroll:true});},reduz()?0:520);
   };
@@ -780,7 +827,14 @@ async function carregar(primeira,forcar){
   vistos=new Set(lista.map(c=>c.id));
   if(aberto!=null&&!lista.some(c=>c.id===aberto&&noMercado(c)))aberto=null;
   const ref=primeira?null:[...document.querySelectorAll('#lista .ln')].find(x=>x.getBoundingClientRect().top>=0),topo=ref&&ref.getBoundingClientRect().top;
-  CARROS=lista;tudo();
+  CARROS=lista;
+  // veio pelo link de um anúncio: ele já abre aberto, e a página desce até ele
+  let doLink=null;
+  if(primeira&&DO_LINK!=null){const c=CARROS.find(x=>x.id===DO_LINK);DO_LINK=null;
+    if(c&&noMercado(c)&&!c.repassado){aberto=doLink=c.id;F={chip:'todos',q:'',ord:'novos'};$('busca').value='';}
+    else toast(c&&c.repassado?'Esse carro já foi vendido.':'Esse anúncio não está mais no repasse.',4000);}
+  tudo();
+  if(doLink!=null){inteiras();const o=elLinha(doLink);if(o)scrollTo(0,Math.max(0,scrollY+o.getBoundingClientRect().top-(matchMedia('(max-width:760px)').matches?16:24)));}
   if(ref&&scrollY>200){const o=document.querySelector(`#lista .ln[data-id="${ref.dataset.id}"]`);if(o)scrollBy(0,o.getBoundingClientRect().top-topo);}
   if(chegaram.size)setTimeout(()=>chegaram.clear(),2400);
 }
@@ -793,7 +847,7 @@ async function abrirApp(){
 }
 function sessaoCaiu(){if(!TOKEN)return;TOKEN=null;guarda.tira();mostrarEntrada();toast('Entre de novo com o e-mail e a senha da loja.',4000);}
 function sair(){const t=TOKEN;if(t)fetch('/api/repasse?path=repasse&acao=sair',{method:'POST',headers:{'x-repasse-token':t,'Content-Type':'application/json'},body:'{}',keepalive:true}).catch(()=>{});
-  TOKEN=null;guarda.tira();location.reload();}
+  TOKEN=null;guarda.tira();location.replace('/repasse');}
 $('entForm').addEventListener('submit',async e=>{e.preventDefault();
   const em=$('entEmail'),se=$('entSenha'),bt=$('entBt');
   if(!em.value.trim()){em.focus();toast('Escreva o e-mail da loja.');return;}
@@ -806,9 +860,10 @@ $('entForm').addEventListener('submit',async e=>{e.preventDefault();
 if(TOKEN)abrirApp();else mostrarEntrada();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&TOKEN&&poll)carregar();});
 
-// um ouvinte só para a lista: abrir e fechar o anúncio, o WhatsApp, o teclado. Aberto, o anúncio fecha tocando no nome ou no valor
+// um ouvinte só para a lista: abrir e fechar o anúncio, a mensagem, editar, o teclado. Aberto, o anúncio fecha tocando no nome ou no valor
 $('lista').addEventListener('click',e=>{
   const z=e.target.closest('[data-zap]');if(z){e.stopPropagation();zap(+z.dataset.zap);return;}
+  const ed=e.target.closest('[data-ed]');if(ed){e.stopPropagation();editar(+ed.dataset.ed);return;}
   const ln=e.target.closest('.ln');if(!ln||ln.classList.contains('foi')||e.target.closest('a,button'))return;
   if(ln.classList.contains('on')&&!e.target.closest('.cab'))return;
   alternar(+ln.dataset.id);
@@ -823,7 +878,7 @@ document.addEventListener('keydown',e=>{
   else if(aberto!=null)alternar(aberto);
 });
 </script>
-<script src="fotos.js"></script>
-<script src="menu-fora.js"></script>
+<script src="/fotos.js"></script>
+<script src="/menu-fora.js"></script>
 </body>
 </html>

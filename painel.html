@@ -1789,11 +1789,10 @@ async function excluirLoja(id){const l=lojas.find(x=>x.id===id);if(!l||!confirm(
    que recebe os interessados. A senha só aparece na hora de criar ou trocar (o banco guarda só o embaralhado dela): o painel mostra o
    acesso pronto para copiar ou mandar no WhatsApp da loja */
 // o acesso da própria Aceima fica no lugar da loja 0, que não existe (pedido do Luiz, 31/10/2026): não mexe no cadastro de nenhuma loja.
-// Enquanto o Repasse está em obra, o endereço dele é o /repasse-editar; o das lojas continua o /repasse
 const LOJA_ACEIMA=0;
 const lojaRep=id=>id===LOJA_ACEIMA?{id,nome:'Aceima',wa:'5521991041424'}:lojas.find(x=>x.id===id);
 const LG_ACEIMA=g=>`<span class="lg${g?' g':''}"><img src="marca-nova/icone-192.png" alt=""></span>`;
-const linkRepasse=id=>location.origin+(id===LOJA_ACEIMA?'/repasse-editar':'/repasse');
+const linkRepasse=()=>location.origin+'/repasse';
 function infoRepasse(l){
   const a=repAcessos[l.id];
   const t=!a?'Sem acesso':a.email+(a.ativo?' · '+(a.ultimo_acesso?'último acesso '+quando(a.ultimo_acesso):'ainda não entrou')+(a.carros?' · '+a.carros+(a.carros===1?' carro':' carros')+' no repasse':''):' · desativado');
@@ -1829,7 +1828,7 @@ async function salvarAcesso(id){
 // a senha só existe agora: o acesso pronto para copiar ou mandar no WhatsApp da loja
 function acessoPronto(id,email,senha){
   const l=lojaRep(id),ci=$('ci-'+id),cb=$('cb-'+id),a=repAcessos[id],daAceima=id===LOJA_ACEIMA;if(!l||!ci||!cb)return;
-  const txt=`Olá! Este é o acesso ${daAceima?'da Aceima ao Repasse':'da '+l.nome+' ao Repasse da Aceima'}: ${linkRepasse(id)}\nE-mail: ${email}\nSenha: ${senha}`,wa=!daAceima&&((a&&a.whatsapp)||waDe(l.wa));
+  const txt=`Olá! Este é o acesso ${daAceima?'da Aceima':'da '+l.nome} ao Repasse Intendente: ${linkRepasse(id)}\nE-mail: ${email}\nSenha: ${senha}`,wa=!daAceima&&((a&&a.whatsapp)||waDe(l.wa));
   ci.outerHTML=`<div class="cm-i" id="ci-${id}">${info('Endereço do Repasse',linkRepasse(id))}${info('E-mail',email)}${info('Senha',senha)}</div>`;
   cb.innerHTML=`<button type="button" class="bt" id="rCop">${sv(IC.check,'sm')}Copiar o acesso</button>${wa?`<a class="bto" href="https://wa.me/${esc(wa)}?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">Mandar no WhatsApp da loja${sv(IC.fora,'sm')}</a>`:''}${daAceima?`<a class="bto" href="${linkRepasse(id)}" target="_blank" rel="noopener">Abrir o Repasse${sv(IC.fora,'sm')}</a>`:''}<button type="button" class="bto" onclick="renderAssoc()">Pronto</button>`;
   $('rCop').onclick=()=>(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Acesso copiado')).catch(()=>toast('Não deu para copiar: selecione o texto'));
