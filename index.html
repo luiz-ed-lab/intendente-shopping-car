@@ -256,9 +256,11 @@ p{font-family:var(--f2);font-weight:300;color:var(--mut);line-height:1.62;font-s
 .vnd-p div.on::after,.vnd-p div.feito::after{width:100%}
 .vnd-p small{display:block;margin-bottom:3px;font-weight:500;color:#7C8BA6}
 /* os três passos (e o pronto) um sobre o outro, no tamanho do maior: trocar de passo não muda a altura, e as logos embaixo ficam no lugar */
-.vnd-pilha{display:grid;max-width:860px;margin:clamp(30px,2.6vw,46px) auto 0}
-.vnd-passo{grid-area:1/1;min-width:0;visibility:hidden}
-.vnd-passo.on{visibility:visible}
+/* a seção tem a altura do passo aberto (pedido do Luiz, 31/10/2026): o primeiro fica encostado nas logos e, trocando de passo, a altura
+   anda até a do novo, e as logos descem (ou sobem) junto (vdTroca). Os outros passos ficam por cima, escondidos */
+.vnd-pilha{position:relative;max-width:860px;margin:clamp(30px,2.6vw,46px) auto 0}
+.vnd-passo{position:absolute;left:0;right:0;top:0;min-width:0;visibility:hidden}
+.vnd-passo.on{position:relative;visibility:visible}
 .vnd-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 14px;text-align:left}
 .vnd-c{display:flex;flex-direction:column;gap:8px;min-width:0}
 .vnd-c>span{font-size:.82rem;color:#9FB0C9}
@@ -1021,9 +1023,10 @@ body.lb-on{overflow:hidden}
 .bnf.parado .bnf-bar i.on::after{animation-play-state:paused}
 @keyframes bnfEnche{from{transform:scaleX(0)}}
 @media (hover:none),(prefers-reduced-motion:reduce){.bnf-bar i.on::after{animation:none}}   /* sem troca sozinha, a barra só marca onde está */
-/* quem já faz parte: todos os associados, sete por linha, com as logos mais baixas; a última linha fica no meio (pedido do Luiz, 07/10/2026) */
+/* quem já faz parte: todos os associados, nove por linha no computador (pedido do Luiz, 31/10/2026; antes, sete), com as logos mais baixas;
+   a última linha fica no meio (pedido do Luiz, 07/10/2026) */
 .as2-lojas{--gx:clamp(14px,1.2vw,22px);display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(22px,2vw,34px) var(--gx);margin-top:clamp(28px,2.2vw,42px)}
-.as2-lj{flex:0 0 calc((100% - 6 * var(--gx)) / 7);min-width:0;cursor:pointer}
+.as2-lj{flex:0 0 calc((100% - 8 * var(--gx)) / 9);min-width:0;cursor:pointer}
 .as2-lf{display:grid;grid-template-rows:100%;place-items:center;aspect-ratio:2/1;border-radius:10px;background:#E6E1DA;overflow:hidden;transition:background-color .3s}
 .as2-lf.escuro{background:var(--ink)}
 .as2-lf img{max-width:72%;max-height:56%;width:auto;height:auto;transition:transform .4s var(--ease)}
@@ -1474,8 +1477,14 @@ body.lb-on{overflow:hidden}
 /* ==================== CONSTANTES ==================== */
 // vídeo do fundo: o mesmo do template aprovado (21st/payload), agora dentro da pasta do site.
 // Antes de publicar: confirmar a licença do template ou trocar por um vídeo nosso.
-const VIDEO='fundo-vidro.mp4';
+// o vídeo do fundo em versão leve (31/10/2026: o original, em Full HD, tinha 17 MB e pesava no carregamento e na rolagem): 1280x720 no
+// computador e 960x540 no tablet e no celular, com 2,9 MB e 1,8 MB. Na tela fica igual: o vídeo aparece a 17% e a 7%, e a diferença medida
+// quadro a quadro ficou abaixo de um tom em 255. O original fica no repositório (fundo-vidro.mp4), fora do site (.vercelignore)
+const VIDEO=matchMedia('(max-width:1100px)').matches?'fundo-vidro-540.mp4':'fundo-vidro-720.mp4';
 const LUZ=`<video class="luz" src="${VIDEO}" poster="fundo-animado-frame.jpg" autoplay muted loop playsinline preload="auto"></video>`;
+// cada vídeo do fundo só toca enquanto aparece na tela: fora dela, pausa (o navegador deixa de decodificar o vídeo) e volta de onde parou
+const olhoVideo=typeof IntersectionObserver==='function'?new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;v._visto=e.isIntersecting;
+  if(!e.isIntersecting)v.pause();else if(!document.hidden)v.play().catch(()=>{});}),{rootMargin:'120px 0px'}):null;
 // logo do polo em todas as páginas; a da Aceima só na página da Aceima (pedido do Luiz, 30/09/2026)
 const LOGO='marca-nova/intendente-site.webp',LOGO_ACEIMA='marca-nova/aceima-nova.png';
 const logo=()=>pagAtual==='aceima'?`<img class="lg lg-aceima" src="${LOGO_ACEIMA}" alt="Aceima"`:`<img class="lg" src="${LOGO}" alt="Intendente, Polo Comercial e Automotivo do Rio"`;
@@ -1774,25 +1783,36 @@ function home(){
 
 /* ==================== VENDA SEU VEÍCULO ==================== */
 // Na página inicial, embaixo do estoque (pedido do Luiz, 26/10/2026: estava no site antigo e tinha ficado de fora). Em três passos (pedidos
-// do Luiz, 31/10/2026): o carro (marca, modelo e ano, em listas que liberam uma depois da outra), os detalhes com as fotos e o contato. O
-// botão de cada passo só libera com tudo preenchido. O pedido vai por e-mail para todas as lojas associadas, como no site antigo (lead do
-// tipo compra), com as fotos anexadas, diminuídas aqui antes de sair. Os passos ficam um sobre o outro, no tamanho do maior: trocar de
-// passo não muda a altura da seção, e as logos embaixo não saem do lugar. O que foi escrito fica guardado se a página for desenhada de novo.
-const VD={p:1,marca:'',modelo:'',ano:'',outraMarca:false,outroModelo:false,versao:'',km:'',valor:'',fotos:[],nome:'',tel:'',email:'',fim:false,erro:'',env:false};
+// do Luiz, 31/10/2026): o carro (marca, modelo e ano, em listas que liberam uma depois da outra), os detalhes com as fotos (a versão também
+// numa lista, a do modelo escolhido) e o contato. O botão de cada passo só libera com tudo preenchido. O pedido vai por e-mail para todas
+// as lojas associadas, como no site antigo (lead do tipo compra), com as fotos anexadas, diminuídas aqui antes de sair. A seção tem a altura
+// do passo aberto e anda até a do próximo, com as logos embaixo. O que foi escrito fica guardado se a página for desenhada de novo.
+const VD={p:1,marca:'',modelo:'',ano:'',outraMarca:false,outroModelo:false,outraVersao:false,versao:'',km:'',valor:'',fotos:[],nome:'',tel:'',email:'',fim:false,erro:'',env:false};
 const VD_FOTOS_MIN=1;   // pelo menos uma foto
 const vdRed=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 const vdEmailOk=e=>/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(String(e).trim());
 const vdOk=p=>p===1?VD.marca.trim().length>=2&&!!VD.modelo.trim()&&!!VD.ano
   :p===2?!!VD.versao.trim()&&!!VD.km.replace(/\D/g,'')&&VD.valor.replace(/\D/g,'').length>=3&&VD.fotos.length>=VD_FOTOS_MIN
   :VD.nome.trim().length>=2&&VD.tel.replace(/\D/g,'').length>=10&&vdEmailOk(VD.email);
-// as marcas: as do estoque e as mais comuns no Brasil (carros e motos), em ordem alfabética; os modelos, os do estoque daquela marca
-const VD_MARCAS=['Audi','BMW','BYD','Chery','Chevrolet','Citroën','Dafra','Dodge','Fiat','Ford','GWM','Haojue','Harley-Davidson','Honda','Hyundai','JAC','Jaguar','Jeep','Kawasaki','Kia',
-  'Land Rover','Lexus','Mercedes-Benz','Mini','Mitsubishi','Nissan','Peugeot','Porsche','RAM','Renault','Royal Enfield','Shineray','Subaru','Suzuki','Toyota','Triumph','Troller','Volkswagen','Volvo','Yamaha'];
+// as marcas: as do estoque e as mais comuns no Brasil (carros e motos), em ordem alfabética; os modelos, os do estoque daquela marca e, nas
+// marcas que ainda não têm carro no estoque, os principais delas (o modelo sempre numa lista, pedido do Luiz, 31/10/2026); as versões, as
+// do estoque daquele modelo. O que não está na lista entra pelo "Outra marca", "Outro modelo" ou "Outra versão"
+const VD_MARCAS=['Audi','BMW','BYD','Chery','Chevrolet','Citroën','Dodge','Fiat','Ford','GWM','Haojue','Harley-Davidson','Honda','Hyundai','Jaguar','Jeep','Kawasaki','Kia',
+  'Land Rover','Lexus','Mercedes-Benz','Mini','Mitsubishi','Nissan','Peugeot','Porsche','RAM','Renault','Royal Enfield','Subaru','Suzuki','Toyota','Triumph','Troller','Volkswagen','Volvo','Yamaha'];
+const VD_MODELOS={byd:['Dolphin','Dolphin Mini','Han','King','Seal','Shark','Song Plus','Song Pro','Tan','Yuan Plus','Yuan Pro'],gwm:['Haval H6','Ora 03','Poer','Tank 300'],
+  ram:['1500','2500','3500','Classic','Rampage'],dodge:['Dakota','Durango','Journey'],mini:['Clubman','Cooper','Countryman'],lexus:['CT','ES','IS','NX','RX','UX'],
+  subaru:['Forester','Impreza','Outback','WRX','XV'],kawasaki:['Ninja 300','Ninja 400','Ninja 650','Ninja ZX-6R','Ninja ZX-10R','Versys 650','Versys-X 300','Vulcan S','Z300','Z400','Z650','Z900'],
+  harleydavidson:['Fat Bob','Fat Boy','Heritage Classic','Iron 883','Low Rider','Nightster','Road Glide','Road King','Sportster S','Street Bob','Street Glide']};
 const vdChave=s=>norm(s).replace(/[^a-z0-9]/g,'');
-function vdMarcas(){const m=new Map();VD_MARCAS.forEach(x=>m.set(vdChave(x),x));V.forEach(v=>{const k=vdChave(v.b);if(v.b&&!/\//.test(v.b)&&!m.has(k))m.set(k,v.b);});
-  return [...m.values()].sort((a,b)=>a.localeCompare(b,'pt-BR'));}
-function vdModelos(){const k=vdChave(VD.marca),m=new Map();if(k)V.forEach(v=>{const c=vdChave(v.mod);if(v.mod&&vdChave(v.b)===k&&!m.has(c))m.set(c,v.mod);});
-  return [...m.values()].sort((a,b)=>a.localeCompare(b,'pt-BR'));}
+const vdOrdem=m=>[...m.values()].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true}));
+function vdMarcas(){const m=new Map();VD_MARCAS.forEach(x=>m.set(vdChave(x),x));V.forEach(v=>{const k=vdChave(v.b);if(v.b&&!/\//.test(v.b)&&!m.has(k))m.set(k,v.b);});return vdOrdem(m);}
+function vdModelos(){const k=vdChave(VD.marca),m=new Map();if(!k)return [];
+  V.forEach(v=>{const c=vdChave(v.mod);if(v.mod&&vdChave(v.b)===k&&!m.has(c))m.set(c,v.mod);});
+  (VD_MODELOS[k]||[]).forEach(x=>{if(!m.has(vdChave(x)))m.set(vdChave(x),x);});
+  return vdOrdem(m);}
+function vdVersoes(){const kb=vdChave(VD.marca),km=vdChave(VD.modelo),m=new Map();if(!kb||!km)return [];
+  V.forEach(v=>{if(vdChave(v.b)!==kb||vdChave(v.mod)!==km)return;const t=versaoDe(v),c=vdChave(t);if(t&&!m.has(c))m.set(c,t);});
+  return vdOrdem(m);}
 function vdAnos(){const a=[];for(let y=new Date().getFullYear()+1;y>=1960;y--)a.push(String(y));return a;}
 // os associados automotivos: as lojas (as com mais anúncios primeiro) e os credenciados de ramos de carro (pedido do Luiz, 31/10/2026)
 const RAMOS_AUTO=['Serviços Automotivos','Autopeças','Funilaria e Pintura','Lava-Jato','Locadora de Veículos','Loja de Motos','Mecânica e Oficina','Pneus e Rodas',
@@ -1824,7 +1844,7 @@ function vdCorpo(){
   return passo(1,`<div class="vnd-g"><div class="vnd-c" id="vdC-marca">${vdCampo('marca')}</div><div class="vnd-c" id="vdC-modelo">${vdCampo('modelo')}</div><div class="vnd-c l2" id="vdC-ano">${vdCampo('ano')}</div></div>
      <div class="vnd-a"><button type="button" class="btnp" id="vdBt1" onclick="vdIr(2)"${vdOk(1)?'':' disabled'}>${T('inicio.venda-continuar','Continuar')}${seta}</button></div>`)
    +passo(2,`<div class="vnd-g">
-      <label class="vnd-c"><span>${T('inicio.venda-versao','Versão')}</span><input id="vdVersao" value="${esc(VD.versao)}" placeholder="${TX('inicio.venda-campo-versao','Ex.: 1.0 Drive')}" autocomplete="off" maxlength="60" oninput="VD.versao=this.value;vdLibera()"></label>
+      <div class="vnd-c" id="vdC-versao">${vdCampo('versao')}</div>
       <label class="vnd-c"><span>${T('inicio.venda-km','Quilometragem')}</span><input id="vdKm" inputmode="numeric" value="${esc(VD.km)}" placeholder="${TX('inicio.venda-campo-km','Ex.: 68.000')}" oninput="vdMilhar(this);VD.km=this.value;vdLibera()"></label>
       <label class="vnd-c l2"><span>${T('inicio.venda-valor','Quanto você quer')}</span><input id="vdValor" inputmode="numeric" value="${esc(VD.valor)}" placeholder="R$" oninput="vdMilhar(this,true);VD.valor=this.value;vdLibera()"></label>
       <div class="vnd-c vnd-fc" id="vdFotos" data-fotos-area>${vdFotosHtml()}</div>
@@ -1842,12 +1862,15 @@ function vdCorpo(){
       <p>${T('inicio.venda-pronto-texto','As lojas associadas receberam o seu pedido. Quem tiver interesse no seu carro fala com você pelo WhatsApp.')}</p>
       <button type="button" class="btno" onclick="vdOutro()">${T('inicio.venda-outro','Vender outro carro')}</button></div>`);
 }
-// um campo do primeiro passo: a lista (botão) ou, em "Outra marca" e "Outro modelo" (ou marca sem modelos no estoque), o campo de escrever
+// um campo da marca, do modelo, do ano ou da versão: a lista (botão) ou, em "Outra marca", "Outro modelo" e "Outra versão" (ou quando não
+// há lista para escolher), o campo de escrever, com a seta para voltar à lista
 function vdCampo(k){
-  const chev=ic(I_DOWN,14),rot={marca:T('inicio.venda-marca','Marca'),modelo:T('inicio.venda-modelo','Modelo'),ano:T('inicio.venda-ano','Ano')}[k];
-  if(k==='marca'&&VD.outraMarca)return `<span>${rot}</span><div class="vnd-sel vnd-tx"><input id="vdMarcaTx" value="${esc(VD.marca)}" placeholder="${TX('inicio.venda-campo-marca','Escreva a marca')}" autocomplete="off" maxlength="40" oninput="VD.marca=this.value;vdRefaz('modelo','ano');vdLibera()"><button type="button" id="fp-vdmarca" aria-label="Escolher a marca na lista" onclick="vdAbrir('marca')">${chev}</button></div>`;
+  const chev=ic(I_DOWN,14),rot={marca:T('inicio.venda-marca','Marca'),modelo:T('inicio.venda-modelo','Modelo'),ano:T('inicio.venda-ano','Ano'),versao:T('inicio.venda-versao','Versão')}[k];
+  if(k==='marca'&&VD.outraMarca)return `<span>${rot}</span><div class="vnd-sel vnd-tx"><input id="vdMarcaTx" value="${esc(VD.marca)}" placeholder="${TX('inicio.venda-campo-marca','Escreva a marca')}" autocomplete="off" maxlength="40" oninput="VD.marca=this.value;vdRefaz('modelo','ano','versao');vdLibera()"><button type="button" id="fp-vdmarca" aria-label="Escolher a marca na lista" onclick="vdAbrir('marca')">${chev}</button></div>`;
   if(k==='modelo'&&VD.marca.trim()&&(VD.outroModelo||!vdModelos().length))
-    return `<span>${rot}</span><div class="vnd-sel vnd-tx"><input id="vdModeloTx" value="${esc(VD.modelo)}" placeholder="${TX('inicio.venda-campo-modelo','Escreva o modelo')}" autocomplete="off" maxlength="40" oninput="VD.modelo=this.value;vdRefaz('ano');vdLibera()">${vdModelos().length?`<button type="button" id="fp-vdmodelo" aria-label="Escolher o modelo na lista" onclick="vdAbrir('modelo')">${chev}</button>`:''}</div>`;
+    return `<span>${rot}</span><div class="vnd-sel vnd-tx"><input id="vdModeloTx" value="${esc(VD.modelo)}" placeholder="${TX('inicio.venda-campo-modelo','Escreva o modelo')}" autocomplete="off" maxlength="40" oninput="VD.modelo=this.value;vdRefaz('ano','versao');vdLibera()">${vdModelos().length?`<button type="button" id="fp-vdmodelo" aria-label="Escolher o modelo na lista" onclick="vdAbrir('modelo')">${chev}</button>`:''}</div>`;
+  if(k==='versao'&&(VD.outraVersao||!vdVersoes().length))
+    return `<span>${rot}</span><div class="vnd-sel vnd-tx"><input id="vdVersaoTx" value="${esc(VD.versao)}" placeholder="${TX('inicio.venda-campo-versao','Ex.: 1.0 Drive')}" autocomplete="off" maxlength="60" oninput="VD.versao=this.value;vdLibera()">${vdVersoes().length?`<button type="button" id="fp-vdversao" aria-label="Escolher a versão na lista" onclick="vdAbrir('versao')">${chev}</button>`:''}</div>`;
   const off=(k==='modelo'&&!VD.marca.trim())||(k==='ano'&&!VD.modelo.trim()),v=VD[k];
   const ph=T('inicio.venda-escolha','Escolha');   // o nome do campo já está em cima
   return `<span>${rot}</span><button type="button" id="fp-vd${k}" class="vnd-sel${v?' on':''}" aria-haspopup="listbox"${off?' disabled':''} onclick="vdAbrir('${k}')"><span>${v?esc(v):ph}</span>${chev}</button>`;
@@ -1860,7 +1883,8 @@ function vdAbrir(k){
   fecharDrop();const alvo=document.getElementById('fp-'+id);if(!alvo||alvo.disabled)return;
   const caixa=alvo.closest('.vnd-sel')||alvo,r=caixa.getBoundingClientRect(),d=document.createElement('div');d.className='drop vnd-drop';dropDe=id;
   d.style.left=(r.left+scrollX)+'px';d.style.top=(r.bottom+scrollY+8)+'px';d.style.width=r.width+'px';
-  const ops=k==='marca'?vdMarcas():k==='modelo'?vdModelos():vdAnos(),outro=k==='marca'?TX('inicio.venda-outra-marca','Outra marca'):k==='modelo'?TX('inicio.venda-outro-modelo','Outro modelo'):'';
+  const ops=k==='marca'?vdMarcas():k==='modelo'?vdModelos():k==='versao'?vdVersoes():vdAnos();
+  const outro=k==='marca'?TX('inicio.venda-outra-marca','Outra marca'):k==='modelo'?TX('inicio.venda-outro-modelo','Outro modelo'):k==='versao'?TX('inicio.venda-outra-versao','Outra versão'):'';
   d.setAttribute('role','listbox');
   d.innerHTML=ops.map(o=>`<button type="button" role="option" class="${o===VD[k]?'on':''}" data-v="${esc(o)}">${esc(o)}</button>`).join('')+(outro?`<button type="button" class="vnd-outro" data-outro="1">${outro}</button>`:'');
   d.querySelectorAll('button').forEach(b=>b.onclick=()=>vdEscolhe(k,b.dataset.outro?null:b.dataset.v));
@@ -1870,15 +1894,22 @@ function vdAbrir(k){
 }
 function vdEscolhe(k,v){
   fecharDrop();
+  // trocar a marca ou o modelo zera a versão escolhida na lista (a escrita fica)
+  const zeraVersao=()=>{if(!VD.outraVersao)VD.versao='';};
   if(k==='marca'){
-    if(v===null){VD.outraMarca=true;VD.marca='';VD.modelo='';VD.outroModelo=false;}
-    else{VD.outraMarca=false;if(v!==VD.marca){VD.marca=v;VD.modelo='';VD.outroModelo=false;}}
-    vdRefaz('marca','modelo','ano');
+    if(v===null){VD.outraMarca=true;VD.marca='';VD.modelo='';VD.outroModelo=false;zeraVersao();}
+    else{VD.outraMarca=false;if(v!==VD.marca){VD.marca=v;VD.modelo='';VD.outroModelo=false;zeraVersao();}}
+    vdRefaz('marca','modelo','ano','versao');
     const f=document.getElementById(v===null?'vdMarcaTx':'fp-vdmodelo');if(f)f.focus({preventScroll:true});
   }else if(k==='modelo'){
+    if(v!==VD.modelo)zeraVersao();
     if(v===null){VD.outroModelo=true;VD.modelo='';}else{VD.outroModelo=false;VD.modelo=v;}
-    vdRefaz('modelo','ano');
+    vdRefaz('modelo','ano','versao');
     const f=document.getElementById(v===null?'vdModeloTx':'fp-vdano');if(f)f.focus({preventScroll:true});
+  }else if(k==='versao'){
+    if(v===null){VD.outraVersao=true;VD.versao='';}else{VD.outraVersao=false;VD.versao=v;}
+    vdRefaz('versao');
+    const f=document.getElementById(v===null?'vdVersaoTx':'vdKm');if(f)f.focus({preventScroll:true});
   }else{VD.ano=v;vdRefaz('ano');const b=document.getElementById('vdBt1');if(b&&vdOk(1))setTimeout(()=>b.focus({preventScroll:true}),0);}
   vdLibera();
 }
@@ -1919,7 +1950,9 @@ function vdAddFotos(inp){[...inp.files].filter(f=>/^image\//.test(f.type)).slice
 function vdTiraFoto(i){URL.revokeObjectURL(VD.fotos[i].url);VD.fotos.splice(i,1);vdPintaFotos();}
 function vdCapa(i){VD.fotos.unshift(VD.fotos.splice(i,1)[0]);vdPintaFotos();}
 function vdMoveFoto(de,para){VD.fotos.splice(para,0,VD.fotos.splice(de,1)[0]);vdPintaFotos();}
-// troca de passo: o que sai desliza para o lado e some, o que entra vem do outro lado (para trás, ao contrário), no mesmo lugar
+// troca de passo: o que sai desliza para o lado e some, o que entra vem do outro lado (para trás, ao contrário), no mesmo lugar. A altura
+// da seção anda da do passo antigo até a do novo, e as logos embaixo descem ou sobem junto; enquanto isso, o que passa da altura fica
+// escondido (o passo maior se revela conforme a seção cresce)
 function vdIr(p){
   if(p<1||p>3||(p>VD.p&&!vdOk(VD.p)))return;
   fecharDrop();const de=VD.p;VD.p=p;VD.erro='';vdProgresso();vdTroca(de,p);
@@ -1927,8 +1960,16 @@ function vdIr(p){
 function vdTroca(de,para){
   const box=document.getElementById('vndIn');if(!box)return;
   const v=box.querySelector(`.vnd-passo[data-p="${de}"]`),n=box.querySelector(`.vnd-passo[data-p="${para}"]`);if(!n)return;
+  const h0=box.offsetHeight;
   if(v&&v!==n){v.classList.remove('on');v.inert=true;}
   n.classList.add('on');n.inert=false;
+  if(para===2)vdAgrupar();   // as fotos se agrupam pela largura, que só existe com o passo aberto
+  const h1=box.offsetHeight;
+  if(!vdRed()&&Math.abs(h1-h0)>1){
+    box.getAnimations().forEach(a=>a.cancel());
+    box.style.overflowY='clip';
+    box.animate([{height:h0+'px'},{height:h1+'px'}],{duration:560,easing:'cubic-bezier(.45,0,.25,1)'}).onfinish=()=>{box.style.overflowY='';};
+  }
   if(v&&v!==n&&!vdRed()){const lado=para>de?1:-1;
     v.animate([{opacity:1,transform:'none',visibility:'visible'},{opacity:0,transform:`translateX(${-lado*36}px)`,visibility:'visible'}],{duration:240,easing:'cubic-bezier(.45,0,.25,1)'});
     n.animate([{opacity:0,transform:`translateX(${lado*36}px)`},{opacity:1,transform:'none'}],{duration:440,delay:110,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'});}
@@ -1937,7 +1978,7 @@ function vdTroca(de,para){
 // "Vender outro carro": o carro e as fotos zeram, o contato fica
 function vdOutro(){
   VD.fotos.forEach(f=>URL.revokeObjectURL(f.url));
-  Object.assign(VD,{p:1,marca:'',modelo:'',ano:'',outraMarca:false,outroModelo:false,versao:'',km:'',valor:'',fotos:[],erro:''});
+  Object.assign(VD,{p:1,marca:'',modelo:'',ano:'',outraMarca:false,outroModelo:false,outraVersao:false,versao:'',km:'',valor:'',fotos:[],erro:''});
   const box=document.getElementById('vndIn');if(box)box.innerHTML=vdCorpo();
   VD.fim=false;vdProgresso();vdTroca(4,1);
 }
@@ -1950,8 +1991,9 @@ async function vdEnviar(){
   if(!vdOk(3)||VD.env)return;
   VD.env=true;VD.erro='';vdBotaoEnvio();
   const nome=x=>/[a-zà-ÿ]/.test(x)?x:titulo(x);   // o que foi escrito todo em maiúsculas fica como no site
-  const detalhes={marca:VD.outraMarca?nome(VD.marca.trim()):VD.marca,modelo:VD.outraMarca||VD.outroModelo?nome(VD.modelo.trim()):VD.modelo,versao:VD.versao.trim(),ano:VD.ano,
-    km:VD.km.replace(/\D/g,''),valor:VD.valor.replace(/\D/g,''),fotos:VD.fotos.length,de:VD.outraMarca||VD.outroModelo?'texto':'lista'};
+  const escrita=VD.outraVersao||!vdVersoes().length;
+  const detalhes={marca:VD.outraMarca?nome(VD.marca.trim()):VD.marca,modelo:VD.outraMarca||VD.outroModelo?nome(VD.modelo.trim()):VD.modelo,versao:escrita?nome(VD.versao.trim()):VD.versao,ano:VD.ano,
+    km:VD.km.replace(/\D/g,''),valor:VD.valor.replace(/\D/g,''),fotos:VD.fotos.length,de:VD.outraMarca||VD.outroModelo||escrita?'texto':'lista'};
   let ok=true;
   if(API!==null){
     try{const fotos=(await Promise.all(VD.fotos.map(vdDiminuir))).filter(Boolean);
@@ -2022,8 +2064,14 @@ function faixaAvaliacoes(){
       const h=a.h,dt=h[h.length-1][0]-h[0][0];AV.v=e.type==='pointerup'&&dt>0?Math.max(-3000,Math.min(3000,-(h[h.length-1][1]-h[0][1])/dt*1000)):0;};
     j.addEventListener('pointerup',solta);j.addEventListener('pointercancel',solta);
     j.addEventListener('click',e=>{if(performance.now()-(j._arrastou||-1e9)<400){e.preventDefault();e.stopPropagation();}},true);   // arrastar não abre a avaliação
+    // a faixa só anda enquanto aparece na tela: fora dela, o quadro a quadro para (pesava na rolagem do resto da página) e volta de onde estava
+    if(typeof IntersectionObserver==='function'){const io=new IntersectionObserver(es=>{
+      if(!j.isConnected){io.disconnect();return;}   // a faixa de uma página desenhada de novo: a nova cuida da animação
+      const e=es[es.length-1];j._visivel=e.isIntersecting;
+      if(!e.isIntersecting){cancelAnimationFrame(AV.raf);AV.raf=0;AV.t=0;}else if(!AV.raf)AV.raf=requestAnimationFrame(passoAvaliacoes);});
+      io.observe(j);}
   }
-  if(!AV.raf)AV.raf=requestAnimationFrame(passoAvaliacoes);
+  if(!AV.raf&&j._visivel!==false)AV.raf=requestAnimationFrame(passoAvaliacoes);
 }
 function passoAvaliacoes(t){
   const tr=document.querySelector('.av-trilho');if(!tr){AV.raf=0;AV.t=0;return;}
@@ -3026,11 +3074,21 @@ function bnfVer(i,sozinho){
   box.querySelectorAll('.bnf-bar i').forEach((e,j)=>{e.className=j<i?'feito':j===i?'on':'';});
   const p=document.getElementById('bnfP'),c=p&&p.querySelector('.bnf-c');
   if(p)p.setAttribute('aria-labelledby','bnfT'+i);
-  if(c){const troca=()=>{c.innerHTML=`<h3>${L[i][0]}</h3><p>${L[i][1]}</p>`;if(!rd)c.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});};
-    if(rd)troca();else c.animate([{opacity:1},{opacity:0}],{duration:150,easing:'ease-in',fill:'forwards'}).onfinish=troca;}
-  const ms=box.querySelectorAll('.bnf-m');
-  if(ms[antes])ms[antes].hidden=true;
-  if(ms[i]){ms[i].hidden=false;if(!rd&&getComputedStyle(ms[i]).display!=='none'){const h=ms[i].offsetHeight;ms[i].animate([{height:'0px',opacity:0},{height:h+'px',opacity:1}],{duration:360,easing:'cubic-bezier(.2,.8,.2,1)'});}}
+  // o texto sai em fusão e o novo chega. A saída não fica presa no fim: presa, ela voltava a valer quando a chegada terminava e o texto
+  // sumia do painel (o "bugado" de 31/10/2026). Trocando de novo no meio, a saída parte de onde o texto está
+  if(c){const troca=()=>{c.getAnimations().forEach(a=>a.cancel());c.innerHTML=`<h3>${L[i][0]}</h3><p>${L[i][1]}</p>`;
+      if(!rd)c.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});};
+    if(rd)troca();
+    else{const o=getComputedStyle(c).opacity;c.getAnimations().forEach(a=>a.cancel());
+      c.animate([{opacity:o},{opacity:0}],{duration:150,easing:'ease-in',fill:'forwards'}).onfinish=()=>{if(bnfAt===i)troca();};}}
+  // no celular, o aberto fecha e o novo abre embaixo do nome, os dois em movimento
+  const ms=box.querySelectorAll('.bnf-m'),abre=ms[i],fecha=ms[antes];
+  if(fecha&&fecha!==abre){fecha.getAnimations().forEach(a=>a.cancel());
+    if(!rd&&!fecha.hidden&&getComputedStyle(fecha).display!=='none'){const h=fecha.offsetHeight;
+      fecha.animate([{height:h+'px',opacity:1},{height:'0px',opacity:0}],{duration:320,easing:'cubic-bezier(.45,0,.25,1)',fill:'forwards'}).onfinish=()=>{if(bnfAt!==antes)fecha.hidden=true;};}
+    else fecha.hidden=true;}
+  if(abre){abre.getAnimations().forEach(a=>a.cancel());abre.hidden=false;
+    if(!rd&&getComputedStyle(abre).display!=='none'){const h=abre.offsetHeight;abre.animate([{height:'0px',opacity:0},{height:h+'px',opacity:1}],{duration:360,easing:'cubic-bezier(.2,.8,.2,1)'});}}
   if(!sozinho)bnfGira();
 }
 // troca sozinho só no computador (com mouse), com a página aberta e sem o mouse em cima
@@ -3436,6 +3494,7 @@ function render(topo){
   const filtrosAntes=pagAtual==='estoque'&&document.querySelector('#app .fbar')?medirFiltros():null;   // mesma página: os filtros mudam de tamanho sem pular
   if(roEtq)roEtq.disconnect();
   const app=document.getElementById('app'),velhos=pagAtual===render.pg?[...app.querySelectorAll('video.luz')]:[];
+  if(olhoVideo)app.querySelectorAll('video.luz').forEach(v=>{olhoVideo.unobserve(v);v._luz=0;});   // os que saem da página deixam de ser vigiados
   app.innerHTML=VIEWS[pagAtual]();render.pg=pagAtual;
   // a mesma página desenhada de novo (filtro, outro carro, modo de edição) fica com os vídeos que já estavam tocando: o fundo não recomeça
   const novos=[...app.querySelectorAll('video.luz')];if(velhos.length&&velhos.length===novos.length)novos.forEach((v,i)=>v.replaceWith(velhos[i]));
@@ -3445,7 +3504,7 @@ function render(topo){
   if(pagAtual==='associar')bnfGira();
   if(pagAtual==='home'){girar();alturaCategorias();alinharA();faixaAvaliacoes();document.fonts.ready.then(()=>{if(pagAtual==='home'){alturaCategorias();alinharA();}});}
   if(EDIT){sel=null;pintarBarra();}
-  document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});v.play().catch(()=>{});});
+  document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;if(!v._luz){v._luz=1;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});if(olhoVideo)olhoVideo.observe(v);}if(v._visto!==false)v.play().catch(()=>{});});
   if(typeof topo==='number')irPara(topo);else if(topo)scrollTo(0,0);   // voltando pelo histórico, a página abre onde estava
   if(pagAtual==='associados'&&rolarAssoc&&selAssoc&&entradasAssoc().some(e=>e.nome===selAssoc)){rolarAssoc=false;setTimeout(rolarParaLoja,topo?500:80);}   // aberto pela logo: desce até a loja
   if(TITULOS[pagAtual])document.title=TITULOS[pagAtual];
@@ -3506,15 +3565,21 @@ document.addEventListener('click',e=>{
   if(r.pg==='veiculo')go('veiculo',r.arg);else if(r.pg==='estoque'){if(r.arg)estoqueDaLoja(r.arg);else estoqueNovo();}else go(r.pg,r.arg);
 });
 // computador e tablet: descendo até o rodapé, o menu para com o meio na divisa dele e não cobre o que está no rodapé (pedido do Luiz, 07/10/2026)
+// uma conta por quadro, e a medida vai só no que sobe com o menu (o menu, o contador do estoque e a barra do modo de edição), quando muda:
+// posta na raiz da página, ela fazia o navegador recalcular a página inteira a cada passo da rolagem (31/10/2026)
 function menuNoRodape(){
-  const n=document.getElementById('nav'),r=document.querySelector('#app .rod');let s=0;
-  if(n&&r&&!cel())s=Math.max(0,innerHeight-parseFloat(getComputedStyle(n).bottom)-n.offsetHeight/2-r.getBoundingClientRect().top);
-  document.documentElement.style.setProperty('--sobe',s.toFixed(1)+'px');
+  if(menuNoRodape.r)return;
+  menuNoRodape.r=requestAnimationFrame(()=>{menuNoRodape.r=0;
+    const n=document.getElementById('nav'),r=document.querySelector('#app .rod');let s=0;
+    if(n&&r&&!cel())s=Math.max(0,innerHeight-parseFloat(getComputedStyle(n).bottom)-n.offsetHeight/2-r.getBoundingClientRect().top);
+    const v=s.toFixed(1)+'px';
+    [n,document.getElementById('edBarra'),...document.querySelectorAll('.est-cont')].forEach(e=>{if(e&&e.style.getPropertyValue('--sobe')!==v)e.style.setProperty('--sobe',v);});
+  });
 }
 addEventListener('scroll',menuNoRodape,{passive:true});
 if(typeof ResizeObserver==='function')new ResizeObserver(menuNoRodape).observe(document.getElementById('app'));   // fotos carregando mudam a altura da página
 // aba volta a ficar visível: o navegador pode ter pausado o vídeo do fundo
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)document.querySelectorAll('video.luz').forEach(v=>v.play().catch(()=>{}));});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)document.querySelectorAll('video.luz').forEach(v=>{if(v._visto!==false)v.play().catch(()=>{});});});
 let largAnt=matchMedia('(max-width:760px)').matches;
 addEventListener('resize',()=>{AV.P=0;if(pagAtual==='home'){alturaCategorias();alinharA();}const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;montarMenu();if(pagAtual==='associados'&&selAssoc)mostrarLoja();}
   if(pagAtual==='veiculo'){ajustarTopo();setasGaleria();clearTimeout(ordenarInfo.t);ordenarInfo.t=setTimeout(ordenarInfo,200);}

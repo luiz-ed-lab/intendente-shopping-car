@@ -32,9 +32,21 @@
       ]
     },
     {
-      "source": "/((?!api/|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|js|css|txt|xml)$).*)",
+      "source": "/((?!api/|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|js|css|txt|xml|mp4)$).*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/fundo-vidro-(.*)\\.mp4",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(fotos-home|fotos-aceima|fotos-publicacoes|marca-nova)/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
       ]
     }
   ]
