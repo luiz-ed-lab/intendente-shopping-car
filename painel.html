@@ -594,8 +594,10 @@ button.row:hover .row-tx b{color:var(--gold)}
 .pc-x{position:absolute;top:0;right:0;z-index:1;background:#F8E1DE;color:#9A2F22;opacity:0;transform:scale(.6);pointer-events:none;transition:transform .35s var(--ease),opacity .2s,background .2s}
 .pc-x:hover{background:#F2CDC8}
 .pc-ed:hover .pc-x,.pc-ed:focus-within .pc-x{opacity:1;transform:translateX(-48px);pointer-events:auto}
+/* com o mouse em cima, uma ponte invisível cobre o espaço entre o editar e o excluir: indo até ele, o excluir não some (pedido do Luiz, 31/10/2026) */
+.pc-ed:hover::before{content:"";position:absolute;top:0;right:100%;width:16px;height:100%}
 /* sem mouse (celular), o excluir fica sempre à mostra, ao lado do editar (pedido do Luiz, 22/10/2026) */
-@media (hover:none){.pc-ed{gap:8px}.pc-x{position:static;opacity:1;transform:none;pointer-events:auto}}
+@media (hover:none){.pc-ed{gap:8px}.pc-x,.pc-ed:hover .pc-x,.pc-ed:focus-within .pc-x{position:static;opacity:1;transform:none;pointer-events:auto}}
 /* editar abre embaixo da publicação, como as camadas das outras partes (pedido do Luiz, 22/10/2026); a nova abre no azul do topo */
 .pgrid>.cam{grid-column:1/-1}
 .pc.on{box-shadow:0 0 0 2px var(--gold2),0 22px 40px -24px rgba(11,26,51,.38)}
@@ -2085,7 +2087,7 @@ function limparFiltrosVeic(quieto){
 function modoVeic(m){if(m===VMODO)return;VMODO=m;veicAberto=null;try{localStorage.setItem('painel_vmodo',m);}catch(e){}renderVeic(true);}
 const precoV=v=>(v.preco&&+v.preco>0)?money(v.preco):'Consultar';
 const kmV=v=>v.km==null?'—':(Number(v.km)===0?'0 km':fmt(v.km)+' km');
-const etiquetaV=v=>!fotoV(v)?'<span class="pl erro">sem foto</span>':(v.oculto===true?'<span class="pl cinza">oculto</span>':'');
+const etiquetaV=v=>!fotoV(v)?'<span class="pl erro">sem foto</span>':'';   // o oculto não leva a palavra (pedido do Luiz, 31/10/2026): a chave já mostra
 const chave=v=>`<button type="button" class="switch${v.oculto===true?'':' on'}" data-sw="${v.id}" role="switch" aria-checked="${v.oculto!==true}" aria-label="Aparece no site" title="${v.oculto===true?'Oculto no site':'Aparece no site'}" onclick="event.stopPropagation();toggleVeic(${v.id})"></button>`;
 const tocar=id=>`data-k="${id}" tabindex="0" role="button" aria-expanded="false" onclick="abrirVeic(${id},this)" onkeydown="if((event.key==='Enter'||event.key===' ')&&event.target===this){event.preventDefault();abrirVeic(${id},this)}"`;
 let veicAberto=null;   // o carro com as informações abertas embaixo dele
@@ -2457,7 +2459,7 @@ async function salvarPub(){
   }catch(e){toast('Não deu para salvar: '+e.message);bt.disabled=false;bt.textContent=txt;}
 }
 async function excluirPub(id){
-  const p=PUBS.find(x=>x.id===id);if(!p||!confirm('Excluir a publicação "'+p.titulo+'"? Ela sai do site.'))return;
+  const p=PUBS.find(x=>x.id===id);if(!p||!confirm('Excluir a publicação "'+p.titulo+'"?'))return;
   try{
     const r=await jsonPost('/api/publicacoes?path=publicacoes',{acao:'excluir',id});
     const j=await r.json().catch(()=>({}));

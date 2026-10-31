@@ -3142,7 +3142,7 @@ function publicacoes(){
        <div><div style="font-family:var(--f2);font-size:.68rem;color:#C8862E;font-weight:600;letter-spacing:.6px;text-transform:uppercase">${esc(p.categoria)}</div><h3 class="pb-it" style="font-size:.97rem;margin-top:5px;line-height:1.35">${E('publicacoes.item-titulo',esc(p.titulo))}</h3><div style="font-family:var(--f2);font-size:.74rem;color:var(--mut);margin-top:5px">${dataPubCurta(p.data)}</div></div></a>`).join('')}
    </div>
  </div>`:`<div class="wrap" style="padding-top:24px;flex:1"><p class="pb-vazio">${T('publicacoes.vazio','Ainda não há publicações nesta categoria.')}</p></div>`}
- ${PUBS.some(p=>p.exemplo)?`<div class="wrap" style="padding-top:18px;padding-bottom:40px"><div class="aviso"><b>Conteúdo ilustrativo.</b> Textos, fotos e datas serão levantados com a diretoria.</div></div>`:'<div style="height:40px"></div>'}
+ <div style="height:40px"></div>
 </div>${rodape()}`;}
 // a página de uma publicação: categoria e data, título, foto e o texto em parágrafos (linha em branco no painel = parágrafo novo). O resumo
 // saiu (pedido do Luiz, 22/10/2026: eram dois textos); no destaque da lista, aparece o começo do texto
