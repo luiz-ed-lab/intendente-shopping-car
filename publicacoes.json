@@ -12,16 +12,6 @@
     ]
   },
   {
-    "id": "2026-03-12-titulo-de-uma-conquista-da-associacao",
-    "titulo": "Título de uma conquista da associação",
-    "categoria": "Conquistas",
-    "data": "2026-03-12",
-    "texto": "Publicação de exemplo. As publicações de verdade entram pelo painel, com título, fotos e texto.",
-    "destaque": false,
-    "foto": null,
-    "exemplo": true
-  },
-  {
     "id": "2026-03-04-comunicado-da-diretoria-aos-associados",
     "titulo": "Comunicado da diretoria aos associados",
     "categoria": "Comunicados",
