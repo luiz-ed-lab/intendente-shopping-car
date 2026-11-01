@@ -14,7 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!--
   Repasse da Aceima (pedido do Luiz, 26/10/2026): cada loja associada entra com o próprio login, oferece às outras lojas os carros pegos
-  na troca e chama quem cadastrou pelo WhatsApp. A estrutura é a lista por dia (a opção C que o Luiz escolheu): a lista que as lojas já
+  na troca e chama quem cadastrou pelo WhatsApp. A estrutura é a lista de anúncios (a opção C que o Luiz escolheu): a lista que as lojas já
   trocam nos grupos de WhatsApp, posta em ordem. Fica no menu e no rodapé do site (pedido do Luiz, 26/10/2026), fora dos buscadores.
   Os dados vêm da rota /api/repasse (o acesso de cada loja nasce no painel, em Associados) e as fotos, da rota /api/rfoto.
 -->
@@ -162,10 +162,6 @@ a.marca:hover{opacity:.85}
 @keyframes dropEntra{from{opacity:0;transform:translateY(-6px) scale(.98)}}
 @keyframes dropSai{to{opacity:0;transform:translateY(-4px) scale(.98)}}
 
-/* a lista por dia */
-.dia{display:flex;align-items:baseline;gap:10px;margin:22px 0 4px}
-.dia h2{font:600 23px/1 var(--f1);letter-spacing:-.01em}
-.dia span{font-size:14px;color:var(--mut)}
 /* a linha: a foto, o nome com os dados e, no canto direito, o valor e a loja, com o botão redondo à esquerda deles (a mensagem para a loja
    ou, no carro da própria loja, editar; pedido do Luiz, 31/10/2026). As linhas dividem as colunas da lista (subgrid): os botões ficam todos
    na mesma linha, encostados na coluna do valor, que tem a largura do maior texto dela */
@@ -193,7 +189,6 @@ a.marca:hover{opacity:.85}
 .pr{grid-column:4;display:flex;flex-direction:column;align-items:flex-end;text-align:right;min-width:0}
 .vl{display:block;font:600 22px/1.1 var(--f1);font-style:normal;font-variant-numeric:tabular-nums;white-space:nowrap}
 .an{display:block;max-width:100%;margin-top:6px;font-size:13.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.an .qd{display:none}   /* no celular, sem os títulos dos dias, a loja vem com o dia no lugar da hora */
 /* o carro vendido continua na lista, riscado, até o fim do dia */
 .ln.foi{cursor:default}
 .ln.foi>.ph{opacity:.45}
@@ -313,14 +308,12 @@ a.marca:hover{opacity:.85}
   .ord-t{height:7.3vw;gap:.5vw;padding:0 1.3vw 0 1.7vw;font-size:2.4vw}
   .ord-t svg{width:2.6vw;height:2.6vw}
   .ord-p button{font-size:3vw}
-  .dia{display:none}   /* sem os títulos dos dias: o dia vai na linha da loja */
-  .an .hr{display:none}.an .qd{display:inline}
   /* no celular, ao lado da foto, o nome, os dados, o valor e a loja, todos à esquerda, do topo à base da foto; à direita, no meio da altura
      dela, o botão redondo (pedido do Luiz, 01/11/2026). Cada linha tem a sua grade */
   #lista{display:block}
   .ln{grid-template-columns:23.6vw minmax(0,1fr) auto;grid-template-rows:auto auto 1fr;grid-template-areas:"ph t rb" "ph dl rb" "ph pr rb";gap:0 3.08vw;padding:3.08vw 3.6vw;margin:0 -3.6vw;border-radius:0;align-items:start}
   .ln:not(.on){height:calc(17.7vw + 6.16vw)}   /* a linha tem a altura da foto: o texto vai do topo à base dela */
-  .ln+.ln::before,#lista>.dia:not(:first-child)+.ln::before{content:"";position:absolute;left:3.6vw;right:3.6vw;top:0;height:1px;background:var(--fio);pointer-events:none}
+  .ln+.ln::before{left:3.6vw;right:3.6vw}
   .ln>.ph{grid-area:ph;width:23.6vw;height:17.7vw;border-radius:2.56vw}
   .ln .nm{display:contents}
   .ln .t{grid-area:t;gap:1.5vw;margin-top:-.5vw;font-size:3.6vw;line-height:1.2}
@@ -482,13 +475,10 @@ const ORDENS=[['novos','Mais novos'],['menor','Menor preço'],['maior','Maior pr
 
 const hoje0=()=>{const x=new Date();x.setHours(0,0,0,0);return x;};
 const mesmoDia=(a,b)=>a.toDateString()===b.toDateString();
-const SEM=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],MES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-function nomeDia(d){const h=hoje0(),o=new Date(h);o.setDate(o.getDate()-1);
-  if(mesmoDia(d,h))return 'Hoje';if(mesmoDia(d,o))return 'Ontem';return SEM[d.getDay()]+', '+d.getDate()+' de '+MES[d.getMonth()];}
 const hora=d=>String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
 const anoMod=c=>(String(c.ano).match(/\d{4}/g)||['']).pop();
 const kmT=c=>c.km!=null?fmt(c.km)+' km':'';
-// o dia, curto (no celular, na linha da loja): de hoje, a hora; de ontem, "ontem"; os outros, a data
+// o dia, curto, na linha da loja (a lista não tem títulos de dia, pedido do Luiz, 01/11/2026): de hoje, a hora; de ontem, "ontem"; os outros, a data
 const quando=d=>{const h=hoje0(),o=new Date(h);o.setDate(o.getDate()-1);return mesmoDia(d,h)?hora(d):mesmoDia(d,o)?'ontem':String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');};
 // no mercado: todos os carros, os da própria loja também (como no grupo); o vendido só no dia em que foi vendido
 const noMercado=c=>!c.repassado||mesmoDia(c.repassado,new Date());
@@ -549,7 +539,7 @@ function linha(c){
   const t=`<b class="t"><span>${esc(c.nome)}</span>${novo?'<span class="novo">Novo</span>':''}</b>`;
   const dados=[ab?c.ano:anoMod(c),kmT(c),c.cambio].filter(Boolean).join(' · ');
   const dl=`<span class="dl">${esc(dados)}${c.comb?`<span class="dl-x"> · ${esc(c.comb)}</span>`:''}${foi?' · vendido às '+hora(c.repassado):''}</span>`;
-  const pr=`<div class="pr">${ab?'<small>Valor de repasse</small>':''}<em class="vl">${reais(c.valor)}</em><span class="an">${esc(c.loja)} · <span class="hr">${hora(c.criado)}</span><span class="qd">${quando(c.criado)}</span></span></div>`;
+  const pr=`<div class="pr">${ab?'<small>Valor de repasse</small>':''}<em class="vl">${reais(c.valor)}</em><span class="an">${esc(c.loja)} · ${quando(c.criado)}</span></div>`;
   const at=`class="ln${foi?' foi':''}${ab?' on':''}${chegaram.has(c.id)||novoId===c.id?' chega':''}" data-id="${c.id}" ${foi?'aria-disabled="true"':`role="button" tabindex="0" aria-expanded="${ab}"`}`;
   // fechado, o botão redondo à esquerda do valor e da loja: a mensagem para quem anunciou ou, no carro da própria loja, editar
   const rb=c.meu?(foi?'':`<button type="button" class="rb edt" data-ed="${c.id}" aria-label="Editar o ${esc(c.nome)}" title="Editar">${sv('lapis')}</button>`)
@@ -587,11 +577,7 @@ function pintarLista(trocou){
   marcarEndereco();
   if(!CARROS.some(noMercado)){box.innerHTML=`<div class="vazio"><b>Nenhum carro no momento.</b><button type="button" class="contorno" onclick="abrirForm()">${sv('mais')}Anunciar</button></div>`;return;}
   if(!l.length){box.innerHTML=`<div class="vazio"><b>Nenhum carro com esse filtro.</b>Tente outra busca ou veja todos os carros.<br><button type="button" class="contorno" onclick="limpar()">Ver todos</button></div>`;return;}
-  // agrupa por dia só na ordem "mais novos"; nas outras ordens, a lista vai direto
-  let h='';
-  if(F.ord==='novos'){let dia='';l.forEach(c=>{const d=nomeDia(c.criado);if(d!==dia){dia=d;const n=l.filter(x=>nomeDia(x.criado)===d).length;h+=`<div class="dia"><h2>${d}</h2><span>${n} ${n===1?'carro':'carros'}</span></div>`;}h+=linha(c);});}
-  else h=`<div class="dia"><h2>${{menor:'Do menor preço',maior:'Do maior preço',km:'Da menor quilometragem',ano:'Do ano mais novo'}[F.ord]}</h2><span>${l.length} ${l.length===1?'carro':'carros'}</span></div>`+l.map(linha).join('');
-  box.innerHTML=h;
+  box.innerHTML=l.map(linha).join('');   // só os filtros e, logo abaixo, os anúncios: sem títulos de dia ou de ordem (pedido do Luiz, 01/11/2026)
   inteiras();
   if(trocou&&!reduz())box.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:320,easing:'cubic-bezier(.2,.8,.2,1)'});
 }
