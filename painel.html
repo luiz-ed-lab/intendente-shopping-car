@@ -591,6 +591,29 @@ button.row:hover .row-tx b{color:var(--gold)}
 .pc p{line-height:1.5;min-height:3em}
 /* o mural: os filtros e, à direita, a grade ou a lista (pedido do Luiz, 31/10/2026) */
 .mbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+/* o filtro recolhido (pedido do Luiz, 01/11/2026): só a categoria escolhida aparece; tocando nela, as outras saem de dentro dela, todas do
+   mesmo tamanho, e a escolhida toma o lugar. No computador, elas abrem para a direita e recolhem para a esquerda; sem lugar para as sete
+   numa linha e no celular, descem embaixo dela e recolhem para cima, e a grade e a lista ficam ao lado da escolhida */
+.fsel{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;width:max-content;max-width:100%}
+.fsel-ops,.fsel-in{display:contents}
+.fsel .chip{position:relative;z-index:1;padding:0 30px}
+.fsel .fsel-at{z-index:2}
+.fsel-at svg{position:absolute;right:11px;top:50%;margin-top:-7px;width:14px;height:14px;transform:rotate(-90deg);transition:transform .36s var(--ease)}
+.fsel.aberto .fsel-at svg{transform:rotate(90deg)}
+.fsel-in .chip{transition:transform .42s var(--ease) calc(var(--i) * 12ms),opacity .24s calc(var(--i) * 12ms),box-shadow .25s,background .25s,color .25s}
+.fsel:not(.aberto) .fsel-in .chip{transform:translateX(calc((-100% - 8px) * var(--i)));opacity:0;visibility:hidden;pointer-events:none;transition:transform .36s var(--ease),opacity .2s .1s,visibility 0s .36s}
+@media (max-width:1220px){
+  .mbar{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:0}
+  .fsel{display:contents}
+  .fsel .fsel-at{grid-column:1;grid-row:1;justify-self:start;min-width:200px;height:42px}
+  .mbar .modo{grid-column:2;grid-row:1}
+  .fsel-ops{display:grid;grid-column:1/-1;grid-row:2;grid-template-rows:0fr;transition:grid-template-rows .42s var(--ease),margin-top .42s var(--ease)}
+  .fsel.aberto .fsel-ops{grid-template-rows:1fr;margin-top:8px}
+  .fsel-in{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;min-height:0;overflow:hidden}
+  .fsel-at svg{transform:none}
+  .fsel.aberto .fsel-at svg{transform:rotate(180deg)}
+  .fsel:not(.aberto) .fsel-in .chip{transform:translateY(-10px)}
+}
 .plista{margin-top:20px}
 .prow{display:grid;grid-template-columns:112px minmax(0,1fr) auto auto auto;gap:22px;align-items:center;padding:12px 0;border-bottom:1px solid var(--fio)}
 .prow.on .pr-c h3{color:var(--goldtx)}
@@ -774,7 +797,9 @@ button.row:hover .row-tx b{color:var(--gold)}
   .na-g{grid-template-columns:minmax(0,1fr)}
   .na-g .cm-b .bt,.na-g .cm-b .bto{flex:1 1 0;justify-content:center}
   .ed-fotos{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .mbar{justify-content:center}
+  .fsel .fsel-at{justify-self:stretch;min-width:0}
+  .fsel-in{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fsel-in .chip{padding:0 12px}
   .prow{grid-template-columns:22vw minmax(0,1fr) auto;gap:12px}
   .prow .pr-t,.prow>.lk{display:none}
   .pr-c h3{font-size:15px}
@@ -1006,7 +1031,7 @@ button.row:hover .row-tx b{color:var(--gold)}
       <!-- ===== MURAL ===== -->
       <section class="view" id="v-mural">
         <div class="mbar">
-          <div class="chips" id="pubChips"></div>
+          <div class="fsel" id="pubChips"></div>
           <div class="modo" role="group" aria-label="Visualização">
             <button type="button" data-m="grade" title="Em grade" aria-label="Em grade" onclick="modoMural('grade')"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
             <button type="button" data-m="lista" title="Em lista" aria-label="Em lista" onclick="modoMural('lista')"><svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg></button>
@@ -2386,14 +2411,39 @@ function linhaPub(p){const f=fotoPub(p),n=fotosDaPub(p).length;
 let MMODO=(()=>{try{return localStorage.getItem('painel_mmodo')||'grade';}catch(e){return 'grade';}})();
 function modoMural(m){if(m===MMODO)return;MMODO=m;try{localStorage.setItem('painel_mmodo',m);}catch(e){}
   if(pubEdit&&$('pubEd').hidden){fecharCal();pubEdit=null;}renderPubs();entrarLista($('pubsGrid'));}
-function filtPub(c){if(c===pubFiltro)return;pubFiltro=c;pubEdit=null;fecharCal();renderPubs();entrarLista($('pubsGrid'));}
+// o filtro recolhido: a de cima é sempre a escolhida, e as opções são as outras. Elas só mudam com tudo recolhido, para não trocarem de
+// lugar no caminho
+let filtroPubAberto=false;
+const contaPub=()=>{const c={Todas:PUBS.length};PUBS.forEach(p=>{c[p.categoria]=(c[p.categoria]||0)+1;});return c;};
+const opcoesPub=()=>{const cont=contaPub();return ['Todas',...CATS_PUB].filter(c=>c!==pubFiltro).map((c,i)=>`<button type="button" class="chip" style="--i:${i+1}" data-c="${esc(c)}" onclick="filtPub(this.dataset.c)">${esc(c)}<i>${cont[c]||0}</i></button>`).join('');};
+function pintarFiltroPub(){
+  const ch=$('pubChips');
+  if(!ch.querySelector('.fsel-at'))ch.innerHTML=`<button type="button" class="chip on fsel-at" aria-haspopup="true" aria-expanded="false" onclick="alternarFiltroPub(!filtroPubAberto)"><span></span><i></i>${sv('<path d="m6 9 6 6 6-6"/>','sm')}</button><div class="fsel-ops"><div class="fsel-in"></div></div>`;
+  const at=ch.querySelector('.fsel-at');at.querySelector('span').textContent=pubFiltro;at.querySelector('i').textContent=contaPub()[pubFiltro]||0;
+  if(!filtroPubAberto&&!ch._t)ch.querySelector('.fsel-in').innerHTML=opcoesPub();
+}
+function alternarFiltroPub(abre){
+  const ch=$('pubChips');if(abre===filtroPubAberto||!ch.querySelector('.fsel-at'))return;
+  if(abre&&ch._t){clearTimeout(ch._t);ch._t=0;ch.querySelector('.fsel-in').innerHTML=opcoesPub();void ch.querySelector('.fsel-in').offsetHeight;}
+  filtroPubAberto=abre;ch.classList.toggle('aberto',abre);ch.querySelector('.fsel-at').setAttribute('aria-expanded',abre);
+}
+function filtPub(c){
+  const ch=$('pubChips');
+  if(c===pubFiltro){alternarFiltroPub(false);return;}
+  alternarFiltroPub(false);pubFiltro=c;pubEdit=null;fecharCal();
+  // as opções voltam para dentro da de cima e, recolhidas, mudam para as da nova escolha
+  clearTimeout(ch._t);ch._t=setTimeout(()=>{ch._t=0;if(!filtroPubAberto)ch.querySelector('.fsel-in').innerHTML=opcoesPub();},460);
+  renderPubs();entrarLista($('pubsGrid'));
+  if(!reduz())ch.querySelector('.fsel-at span').animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:320,easing:'cubic-bezier(.2,.8,.2,1)'});
+}
+document.addEventListener('pointerdown',e=>{if(filtroPubAberto&&!e.target.closest('#pubChips'))alternarFiltroPub(false);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&filtroPubAberto)alternarFiltroPub(false);});
 function renderPubs(){
   const g=$('pubsGrid'),ch=$('pubChips');
   if(pubsErro){ch.innerHTML='';g.innerHTML=`<p class="vazio" style="grid-column:1/-1">Não deu para abrir as publicações: ${esc(pubsErro)}</p>`;return;}
   // antes de as publicações chegarem, o esqueleto dos cartões
   if(!pubsProntas){ch.innerHTML='';g.className='pgrid';g.innerHTML=Array.from({length:6},()=>'<article class="pc"><div class="pc-f esq" style="border-radius:0"></div><div class="pc-b"><i class="esq" style="width:46%;height:11px"></i><i class="esq" style="width:82%;height:16px;margin-top:10px"></i><i class="esq" style="width:64%;height:12px;margin-top:8px"></i></div><div class="pc-a"><i class="esq" style="width:90px;height:13px"></i><i class="esq" style="width:40px;height:40px;border-radius:50%"></i></div></article>').join('');return;}
-  const cont={Todas:PUBS.length};PUBS.forEach(p=>{cont[p.categoria]=(cont[p.categoria]||0)+1;});
-  pintarChips(ch,['Todas',...CATS_PUB].map(c=>[c,c,cont[c]||0]),pubFiltro,'filtPub');
+  pintarFiltroPub();
   const lista=PUBS.filter(p=>pubFiltro==='Todas'||p.categoria===pubFiltro);
   $('v-mural').querySelectorAll('.modo button').forEach(b=>b.classList.toggle('on',b.dataset.m===MMODO));
   g.className=MMODO==='lista'?'plista':'pgrid';
@@ -2509,7 +2559,7 @@ async function excluirPub(id){
     if(!r.ok||!j.ok)throw new Error(j.erro||('erro '+r.status));
     const editando=pubEdit===id;if(editando)fecharPub();
     PUBS=j.publicacoes||PUBS.filter(x=>x.id!==id);if(editando)refazerMural();else{renderPubs();pintarResumo();}
-    toast('Publicação excluída. O site atualiza em cerca de um minuto');
+    toast('Publicação excluída');
   }catch(e){toast('Não deu para excluir: '+e.message);}
 }
 /* a data no padrão das listas do site: um calendário escuro, como a lista dos filtros (pedido do Luiz, 22/10/2026; antes era o do
