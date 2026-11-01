@@ -511,7 +511,8 @@ button.fp{border:1px solid transparent;cursor:pointer}
 @media (max-width:760px){
   /* a chamada e o título no meio; os filtros em duas linhas, da largura da página */
   .pb-top{justify-items:center;text-align:center;row-gap:4.23vw}
-  .pb-tit{font-size:7.04vw;letter-spacing:-.2vw}
+  .pb-top .kick{font-size:2.11vw;letter-spacing:.42vw}   /* a chamada menor e o título numa linha só (pedido do Luiz, 01/11/2026) */
+  .pb-tit{margin-top:1.41vw;font-size:6.3vw;letter-spacing:-.1vw;white-space:nowrap}
   .pb-fil{width:100%}
   .pb-fil .fbar{gap:1.41vw}
   .pb-fil .fbar .fp{flex-basis:22%;padding:1.6vw 2.11vw;font-size:2.82vw}
@@ -3197,11 +3198,12 @@ function bnfVer(i,sozinho){
     if(rd)troca();
     else{const o=getComputedStyle(c).opacity;c.getAnimations().forEach(a=>a.cancel());
       c.animate([{opacity:o},{opacity:0}],{duration:150,easing:'ease-in',fill:'forwards'}).onfinish=()=>{if(bnfAt===i)troca();};}}
-  // no celular, o aberto fecha e o novo abre embaixo do nome, os dois em movimento
+  // no celular, o aberto fecha e o novo abre embaixo do nome, os dois com a mesma curva e o mesmo tempo: com curvas diferentes, a soma das
+  // alturas crescia e voltava, e a página descia e subia a cada toque (pedido do Luiz, 01/11/2026)
   const ms=box.querySelectorAll('.bnf-m'),abre=ms[i],fecha=ms[antes];
   if(fecha&&fecha!==abre){fecha.getAnimations().forEach(a=>a.cancel());
     if(!rd&&!fecha.hidden&&getComputedStyle(fecha).display!=='none'){const h=fecha.offsetHeight;
-      fecha.animate([{height:h+'px',opacity:1},{height:'0px',opacity:0}],{duration:320,easing:'cubic-bezier(.45,0,.25,1)',fill:'forwards'}).onfinish=()=>{if(bnfAt!==antes)fecha.hidden=true;};}
+      fecha.animate([{height:h+'px',opacity:1},{height:'0px',opacity:0}],{duration:360,easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'}).onfinish=()=>{if(bnfAt!==antes)fecha.hidden=true;};}
     else fecha.hidden=true;}
   if(abre){abre.getAnimations().forEach(a=>a.cancel());abre.hidden=false;
     if(!rd&&getComputedStyle(abre).display!=='none'){const h=abre.offsetHeight;abre.animate([{height:'0px',opacity:0},{height:h+'px',opacity:1}],{duration:360,easing:'cubic-bezier(.2,.8,.2,1)'});}}

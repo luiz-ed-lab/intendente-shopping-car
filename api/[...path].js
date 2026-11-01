@@ -2126,7 +2126,7 @@ async function listaRepasse(s, res) {
 // publicar é em três passos, para nenhum pedido passar do limite da Vercel (4,5 MB) e o aparelho mostrar o andamento: os dados (o carro
 // nasce "enviando", fora da lista), uma foto por vez e o "pronto", que põe o carro no repasse com a hora daquele momento
 async function publicarRepasse(s, b, res) {
-  const nome = txtR(b.nome, 80), ano = txtR(b.ano, 9), valor = parseInt(b.valor, 10), km = parseInt(b.km, 10), nf = parseInt(b.fotos, 10) || 0;
+  const nome = txtR(b.nome, 120), ano = txtR(b.ano, 9), valor = parseInt(b.valor, 10), km = parseInt(b.km, 10), nf = parseInt(b.fotos, 10) || 0;
   if (nome.length < 3 || !/\d{4}/.test(ano) || !(valor >= 100 && valor <= 20000000)) return res.status(400).json({ erro: 'Faltam a marca e o modelo, o ano ou o valor.' });
   const { rows: [{ n }] } = await query(`select count(*)::int as n from repasse_carros where loja_id = $1 and status in ('ativo', 'enviando') and criado_em > now() - interval '30 days'`, [s.loja_id]);
   if (n >= CARROS_POR_LOJA) return res.status(400).json({ erro: `Sua loja já tem ${CARROS_POR_LOJA} carros no repasse. Tire os que já foram vendidos para colocar outros.` });
@@ -2168,7 +2168,7 @@ async function fotoRepasse(s, b, res) {
 // fotos vêm numa lista: o endereço de cada foto que fica e, no lugar de cada foto nova, null (a nova chega depois, uma por vez, na posição
 // dela). As que saíram da lista são apagadas. O carro continua no mesmo lugar da lista (a hora em que entrou não muda)
 async function editarRepasse(s, b, res) {
-  const id = parseInt(b.id, 10), nome = txtR(b.nome, 80), ano = txtR(b.ano, 9), valor = parseInt(b.valor, 10), km = parseInt(b.km, 10);
+  const id = parseInt(b.id, 10), nome = txtR(b.nome, 120), ano = txtR(b.ano, 9), valor = parseInt(b.valor, 10), km = parseInt(b.km, 10);
   if (nome.length < 3 || !/\d{4}/.test(ano) || !(valor >= 100 && valor <= 20000000)) return res.status(400).json({ erro: 'Faltam a marca e o modelo, o ano ou o valor.' });
   const { rows: [c] } = await query(
     `update repasse_carros set nome = $3, ano = $4, km = $5, cambio = $6, combustivel = $7, cor = $8, valor = $9, obs = $10, placa = $11, donos = $12, laudo = $13
