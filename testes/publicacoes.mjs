@@ -46,11 +46,13 @@ assert(!('resumo' in r.body.publicacao) && r.body.publicacao.texto === 'Linha 1\
 assert(repo.arvore.tree.length === 1 && repo.arvore.tree[0].path === 'publicacoes.json' && repo.arvore.base_tree === 'arvore-c0', 'um commit só, com a lista, em cima do commit atual');
 assert(repo.commits.pop() === 'Publicações: nova "Mutirão de vistoria na Intendente"', 'mensagem do commit');
 
-const foto = 'data:image/webp;base64,' + Buffer.from('foto-de-teste').toString('base64');
+// as fotos de teste começam como um WebP e um JPG de verdade: a API confere os primeiros bytes (01/11/2026)
+const WEBP = t => Buffer.concat([Buffer.from('RIFF\0\0\0\0WEBP', 'latin1'), Buffer.from(t)]), JPG = t => Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.from(t)]);
+const foto = 'data:image/webp;base64,' + WEBP('foto-de-teste').toString('base64');
 r = await post({ acao: 'salvar', pub: { titulo: 'Conquista nova', categoria: 'Conquistas', data: '2026-10-12', destaque: true }, foto });
 const nova = r.body.publicacao;
 assert(/^fotos-publicacoes\/2026-10-12-conquista-nova-[a-z0-9]+\.webp$/.test(nova.foto), 'a foto vai para fotos-publicacoes/ com o id no nome');
-assert(repo.arvore.tree.length === 2 && Buffer.from(repo.arquivos[nova.foto], 'base64').toString() === 'foto-de-teste', 'a foto e a lista no mesmo commit');
+assert(repo.arvore.tree.length === 2 && Buffer.from(repo.arquivos[nova.foto], 'base64').toString().endsWith('foto-de-teste'), 'a foto e a lista no mesmo commit');
 assert(lista()[0].id === nova.id, 'a mais nova vem primeiro');
 
 r = await post({ acao: 'salvar', pub: { titulo: 'Conquista nova', categoria: 'Conquistas', data: '2026-10-12' } });
@@ -58,7 +60,7 @@ assert(r.body.publicacao.id === '2026-10-12-conquista-nova-2', 'título repetido
 
 // editar: troca a foto (a velha sai do site), passa o destaque e deixa de ser exemplo
 repo.arquivos['publicacoes.json'] = Buffer.from(JSON.stringify(lista().map(x => x.id === '2026-10-10-mutirao-de-vistoria-na-intendente' ? { ...x, exemplo: true } : x))).toString('base64');
-const foto2 = 'data:image/jpeg;base64,' + Buffer.from('outra').toString('base64');
+const foto2 = 'data:image/jpeg;base64,' + JPG('outra').toString('base64');
 r = await post({ acao: 'salvar', pub: { id: '2026-10-10-mutirao-de-vistoria-na-intendente', titulo: 'Mutirão editado', categoria: 'Ações no polo', data: '2026-10-10', destaque: true }, foto: foto2 });
 let l = lista(), ed = l.find(x => x.id === '2026-10-10-mutirao-de-vistoria-na-intendente');
 assert(ed && ed.titulo === 'Mutirão editado' && !('exemplo' in ed), 'edita mantendo o id e deixa de ser exemplo');
@@ -84,17 +86,18 @@ assert(lista().map(x => x.data).join() === [...lista().map(x => x.data)].sort().
 
 r = await post({ acao: 'salvar', pub: { titulo: '  ' } }); assert(r.code === 400, 'sem título não grava');
 r = await post({ acao: 'salvar', pub: { titulo: 'X' }, foto: 'data:text/html;base64,PGI+' }); assert(r.code === 400, 'recusa arquivo que não é foto');
+r = await post({ acao: 'salvar', pub: { titulo: 'X' }, foto: 'data:image/webp;base64,' + Buffer.from('<html><script>').toString('base64') }); assert(r.code === 400, 'recusa arquivo que diz ser foto e não é (os primeiros bytes não batem)');
 r = await post({ acao: 'salvar', pub: { id: 'nao-existe', titulo: 'X' } }); assert(r.code === 404, 'editar uma que não existe');
 r = await post({ acao: 'apagar-tudo' }); assert(r.code === 400, 'ação desconhecida');
 r = await post({ acao: 'salvar', pub: { titulo: 'Categoria estranha', categoria: '<script>' } });
 assert(r.body.publicacao.categoria === 'Ações no polo', 'categoria fora da lista vira a primeira');
 
 // várias fotos (21/10/2026): a primeira é a capa; as que saem somem do site e as que ficam continuam
-const fa = 'data:image/webp;base64,' + Buffer.from('foto-a').toString('base64'), fb = 'data:image/webp;base64,' + Buffer.from('foto-b').toString('base64');
+const fa = 'data:image/webp;base64,' + WEBP('foto-a').toString('base64'), fb = 'data:image/webp;base64,' + WEBP('foto-b').toString('base64');
 r = await post({ acao: 'salvar', pub: { titulo: 'Galeria', categoria: 'Ações no polo', data: '2026-10-20' }, fotos: [{ nova: fa }, { nova: fb }] });
 let gal = r.body.publicacao;
 assert(gal.fotos.length === 2 && gal.foto === gal.fotos[0] && /-1\.webp$/.test(gal.fotos[0]) && /-2\.webp$/.test(gal.fotos[1]), 'várias fotos, a primeira é a capa');
-assert(Buffer.from(repo.arquivos[gal.fotos[1]], 'base64').toString() === 'foto-b', 'as fotos novas no mesmo commit');
+assert(Buffer.from(repo.arquivos[gal.fotos[1]], 'base64').toString().endsWith('foto-b'), 'as fotos novas no mesmo commit');
 const [g1, g2] = gal.fotos;
 r = await post({ acao: 'salvar', pub: { id: gal.id, titulo: 'Galeria', categoria: 'Ações no polo', data: '2026-10-20' }, fotos: [{ caminho: g2 }, { nova: fa }] });
 gal = r.body.publicacao;

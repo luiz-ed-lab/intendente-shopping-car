@@ -1,0 +1,29 @@
+name: Verificar (testes e dependências)
+
+# A cada envio para o site e toda segunda-feira (01/11/2026): roda os testes de testes/ e procura falha de segurança conhecida nas
+# dependências da API (npm audit). Vermelho aqui é para olhar antes de publicar.
+on:
+  push:
+    branches: [main, site-novo]
+  schedule:
+    - cron: '17 11 * * 1'   # segunda, 8h17 no Rio
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262   # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020   # v4.4.0
+        with:
+          node-version: '22'
+      - name: Dependências da API
+        run: npm ci --ignore-scripts --no-fund
+      - name: Falhas de segurança conhecidas nas dependências
+        run: npm audit --omit=dev --audit-level=high
+      - name: Testes
+        run: for t in testes/*.mjs; do echo "== $t"; node "$t" || exit 1; done

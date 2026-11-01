@@ -6,9 +6,12 @@ const src = fs.readFileSync(new URL('../api/[...path].js', import.meta.url), 'ut
 const trecho = src.slice(src.indexOf('// ---------------- REPASSE'), src.indexOf('// ---------------- ROTEADOR'));
 let sqls = [], linhas = () => [], comSenha = false;
 const query = async (sql, p) => { sqls.push([sql, p]); return { rows: linhas(sql, p) || [] }; };
-const { rotaRepasse, rotaFotoRepasse, hashSenha, confereSenha } = new Function('query', 'pausa', 'autorizado', 'negar', 'scrypt', 'randomBytes', 'createHash', 'timingSafeEqual',
+// os limites por lugar (01/11/2026) ficam na memória do teste: cada chave conta os erros
+let limites = {};
+const { rotaRepasse, rotaFotoRepasse, hashSenha, confereSenha } = new Function('query', 'pausa', 'autorizado', 'negar', 'scrypt', 'randomBytes', 'createHash', 'timingSafeEqual', 'ipDe', 'passou', 'contar',
   trecho + '; return { rotaRepasse, rotaFotoRepasse, hashSenha, confereSenha };')(
-  query, async () => {}, () => comSenha, res => res.status(401).json({ erro: 'não autorizado' }), scrypt, randomBytes, createHash, timingSafeEqual);
+  query, async () => {}, async () => comSenha, res => res.status(401).json({ erro: 'não autorizado' }), scrypt, randomBytes, createHash, timingSafeEqual,
+  () => 'lugar-teste', async (k, max) => (limites[k] || 0) >= max, async (k, max) => (limites[k] = (limites[k] || 0) + 1) > max);
 const resposta = () => { const r = { st: 200, h: {}, corpo: null, setHeader(k, v) { r.h[k] = v; }, status(s) { r.st = s; return r; }, json(o) { r.corpo = o; return r; }, end(b) { r.corpo = b; return r; } }; return r; };
 const chama = async (fn, method, q, body, headers) => { const r = resposta(); await fn({ method, query: q, body: body || {}, headers: headers || {} }, r); return r; };
 const assert = (c, m) => { if (!c) { console.log('FALHOU:', m); process.exitCode = 1; } else console.log('ok:', m); };
@@ -38,6 +41,15 @@ assert(ent[1][0] === 'loja@teste.com', 'o e-mail é conferido sem espaços e em 
 assert(/a\.loja_id = 0 or l\.ativa = true/.test(ent[0]) && /coalesce\(l\.nome, 'Aceima'\)/.test(ent[0]), 'o acesso da Aceima (loja 0, que não existe na tabela de lojas) entra como "Aceima"; o das lojas, só com a loja ativa');
 sqls = []; r = await chama(rotaRepasse, 'POST', { acao: 'entrar' }, { email: 'loja@teste.com', senha: 'errada' });
 assert(r.st === 401 && usou(/falhas = falhas \+ 1/), 'senha errada: 401 e conta o erro (oito seguidos travam 15 minutos)');
+assert(limites['repasse:lugar-teste'] === 1, 'senha errada também conta para o lugar de onde veio o pedido');
+linhas = () => [];
+sqls = []; const t0 = Date.now(); r = await chama(rotaRepasse, 'POST', { acao: 'entrar' }, { email: 'ninguem@teste.com', senha: 'qualquer-uma' });
+assert(r.st === 401 && r.corpo.erro === 'E-mail ou senha não conferem.' && Date.now() - t0 >= 5, 'e-mail sem acesso: a mesma resposta, depois da mesma conta de senha (o tempo não entrega quem tem acesso)');
+limites['repasse:lugar-teste'] = 20; sqls = [];
+r = await chama(rotaRepasse, 'POST', { acao: 'entrar' }, { email: 'loja@teste.com', senha: 'senha-teste-1' });
+assert(r.st === 429 && !usou(/from repasse_acessos a left join lojas/), 'vinte senhas erradas do mesmo lugar em 15 minutos: trava o lugar, sem nem procurar o e-mail');
+limites = {};
+linhas = s => /from repasse_acessos a left join lojas/.test(s) ? [{ id: 7, email: 'loja@teste.com', senha: h, ativo: true, loja: 'TurboMix Veículos', falhas: 0, bloqueio: null }] : [];
 
 // com a sessão de uma loja
 const T = { 'x-repasse-token': 'a'.repeat(64) };
@@ -61,6 +73,8 @@ p = sqls.find(([s]) => /insert into repasse_carros/.test(s))[1];
 assert(p[12] === 'ativo' && p[9] === '3', 'sem fotos, já entra no repasse; da placa fica só o final');
 r = await chama(rotaRepasse, 'POST', { acao: 'foto' }, { carro: 55, ordem: 0, dados: 'data:image/jpeg;base64,' + Buffer.from('<svg onload=alert(1)>').toString('base64') }, T);
 assert(r.st === 400, 'arquivo que não é imagem: recusado');
+r = await chama(rotaRepasse, 'POST', { acao: 'foto' }, { carro: 55, ordem: 0, dados: 'data:image/webp;base64,' + Buffer.from('RIFF\0\0\0\0WAVEfmt ', 'latin1').toString('base64') }, T);
+assert(r.st === 400, 'áudio (RIFF sem WEBP) com nome de foto: recusado');
 sqls = []; r = await chama(rotaRepasse, 'POST', { acao: 'foto' }, { carro: 55, ordem: 0, dados: 'data:image/jpeg;base64,' + Buffer.from([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3]).toString('base64') }, T);
 const ft = sqls.find(([s]) => /insert into repasse_fotos/.test(s));
 assert(r.st === 200 && /^[a-f0-9]{32}$/.test(r.corpo.id) && ft && /decode\(\$5, 'base64'\)/.test(ft[0]) && ft[1][3] === 'image/jpeg', 'foto jpg: gravada com endereço sorteado');

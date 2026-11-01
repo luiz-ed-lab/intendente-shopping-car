@@ -25,3 +25,22 @@ assert(!/oculto,false\) = false/.test(sqls[0]) && !r.h['Cache-Control'] && migro
 
 sqls = []; r = resposta(); await rotaLojas(pedido({}), r);
 assert(/select \* from lojas/.test(sqls[0]) && !r.h['Cache-Control'], 'painel: lojas completas (com logos), sem cache');
+
+// 01/11/2026: sem a senha, a lista completa das lojas (com o e-mail que recebe os leads) não sai, e o estoque sai só com as colunas públicas
+comSenha = false; sqls = []; r = resposta(); let st = 200; r.status = s => { st = s; return r; };
+await rotaLojas(pedido({}), r);
+assert(st === 401 && !sqls.length, 'sem senha: lojas completas negadas, sem ir ao banco');
+sqls = []; params = []; r = resposta(); await rotaVeiculos(pedido({ precoAte: '50000', loja: 'x; drop table veiculos' }), r);
+assert(!/v\.\*/.test(sqls[0]) && /coalesce\(v\.oculto,false\) = false/.test(sqls[0]) && /l\.nome <> all\(\$1\)/.test(sqls[0]), 'sem senha: estoque com as colunas públicas, sem oculto e sem a loja fora do site');
+assert(params[0].length === 2 && params[0][1] === 50000 && !/v\.loja_id = /.test(sqls[0]), 'filtros só com número de verdade (o texto no lugar do id da loja é ignorado)');
+for (const m of ['POST', 'PATCH', 'DELETE']) {
+  sqls = []; st = 200; r = resposta(); r.status = s => { st = s; return r; };
+  await rotaLojas({ method: m, query: {}, headers: {}, body: { id: 1, nome: 'X' } }, r);
+  assert(st === 401 && !sqls.length, `sem senha: ${m} em lojas negado`);
+}
+comSenha = true; st = 200; sqls = []; r = resposta(); r.status = s => { st = s; return r; };
+await rotaLojas({ method: 'PATCH', query: {}, headers: {}, body: { id: 1, email: 'x" onmouseover="alert(1)' } }, r);
+assert(st === 400 && !sqls.some(q => /update lojas/.test(q)), 'e-mail fora do formato não é gravado');
+st = 200; sqls = []; r = resposta(); r.status = s => { st = s; return r; };
+await rotaLojas({ method: 'PATCH', query: {}, headers: {}, body: { id: 1, logo_url: 'javascript:alert(1)' } }, r);
+assert(st === 400, 'logo que não é imagem nem endereço http(s): recusada');

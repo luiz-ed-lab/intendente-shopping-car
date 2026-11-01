@@ -9,9 +9,9 @@
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/png" sizes="32x32" href="marca-nova/icone-32.png">
 <link rel="apple-touch-icon" href="marca-nova/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="/fontes/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fontes/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link href="/fontes/fontes.css" rel="stylesheet">
 <style>
 /* Painel da Aceima (refeito em 16/10/2026, a opção 2 que o Luiz escolheu): o topo azul com o vidro, como as páginas do site, a logo no
    meio e, embaixo, a folha clara que sobe por cima dele. O menu é a mesma barra em pílula do site, fixa embaixo; no celular, o botão do
@@ -888,7 +888,7 @@ button.row:hover .row-tx b{color:var(--gold)}
 <body>
 
 <!-- ===== ENTRADA ===== -->
-<div id="login" class="vidro">
+<div id="login" class="vidro" role="main">
   <div class="ent">
     <div class="ent-topo">
       <img src="marca-nova/aceima-nova.png" alt="Aceima">
@@ -1047,13 +1047,18 @@ let leadsRaw=[];       // leads como a API manda (detalhes, e-mail, forma de com
 let leads=[];          // leads para a tela
 let PUBS=[],pubsErro=null;   // publicações do mural (publicacoes.json, lido pela API no GitHub)
 let vistaAtual='dash',dadosProntos=false,primeiraVez=true;
-let PAINEL_TOKEN='';
+// a sessão (01/11/2026): o servidor confere a senha uma vez só e abre uma sessão de uma hora num cookie HttpOnly, que esta página nem
+// consegue ler. Aqui fica guardado só até quando ela vale; a senha não fica mais no aparelho (ficava no localStorage)
 const SESSAO_HORAS=1;
-function salvarSessao(t){try{localStorage.setItem('aceima_sessao',JSON.stringify({t,exp:Date.now()+SESSAO_HORAS*3600000}));}catch(e){}}
-function lerSessao(){try{const s=JSON.parse(localStorage.getItem('aceima_sessao')||'null');if(s&&s.exp>Date.now())return s;localStorage.removeItem('aceima_sessao');}catch(e){}return null;}
-function sair(){try{localStorage.removeItem('aceima_sessao');}catch(e){}location.reload();}
-// toda chamada ao servidor leva a senha do painel
-function api(url,opts){opts=opts||{};opts.headers=Object.assign({},opts.headers||{},{'x-painel-token':PAINEL_TOKEN});return fetch(url,opts);}
+function salvarSessao(exp){try{localStorage.setItem('aceima_sessao',JSON.stringify({exp:exp||Date.now()+SESSAO_HORAS*3600000}));}catch(e){}}
+function lerSessao(){try{const s=JSON.parse(localStorage.getItem('aceima_sessao')||'null');
+  if(s&&s.t){localStorage.removeItem('aceima_sessao');return null;}   // a sessão antiga guardava a própria senha: sai do aparelho
+  if(s&&s.exp>Date.now())return s;localStorage.removeItem('aceima_sessao');}catch(e){}return null;}
+async function sair(){try{localStorage.removeItem('aceima_sessao');}catch(e){}
+  try{await fetch('/api/auth?path=auth',{method:'DELETE',headers:{'x-aceima':'1'}});}catch(e){}location.reload();}
+// toda chamada ao servidor vai com o cookie da sessão e o cabeçalho x-aceima (outro site não consegue pôr). Sessão vencida: entra de novo
+function api(url,opts){opts=opts||{};opts.headers=Object.assign({},opts.headers||{},{'x-aceima':'1'});opts.credentials='same-origin';
+  return fetch(url,opts).then(r=>{if(r.status===401&&!api.saiu){api.saiu=1;alert('A sessão terminou. Entre de novo.');sair();}return r;});}
 const jsonPost=(url,corpo,metodo)=>api(url,{method:metodo||'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(corpo)});
 
 /* ---------- utilidades ---------- */
@@ -1477,7 +1482,7 @@ async function gerarRelatorio(){
     ||'<tr><td colspan="6" style="text-align:center;color:#5A6B85;padding:18px">Nenhum lead nesse período.</td></tr>';
   const resumoLojas=Object.keys(porLoja).sort((a,b)=>porLoja[b]-porLoja[a]).map(k=>`<tr><td>${esc(k)}</td><td style="text-align:right"><b>${porLoja[k]}</b></td></tr>`).join('')||'<tr><td colspan="2" style="color:#5A6B85">—</td></tr>';
   imprimir(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório de leads · Aceima</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+  <link href="/fontes/fontes.css" rel="stylesheet">
   <style>
    @page{size:A4 landscape;margin:12mm}
    *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -1816,7 +1821,7 @@ async function salvarAcesso(id){
   const l=lojaRep(id),v=k=>($(k)?$(k).value.trim():''),a=repAcessos[id];if(!l)return;
   const email=v('rEmail'),senha=v('rSenha'),wa=waDe(v('rWa'));
   if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){toast('Confira o e-mail');$('rEmail').focus();return;}
-  if((!a||senha)&&senha.length<6){toast('A senha precisa ter pelo menos 6 letras ou números');$('rSenha').focus();return;}
+  if((!a||senha)&&senha.length<8){toast('A senha precisa ter pelo menos 8 letras ou números');$('rSenha').focus();return;}
   const cb=$('cb-'+id);if(cb)cb.innerHTML=`<div class="and"><p>${spin}Salvando…</p></div>`;
   try{const r=await jsonPost('/api/repasse?path=repasse&acao=acessos',{loja_id:id,email,senha,whatsapp:wa});const d=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(d.erro||'erro '+r.status);
@@ -2699,25 +2704,29 @@ function verSenha(){
     :'<svg class="ic sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.7 5.1A10.9 10.9 0 0 1 12 5c6.4 0 10 7 10 7a18 18 0 0 1-2.7 3.7"/><path d="M6.6 6.6A17.8 17.8 0 0 0 2 12s3.6 7 10 7a10.7 10.7 0 0 0 5.4-1.4"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m2 2 20 20"/></svg>';
   i.focus();
 }
-// a senha é conferida só no servidor (PAINEL_TOKEN). Sem a senha configurada no servidor, o painel não abre
+// a senha é conferida só no servidor (PAINEL_TOKEN), que responde com o cookie da sessão. Sem a senha configurada no servidor, o painel não abre
 async function entrar(){
   const p=$('lpass').value,err=$('lerr');
-  let ok=false,protegido=true;
-  try{const r=await fetch('/api/auth?path=auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:p})});
-    const j=await r.json().catch(()=>({}));ok=!!j.ok;protegido=j.protegido!==false;}catch(e){ok=false;}
-  if(ok&&protegido){err.style.display='none';salvarSessao(p);abrirPainel(p);return;}
-  err.textContent=ok?'A senha do painel não está configurada no servidor.':'Senha incorreta.';err.style.display='block';
+  let j={};
+  try{const r=await fetch('/api/auth?path=auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:p}),credentials:'same-origin'});
+    j=await r.json().catch(()=>({}));}catch(e){j={erro:'Sem conexão. Tente de novo.'};}
+  if(j.ok&&j.protegido){err.style.display='none';$('lpass').value='';salvarSessao(j.exp);abrirPainel();return;}
+  err.textContent=j.erro||'Senha incorreta.';err.style.display='block';
 }
-function abrirPainel(token){
-  PAINEL_TOKEN=token;
+function abrirPainel(){
   clearInterval(mostrarEntrada.t);mostrarEntrada.t=0;
   $('login').style.display='none';$('app').classList.add('on');
   abrirSecaoDoEndereco();pintarRel();carregarPainel();
   const s=lerSessao();
   if(s)setTimeout(()=>{alert('A sessão terminou. Entre de novo.');sair();},Math.max(1000,s.exp-Date.now()));
 }
-/* sessão de 1 hora: ainda valendo, entra direto */
-(function(){const s=lerSessao();if(s&&s.t)abrirPainel(s.t);else{mostrarEntrada();setTimeout(()=>$('lpass').focus(),100);}})();
+/* sessão de 1 hora: ainda valendo (o servidor confirma), entra direto */
+(async function(){
+  const entrada=()=>{mostrarEntrada();setTimeout(()=>$('lpass').focus(),100);};
+  if(!lerSessao())return entrada();
+  const j=await fetch('/api/auth?path=auth',{credentials:'same-origin'}).then(r=>r.json()).catch(()=>({}));
+  if(j.ok){salvarSessao(j.exp);abrirPainel();}else{try{localStorage.removeItem('aceima_sessao');}catch(e){}entrada();}
+})();
 </script>
 <script src="fotos.js"></script>
 </body>

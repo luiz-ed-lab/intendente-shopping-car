@@ -1,0 +1,8 @@
+# Achou uma falha de segurança no site da Aceima? Conte para a gente por um dos contatos abaixo, antes de divulgar.
+# Found a security issue on this site? Please tell us privately through one of the contacts below.
+Contact: mailto:aceima.adm2026@gmail.com
+Contact: https://wa.me/5521991041424
+Expires: 2027-11-01T03:00:00.000Z
+Preferred-Languages: pt, en
+Canonical: https://aintendente.com.br/.well-known/security.txt
+Policy: https://aintendente.com.br/privacidade

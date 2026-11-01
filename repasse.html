@@ -9,9 +9,9 @@
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/png" sizes="32x32" href="/marca-nova/icone-32.png">
 <link rel="apple-touch-icon" href="/marca-nova/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="/fontes/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fontes/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link href="/fontes/fontes.css" rel="stylesheet">
 <!--
   Repasse da Aceima (pedido do Luiz, 26/10/2026): cada loja associada entra com o próprio login, oferece às outras lojas os carros pegos
   na troca e chama quem cadastrou pelo WhatsApp. A estrutura é a lista por dia (a opção C que o Luiz escolheu): a lista que as lojas já
@@ -241,6 +241,10 @@ a.marca:hover{opacity:.85}
 .rod nav{display:flex;flex-wrap:wrap;gap:6px 20px}
 .rod a{color:#B9C6DA;transition:color .2s}
 .rod nav a:hover{color:var(--gold3)}
+.rod-lg{flex-basis:100%;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);font-size:11.8px}   /* a razão social, o CNPJ e os links legais, numa faixa embaixo */
+.rod-in>div a{text-decoration:underline;text-underline-offset:2px}   /* o link no meio do texto, com sublinhado: a cor sozinha não bastava */
+@media (max-width:760px){.rod nav{gap:0 20px}.rod nav a{display:inline-block;padding:4.5px 0}}   /* links do rodapé com altura de toque (24 px) */
+.rod-lg a:hover{color:var(--gold3)}
 
 .toast{position:fixed;left:50%;bottom:28px;z-index:50;transform:translate(-50%,16px);width:max-content;max-width:min(560px,calc(100vw - 32px));padding:13px 20px;border-radius:23px;background:var(--navy);color:#fff;font:500 14.5px/1.4 var(--f2);box-shadow:0 18px 40px -16px rgba(0,9,26,.6);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s var(--ease)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
@@ -405,6 +409,7 @@ a.marca:hover{opacity:.85}
  <a href="/" aria-label="Site da Aceima"><img src="/marca-nova/intendente-site.webp" alt="Intendente, Polo Comercial e Automotivo do Rio"></a>
  <nav><a href="/a-aceima">A Aceima</a><a href="/associados">Associados</a><a href="/estoque">Estoque</a><a href="/publicacoes">Publicações</a><a href="/seja-um-associado">Seja um associado</a><a href="/servicos">Serviços do polo</a><a href="/repasse">Repasse</a><a href="/painel">Painel</a></nav>
  <div>Estrada Intendente Magalhães, 830 · Vila Valqueire · Rio de Janeiro<br>(21) 3283-6600 · <a href="https://wa.me/5521991041424" target="_blank" rel="noopener">WhatsApp (21) 99104-1424</a> · © <span id="ano"></span> Aceima · aintendente.com.br</div>
+ <div class="rod-lg"><span>Associação dos Comerciantes da Estrada Intendente Magalhães e Adjacências · CNPJ 02.444.116/0001-45</span><span><a href="/privacidade">Privacidade</a> · <a href="/termos">Termos de uso</a></span></div>
 </div></footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

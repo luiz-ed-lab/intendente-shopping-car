@@ -9,7 +9,10 @@
   "redirects": [
     { "source": "/painel.html", "destination": "/painel", "permanent": true },
     { "source": "/repasse.html", "destination": "/repasse", "permanent": true },
-    { "source": "/repasse-editar", "destination": "/repasse", "permanent": false }
+    { "source": "/repasse-editar", "destination": "/repasse", "permanent": false },
+    { "source": "/package.json", "destination": "/", "permanent": false },
+    { "source": "/package-lock.json", "destination": "/", "permanent": false },
+    { "source": "/vercel.json", "destination": "/", "permanent": false }
   ],
   "rewrites": [
     { "source": "/painel", "destination": "/painel.html" },
@@ -20,19 +23,32 @@
   "headers": [
     {
       "source": "/(.*)",
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" },
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; media-src 'self'; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests" }
+      ]
+    },
+    {
+      "source": "/(.*)",
       "has": [{ "type": "host", "value": "intendente-shopping-car.vercel.app" }],
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex" }
       ]
     },
     {
-      "source": "/(repasse|repasse/.*)",
+      "source": "/(repasse|repasse/.*|painel|painel\\.html)",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Referrer-Policy", "value": "no-referrer" }
       ]
     },
     {
-      "source": "/((?!api/|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|js|css|txt|xml|mp4)$).*)",
+      "source": "/((?!api/|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|js|css|txt|xml|mp4|woff2)$).*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
@@ -47,6 +63,12 @@
       "source": "/(fotos-home|fotos-aceima|fotos-publicacoes|marca-nova)/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/fontes/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=2592000, stale-while-revalidate=31536000" }
       ]
     }
   ]

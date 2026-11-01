@@ -12,9 +12,10 @@
 <link rel="apple-touch-icon" href="marca-nova/apple-touch-icon.png">
 <title>Aceima | Intendente, Polo Comercial e Automotivo do Rio</title>
 <meta name="description" content="A Aceima reúne as empresas da Estrada Intendente Magalhães desde 1998: lojas de veículos, serviços e comércio sob um mesmo padrão de qualidade e de atendimento.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- as letras ficam no próprio site (01/11/2026): nenhum pedido ao Google, nem o endereço de quem visita -->
+<link rel="preload" href="/fontes/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fontes/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link href="/fontes/fontes.css" rel="stylesheet">
 <!-- os dados saem junto com o começo da página, sem esperar o resto do arquivo -->
 <link rel="preload" href="/api/avaliacoes?path=avaliacoes" as="fetch" crossorigin>
 <link rel="preload" href="/api/lojas?path=lojas&amp;site=1" as="fetch" crossorigin>
@@ -1467,10 +1468,89 @@ body.lb-on{overflow:hidden}
   .avc .avx{margin-top:calc(8*var(--px));font-size:max(11px,calc(12*var(--px)))}
   .av-g{margin-top:calc(14*var(--px));font-size:clamp(12px,calc(12*var(--px)),16px)}
 }
+/* ===== Privacidade e Termos (01/11/2026): o topo azul das páginas de leitura e uma coluna de leitura no corpo claro ===== */
+.lg-top{padding-top:30px;padding-bottom:50px}
+.lg-top .sv-tit{margin:12px 0 14px;font-size:2.6rem;font-weight:800;letter-spacing:-1px;line-height:1.08}
+.lg-top .sv-sub{font-size:1rem;max-width:620px}
+.lgl{max-width:780px;padding:34px 0 70px}
+.lgl .lg-dt{font-size:.85rem;color:var(--mut);margin-bottom:4px}
+.lgl h2{font:600 1.35rem/1.25 var(--f1);letter-spacing:-.01em;color:var(--ink);margin:34px 0 10px}
+.lgl p,.lgl li{font:400 1rem/1.7 var(--f2);color:#33435C}
+.lgl p{margin:0 0 12px}
+.lgl ul{margin:0 0 14px;padding-left:1.25em}
+.lgl li{margin:0 0 8px}
+.lgl li::marker{color:var(--gold)}
+.lgl a,.lg-bt{color:#8A5410;text-decoration:underline;text-underline-offset:2px}
+.lg-bt{background:none;border:0;padding:0;font:inherit;cursor:pointer}
+.lg-ct{display:grid;gap:6px;margin:6px 0 4px}
+.lg-ct p{display:flex;flex-wrap:wrap;gap:2px 14px;margin:0}
+.lg-ct b{min-width:90px;font-weight:600;color:var(--ink)}
+.lgl .lg-outra{margin-top:34px;padding-top:18px;border-top:1px solid var(--line)}
+/* rodapé: a razão social, o CNPJ e os links legais, numa faixa própria embaixo (a primeira linha do rodapé continua como era) */
+.rod-lg{flex-basis:100%;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);font-size:.74rem}
+.rod-lg a,.rod-ck{color:#B9C6DA;text-decoration:underline;text-underline-offset:2px}
+.rod-ck{background:none;border:0;padding:0;font:inherit;cursor:pointer}
+.rod-lg a:hover,.rod-ck:hover{color:var(--gold3)}
+/* o aviso de cookies: um cartão azul no canto de baixo, que não cobre o menu nem bloqueia o site */
+.ckb{position:fixed;left:24px;bottom:24px;z-index:60;width:min(400px,calc(100vw - 32px));padding:20px 22px 18px;border-radius:22px;background:#0B1A33;color:#D7DFEA;
+  box-shadow:0 24px 60px -20px rgba(0,9,26,.7);border:1px solid rgba(255,255,255,.08);font:400 .9rem/1.55 var(--f2);opacity:0;transform:translateY(14px);transition:opacity .3s,transform .3s var(--ease)}
+.ckb.on{opacity:1;transform:none}
+.ckb p{color:#D7DFEA;font-weight:400;font-size:inherit;line-height:inherit}
+.ckb .ckb-t{font:600 .7rem/1 var(--f2);letter-spacing:2.6px;text-transform:uppercase;color:var(--gold3);margin-bottom:8px}
+.ckb a{color:#fff;text-decoration:underline;text-underline-offset:2px}
+.ckb .ckb-at{margin-top:8px;color:#B9C6DA;font-size:.82rem}
+.ckb-b{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.ckb-b button{height:42px;border-radius:21px;font:600 .9rem/1 var(--f2);cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.ckb-n{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.55)}
+.ckb-n:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+.ckb-s{background:linear-gradient(135deg,var(--gold3),var(--gold));color:#00091A;border:0}
+@media (max-width:1100px) and (min-width:761px){.ckb{left:50%;bottom:96px;transform:translate(-50%,14px)}.ckb.on{transform:translate(-50%,0)}}
+@media (max-width:760px){
+  .lg-top{padding-top:4vw;padding-bottom:9vw}
+  .lgl{padding:6vw 0 12vw}
+  .lgl h2{font-size:4.93vw;margin:8vw 0 2.5vw}
+  .lgl p,.lgl li,.lg-bt{font-size:3.47vw}
+  .lgl .lg-dt{font-size:3vw}
+  .lg-ct b{min-width:22vw}
+  .ckb{left:16px;right:16px;bottom:16px;width:auto;padding:4.6vw 5vw 4.2vw;border-radius:5.6vw;font-size:3.3vw}
+  .ckb .ckb-t{font-size:2.82vw}
+  .ckb-b button{height:10.6vw;font-size:3.3vw}
+}
+@media (prefers-reduced-motion:reduce){.ckb{transition:none}}
+/* o aviso de para onde vão os dados, embaixo dos formulários (01/11/2026) */
+.aviso-lg{margin-top:14px;font:400 .78rem/1.5 var(--f2);color:#8D9BB2;text-align:right}
+.aviso-lg a{color:#B9C6DA;text-decoration:underline;text-underline-offset:2px}
+.aviso-lg a:hover{color:var(--gold3)}
+.aviso-lg.vnd-lg{text-align:center;margin-top:10px}
+@media (max-width:760px){.aviso-lg{font-size:3vw;text-align:center;margin-top:3.5vw}}
+/* ===== acessibilidade (01/11/2026) ===== */
+/* o atalho para o menu: só aparece com o teclado (Tab logo ao abrir a página) */
+.pular{position:fixed;left:16px;top:-80px;z-index:100;padding:10px 18px;border-radius:99px;background:#fff;color:var(--ink);font:600 .85rem var(--f2);box-shadow:0 8px 24px -8px rgba(0,9,26,.5)}
+.pular:focus{top:16px}
+#app:focus{outline:none}
+/* foco visível no teclado: o contorno dourado em tudo que se aciona (com o mouse ou o dedo, não aparece) */
+:where(a,button,[role="button"],[tabindex]:not([tabindex="-1"]),summary):focus-visible{outline:2px solid var(--gold3);outline-offset:3px}
+/* contraste mínimo (WCAG AA): o dourado como texto sobre o fundo claro fica um tom mais fechado; nos fundos escuros, continua o mesmo */
+.sob h2 em{color:#B47524}
+.ac2-k,.pb-top .kick,.parc .kick,.pb-ic small{color:#96600F}
+.as2-lf>span{color:#8A5410}
+.as2-ls,.as2-g1t>p{color:#5E6979}
+.foto{color:#665E55}
+.ac2-ct .kick,.ac2-ct-g span{color:#8A5410}
+.ac2-ct h2 em{color:#B47524}
+/* o texto de exemplo dos campos escuros (e o "Ramo da empresa", que faz papel de campo) com contraste para ler */
+.campo input::placeholder{color:#8191AB}
+.as2-sel{color:#8191AB}
+/* no rodapé, o link no meio do texto tem sublinhado (a cor sozinha não bastava para mostrar que é link) */
+.rod .wrap>div a{text-decoration:underline;text-underline-offset:2px}
+@media (max-width:760px){.rod nav{gap:0 20px}.rod nav a{display:inline-block;padding:4.5px 0}}   /* links do rodapé com altura de toque (24 px) */
+/* armadilha para robôs (01/11/2026): um campo fora da tela, que gente não vê nem alcança pelo teclado; robô preenche e o lead é descartado */
+.hp{position:absolute!important;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
 </style>
 </head>
 <body class="semvideo">
-<div id="app"></div>
+<a class="pular" href="#nav" data-fora onclick="event.preventDefault();const b=document.querySelector('#nav a,#nav button');if(b)b.focus();">Ir para o menu</a>
+<main id="app" tabindex="-1"></main>
 
 <script src="conteudo.js"></script>
 <script>
@@ -1481,10 +1561,12 @@ body.lb-on{overflow:hidden}
 // computador e 960x540 no tablet e no celular, com 2,9 MB e 1,8 MB. Na tela fica igual: o vídeo aparece a 17% e a 7%, e a diferença medida
 // quadro a quadro ficou abaixo de um tom em 255. O original fica no repositório (fundo-vidro.mp4), fora do site (.vercelignore)
 const VIDEO=matchMedia('(max-width:1100px)').matches?'fundo-vidro-540.mp4':'fundo-vidro-720.mp4';
-const LUZ=`<video class="luz" src="${VIDEO}" poster="fundo-animado-frame.jpg" autoplay muted loop playsinline preload="auto"></video>`;
+// quem pediu ao aparelho para reduzir o movimento (acessibilidade, 01/11/2026) vê o quadro parado do vídeo, sem animação
+const SEM_MOV=matchMedia('(prefers-reduced-motion: reduce)');
+const LUZ=`<video class="luz" src="${VIDEO}" poster="fundo-animado-frame.jpg" ${SEM_MOV.matches?'':'autoplay '}muted loop playsinline preload="${SEM_MOV.matches?'none':'auto'}" aria-hidden="true"></video>`;
 // cada vídeo do fundo só toca enquanto aparece na tela: fora dela, pausa (o navegador deixa de decodificar o vídeo) e volta de onde parou
 const olhoVideo=typeof IntersectionObserver==='function'?new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;v._visto=e.isIntersecting;
-  if(!e.isIntersecting)v.pause();else if(!document.hidden)v.play().catch(()=>{});}),{rootMargin:'120px 0px'}):null;
+  if(!e.isIntersecting)v.pause();else if(!document.hidden&&!SEM_MOV.matches)v.play().catch(()=>{});}),{rootMargin:'120px 0px'}):null;
 // logo do polo em todas as páginas; a da Aceima só na página da Aceima (pedido do Luiz, 30/09/2026)
 const LOGO='marca-nova/intendente-site.webp',LOGO_ACEIMA='marca-nova/aceima-nova.png';
 const logo=()=>pagAtual==='aceima'?`<img class="lg lg-aceima" src="${LOGO_ACEIMA}" alt="Aceima"`:`<img class="lg" src="${LOGO}" alt="Intendente, Polo Comercial e Automotivo do Rio"`;
@@ -1731,6 +1813,7 @@ const rodape=()=>`<footer class="rod"><div class="wrap">
   ${logo()}>
   <nav>${PAGINAS.slice(1).map(p=>`<a href="${hr(p[0])}">${p[1]}</a>`).join('')}<a href="${hr('servicos')}">Serviços do polo</a><a href="${hrRepasse()}" data-fora>${T('rodape.repasse','Repasse')}</a><a href="${HASH?'painel.html':'/painel'}" data-fora>${T('rodape.painel','Painel')}</a></nav>
   <div>${T('rodape.endereco','Estrada Intendente Magalhães, 830 · Vila Valqueire · Rio de Janeiro')}<br>${T('rodape.telefone','(21) 3283-6600')} · <a href="https://wa.me/${WA_ACEIMA}" target="_blank" style="color:#B9C6DA">WhatsApp (21) 99104-1424</a> · © ${new Date().getFullYear()} Aceima · aintendente.com.br</div>
+  <div class="rod-lg"><span>${T('rodape.razao',LEGAL.razao+' · CNPJ '+LEGAL.cnpj)}</span><span><a href="${hr('privacidade')}">${T('rodape.privacidade','Privacidade')}</a> · <a href="${hr('termos')}">${T('rodape.termos','Termos de uso')}</a> · <button type="button" class="rod-ck" onclick="abrirCookies()">${T('rodape.cookies','Cookies')}</button></span></div>
 </div></footer>`;
 
 /* ==================== INÍCIO ==================== */
@@ -1755,7 +1838,7 @@ function home(){
      <h1 class="tit">${T('inicio.titulo','Somos o maior polo automotivo')}${T('inicio.titulo-dourado','da América Latina.')}</h1>
    </div>
    <div class="vtl">
-    ${tabs.map((t,i)=>`<a class="vti${i===abaHome?' on':''}" href="${hr(t[2])}" onmouseenter="destacar(${i})" onclick="clicarCategoria(event,${i},'${t[2]}')"><h3>${t[0]}</h3><div class="d"><div><p>${t[1]}</p><span class="acessar">${T('inicio.acessar','Acessar')}</span></div></div></a>`).join('')}
+    ${tabs.map((t,i)=>`<a class="vti${i===abaHome?' on':''}" href="${hr(t[2])}" onmouseenter="destacar(${i})" onfocus="destacar(${i})" onclick="clicarCategoria(event,${i},'${t[2]}')"><h3 aria-level="2">${t[0]}</h3><div class="d"><div><p>${t[1]}</p><span class="acessar">${T('inicio.acessar','Acessar')}</span></div></div></a>`).join('')}
    </div>
   </div>
   </div>
@@ -1790,7 +1873,8 @@ function home(){
 const VD={p:1,marca:'',modelo:'',ano:'',outraMarca:false,outroModelo:false,outraVersao:false,versao:'',km:'',valor:'',fotos:[],nome:'',tel:'',email:'',fim:false,erro:'',env:false};
 const VD_FOTOS_MIN=1;   // pelo menos uma foto
 const vdRed=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
-const vdEmailOk=e=>/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(String(e).trim());
+// o e-mail é opcional desde 01/11/2026 (LGPD: só o necessário; as lojas respondem pelo WhatsApp). Escrito, tem que estar certo
+const vdEmailOk=e=>!String(e).trim()||/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(String(e).trim());
 const vdOk=p=>p===1?VD.marca.trim().length>=2&&!!VD.modelo.trim()&&!!VD.ano
   :p===2?!!VD.versao.trim()&&!!VD.km.replace(/\D/g,'')&&VD.valor.replace(/\D/g,'').length>=3&&VD.fotos.length>=VD_FOTOS_MIN
   :VD.nome.trim().length>=2&&VD.tel.replace(/\D/g,'').length>=10&&vdEmailOk(VD.email);
@@ -1851,12 +1935,13 @@ function vdCorpo(){
      </div>
      <div class="vnd-a">${voltar(1)}<button type="button" class="btnp" id="vdBt2" onclick="vdIr(3)"${vdOk(2)?'':' disabled'}>${T('inicio.venda-continuar','Continuar')}${seta}</button></div>`)
    +passo(3,`<div class="vnd-g">
-      <label class="vnd-c"><span>${T('inicio.venda-nome','Seu nome')}</span><input id="vdNome" autocomplete="name" value="${esc(VD.nome)}" placeholder="${TX('inicio.venda-campo-nome','Nome completo')}" oninput="VD.nome=this.value;vdLibera()"></label>
+      ${HP}<label class="vnd-c"><span>${T('inicio.venda-nome','Seu nome')}</span><input id="vdNome" autocomplete="name" value="${esc(VD.nome)}" placeholder="${TX('inicio.venda-campo-nome','Nome completo')}" oninput="VD.nome=this.value;vdLibera()"></label>
       <label class="vnd-c"><span>${T('inicio.venda-whatsapp','Seu WhatsApp')}</span><input id="vdTel" inputmode="tel" autocomplete="tel" value="${esc(VD.tel)}" placeholder="${TX('inicio.venda-campo-whatsapp','(21) 99999-9999')}" oninput="vdFone(this)"></label>
-      <label class="vnd-c l2"><span>${T('inicio.venda-email','Seu e-mail')}</span><input id="vdEmail" type="email" inputmode="email" autocomplete="email" value="${esc(VD.email)}" placeholder="voce@email.com" oninput="VD.email=this.value;vdLibera()"></label>
+      <label class="vnd-c l2"><span>${T('inicio.venda-email','Seu e-mail')}</span><input id="vdEmail" type="email" inputmode="email" autocomplete="email" value="${esc(VD.email)}" placeholder="${TX('inicio.venda-campo-email','Opcional')}" oninput="VD.email=this.value;vdLibera()"></label>
      </div>
      <div class="vnd-a">${voltar(2)}<button type="button" class="btnp" id="vdBt3" onclick="vdEnviar()"${vdOk(3)&&!VD.env?'':' disabled'}>${VD.env?T('inicio.venda-enviando','Enviando...'):T('inicio.venda-enviar','Enviar para as lojas')}${ic(SETA_DIAG,16)}</button></div>
-     <p class="vnd-er" role="alert">${VD.erro?esc(VD.erro):''}</p>`)
+     <p class="vnd-er" role="alert">${VD.erro?esc(VD.erro):''}</p>
+     ${avisoDados('inicio.venda-aviso','Seus dados e as fotos vão para as lojas associadas, que respondem pelo WhatsApp.','vnd-lg')}`)
    +passo(4,`<div class="vnd-ok" aria-live="polite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
       <h3>${T('inicio.venda-pronto','Pronto,')} <em id="vdOkNome">${esc(VD.nome.trim().split(/\s+/)[0]||'')}.</em></h3>
       <p>${T('inicio.venda-pronto-texto','As lojas associadas receberam o seu pedido. Quem tiver interesse no seu carro fala com você pelo WhatsApp.')}</p>
@@ -1923,7 +2008,7 @@ document.addEventListener('keydown',e=>{
   if(b){e.preventDefault();d.scrollTop=b.offsetTop-8;b.focus({preventScroll:true});}
 });
 function vdFotosHtml(){
-  return `<span>${T('inicio.venda-fotos','Fotos do carro')}</span><div class="vnd-f" data-ordem="vdMoveFoto">${VD.fotos.map((f,i)=>`<figure data-i="${i}"${i?` title="${TX('inicio.venda-usar-capa','Usar como capa')}" onclick="vdCapa(${i})"`:''}><img src="${f.url}" alt="Foto ${i+1}">${i?'':`<figcaption>${T('inicio.venda-capa','Capa')}</figcaption>`}<button type="button" data-x aria-label="Tirar a foto ${i+1}" onclick="event.stopPropagation();vdTiraFoto(${i})">${ic('<path d="M18 6 6 18M6 6l12 12"/>',14)}</button></figure>`).join('')}
+  return `<span>${T('inicio.venda-fotos','Fotos do carro')}</span><div class="vnd-f" data-ordem="vdMoveFoto">${VD.fotos.map((f,i)=>`<figure data-i="${i}"${i?` title="${TX('inicio.venda-usar-capa','Usar como capa')}" role="button" tabindex="0" aria-label="${TX('inicio.venda-usar-capa','Usar como capa')}" onclick="vdCapa(${i})"`:''}><img src="${f.url}" alt="Foto ${i+1}">${i?'':`<figcaption>${T('inicio.venda-capa','Capa')}</figcaption>`}<button type="button" data-x aria-label="Tirar a foto ${i+1}" onclick="event.stopPropagation();vdTiraFoto(${i})">${ic('<path d="M18 6 6 18M6 6l12 12"/>',14)}</button></figure>`).join('')}
    ${VD.fotos.length<8?`<label>${ic('<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 17-5-5-9 7"/>',20)}${T('inicio.venda-adicionar','Adicionar')}<input type="file" accept="image/*" multiple data-fotos="${TX('inicio.venda-solte','Solte as fotos do carro aqui')}" onchange="vdAddFotos(this)"></label>`:''}</div>`;
 }
 const vdLibera=()=>{[1,2,3].forEach(p=>{const b=document.getElementById('vdBt'+p);if(b)b.disabled=!vdOk(p)||(p===3&&VD.env);});};
@@ -1997,7 +2082,7 @@ async function vdEnviar(){
   let ok=true;
   if(API!==null){
     try{const fotos=(await Promise.all(VD.fotos.map(vdDiminuir))).filter(Boolean);
-      const r=await fetch('/api/leads?path=leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'compra',canal:'venda_site',cliente_nome:VD.nome.trim(),cliente_telefone:VD.tel.replace(/\D/g,''),cliente_email:VD.email.trim(),detalhes,fotos})});
+      const r=await fetch('/api/leads?path=leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'compra',canal:'venda_site',website:hpValor(),cliente_nome:VD.nome.trim(),cliente_telefone:VD.tel.replace(/\D/g,''),cliente_email:VD.email.trim(),detalhes,fotos})});
       ok=r.ok;}catch(e){ok=false;}
   }
   VD.env=false;
@@ -2244,9 +2329,9 @@ function marcarTodos(){const t=document.getElementById('fp-todos');if(t){t.class
 function limparFiltros(){FILTROS.forEach(f=>F[f[0]]='');F.q='';buscando=false;mostrar=LOTE;pagEst=0;render(false);}
 function filtroLinha(){
   return `<div class="fbar">
-   <span class="fp ${algumFiltro()?'drk':'on'}" id="fp-todos" onclick="limparFiltros()"><span>${T('estoque.todos','Todos')}<span class="so-desk"> ${T('estoque.todos-resto','os veículos')}</span></span></span>
-   ${FILTROS.map(f=>`<span class="fp ${F[f[0]]?'on':'drk'}" id="fp-${f[0]}" onclick="abrirFiltro('${f[0]}')"><span>${F[f[0]]?esc(F[f[0]]):T('estoque.filtro-'+f[0],f[1])}</span>${ic(I_DOWN,13)}</span>`).join('')}
-   <span class="fp drk so-desk" id="fp-ord" onclick="abrirFiltro('ord')"><span>${T('estoque.ordenar','Ordenar:')} ${esc(F.ord.toLowerCase())}</span>${ic(I_DOWN,13)}</span>
+   <span class="fp ${algumFiltro()?'drk':'on'}" id="fp-todos" role="button" tabindex="0" onclick="limparFiltros()"><span>${T('estoque.todos','Todos')}<span class="so-desk"> ${T('estoque.todos-resto','os veículos')}</span></span></span>
+   ${FILTROS.map(f=>`<span class="fp ${F[f[0]]?'on':'drk'}" id="fp-${f[0]}" role="button" tabindex="0" aria-haspopup="listbox" onclick="abrirFiltro('${f[0]}')"><span>${F[f[0]]?esc(F[f[0]]):T('estoque.filtro-'+f[0],f[1])}</span>${ic(I_DOWN,13)}</span>`).join('')}
+   <span class="fp drk so-desk" id="fp-ord" role="button" tabindex="0" aria-haspopup="listbox" onclick="abrirFiltro('ord')"><span>${T('estoque.ordenar','Ordenar:')} ${esc(F.ord.toLowerCase())}</span>${ic(I_DOWN,13)}</span>
    ${buscando||F.q?`<span class="fp drk" id="fp-busca">${ic(I_BUSCA,14)}<input id="busca" value="${esc(F.q)}" placeholder="Modelo, loja, ano ou preço" oninput="F.q=this.value;mostrar=LOTE;pagEst=0;pintarAnuncios();marcarTodos();contarBusca(this.value)"></span>`
      :`<span class="fp drk" id="fp-busca" onclick="buscando=true;render(false);setTimeout(()=>document.getElementById('busca').focus(),20)">${ic(I_BUSCA,14)}<span>${T('estoque.buscar','Buscar')}</span></span>`}
   </div>`;
@@ -2484,7 +2569,7 @@ function estoque(){
  <div class="wrap est-wrap" style="padding-top:26px;padding-bottom:28px">
    <div class="est-top">
      <div class="kick c so-desk">${T('estoque.chamada','Nosso estoque')}</div>
-     <h2>${T('estoque.titulo','O maior estoque de automóveis do Brasil em uma única rua')}</h2>
+     <h2 aria-level="1">${T('estoque.titulo','O maior estoque de automóveis do Brasil em uma única rua')}</h2>
    </div>
    <div class="est-f">${filtroLinha()}</div>
  </div>
@@ -2506,6 +2591,23 @@ let dropDe='';
 function fecharDrop(){document.querySelectorAll('.drop:not(.saindo)').forEach(d=>{d.classList.add('saindo');setTimeout(()=>d.remove(),150);});dropDe='';
   document.querySelectorAll('.as2-sel.aberto,.vnd-sel.aberto').forEach(x=>x.classList.remove('aberto'));}   // some em fusão
 document.addEventListener('pointerdown',e=>{if(dropDe&&!e.target.closest('.drop:not(.saindo),#fp-'+dropDe))fecharDrop();});
+// as listas suspensas pelo teclado (acessibilidade, 01/11/2026): abrindo pelo teclado, o foco vai para a opção escolhida (ou a primeira),
+// as setas andam entre as opções, Esc fecha e volta para o botão que abriu, e o Tab sai da lista fechando-a
+let pelaTecla=false,dropDono=null;
+addEventListener('keydown',()=>{pelaTecla=true;},true);
+addEventListener('pointerdown',()=>{pelaTecla=false;},true);
+new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nodeType===1&&n.classList.contains('drop')){
+  dropDono=document.activeElement;
+  if(pelaTecla){const b=n.querySelector('button.on')||n.querySelector('button');if(b)b.focus({preventScroll:true});}
+}}).observe(document.body,{childList:true});
+document.addEventListener('keydown',e=>{
+  const d=e.target.closest&&e.target.closest('.drop');if(!d)return;
+  const bs=[...d.querySelectorAll('button')],i=bs.indexOf(e.target),volta=()=>{if(dropDono&&dropDono.isConnected)dropDono.focus();};
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();bs[Math.max(0,Math.min(bs.length-1,i+(e.key==='ArrowDown'?1:-1)))].focus();}
+  else if(e.key==='Home'||e.key==='End'){e.preventDefault();bs[e.key==='Home'?0:bs.length-1].focus();}
+  else if(e.key==='Escape'){e.preventDefault();fecharDrop();volta();}
+  else if(e.key==='Tab'){e.preventDefault();fecharDrop();volta();}
+});
 function abrirFiltro(k){
   if(dropDe===k){fecharDrop();return;}   // tocar de novo no mesmo filtro fecha a lista
   fecharDrop();const alvo=document.getElementById('fp-'+k);if(!alvo)return;
@@ -2517,7 +2619,8 @@ function abrirFiltro(k){
   d.querySelectorAll('button[data-v]').forEach(b=>b.onclick=()=>setF(k,b.dataset.v));
   document.body.appendChild(d);
 }
-function setF(k,v){F[k]=v;if(k==='marca')F.modelo='';mostrar=LOTE;pagEst=0;fecharDrop();render(false);}
+function setF(k,v){F[k]=v;if(k==='marca')F.modelo='';mostrar=LOTE;pagEst=0;fecharDrop();render(false);
+  if(pelaTecla){const b=document.getElementById('fp-'+k);if(b)b.focus({preventScroll:true});}}   // pelo teclado, o foco volta ao filtro
 // filtros, busca e ordem zeram quando se troca de página (pedido do Luiz, 30/09/2026); abrindo um carro e voltando, continuam
 function zerarFiltros(){FILTROS.forEach(f=>F[f[0]]='');F.q='';F.ord=ORDENS[0];buscando=false;mostrar=LOTE;pagEst=0;}
 function estoqueDaLoja(n){zerarFiltros();F.loja=n;go('estoque',n);}   // "Estoque da loja": só a loja, sem os filtros de antes (endereço /estoque?loja=)
@@ -2583,7 +2686,7 @@ function associados(){
  <div class="gl topo" style="flex:none">${LUZ}${hd()}</div>
  <div class="wrap as3">
   <div class="as3-topo">
-   <h2>${T('associados.titulo','{associados} Empresas unificadas \nem um polo.')}</h2>
+   <h2 aria-level="1">${T('associados.titulo','{associados} Empresas unificadas \nem um polo.')}</h2>
    <div class="as3-cw"><div class="as3-cat" id="asCat">${cs.map(c=>`<button type="button" class="${catAssoc===c?'on':''}" data-c="${esc(c)}" onclick="catA(this)"><span>${T(c==='Todos'?'associados.filtro-todos':'associados.filtro-'+slug(c),c)}<b>${q(c)}</b>${ic(I_DOWN,15)}</span></button>`).join('')}</div></div>
   </div>
   <div class="eixo" id="asEixo">${eixoAssoc(E)}</div>
@@ -2671,6 +2774,10 @@ function opcionaisDe(v){const car=[],opc=[],vis=new Set();
   (v.opc||[]).forEach(o=>{const k=norm(o).replace(/\s+/g,' ').trim();if(!k||vis.has(k))return;vis.add(k);(CARACT.test(k)?car:opc).push(frase(o));});
   return {car,opc};}
 const SETA_DIAG='<path d="M7 17 17 7M8 7h9v9"/>',I_OK='<path d="M20 6 9 17l-5-5"/>';
+// a armadilha para robôs dos formulários (o campo fica fora da tela; a API descarta o lead que chega com ele preenchido)
+const HP='<div class="hp" aria-hidden="true"><input name="ref_hp" tabindex="-1" autocomplete="off"></div>',hpValor=()=>[...document.querySelectorAll('.hp input')].map(i=>i.value).join('');
+// o aviso de para onde vão os dados, junto de cada formulário (LGPD: a pessoa sabe na hora em que escreve)
+const avisoDados=(id,txt,cls)=>`<p class="aviso-lg${cls?' '+cls:''}">${T(id,txt)} <a href="${hr('privacidade')}">${T('aviso.privacidade','Política de Privacidade')}</a></p>`;
 function veiculo(){
   const v=V.find(x=>String(x.id)===String(vAtual));
   if(!v)return `<div class="gl" style="min-height:100vh">${LUZ}${hd()}<div class="wrap vazio">${pronto?`Este anúncio saiu do ar. <a href="${hr('estoque')}">Ver o estoque</a>`:'Carregando…'}</div></div>`;
@@ -2686,21 +2793,21 @@ function veiculo(){
   <div class="wrap">
    <a class="vp-volta" href="${hr('estoque',F.loja)}" onclick="voltarEstoque(event)">${ic('<path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>',14)}${T('veiculo.voltar','Nosso estoque')}</a>
    <div class="vp-topo">
-   <div class="vp-hero" onclick="if(!event.target.closest('.vp-lj'))abrirFoto(0)">${fotos[0]?`<img class="vp-hi" src="${esc(fotos[0])}" alt="${esc(nomeTodo(v))}" fetchpriority="high" onload="this.parentNode.classList.add('ok')">`:''}${lgUrl?`<a class="vp-lj" href="${hr('associados',v.loja)}">${lg()}</a>`:''}</div>
+   <div class="vp-hero" onclick="if(!event.target.closest('.vp-lj'))abrirFoto(0)">${fotos[0]?`<img class="vp-hi" src="${esc(fotos[0])}" alt="${esc(nomeTodo(v))}" role="button" tabindex="0" aria-label="${TX('veiculo.ver-fotos','Ver as fotos em tela cheia')}" fetchpriority="high" onload="this.parentNode.classList.add('ok')">`:''}${lgUrl?`<a class="vp-lj" href="${hr('associados',v.loja)}">${lg()}</a>`:''}</div>
    <section class="vp-m">
     <div>
      <h1><span>${E('veiculo.nome',esc(nomeV(v)))}</span>${ver?`<span class="vp-n2">${E('veiculo.versao',esc(ver))}</span>`:''}</h1>
      ${car.length?`<div class="vp-tags vp-tt">${car.map(c=>`<span>${ic(I_OK,15)}${E('veiculo.caracteristica',esc(c))}</span>`).join('')}</div>`:''}
-     <a class="vp-pill" onclick="irAoFormulario()">${T('veiculo.interesse','Tenho interesse')}<i>${ic('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',18)}</i></a>
+     <a class="vp-pill" role="button" tabindex="0" onclick="irAoFormulario()">${T('veiculo.interesse','Tenho interesse')}<i>${ic('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',18)}</i></a>
     </div>
     <div class="vp-ficha">${ficha.map(f=>`<div><span>${f[0]}</span><b>${E('veiculo.ficha-valor',esc(f[1]))}</b></div>`).join('')}</div>
-    <a class="vp-pill vp-pl" onclick="irAoFormulario()">${T('veiculo.interesse','Tenho interesse')}<i>${ic('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',18)}</i></a>
-    ${fotos.length>1?`<div class="vp-mini">${fotos.slice(1,5).map((f,i)=>`<button type="button" class="vp-mf${i===3?' vp-mt':''}" onclick="abrirFoto(${i+1})"><img src="${esc(f)}" alt="" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">${i===3?`<span>${T('veiculo.ver-todas-foto','Ver mais')}</span>`:''}</button>`).join('')}</div>`:''}
+    <a class="vp-pill vp-pl" role="button" tabindex="0" onclick="irAoFormulario()">${T('veiculo.interesse','Tenho interesse')}<i>${ic('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',18)}</i></a>
+    ${fotos.length>1?`<div class="vp-mini">${fotos.slice(1,5).map((f,i)=>`<button type="button" class="vp-mf${i===3?' vp-mt':''}" aria-label="${TX('veiculo.ver-foto','Ver a foto')} ${i+2}" onclick="abrirFoto(${i+1})"><img src="${esc(f)}" alt="" loading="lazy" onload="this.classList.add('ok')" onerror="this.remove()">${i===3?`<span>${T('veiculo.ver-todas-foto','Ver mais')}</span>`:''}</button>`).join('')}</div>`:''}
    </section>
    </div>
    ${fotos.length>1?`<section class="vp-g" id="vpG">
     <div class="vp-gw">
-     <div class="vp-gt" id="vpGt" onscroll="setasGaleria()">${fotos.slice(1).map((f,i)=>`<button type="button" class="vp-f" onclick="abrirFoto(${i+1})"><img src="${esc(f)}" alt="" loading="lazy" onload="this.classList.add('ok')" onerror="this.parentNode.remove();setasGaleria()"></button>`).join('')}</div>
+     <div class="vp-gt" id="vpGt" onscroll="setasGaleria()">${fotos.slice(1).map((f,i)=>`<button type="button" class="vp-f" aria-label="${TX('veiculo.ver-foto','Ver a foto')} ${i+2}" onclick="abrirFoto(${i+1})"><img src="${esc(f)}" alt="" loading="lazy" onload="this.classList.add('ok')" onerror="this.parentNode.remove();setasGaleria()"></button>`).join('')}</div>
      <button type="button" class="vp-ga vp-gp off" aria-label="Fotos anteriores" onclick="passarGaleria(-1)">${ic('<path d="m15 18-6-6 6-6"/>',20)}</button>
      <button type="button" class="vp-ga vp-gn" aria-label="Próximas fotos" onclick="passarGaleria(1)">${ic('<path d="m9 18 6-6-6-6"/>',20)}</button>
     </div>
@@ -2724,7 +2831,7 @@ function veiculo(){
      <p>${E('veiculo.nome-valor',esc(nomeTodo(v)))}</p>
     </div>
     <div class="vp-form campo${fin?' fin':''}${troca?' troca':''}" id="vpForm" oninput="liberarBotao()">
-     <input id="ldNome" class="vp-f-nome" placeholder="${TX('veiculo.campo-nome','Seu nome')}" aria-label="${TX('veiculo.campo-nome','Seu nome')}" autocomplete="name">
+     ${HP}<input id="ldNome" class="vp-f-nome" placeholder="${TX('veiculo.campo-nome','Seu nome')}" aria-label="${TX('veiculo.campo-nome','Seu nome')}" autocomplete="name">
      <input id="ldTel" class="vp-f-tel" inputmode="tel" placeholder="${TX('veiculo.campo-whatsapp','Seu WhatsApp')}" aria-label="${TX('veiculo.campo-whatsapp','Seu WhatsApp')}" autocomplete="tel">
      <div class="seg vp-f-forma" role="group" aria-label="${TX('veiculo.campo-forma','Forma de compra')}"><button type="button" class="${fin?'':'on'}" onclick="formaDeCompra('À vista',this)">${T('veiculo.a-vista','À vista')}</button><button type="button" class="${fin?'on':''}" onclick="formaDeCompra('Financiamento',this)">${T('veiculo.financiamento','Financiamento')}</button></div>
      <div class="seg vp-f-ent" role="group" aria-label="${TX('veiculo.campo-entrada','Entrada')}"><button type="button" class="${troca?'':'on'}" onclick="entradaDe('valor',this)">${T('veiculo.entrada-valor','Entrada em dinheiro')}</button><button type="button" class="${troca?'on':''}" onclick="entradaDe('carro',this)">${T('veiculo.entrada-carro','Tenho um carro')}</button></div>
@@ -2733,6 +2840,7 @@ function veiculo(){
      <button type="button" class="btnp vp-f-bt" onclick="chamarLoja()" disabled>${T('veiculo.botao','Chamar a loja no WhatsApp')}${ic(SETA_DIAG,16)}</button>
     </div>
    </div>
+   ${avisoDados('veiculo.aviso-dados','Seu nome e o seu WhatsApp vão só para a loja deste anúncio.')}
    <div class="vp-ct-i">
     <a class="vp-l-lg${lgUrl?'':' sem'}" href="${hr('associados',v.loja)}">${lg()}<span>${esc(iniciais(v.loja))}</span></a>
     ${L.endereco?`<div class="vp-ct-e"><span>${T('veiculo.endereco','Endereço')}</span><p>${esc(L.endereco)}</p></div>`:''}
@@ -2900,7 +3008,11 @@ function abrirFoto(i,lista){
   lb.addEventListener('touchstart',e=>{p0=[e.touches[0].clientX,e.touches[0].clientY];},{passive:true});
   lb.addEventListener('touchend',e=>{if(!p0)return;const dx=e.changedTouches[0].clientX-p0[0],dy=e.changedTouches[0].clientY-p0[1],vert=cel(),d=vert?dy:dx;p0=null;
     if(Math.abs(d)>40&&Math.abs(d)>Math.abs(vert?dx:dy))passarFoto(d<0?1:-1);});
+  // acessibilidade (01/11/2026): a tela cheia é uma janela para o leitor de tela; o foco entra nela (no fechar) e volta para quem abriu
+  lb.setAttribute('role','dialog');lb.setAttribute('aria-modal','true');lb.setAttribute('aria-label',TX('veiculo.fotos-tela-cheia','Fotos'));
+  if(!document.getElementById('lb'))abrirFoto.dono=document.activeElement;
   document.body.appendChild(lb);document.body.classList.add('lb-on');posFotos(true);
+  const x=lb.querySelector('.lb-x');if(x)x.focus({preventScroll:true});
   lb.offsetWidth;lb.classList.add('vis');   // aparece em fusão
 }
 function posFotos(semAnimacao){
@@ -2929,8 +3041,12 @@ function fecharFoto(ja){
   if(ja){lb.remove();document.body.classList.remove('lb-on');return;}
   if(lb.classList.contains('sai'))return;
   lb.classList.add('sai');lb.classList.remove('vis');lb.style.pointerEvents='none';
+  const d=abrirFoto.dono;abrirFoto.dono=null;if(d&&d.isConnected&&d.focus)d.focus({preventScroll:true});
   setTimeout(()=>{if(lb.isConnected)lb.remove();if(!document.getElementById('lb'))document.body.classList.remove('lb-on');},280);
 }
+document.addEventListener('keydown',e=>{const lb=document.getElementById('lb');if(!lb||lb.classList.contains('sai')||e.key!=='Tab')return;
+  const bs=[...lb.querySelectorAll('button')];if(!bs.length)return;const i=bs.indexOf(document.activeElement);
+  e.preventDefault();bs[(i+(e.shiftKey?-1:1)+bs.length)%bs.length].focus();});   // o Tab fica dentro da tela cheia
 document.addEventListener('keydown',e=>{const lb=document.getElementById('lb');if(!lb||lb.classList.contains('sai'))return;if(e.key==='Escape')fecharFoto();else if(e.key==='ArrowRight'||e.key==='ArrowDown')passarFoto(1);else if(e.key==='ArrowLeft'||e.key==='ArrowUp')passarFoto(-1);});
 // forma de compra: no financiamento abre a entrada (em dinheiro ou com um carro na troca), como no formulário do site antigo
 function formaDeCompra(f,b){formaCompra=f;b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));mexerForm(fm=>fm.classList.toggle('fin',f==='Financiamento'));liberarBotao();}
@@ -2983,7 +3099,7 @@ function chamarLoja(){
   }
   const msg=`Olá, meu nome é ${nome}! Vim pelo site da Aceima e me interessei pelo ${[nomeV(v),v.ano].filter(Boolean).join(' ')}${v.preco>0?` (${precoT(v.preco)})`:''}. ${fim}`;
   window.open('https://wa.me/'+wa+'?text='+encodeURIComponent(msg),'_blank');
-  if(API!==null)fetch('/api/leads?path=leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'venda',canal:'formulario',loja_id:v.lojaId,veiculo_id:v.id,cliente_nome:nome,cliente_telefone:tel,forma_compra:formaCompra,entrada,detalhes})}).catch(()=>{});
+  if(API!==null)fetch('/api/leads?path=leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'venda',canal:'formulario',website:hpValor(),loja_id:v.lojaId,veiculo_id:v.id,cliente_nome:nome,cliente_telefone:tel,forma_compra:formaCompra,entrada,detalhes})}).catch(()=>{});
 }
 
 /* ==================== A Aceima ==================== */
@@ -3159,13 +3275,14 @@ function associar(){
    <div class="vp-ct-t">
     <div class="vp-v"><div class="as2-ct-h">${T('associar.form-titulo','Faça parte.')}</div><p>${T('associar.form-texto','Fale diretamente conosco e tire suas dúvidas agora mesmo.')}</p></div>
     <div class="vp-form campo as2-fm" oninput="liberarAssoc()" onchange="liberarAssoc()">
-     <input id="asNome" class="as2-f-nome" placeholder="${TX('associar.campo-nome','Seu nome')}" aria-label="${TX('associar.campo-nome','Seu nome')}" autocomplete="name">
+     ${HP}<input id="asNome" class="as2-f-nome" placeholder="${TX('associar.campo-nome','Seu nome')}" aria-label="${TX('associar.campo-nome','Seu nome')}" autocomplete="name">
      <input id="asTel" class="as2-f-tel" inputmode="tel" placeholder="${TX('associar.campo-whatsapp','Seu WhatsApp')}" aria-label="${TX('associar.campo-whatsapp','Seu WhatsApp')}" autocomplete="tel">
      <input id="asEmp" class="as2-f-emp" placeholder="${TX('associar.campo-empresa','Nome da empresa')}" aria-label="${TX('associar.campo-empresa','Nome da empresa')}" autocomplete="organization">
      <button type="button" id="fp-ramo" class="as2-f-ramo as2-sel" data-v="" aria-haspopup="listbox" onclick="abrirRamo()"><span>${TX('associar.campo-ramo','Ramo da empresa')}</span>${ic(I_DOWN,14)}</button>
      <button type="button" class="btnp as2-f-bt" onclick="enviarAssoc()" disabled>${T('associar.botao','Falar com a associação')}${ic(SETA_DIAG,16)}</button>
     </div>
    </div>
+   ${avisoDados('associar.aviso-dados','Seus dados vão só para a Aceima, que responde pelo WhatsApp.')}
    <div class="vp-ct-i">
     <div class="vp-ct-e"><span>${T('aceima.endereco-rotulo','Endereço')}</span><p>${T('aceima.endereco','Estrada Intendente Magalhães, 830 · Vila Valqueire, RJ')}</p></div>
     <div><span>${T('aceima.telefones-rotulo','Telefones')}</span><p>${T('aceima.telefones','(21) 3283-6600 · (21) 99104-1424')}</p></div>
@@ -3208,7 +3325,7 @@ function enviarAssoc(){
   const rr=ramo&&ramo!=='Outro ramo'?(RAMOS_ADJ.includes(ramo)?ramo.toLowerCase():'de '+ramo):'';
   const msg=`Olá! Meu nome é ${nome}${emp?`, represento a empresa ${emp}`:''}${rr?` e faço parte do ramo ${rr}`:''}. Quero saber mais sobre a Aceima e como me associar.`;
   window.open('https://wa.me/'+WA_ACEIMA+'?text='+encodeURIComponent(msg),'_blank');
-  if(API!==null)fetch('/api/leads?path=leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'associacao',canal:'formulario',cliente_nome:nome,cliente_telefone:tel,detalhes:{empresa:emp||null,ramo:ramo||null}})}).catch(()=>{});
+  if(API!==null)fetch('/api/leads?path=leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:'associacao',canal:'formulario',website:hpValor(),cliente_nome:nome,cliente_telefone:tel,detalhes:{empresa:emp||null,ramo:ramo||null}})}).catch(()=>{});
 }
 
 /* ==================== PUBLICAÇÕES ==================== */
@@ -3248,7 +3365,7 @@ function publicacoes(){
   return `<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--cl)">
  <div class="gl topo" style="flex:none">${LUZ}${hd()}</div>
  <div class="wrap pb-top">
-   <div><div class="kick">${T('publicacoes.chamada','Nosso trabalho')}</div><h2 class="pb-tit">${T('publicacoes.titulo','O que a Aceima faz pelo polo.')}</h2></div>
+   <div><div class="kick">${T('publicacoes.chamada','Nosso trabalho')}</div><h2 class="pb-tit" aria-level="1">${T('publicacoes.titulo','O que a Aceima faz pelo polo.')}</h2></div>
    <div class="pb-fil"><div class="fbar">${['Tudo',...CATS_PUB].map((f,i)=>`<button type="button" class="fp ${f===catPub?'on':'lite'}" onclick="filtrarPub('${f}')">${T(`publicacoes.filtro${i+1}`,f)}</button>`).join('')}</div></div>
  </div>
  ${p?`<div class="wrap pb-grid">
@@ -3302,7 +3419,7 @@ function servicos(){
  <div class="gl">${LUZ}${hd()}
   <div class="wrap" style="padding-top:30px;padding-bottom:50px">
    <div class="kick c kn">${T('servicos.chamada','Credenciados Aceima')}</div>
-   <h2 class="sv-tit" style="margin:12px 0 14px;font-size:2.6rem">${T('servicos.titulo','Tudo o que você precisa, na mesma rua.')}</h2>
+   <h2 class="sv-tit" aria-level="1" style="margin:12px 0 14px;font-size:2.6rem">${T('servicos.titulo','Tudo o que você precisa, na mesma rua.')}</h2>
    <p class="sv-sub" style="font-size:1rem;max-width:620px">${T('servicos.subtitulo','Vistoria, inspeção, ar-condicionado e até o almoço a poucos metros das lojas.')}</p>
   </div></div>
  <div class="wrap" style="padding-top:10px;padding-bottom:50px">
@@ -3315,19 +3432,163 @@ function servicos(){
  </div>
 </div>${rodape()}`;}
 
+/* ==================== PRIVACIDADE E TERMOS (01/11/2026) ==================== */
+// Pedido do Luiz: a política de privacidade (LGPD) e os termos de uso, que o site antigo tinha e o novo ainda não. Mesmo desenho das páginas
+// de leitura (o topo azul com o título, o corpo claro), numa coluna de leitura. Cada texto passa por T(), então o Luiz edita tudo pelo modo de
+// edição. Os prazos de guarda têm que bater com a função retencao() da API: mudou lá, muda aqui (e o contrário)
+const LEGAL={
+  razao:'Associação dos Comerciantes da Estrada Intendente Magalhães e Adjacências',cnpj:'02.444.116/0001-45',
+  email:'aceima.adm2026@gmail.com',endereco:'Estrada Intendente Magalhães, 830, Vila Valqueire, Rio de Janeiro (RJ)',data:'1º de novembro de 2026'
+};
+// uma seção: o título e, na ordem, parágrafos (texto) e listas (array de itens)
+function secaoLegal(pre,[id,titulo,...blocos]){
+  const k=`${pre}.${id}`;let n=0;
+  return `<section id="${id}"><h2>${T(k+'-titulo',titulo)}</h2>${blocos.map(b=>Array.isArray(b)
+    ?`<ul>${b.map(x=>`<li>${T(`${k}-${++n}`,x)}</li>`).join('')}</ul>`:`<p>${T(`${k}-${++n}`,b)}</p>`).join('')}</section>`;
+}
+// os contatos do canal de privacidade (o e-mail editado no modo de edição vale também para o link)
+function contatoLegal(pre){
+  const em=TX(pre+'.contato-email',LEGAL.email).replace(/[^\w.@+-]/g,'');
+  return `<div class="lg-ct"><p><b>${T(pre+'.contato-whatsapp-rotulo','WhatsApp')}</b><a href="https://wa.me/${WA_ACEIMA}" target="_blank" rel="noopener">${T(pre+'.contato-whatsapp','(21) 99104-1424')}</a></p>
+   <p><b>${T(pre+'.contato-email-rotulo','E-mail')}</b><a href="mailto:${em}">${T(pre+'.contato-email',LEGAL.email)}</a></p>
+   <p><b>${T(pre+'.contato-endereco-rotulo','Endereço')}</b><span>${T(pre+'.contato-endereco',LEGAL.endereco)}</span></p></div>`;
+}
+function paginaLegal(pre,chamada,titulo,sub,secoes,outra){
+  return `<div style="min-height:100vh;background:var(--cl)">
+ <div class="gl">${LUZ}${hd()}
+  <div class="wrap lg-top">
+   <div class="kick c">${T(pre+'.chamada',chamada)}</div>
+   <h1 class="sv-tit">${T(pre+'.titulo',titulo)}</h1>
+   <p class="sv-sub">${T(pre+'.subtitulo',sub)}</p>
+  </div></div>
+ <div class="wrap"><article class="lgl">
+  <p class="lg-dt">${T(pre+'.data','Atualizada em '+LEGAL.data+'.')}</p>
+  ${secoes.map(s=>secaoLegal(pre,s)).join('')}
+  <section id="contato"><h2>${T(pre+'.contato-titulo',pre==='privacidade'?'Fale com a Aceima sobre privacidade':'Contato')}</h2>
+   <p>${T(pre+'.contato-texto',pre==='privacidade'?'Para exercer os seus direitos ou tirar dúvidas sobre esta política, fale com o canal de privacidade da Aceima (encarregado pelo tratamento de dados):':'Dúvidas sobre estes termos ou sobre o site:')}</p>
+   ${contatoLegal(pre)}
+  </section>
+  <p class="lg-outra"><a href="${hr(outra[0])}">${T(pre+'.ver-'+outra[0],outra[1])}</a>${pre==='privacidade'?` · <button type="button" class="lg-bt" onclick="abrirCookies()">${T(pre+'.ver-cookies','Mudar a escolha sobre as estatísticas')}</button>`:''}</p>
+ </article></div>
+</div>${rodape()}`;}
+function privacidade(){
+  const L=LEGAL;
+  return paginaLegal('privacidade','Privacidade','Política de Privacidade.','Como a Aceima cuida dos dados de quem usa o site, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).',[
+  ['quem','Quem cuida dos seus dados',
+   `O site aintendente.com.br é mantido pela ${L.razao} (Aceima), inscrita no CNPJ sob o nº ${L.cnpj}, com sede na ${L.endereco}. A Aceima é a controladora dos dados pessoais tratados no site.`,
+   'Quando você fala com uma loja ou empresa associada, ela também passa a ter os seus dados e responde pelo uso que fizer deles.'],
+  ['coleta','O que coletamos e para quê',
+   'Coletamos só o necessário para cada pedido que você faz no site:',
+   ['Interesse em um veículo: nome, WhatsApp, a forma de pagamento que pretende e, se informar, o valor de entrada ou o carro que dá na troca. Servem para a loja que anuncia o veículo falar com você.',
+    'Venda seu veículo: marca, modelo, versão, ano, quilometragem, valor pretendido e fotos do veículo, além de nome, WhatsApp e, se quiser, e-mail. Servem para as lojas associadas avaliarem o veículo e fazerem propostas.',
+    'Seja um associado: nome, WhatsApp, nome da empresa e ramo. Servem para a Aceima falar com você sobre a associação.',
+    'Repasse: o e-mail e o WhatsApp do acesso de cada loja associada e a data do último acesso. Servem para a loja entrar no Repasse e receber o contato das outras lojas.'],
+   'Nos formulários de interesse e de associação, o site também abre uma conversa no WhatsApp com a mensagem pronta. O que você envia por lá segue a política de privacidade do WhatsApp.',
+   'Não pedimos dados sensíveis (como religião, saúde ou biometria) nem documentos. Nas fotos do veículo, evite mostrar pessoas, documentos ou a placa inteira.'],
+  ['navegacao','Estatísticas de navegação',
+   'Com a sua permissão, o site conta as visitas para saber quais páginas e veículos interessam mais: a página vista, o veículo, o tempo na página, o tipo de aparelho (celular, tablet ou computador), de onde a visita veio (Google, Instagram, um link direto) e o que foi procurado no estoque.',
+   'Essas estatísticas não guardam o seu endereço IP, o seu nome nem um identificador permanente. Cada aba do navegador recebe um número sorteado, que some quando a aba é fechada. Buscas que pareçam um e-mail ou um telefone são descartadas.',
+   'Sem a sua permissão, nada disso é enviado. Você pode mudar a escolha quando quiser, em "Cookies", no rodapé do site.'],
+  ['bases','Por que podemos usar os seus dados',
+   ['Para atender o pedido que você fez (falar com uma loja, vender o seu veículo, conhecer a associação): procedimentos preliminares a um contrato, a seu pedido (art. 7º, V, da LGPD).',
+    'Para as estatísticas de navegação: o seu consentimento (art. 7º, I), que você pode retirar a qualquer momento.',
+    'Para a segurança do site e para evitar fraudes e abusos: o legítimo interesse da Aceima e de quem usa o site (art. 7º, IX).',
+    'Para cumprir obrigações legais ou ordens de autoridades: art. 7º, II e VI.']],
+  ['compartilhamento','Com quem compartilhamos',
+   ['Lojas associadas: o interesse em um veículo vai para a loja que o anuncia. O "Venda seu veículo" vai para todas as lojas associadas ativas, e uma não vê o e-mail da outra.',
+    'Fornecedores que fazem o site funcionar, só para isso: a hospedagem do site e do sistema (Vercel), o banco de dados (Neon), o envio de e-mails (Resend) e o repositório dos textos e das publicações do site (GitHub).',
+    'Google: as avaliações dos associados mostradas no site são públicas, vêm do Google Maps, e a foto de quem avaliou é carregada dos servidores do Google.',
+    'WhatsApp: quando você escolhe conversar por lá.',
+    'Autoridades públicas, quando a lei exigir.'],
+   'A Aceima não vende dados pessoais e não usa os seus dados para publicidade.'],
+  ['internacional','Dados fora do Brasil',
+   'Alguns desses fornecedores processam ou guardam dados fora do Brasil, principalmente nos Estados Unidos. Escolhemos fornecedores que adotam medidas de segurança e de proteção de dados reconhecidas internacionalmente, e a transferência acontece só para prestar o serviço que você pediu (art. 33 da LGPD).'],
+  ['prazos','Por quanto tempo guardamos',
+   ['Contatos dos formulários: 12 meses. Depois, são apagados do site automaticamente.',
+    'Fotos do "Venda seu veículo": não ficam no site. Vão anexadas ao e-mail das lojas.',
+    'Estatísticas de navegação e buscas: 13 meses.',
+    'Proteção contra abuso: um código tirado do endereço IP, que não permite descobrir o IP, guardado por até um dia.',
+    'Repasse: os acessos, enquanto a loja for associada. Os carros saem do Repasse em até 30 dias, com as fotos, e o registro deles é apagado 6 meses depois.',
+    'Registros técnicos da hospedagem (endereço IP, data e hora dos acessos): pelo prazo do fornecedor, em geral poucos dias, para a segurança e o funcionamento do site.'],
+   'As cópias que as lojas recebem por e-mail ou pelo WhatsApp ficam sob a responsabilidade delas.'],
+  ['cookies','Cookies e armazenamento no aparelho',
+   'O site não usa cookies de publicidade nem de rastreamento e não carrega ferramentas de terceiros para isso. O que fica guardado no seu navegador:',
+   ['Necessários, sempre ligados: a sua escolha sobre as estatísticas; o ponto da página onde você estava, para o voltar funcionar; uma cópia das avaliações, para a página abrir mais rápido; e, só para quem entra no painel da Aceima ou no Repasse, a sessão de acesso.',
+    'Estatísticas, só com a sua permissão: o número sorteado da aba, descrito em "Estatísticas de navegação".'],
+   'Você também pode apagar esses dados nas configurações do navegador.'],
+  ['direitos','Os seus direitos',
+   'Você pode pedir à Aceima, a qualquer momento e sem custo:',
+   ['a confirmação de que tratamos dados seus e o acesso a eles;','a correção de dados incompletos, inexatos ou desatualizados;',
+    'a anonimização, o bloqueio ou a eliminação de dados desnecessários, excessivos ou tratados em desacordo com a lei;','a portabilidade dos dados;',
+    'a eliminação dos dados tratados com o seu consentimento e a retirada desse consentimento;','a informação sobre com quem compartilhamos os seus dados;',
+    'a oposição a um tratamento que não cumpra a lei.'],
+   'Respondemos em até 15 dias. Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD), em gov.br/anpd.'],
+  ['seguranca','Segurança',
+   'O site só funciona com conexão protegida (HTTPS). O painel e o Repasse têm acesso restrito, com senha guardada de forma cifrada e bloqueio depois de várias tentativas erradas, e os formulários têm proteção contra robôs e envios em massa.',
+   'Nenhum sistema é totalmente imune. Se acontecer um incidente de segurança que possa trazer risco ou dano relevante, a Aceima avisará a ANPD e as pessoas afetadas, como manda a LGPD.'],
+  ['menores','Crianças e adolescentes',
+   'O site não é voltado a menores de 18 anos, e os formulários devem ser preenchidos por adultos.'],
+  ['mudancas','Mudanças nesta política',
+   'Esta política pode mudar quando o site ou a lei mudarem. A data da última atualização fica no começo da página.']
+  ],['termos','Termos de uso']);
+}
+function termos(){
+  const L=LEGAL;
+  return paginaLegal('termos','Termos de uso','Termos de Uso.','As regras para usar o site da Aceima e o Repasse.',[
+  ['site','O que é este site',
+   `O aintendente.com.br é o site da ${L.razao} (Aceima), CNPJ ${L.cnpj}. Ele apresenta a associação, as empresas associadas e o estoque das lojas de veículos da Estrada Intendente Magalhães, e põe você em contato com elas.`,
+   'Ao usar o site, você concorda com estes termos e com a Política de Privacidade.'],
+  ['anuncios','Os anúncios de veículos',
+   'A Aceima não vende veículos. Cada anúncio é da loja associada que tem o veículo, e as informações (preço, fotos, quilometragem, versão, opcionais e descrição) vêm do site da própria loja, atualizadas automaticamente ao longo do dia.',
+   'Por isso, um anúncio pode ficar desatualizado por algumas horas, por exemplo quando o veículo acaba de ser vendido ou o preço muda. Antes de fechar negócio, confirme com a loja o preço, as condições e a disponibilidade.',
+   'A negociação, o pagamento e a entrega acontecem diretamente entre você e a loja, que responde pelo veículo e pela oferta, nos termos do Código de Defesa do Consumidor. A Aceima não recebe pagamentos nem participa da negociação.',
+   'Antes de comprar, veja o veículo pessoalmente, confira a documentação e faça uma vistoria cautelar. Não pague sinal sem confirmar o negócio com a loja.'],
+  ['venda','Venda seu veículo',
+   'Ao enviar o "Venda seu veículo", você autoriza o envio das informações e das fotos às lojas associadas, que podem procurar você com propostas. Não há garantia de proposta nem de valor.',
+   'Você declara que as informações são verdadeiras e que pode enviar as fotos e negociar o veículo.'],
+  ['associados','Associados, credenciados e avaliações',
+   'As informações sobre cada empresa associada (endereço, telefone, descrição e logo) são fornecidas por ela ou lidas no site dela. As avaliações exibidas vêm do Google Maps e expressam a opinião de quem as escreveu, não a da Aceima.'],
+  ['repasse','Repasse',
+   'O Repasse é uma área restrita às lojas associadas, com acesso criado pela Aceima, para as lojas oferecerem entre si veículos pegos na troca. Cada loja responde pelos anúncios que publica e pela negociação, que acontece fora do site.',
+   'O acesso é da loja e não deve ser passado a terceiros. Os dados das outras lojas vistos no Repasse só podem ser usados para negociar os veículos anunciados. A Aceima pode suspender ou encerrar um acesso em caso de uso indevido ou de saída da associação.'],
+  ['uso','Uso adequado',
+   'Não é permitido usar o site para:',
+   ['enviar informações falsas, dados de outra pessoa sem autorização ou mensagens em massa;','tentar entrar em áreas restritas, no painel ou nos dados de outras pessoas;',
+    'sobrecarregar o site, explorar falhas ou copiar os dados dele de forma automatizada;','qualquer finalidade ilegal.'],
+   'Encontrou uma falha de segurança? Conte para a Aceima pelos contatos abaixo antes de divulgar.'],
+  ['marcas','Marcas e conteúdo',
+   'O nome e as logos da Aceima e da Intendente, os textos, o desenho do site e as fotos institucionais pertencem à Aceima ou são usados com autorização. As marcas, as logos e as fotos das lojas e dos veículos pertencem às respectivas empresas. Nada disso pode ser copiado ou usado sem autorização.'],
+  ['links','Links para outros sites',
+   'O site tem links para os sites das lojas, para o WhatsApp e para o Google Maps. Esses serviços têm termos e políticas próprios, e a Aceima não responde pelo conteúdo deles.'],
+  ['disponibilidade','Disponibilidade',
+   'Trabalhamos para o site ficar sempre no ar, mas ele pode passar por manutenções ou ficar fora do ar por motivos que não controlamos.'],
+  ['mudancas','Mudanças nestes termos',
+   'Estes termos podem mudar. A data da última atualização fica no começo da página.'],
+  ['lei','Lei e foro',
+   'Estes termos seguem as leis brasileiras. Fica eleito o foro da comarca da capital do Rio de Janeiro (RJ), ressalvado o direito do consumidor de propor a ação no foro do seu domicílio.']
+  ],['privacidade','Política de Privacidade']);
+}
+
 /* ==================== MODO DE EDIÇÃO (/?editar) ==================== */
 // Entra com a senha do painel (a sessão é a mesma do painel.html). Salvar grava conteudo.js no GitHub.
-let EDIT=null,sel=null;   // EDIT: senha, quando o modo está ligado; sel: texto selecionado
+let EDIT=null,sel=null;   // EDIT: true quando o modo está ligado (a sessão fica no cookie); sel: texto selecionado
 const mudancas=()=>Object.fromEntries(Object.entries(PEND).filter(([k,v])=>JSON.stringify(v||null)!==JSON.stringify(CONTEUDO[k]||null)));
 const bruto=id=>{const o=valor(id);return esc(o&&o.texto!=null?o.texto:PADRAO[id]).replace(/\n/g,'<br>');};
 const lerTexto=el=>[...el.childNodes].map(n=>n.nodeType===3?n.data:n.nodeName==='BR'?'\n':(n.nodeName==='DIV'?'\n':'')+lerTexto(n)).join('');
-function sessao(){try{const s=JSON.parse(localStorage.getItem('aceima_sessao')||'null');return s&&s.exp>Date.now()?s.t:null}catch(e){return null}}
+// a sessão (01/11/2026) é a do painel: um cookie HttpOnly que o servidor abre com a senha. Aqui fica só até quando ela vale (a senha
+// ficava guardada no aparelho; a sessão antiga, com ela, é apagada)
+function sessao(){try{const s=JSON.parse(localStorage.getItem('aceima_sessao')||'null');if(s&&s.t){localStorage.removeItem('aceima_sessao');return false}return !!(s&&s.exp>Date.now())}catch(e){return false}}
 async function entrar(senha){
-  const r=senha&&await fetch('/api/conteudo?path=conteudo',{headers:{'x-painel-token':senha}}).catch(()=>null);
+  if(senha){
+    const a=await fetch('/api/auth?path=auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:senha}),credentials:'same-origin'}).catch(()=>null);
+    const ja=a?await a.json().catch(()=>({})):{};
+    if(!a||!a.ok)return pintarBarra(a&&a.status===401?'Senha errada.':ja.erro||'Não deu para conferir a senha'+(a?` (erro ${a.status})`:'')+'.');
+    try{localStorage.setItem('aceima_sessao',JSON.stringify({exp:ja.exp||Date.now()+36e5}))}catch(e){}
+  }
+  const r=await fetch('/api/conteudo?path=conteudo',{credentials:'same-origin'}).catch(()=>null);
   if(!r||!r.ok)return pintarBarra(!senha?'':r&&r.status===401?'Senha errada.':'Não deu para conferir a senha'+(r?` (erro ${r.status})`:'')+'.');
-  try{localStorage.setItem('aceima_sessao',JSON.stringify({t:senha,exp:Date.now()+36e5}))}catch(e){}
   const j=await r.json().catch(()=>({}));
-  EDIT=senha;document.body.classList.add('editando');clearTimeout(giro);
+  EDIT=true;document.body.classList.add('editando');clearTimeout(giro);
   pintarBarra(j.pronto?'':'Falta a chave do GitHub na Vercel: dá para editar, mas ainda não para salvar.');
 }
 function pintarBarra(msg){
@@ -3383,7 +3644,7 @@ function restaurar(){
   sel.removeAttribute('style');sel.innerHTML=bruto(sel.dataset.t);pintarBarra();}
 async function salvar(){
   soltar();const m=mudancas();pintarBarra('Salvando…');
-  const r=await fetch('/api/conteudo?path=conteudo',{method:'POST',headers:{'Content-Type':'application/json','x-painel-token':EDIT},body:JSON.stringify({mudancas:m})}).catch(()=>null);
+  const r=await fetch('/api/conteudo?path=conteudo',{method:'POST',headers:{'Content-Type':'application/json','x-aceima':'1'},credentials:'same-origin',body:JSON.stringify({mudancas:m})}).catch(()=>null);
   const j=r?await r.json().catch(()=>({})):{};
   if(r&&r.ok){for(const k in m){if(m[k])CONTEUDO[k]=m[k];else delete CONTEUDO[k];}PEND={};pintarBarra('Salvo. A prévia se atualiza em cerca de 30 segundos.');}
   else if(r&&r.status===401){EDIT=null;pintarBarra('A sessão expirou. Entre de novo e salve: nada foi perdido.');}
@@ -3397,11 +3658,13 @@ function sairEdicao(){
 /* ==================== VISITAS (os gráficos do painel) ==================== */
 // pedido do Luiz, 21/10/2026: o painel mostra os carros mais vistos, o tempo no site, de onde vêm as visitas e o que procuram. Cada página
 // vista manda, quando a pessoa sai dela (ou a aba some), a página, o carro e o tempo nela. A sessão é um número sorteado que fica só nesta
-// aba: nada pessoal e nada guardado no aparelho. Não conta o modo de edição, robôs nem o site aberto do computador
-const VIS=(()=>{try{let s=sessionStorage.getItem('vis_s');if(!s){s=Math.random().toString(36).slice(2,12)+Date.now().toString(36);sessionStorage.setItem('vis_s',s);}
-  return {s,n:+sessionStorage.getItem('vis_n')||0};}catch(e){return null;}})();
+// aba: nada pessoal. Não conta o modo de edição, robôs nem o site aberto do computador. Desde 01/11/2026 (LGPD), só com a permissão de
+// quem visita (o aviso de cookies): sem ela, nada é enviado e o número da aba nem é criado
+const VIS={s:null,n:0};
+function visSessao(){if(VIS.s)return true;try{let s=sessionStorage.getItem('vis_s');if(!s){s=Math.random().toString(36).slice(2,12)+Date.now().toString(36);sessionStorage.setItem('vis_s',s);}
+  VIS.s=s;VIS.n=+sessionStorage.getItem('vis_n')||0;return true;}catch(e){return false;}}
 let visAtual=null;   // a página vista agora: o número dela na sessão, a página, o carro ou a publicação, e o tempo já contado
-const visLigada=()=>!!VIS&&API!==null&&!EDIT&&!navigator.webdriver&&!/bot|crawl|spider|slurp|headless|lighthouse/i.test(navigator.userAgent)&&!/[?&]editar\b/.test(location.search);
+const visLigada=()=>comEstatisticas()&&API!==null&&!EDIT&&!navigator.webdriver&&!/bot|crawl|spider|slurp|headless|lighthouse/i.test(navigator.userAgent)&&!/[?&]editar\b/.test(location.search)&&visSessao();
 // de onde a pessoa veio: o site anterior, o aplicativo (no Android, "android-app://com.whatsapp") ou o navegador de dentro do Instagram e
 // do Facebook. Sem nada disso, ela digitou o endereço ou usou um link salvo ("Direto")
 function origemVisita(){
@@ -3441,11 +3704,37 @@ addEventListener('pagehide',()=>{if(visAtual&&visAtual.ini)fecharVisita();});
 function contarBusca(q){clearTimeout(contarBusca.t);if(!visLigada())return;
   contarBusca.t=setTimeout(()=>{const t=String(q||'').trim();if(t.length<2||t===contarBusca.ult)return;contarBusca.ult=t;enviarVisita({s:VIS.s,busca:t});},2500);}
 
+/* ==================== COOKIES (01/11/2026, LGPD) ==================== */
+// O site não tem cookie de publicidade nem de rastreamento. O que é opcional são as estatísticas de visita (acima): só com o "Aceitar".
+// A escolha fica no aparelho e muda pelo "Cookies" do rodapé ou pela Política de Privacidade. "Recusar" tem o mesmo peso que "Aceitar"
+const CK='aceima_privacidade';
+function escolhaCookies(){try{const c=JSON.parse(localStorage.getItem(CK)||'null');return c&&c.v===1?c:null;}catch(e){return null;}}
+const comEstatisticas=()=>{const c=escolhaCookies();return !!(c&&c.estatisticas);};
+function guardarCookies(sim){
+  try{localStorage.setItem(CK,JSON.stringify({v:1,estatisticas:!!sim,em:new Date().toISOString().slice(0,10)}));}catch(e){}
+  if(sim)contarVisita();else{visAtual=null;VIS.s=null;try{sessionStorage.removeItem('vis_s');sessionStorage.removeItem('vis_n');}catch(e){}}
+  fecharCookies(true);
+}
+function abrirCookies(primeira){
+  if(document.getElementById('ckb'))return;
+  const c=escolhaCookies(),d=document.createElement('div');
+  d.id='ckb';d.className='ckb';d.setAttribute('role','dialog');d.setAttribute('aria-labelledby','ckbT');d.setAttribute('aria-describedby','ckbX');
+  d.innerHTML=`<p class="ckb-t" id="ckbT">${TX('cookies.titulo','Privacidade')}</p>
+   <p id="ckbX">${TX('cookies.texto','Usamos o armazenamento do navegador para o site funcionar. Com a sua permissão, também contamos as visitas, sem saber quem você é, para melhorar o site. Nada de anúncios nem rastreamento.')}
+    <a href="${hr('privacidade')}#cookies">${TX('cookies.saiba','Saiba mais')}</a></p>
+   ${c?`<p class="ckb-at">${TX('cookies.atual','Escolha atual')}: ${c.estatisticas?TX('cookies.atual-sim','estatísticas aceitas'):TX('cookies.atual-nao','estatísticas recusadas')}.</p>`:''}
+   <div class="ckb-b"><button type="button" class="ckb-n" onclick="guardarCookies(false)">${TX('cookies.recusar','Recusar')}</button><button type="button" class="ckb-s" onclick="guardarCookies(true)">${TX('cookies.aceitar','Aceitar')}</button></div>`;
+  document.body.appendChild(d);
+  requestAnimationFrame(()=>d.classList.add('on'));
+  if(!primeira)setTimeout(()=>d.querySelector(c&&c.estatisticas?'.ckb-n':'.ckb-s').focus(),60);   // aberto pelo rodapé: o foco vai para a escolha
+}
+function fecharCookies(){const d=document.getElementById('ckb');if(!d)return;d.classList.remove('on');setTimeout(()=>d.remove(),MOV_RED.matches?0:320);}
+
 /* ==================== ROTAS ==================== */
-const VIEWS={home,estoque,associados,veiculo,aceima,associar,publicacoes,publicacao,servicos};
-const ROTAS={home:'/',estoque:'/estoque',associados:'/associados',aceima:'/a-aceima',associar:'/seja-um-associado',publicacoes:'/publicacoes',servicos:'/servicos'};
-const ANTIGAS={'/lojas':'associados','/aceima':'aceima','/vender':'associar','/contato':'aceima'};
-const TITULOS={home:'Aceima | Intendente, Polo Comercial e Automotivo do Rio',estoque:'Nosso estoque | Aceima',associados:'Associados | Aceima',aceima:'A Aceima | Aceima',associar:'Seja um associado | Aceima',publicacoes:'Publicações | Aceima',servicos:'Serviços do polo | Aceima'};
+const VIEWS={home,estoque,associados,veiculo,aceima,associar,publicacoes,publicacao,servicos,privacidade,termos};
+const ROTAS={home:'/',estoque:'/estoque',associados:'/associados',aceima:'/a-aceima',associar:'/seja-um-associado',publicacoes:'/publicacoes',servicos:'/servicos',privacidade:'/privacidade',termos:'/termos'};
+const ANTIGAS={'/lojas':'associados','/aceima':'aceima','/vender':'associar','/contato':'aceima','/politica-de-privacidade':'privacidade','/termos-de-uso':'termos'};
+const TITULOS={home:'Aceima | Intendente, Polo Comercial e Automotivo do Rio',estoque:'Nosso estoque | Aceima',associados:'Associados | Aceima',aceima:'A Aceima | Aceima',associar:'Seja um associado | Aceima',publicacoes:'Publicações | Aceima',servicos:'Serviços do polo | Aceima',privacidade:'Política de Privacidade | Aceima',termos:'Termos de Uso | Aceima'};
 const HASH=location.protocol==='file:';   // aberto do computador: rotas pelo #
 const slug=s=>norm(s).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 const urlV=v=>'/veiculo/'+v.id+'-'+slug(nomeV(v)+' '+(v.ano||''));
@@ -3504,7 +3793,7 @@ function render(topo){
   if(pagAtual==='associar')bnfGira();
   if(pagAtual==='home'){girar();alturaCategorias();alinharA();faixaAvaliacoes();document.fonts.ready.then(()=>{if(pagAtual==='home'){alturaCategorias();alinharA();}});}
   if(EDIT){sel=null;pintarBarra();}
-  document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;if(!v._luz){v._luz=1;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});if(olhoVideo)olhoVideo.observe(v);}if(v._visto!==false)v.play().catch(()=>{});});
+  document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;if(!v._luz){v._luz=1;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});if(olhoVideo)olhoVideo.observe(v);}if(v._visto!==false&&!SEM_MOV.matches)v.play().catch(()=>{});});
   if(typeof topo==='number')irPara(topo);else if(topo)scrollTo(0,0);   // voltando pelo histórico, a página abre onde estava
   if(pagAtual==='associados'&&rolarAssoc&&selAssoc&&entradasAssoc().some(e=>e.nome===selAssoc)){rolarAssoc=false;setTimeout(rolarParaLoja,topo?500:80);}   // aberto pela logo: desce até a loja
   if(TITULOS[pagAtual])document.title=TITULOS[pagAtual];
@@ -3579,7 +3868,7 @@ function menuNoRodape(){
 addEventListener('scroll',menuNoRodape,{passive:true});
 if(typeof ResizeObserver==='function')new ResizeObserver(menuNoRodape).observe(document.getElementById('app'));   // fotos carregando mudam a altura da página
 // aba volta a ficar visível: o navegador pode ter pausado o vídeo do fundo
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)document.querySelectorAll('video.luz').forEach(v=>{if(v._visto!==false)v.play().catch(()=>{});});});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!SEM_MOV.matches)document.querySelectorAll('video.luz').forEach(v=>{if(v._visto!==false)v.play().catch(()=>{});});});
 let largAnt=matchMedia('(max-width:760px)').matches;
 addEventListener('resize',()=>{AV.P=0;if(pagAtual==='home'){alturaCategorias();alinharA();}const m=matchMedia('(max-width:760px)').matches;if(m!==largAnt){largAnt=m;montarMenu();if(pagAtual==='associados'&&selAssoc)mostrarLoja();}
   if(pagAtual==='veiculo'){ajustarTopo();setasGaleria();clearTimeout(ordenarInfo.t);ordenarInfo.t=setTimeout(ordenarInfo,200);}
@@ -3588,6 +3877,13 @@ addEventListener('resize',()=>{AV.P=0;if(pagAtual==='home'){alturaCategorias();a
     document.querySelectorAll('#ancs .anc.vivo').forEach(a=>{const l=a.querySelector('.anc-l');if(l._W!==a.firstElementChild.offsetWidth)digitar(a);});}   // outra largura: o nome é medido de novo
   menuNoRodape();});
 
+// teclado (01/11/2026): Enter e espaço acionam o que faz papel de botão sem ser um <button> (os filtros do estoque, a foto do carro, "Tenho
+// interesse"...). Quem já tem o próprio onkeydown fica como está
+document.addEventListener('keydown',e=>{
+  const el=e.target;if(!(el instanceof Element)||e.defaultPrevented||(e.key!=='Enter'&&e.key!==' '))return;
+  if(el.getAttribute('role')!=='button'||el.matches('button,input,select,textarea,[onkeydown]'))return;
+  e.preventDefault();el.click();
+});
 rota();
 montarMenu();
 // voltando do Repasse, que é outra página (menu-fora.js): o menu fica no lugar, como numa troca de página dentro do site (pedido do Luiz,
@@ -3601,7 +3897,10 @@ montarMenu();
   requestAnimationFrame(()=>requestAnimationFrame(()=>{n.classList.remove('parado');if(b)b.classList.remove('hov');abrirNomes();}));})();
 document.fonts.ready.then(abrirNomes);   // o nome da página é medido de novo com a fonte do site: antes dela, saía mais estreito e cortava a última letra
 carregar();
-if(/[?&]editar\b/.test(location.search))entrar(sessao());
+// a sessão antiga do painel e do modo de edição guardava a própria senha no aparelho: sai em qualquer página (01/11/2026)
+try{const s=JSON.parse(localStorage.getItem('aceima_sessao')||'null');if(s&&s.t)localStorage.removeItem('aceima_sessao');}catch(e){}
+if(/[?&]editar\b/.test(location.search)){if(sessao())entrar();else pintarBarra('');}
+else if(!escolhaCookies())setTimeout(()=>abrirCookies(true),700);
 // vídeo bloqueado ou lento: troca pelo quadro parado para o fundo não ficar liso
 
 </script>

@@ -19,7 +19,7 @@
 // ============================================================
 import { Pool } from '@neondatabase/serverless';
 import * as cheerio from 'cheerio';
-import { scrypt, randomBytes, createHash, timingSafeEqual } from 'node:crypto';
+import { scrypt, randomBytes, createHash, createHmac, timingSafeEqual } from 'node:crypto';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const query = (t, p) => pool.query(t, p);
@@ -210,20 +210,136 @@ async function enviarResend(key, payload) {
 
 // ---------------- SEGURANÇA ----------------
 // Só a Aceima pode escrever (cadastrar/editar/excluir loja, ocultar veículo, ver e mudar leads).
-// A senha fica na variável PAINEL_TOKEN do Vercel — nunca no código, que é público.
-// Enquanto a variável não existir, nada trava (compatibilidade), mas fica desprotegido.
+// A senha fica na variável PAINEL_TOKEN da Vercel, nunca no código (o repositório é público).
+// Sem a variável, nada protegido abre (até 01/11/2026 abria tudo, "por compatibilidade").
+// O painel e o modo de edição mandam a senha uma vez só (rota auth) e recebem uma sessão de uma hora num cookie HttpOnly, que o
+// JavaScript da página não consegue ler: a senha não fica mais guardada no navegador (ficava no localStorage). Os robôs do GitHub
+// continuam mandando a senha no cabeçalho x-painel-token. A senha na URL (?token=) não vale mais: ficava nos registros de acesso.
 const PAINEL_TOKEN = process.env.PAINEL_TOKEN || null;
-function autorizado(req) {
-  if (!PAINEL_TOKEN) return true;
-  const h = req.headers || {};
-  const enviado = h['x-painel-token'] || h['X-Painel-Token'] ||
-    ((req.query && req.query.token) ? String(req.query.token) : '');
-  return enviado === PAINEL_TOKEN;
+const sha256hex = t => createHash('sha256').update(String(t)).digest('hex');
+// comparação em tempo constante: a comum vaza, pelo tempo de resposta, quantas letras do começo estão certas
+const iguais = (a, b) => timingSafeEqual(createHash('sha256').update(String(a)).digest(), createHash('sha256').update(String(b)).digest());
+const COOKIE_PAINEL = '__Host-aceima_painel';
+const SESSAO_PAINEL_S = 3600;   // uma hora, como era
+function cookies(req) {
+  const o = {};
+  String((req.headers || {}).cookie || '').split(';').forEach(p => {
+    const i = p.indexOf('='); if (i < 1) return;
+    try { o[p.slice(0, i).trim()] = decodeURIComponent(p.slice(i + 1).trim()); } catch (_) {}
+  });
+  return o;
+}
+// a versão da senha: trocar a PAINEL_TOKEN na Vercel derruba todas as sessões abertas
+const versaoSenha = () => createHash('sha256').update('painel:' + PAINEL_TOKEN).digest('hex').slice(0, 16);
+let sessoesProntas = false;
+async function tabelaSessoesPainel() {
+  if (sessoesProntas) return;
+  await query('create table if not exists painel_sessoes (token text primary key, versao text not null, expira timestamptz not null)');
+  sessoesProntas = true;
+}
+async function sessaoPainel(req) {
+  const t = cookies(req)[COOKIE_PAINEL];
+  if (!PAINEL_TOKEN || !t || !/^[a-f0-9]{64}$/.test(t)) return null;
+  await tabelaSessoesPainel();
+  const { rows: [s] } = await query('select expira from painel_sessoes where token = $1 and versao = $2 and expira > now()', [sha256hex(t), versaoSenha()]);
+  return s || null;
+}
+async function autorizado(req) {
+  if (!PAINEL_TOKEN) return false;
+  const h = req.headers || {}, enviado = h['x-painel-token'];
+  if (enviado != null && enviado !== '') {
+    // a senha no cabeçalho (os robôs): oito erros seguidos do mesmo lugar travam por 15 minutos, mesmo acertando depois
+    const chave = 'painel:' + ipDe(req);
+    if (await passou(chave, 8)) return false;
+    if (iguais(enviado, PAINEL_TOKEN)) return true;
+    await contar(chave, 8, 900);
+    return false;
+  }
+  // o cookie da sessão: o pedido que muda alguma coisa traz também o cabeçalho x-aceima, que outro site não consegue pôr
+  // (o SameSite=Strict do cookie já barra o pedido vindo de outro site; isso é a segunda tranca)
+  if (!['GET', 'HEAD'].includes(req.method) && h['x-aceima'] !== '1') return false;
+  try { return !!(await sessaoPainel(req)); } catch (_) { return false; }
 }
 function negar(res) { return res.status(401).json({ erro: 'não autorizado' }); }
+// entrar no painel (POST com a senha), saber se a sessão ainda vale (GET) e sair (DELETE)
+async function rotaAuth(req, res) {
+  res.setHeader('Cache-Control', 'no-store');
+  if (!PAINEL_TOKEN) return res.status(503).json({ ok: false, erro: 'A senha do painel não está configurada no servidor.' });
+  await tabelaSessoesPainel();
+  const fim = `${COOKIE_PAINEL}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict`;
+  if (req.method === 'GET') {
+    const s = await sessaoPainel(req);
+    return res.json({ ok: !!s, exp: s ? new Date(s.expira).getTime() : null });
+  }
+  if (req.method === 'DELETE') {
+    const t = cookies(req)[COOKIE_PAINEL];
+    if (t) await query('delete from painel_sessoes where token = $1', [sha256hex(t)]);
+    res.setHeader('Set-Cookie', fim);
+    return res.json({ ok: true });
+  }
+  if (req.method !== 'POST') return res.status(405).end();
+  const chave = 'painel:' + ipDe(req);
+  if (await passou(chave, 8)) return res.status(429).json({ ok: false, erro: 'Muitas tentativas com a senha errada. Espere 15 minutos e tente de novo.' });
+  const b = req.body || {};
+  if (!iguais(String(b.token || ''), PAINEL_TOKEN)) {
+    await contar(chave, 8, 900);
+    await pausa(400);
+    return res.status(401).json({ ok: false, erro: 'Senha incorreta.' });
+  }
+  const t = randomBytes(32).toString('hex');
+  await query('delete from painel_sessoes where expira < now()');
+  await query(`insert into painel_sessoes (token, versao, expira) values ($1, $2, now() + interval '1 hour')`, [sha256hex(t), versaoSenha()]);
+  await zerar(chave);
+  res.setHeader('Set-Cookie', `${COOKIE_PAINEL}=${t}; Path=/; Max-Age=${SESSAO_PAINEL_S}; HttpOnly; Secure; SameSite=Strict`);
+  return res.json({ ok: true, protegido: true, exp: Date.now() + SESSAO_PAINEL_S * 1000 });
+}
+
+// ---------------- LIMITES (força bruta, robôs e abuso) ----------------
+// Cada lugar de onde vem o pedido vira um código (HMAC do IP com um segredo do servidor): dá para contar as tentativas sem guardar
+// o IP de ninguém, e o código sai do banco no dia seguinte (retencao). Se a contagem falhar, o site segue funcionando.
+const SEGREDO_IP = createHash('sha256').update('limites:' + (process.env.PAINEL_TOKEN || '') + (process.env.DATABASE_URL || '')).digest();
+function ipDe(req) {
+  const h = req.headers || {};
+  const ip = String(h['x-real-ip'] || String(h['x-forwarded-for'] || '').split(',')[0] || (req.socket && req.socket.remoteAddress) || '').trim();
+  return createHmac('sha256', SEGREDO_IP).update(ip || 'sem-ip').digest('hex').slice(0, 24);
+}
+let limitesProntos = false;
+async function tabelaLimites() {
+  if (limitesProntos) return;
+  await query('create table if not exists limites (chave text primary key, n int not null, ate timestamptz not null)');
+  limitesProntos = true;
+}
+// soma um ao contador da chave (que recomeça quando a janela acaba) e diz se passou do máximo
+async function contar(chave, max, segundos) {
+  try {
+    await tabelaLimites();
+    const { rows: [r] } = await query(`insert into limites (chave, n, ate) values ($1, 1, now() + $2::int * interval '1 second')
+        on conflict (chave) do update set n = case when limites.ate < now() then 1 else limites.n + 1 end,
+          ate = case when limites.ate < now() then now() + $2::int * interval '1 second' else limites.ate end
+        returning n`, [chave, segundos]);
+    return !!r && r.n > max;
+  } catch (_) { return false; }
+}
+// só olha, sem somar (o login conta só os erros)
+async function passou(chave, max) {
+  try {
+    await tabelaLimites();
+    const { rows: [r] } = await query('select n from limites where chave = $1 and ate > now()', [chave]);
+    return !!r && r.n >= max;
+  } catch (_) { return false; }
+}
+async function zerar(chave) { try { await query('delete from limites where chave = $1', [chave]); } catch (_) {} }
+// limite na memória da função, para o que chega muito (as visitas): sem ir ao banco a cada pedido. Vale por instância da Vercel
+const MEMORIA = new Map();
+function contarNaMemoria(chave, max, segundos) {
+  const agora = Date.now(), c = MEMORIA.get(chave);
+  if (!c || c.ate < agora) { if (MEMORIA.size > 5000) MEMORIA.clear(); MEMORIA.set(chave, { n: 1, ate: agora + segundos * 1000 }); return false; }
+  return ++c.n > max;
+}
 
 // ---------------- MODELO VISUAL DOS E-MAILS ----------------
-const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+// escapa também as aspas: o e-mail do cliente entra num href (mailto:) e, sem isso, uma aspa escrita no formulário abria o atributo
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function linhaInfo(rotulo, valor, destaque) {
   if (valor == null || valor === '') return '';
   return `<tr>
@@ -411,15 +527,8 @@ async function enviarEmailsLead(lead, soAceima, anexos) {
 
   const envelope = { to: emails, reply_to: ACEIMA_MAIL, subject: assunto, text: linhas.join('\n'), html };
   if (ocultos.length) envelope.bcc = ocultos;
-  // fotos que o cliente anexou no formulário "Venda seu veículo"
-  const arquivos = (Array.isArray(anexos) ? anexos : [])
-    .map((f, i) => {
-      const conteudo = String(f && f.base64 || '').replace(/^data:[^,]+,/, '');
-      if (!conteudo) return null;
-      const nome = (f && f.nome) ? String(f.nome).replace(/[^\w.\-]+/g, '_').slice(-40) : ('foto-' + (i + 1) + '.jpg');
-      return { filename: nome, content: conteudo };
-    })
-    .filter(Boolean);
+  // fotos que o cliente anexou no formulário "Venda seu veículo", já conferidas na rota (só imagem de verdade: anexosDoLead)
+  const arquivos = (Array.isArray(anexos) ? anexos : []).filter(f => f && f.filename && f.content);
   if (arquivos.length) envelope.attachments = arquivos;
   await enviarResend(key, envelope);
 }
@@ -432,12 +541,14 @@ async function get(url, ajax, cookie) {
   // E carrega o cookie de sessão — sem ele a resposta volta vazia.
   if (ajax) { headers['X-Requested-With'] = 'XMLHttpRequest'; headers['Accept'] = 'text/html, */*; q=0.01'; }
   if (cookie) headers['Cookie'] = cookie;
+  if (!urlPublica(url)) throw new Error('endereço não permitido em ' + url);
   const r = await fetch(url, { headers, redirect: 'follow' });
   if (!r.ok) throw new Error('HTTP ' + r.status + ' em ' + url);
   return await r.text();
 }
 // primeira visita: além do HTML, guarda o cookie de sessão que o servidor entrega
 async function getComSessao(url) {
+  if (!urlPublica(url)) throw new Error('endereço não permitido em ' + url);
   const r = await fetch(url, {
     headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ACEIMA-Importer/1.0)' }, redirect: 'follow'
   });
@@ -512,6 +623,7 @@ async function pegarLogo(base, $) {
   if (!src) { const a = $('a[href$="/index"], a[href="/"], a[href$="/Index"]').first(); src = a.find('img').attr('src') || null; }
   if (!src) return null;
   try { src = new URL(src, base).href; } catch (_) {}
+  if (!urlPublica(src)) return null;
   try {
     const r = await fetch(src, { headers: { 'User-Agent': 'ACEIMA-Importer/1.0' } });
     if (!r.ok) return src;
@@ -737,6 +849,28 @@ async function detalhePortal(base, slug, id) {
 // e continua recebendo tudo, sem cache. Sem migra(): o site só lê colunas que já existem.
 const doSite = req => !!(req.query && req.query.site === '1');
 const CACHE_SITE = 's-maxage=300, stale-while-revalidate=86400';   // 5 min novo; depois disso, entrega o anterior na hora e atualiza por trás
+// número de registro (id) que veio no pedido: inteiro positivo, ou null (o banco não recebe mais texto solto no lugar de um id)
+const inteiro = v => { const n = Number(v); return Number.isInteger(n) && n > 0 && n < 2147483647 ? n : null; };
+// os campos de um associado (loja ou credenciado), conferidos antes de gravar: tamanho, e-mail, cor e logo. Gravamos só estes campos,
+// pelo nome (nada de gravar o pedido inteiro). O que não veio fica null: no PATCH, o que está no banco continua
+function dadosAssociado(b) {
+  const t = (k, n) => b[k] === undefined || b[k] === null ? null : String(b[k]).replace(/[\u0000-\u001f\u007f]+/g, ' ').trim().slice(0, n);
+  const d = { nome: t('nome', 120), endereco: t('endereco', 200), telefone: t('telefone', 40), whatsapp: t('whatsapp', 40), email: t('email', 160),
+    autocerto_id: t('autocerto_id', 300), autocerto_url: t('autocerto_url', 300), site: t('site', 300), descricao: t('descricao', 600),
+    beneficio: t('beneficio', 300), categoria: t('categoria', 60), cor: t('cor', 40), logo_url: null, google_nota: null, google_avaliacoes: null };
+  if (d.email && !/^[^@\s"'<>]+@[^@\s"'<>]+\.[a-z]{2,}$/i.test(d.email)) return { erro: 'Confira o e-mail.' };
+  // a cor do fundo da logo: #hex, o nome de uma cor (white) ou rgb()/hsl()
+  if (d.cor && !/^(#[0-9a-f]{3,8}|[a-z]{3,20}|(rgb|hsl)a?\([\d\s.,%/]+\))$/i.test(d.cor)) return { erro: 'Confira a cor do fundo da logo.' };
+  if (b.logo_url) {
+    const u = String(b.logo_url);
+    if (/^data:image\/(png|jpeg|webp|gif|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(u) && u.length <= 700000) d.logo_url = u;
+    else if (/^https?:\/\/[^\s"'<>]+$/i.test(u) && u.length <= 600) d.logo_url = u;
+    else return { erro: 'A logo precisa ser uma imagem (PNG, JPG, WebP ou SVG) de até 500 KB.' };
+  }
+  if (b.google_nota != null && b.google_nota !== '') { const n = Number(b.google_nota); if (n >= 0 && n <= 5) d.google_nota = n; }
+  if (b.google_avaliacoes != null && b.google_avaliacoes !== '') { const n = parseInt(b.google_avaliacoes, 10); if (n >= 0) d.google_avaliacoes = n; }
+  return d;
+}
 async function rotaLojas(req, res) {
   if (req.method === 'GET' && doSite(req)) {
     // sem logo_url: os logos (imagens embutidas) eram quase todo o peso. A página do veículo pede a logo da loja sozinha (rota logo);
@@ -745,26 +879,27 @@ async function rotaLojas(req, res) {
     res.setHeader('Cache-Control', CACHE_SITE);
     return res.json(rows);
   }
+  // a lista completa (com o e-mail das lojas, que recebe os leads) e qualquer mudança: só com a senha do painel
+  if (!(await autorizado(req))) return negar(res);
   await migra();
-  if (req.method !== 'GET' && !autorizado(req)) return negar(res);
   if (req.method === 'GET') {
     const { rows } = await query('select * from lojas where ativa = true order by nome');
     // o painel conta as empresas como o site: sem as lojas que ficam fora dele
     return res.json(rows.map(l => ({ ...l, fora_do_site: FORA_DO_SITE.includes(l.nome) })));
   }
+  const b = req.body || {}, d = dadosAssociado(b);
+  if (d.erro) return res.status(400).json({ erro: d.erro });
   if (req.method === 'POST') {
-    const b = req.body || {};
-    if (!b.nome) return res.status(400).json({ erro: 'nome é obrigatório' });
+    if (!d.nome) return res.status(400).json({ erro: 'nome é obrigatório' });
     const { rows: [loja] } = await query(
       `insert into lojas (nome, endereco, telefone, whatsapp, email, autocerto_id, autocerto_url, logo_url, google_nota, google_avaliacoes)
        values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning *`,
-      [b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id, b.autocerto_url, b.logo_url || null,
-       b.google_nota == null ? null : Number(b.google_nota), b.google_avaliacoes == null ? null : parseInt(b.google_avaliacoes)]);
+      [d.nome, d.endereco, d.telefone, d.whatsapp, d.email, d.autocerto_id, d.autocerto_url, d.logo_url, d.google_nota, d.google_avaliacoes]);
     return res.status(201).json(loja);
   }
   if (req.method === 'PATCH') {
-    const b = req.body || {};
-    if (!b.id) return res.status(400).json({ erro: 'id obrigatório' });
+    const id = inteiro(b.id);
+    if (!id) return res.status(400).json({ erro: 'id obrigatório' });
     // a nota do Google vem do robô das avaliações: sem ela no pedido (o painel não manda), fica a que está
     const { rows: [loja] } = await query(
       `update lojas set nome=coalesce($2,nome), endereco=coalesce($3,endereco),
@@ -774,14 +909,11 @@ async function rotaLojas(req, res) {
          cor = case when $9::text is null then cor when $9 = '' then null else $9 end,
          google_nota = coalesce($10, google_nota), google_avaliacoes = coalesce($11, google_avaliacoes)
        where id=$1 returning *`,
-      [b.id, b.nome, b.endereco, b.telefone, b.whatsapp, b.email, b.autocerto_id, b.logo_url || null,
-       (b.cor === undefined ? null : String(b.cor)),
-       b.google_nota == null ? null : Number(b.google_nota),
-       b.google_avaliacoes == null ? null : parseInt(b.google_avaliacoes)]);
+      [id, d.nome, d.endereco, d.telefone, d.whatsapp, d.email, d.autocerto_id, d.logo_url, d.cor, d.google_nota, d.google_avaliacoes]);
     return res.json(loja || { erro: 'loja não encontrada' });
   }
   if (req.method === 'DELETE') {
-    const id = (req.query && req.query.id) || (req.body && req.body.id);
+    const id = inteiro((req.query && req.query.id) || (req.body && req.body.id));
     if (!id) return res.status(400).json({ erro: 'id obrigatório' });
     await query('update veiculos set ativo=false where loja_id=$1', [id]);
     await query('delete from lojas where id=$1', [id]);
@@ -790,15 +922,15 @@ async function rotaLojas(req, res) {
   res.status(405).end();
 }
 
-// o site digitado no painel sem o https:// ("frioline.com.br")
-const siteCompleto = s => { s = String(s || '').trim(); return !s ? null : /^https?:\/\//i.test(s) ? s : 'https://' + s; };
-// parceiros de serviço do polo — leitura pública, escrita só com token
+// o site digitado no painel sem o https:// ("frioline.com.br"). Só endereço público: o robô lê esse site de dentro da Vercel
+const siteCompleto = s => { s = String(s || '').trim(); if (!s) return null; s = /^https?:\/\//i.test(s) ? s : 'https://' + s; return urlPublica(s) ? s.slice(0, 300) : null; };
+// parceiros de serviço do polo — leitura pública (a do site), o resto só com a senha do painel
 async function rotaParceiros(req, res) {
   const painel = req.query && req.query.painel === '1';
   if (req.method === 'GET' && (doSite(req) || painel)) {
     // o site (e o painel, sem cache e com o id dos cadastrados por ele): a nota no Google e se tem logo, de cada credenciado (o robô das
     // avaliações guarda tudo em config), e os dados dos que o painel cadastrou. Sem migra()
-    if (painel && !autorizado(req)) return negar(res);
+    if (painel && !(await autorizado(req))) return negar(res);
     const [{ rows }, doPainel] = await Promise.all([
       query(`select chave, case when chave = 'avaliacoes_google' then valor end as valor, left(valor, 5) = 'data:' as tem
                from config where chave = 'avaliacoes_google' or chave like 'logo_parceiro:%'`),
@@ -811,35 +943,37 @@ async function rotaParceiros(req, res) {
       .concat(doPainel.map(p => ({ nome: p.nome, ...nota(p.nome), logo: comLogo.has(p.nome) || p.tem_logo, site: p.site || null, ramo: p.ramo, descricao: p.descricao || '',
         endereco: p.endereco || '', telefone: p.telefone || '', whatsapp: p.whatsapp || '', painel: true, ...(painel ? { id: p.id } : {}) }))));
   }
+  // a tabela inteira (também os inativos e as logos) e qualquer mudança: só com a senha do painel
+  if (!(await autorizado(req))) return negar(res);
   await migra();
   if (req.method === 'GET') {
-    const { rows } = await query(
-      `select * from parceiros ${autorizado(req) ? '' : 'where ativa = true'} order by ordem, nome`);
+    const { rows } = await query('select * from parceiros order by ordem, nome');
     return res.json(rows);
   }
-  if (!autorizado(req)) return negar(res);
-  const b = req.body || {};
+  const b = req.body || {}, d = dadosAssociado(b);
   // o robô no credenciado que o painel acabou de cadastrar (ou de novo, quando o site muda)
   if (req.method === 'POST' && req.query && req.query.acao === 'ler') {
-    const r = await lerCredenciado(parseInt(b.id, 10) || 0);
+    const r = await lerCredenciado(inteiro(b.id) || 0);
     return r ? res.json({ ok: true, ...r }) : res.status(404).json({ erro: 'credenciado não encontrado' });
   }
+  if (d.erro) return res.status(400).json({ erro: d.erro });
+  const ordem = b.ordem == null || b.ordem === '' ? null : (Number.isInteger(Number(b.ordem)) ? Number(b.ordem) : null);
   if (req.method === 'POST') {
-    if (!b.nome) return res.status(400).json({ erro: 'nome é obrigatório' });
+    if (!d.nome) return res.status(400).json({ erro: 'nome é obrigatório' });
     // o mesmo nome de um associado que já existe (loja ou credenciado) não entra duas vezes
-    const nome = String(b.nome).trim(), mesmo = x => semAcento(x).replace(/[^a-z0-9]/g, '') === semAcento(nome).replace(/[^a-z0-9]/g, '');
+    const nome = d.nome, mesmo = x => semAcento(x).replace(/[^a-z0-9]/g, '') === semAcento(nome).replace(/[^a-z0-9]/g, '');
     const { rows: ja } = await query(`select nome from lojas where ativa = true union all select nome from parceiros where ativa = true and coalesce(categoria, '') <> all($1)`, [CATS_ANTIGAS]);
     if (PARCEIROS_ROBO.some(p => mesmo(p.nome)) || ja.some(x => mesmo(x.nome))) return res.status(409).json({ erro: 'já existe um associado com esse nome' });
     const { rows: [p] } = await query(
       `insert into parceiros (nome, categoria, descricao, beneficio, endereco, telefone, whatsapp, site, logo_url, cor, ordem)
        values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,coalesce($11,100)) returning *`,
-      [nome, b.categoria || 'servico', b.descricao, b.beneficio, b.endereco, b.telefone,
-       b.whatsapp, siteCompleto(b.site), b.logo_url || null, b.cor || null, b.ordem]);
+      [nome, d.categoria || 'servico', d.descricao, d.beneficio, d.endereco, d.telefone,
+       d.whatsapp, siteCompleto(d.site), d.logo_url, d.cor || null, ordem]);
     return res.status(201).json(p);
   }
   if (req.method === 'PATCH') {
-    if (!b.id) return res.status(400).json({ erro: 'id obrigatório' });
-    if (b.site) b.site = siteCompleto(b.site);
+    const id = inteiro(b.id);
+    if (!id) return res.status(400).json({ erro: 'id obrigatório' });
     const { rows: [p] } = await query(
       `update parceiros set nome=coalesce($2,nome), categoria=coalesce($3,categoria),
          descricao=coalesce($4,descricao), beneficio=coalesce($5,beneficio),
@@ -849,13 +983,13 @@ async function rotaParceiros(req, res) {
          cor = case when $11::text is null then cor when $11 = '' then null else $11 end,
          ordem=coalesce($12,ordem), ativa=coalesce($13,ativa)
        where id=$1 returning *`,
-      [b.id, b.nome, b.categoria, b.descricao, b.beneficio, b.endereco, b.telefone,
-       b.whatsapp, b.site, b.logo_url || null, (b.cor === undefined ? null : String(b.cor)),
-       b.ordem, (b.ativa === undefined ? null : !!b.ativa)]);
+      [id, d.nome, d.categoria, d.descricao, d.beneficio, d.endereco, d.telefone,
+       d.whatsapp, d.site === '' ? '' : d.site ? siteCompleto(d.site) : null, d.logo_url, d.cor,
+       ordem, (b.ativa === undefined ? null : !!b.ativa)]);
     return res.json(p || { erro: 'parceiro não encontrado' });
   }
   if (req.method === 'DELETE') {
-    const id = (req.query && req.query.id) || b.id;
+    const id = inteiro((req.query && req.query.id) || b.id);
     if (!id) return res.status(400).json({ erro: 'id obrigatório' });
     await query('delete from parceiros where id = $1', [id]);
     return res.json({ ok: true });
@@ -873,42 +1007,76 @@ async function rotaVeiculos(req, res) {
     res.setHeader('Cache-Control', CACHE_SITE);
     return res.json(rows);
   }
-  await migra();
   if (req.method === 'POST' || req.method === 'PATCH') {
-    if (!autorizado(req)) return negar(res);
-    const b = req.body || {};
-    if (!b.id) return res.status(400).json({ erro: 'id obrigatório' });
+    if (!(await autorizado(req))) return negar(res);
+    await migra();
+    const b = req.body || {}, id = inteiro(b.id);
+    if (!id) return res.status(400).json({ erro: 'id obrigatório' });
     const oculto = b.oculto === true || b.ativo === false;
     const { rows: [v] } = await query(
-      "update veiculos set oculto=$2, oculto_motivo='manual' where id=$1 returning id, oculto", [b.id, oculto]);
+      "update veiculos set oculto=$2, oculto_motivo='manual' where id=$1 returning id, oculto", [id, oculto]);
     return res.json({ ok: true, veiculo: v });
   }
-  const q = req.query || {};
-  // o site não mostra o que está oculto; o painel (com token) PRECISA ver,
-  // senão a Aceima esconde um carro e nunca mais consegue trazer de volta
+  if (req.method !== 'GET') return res.status(405).end();
+  const q = req.query || {}, comSenha = await autorizado(req);
+  if (comSenha) await migra();
+  // o site não mostra o que está oculto; o painel (com a senha) PRECISA ver, senão a Aceima esconde um carro e nunca mais
+  // consegue trazer de volta. Sem a senha, só as colunas públicas (as mesmas do site)
   const cond = ['v.ativo = true']; const p = [];
-  if (!autorizado(req)) cond.push('coalesce(v.oculto,false) = false');
+  if (!comSenha) { cond.push('coalesce(v.oculto,false) = false'); p.push(FORA_DO_SITE); cond.push('l.nome <> all($1)'); }
   const add = (frag, val) => { p.push(val); cond.push(frag.replace('?', '$' + p.length)); };
-  if (q.tipo) add('v.tipo = ?', q.tipo);
-  if (q.marca) add('v.marca = ?', q.marca);
-  if (q.modelo) add('v.modelo = ?', q.modelo);
-  if (q.loja) add('v.loja_id = ?', q.loja);
-  if (q.precoDe) add('v.preco >= ?', q.precoDe);
-  if (q.precoAte) add('v.preco <= ?', q.precoAte);
-  if (q.anoDe) add('v.ano_modelo >= ?', q.anoDe);
-  if (q.anoAte) add('v.ano_modelo <= ?', q.anoAte);
-  if (q.kmAte) add('v.km <= ?', q.kmAte);
+  const num = v => { const n = Number(v); return v !== '' && Number.isFinite(n) ? n : null; };
+  if (q.tipo) add('v.tipo = ?', String(q.tipo).slice(0, 20));
+  if (q.marca) add('v.marca = ?', String(q.marca).slice(0, 60));
+  if (q.modelo) add('v.modelo = ?', String(q.modelo).slice(0, 80));
+  if (inteiro(q.loja)) add('v.loja_id = ?', inteiro(q.loja));
+  if (num(q.precoDe) != null) add('v.preco >= ?', num(q.precoDe));
+  if (num(q.precoAte) != null) add('v.preco <= ?', num(q.precoAte));
+  if (num(q.anoDe) != null) add('v.ano_modelo >= ?', Math.trunc(num(q.anoDe)));
+  if (num(q.anoAte) != null) add('v.ano_modelo <= ?', Math.trunc(num(q.anoAte)));
+  if (num(q.kmAte) != null) add('v.km <= ?', Math.trunc(num(q.kmAte)));
+  const colunas = comSenha ? 'v.*' : 'v.id, v.loja_id, v.tipo, v.marca, v.modelo, v.versao, v.ano_modelo, v.ano_fabricacao, v.km, v.preco, v.cambio, v.combustivel, v.fotos, v.opcionais';
   const { rows } = await query(
-    `select v.*, l.nome as loja_nome, l.whatsapp as loja_whatsapp
+    `select ${colunas}, l.nome as loja_nome, l.whatsapp as loja_whatsapp
        from veiculos v join lojas l on l.id = v.loja_id
       where ${cond.join(' and ')} order by v.sincronizado_em desc limit 3000`, p);
   res.json(rows);
 }
 
+// ---------------- LEADS ----------------
+const TIPOS_LEAD = ['venda', 'compra', 'associacao'];
+const CANAIS_LEAD = ['formulario', 'venda_site', 'whatsapp'];
+const STATUS_LEAD = ['novo', 'visto', 'enviado', 'atendido'];
+// texto que vem de um formulário: sem caracteres de controle, sem espaços sobrando e com tamanho máximo
+const txtLead = (v, n) => v == null ? null : (String(v).replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, n) || null);
+// os detalhes de cada tipo de lead: só os campos que o site manda, cada um com tamanho máximo (nada de gravar um objeto qualquer)
+function detalhesLead(tipo, d) {
+  d = d && typeof d === 'object' && !Array.isArray(d) ? d : {};
+  const o = {}, so = campos => campos.forEach(([k, n]) => { const v = txtLead(d[k], n); if (v != null) o[k] = v; });
+  if (tipo === 'compra') so([['marca', 40], ['modelo', 60], ['versao', 80], ['ano', 9], ['km', 9], ['valor', 12], ['de', 10]]);
+  else if (tipo === 'associacao') so([['empresa', 120], ['ramo', 60]]);
+  else so([['troca', 120], ['entrada', 60]]);
+  return Object.keys(o).length ? o : null;
+}
+// as fotos do "Venda seu veículo": só JPG, PNG ou WebP de verdade (conferidos pelos primeiros bytes do arquivo), até 8, com até 1,5 MB
+// cada. O nome do arquivo é nosso (foto-1.jpg): o que o aparelho manda não chega ao e-mail das lojas. Antes, qualquer arquivo ia anexado
+function anexosDoLead(lista) {
+  return (Array.isArray(lista) ? lista : []).slice(0, 8).map(f => {
+    const b64 = String(typeof f === 'string' ? f : (f && f.base64) || '').replace(/^data:image\/(jpeg|png|webp);base64,/, '');
+    if (!b64 || b64.length > 2.1e6 || !/^[A-Za-z0-9+/]+=*$/.test(b64)) return null;
+    const buf = Buffer.from(b64, 'base64');
+    const ext = buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff ? 'jpg'
+      : buf[0] === 0x89 && buf.toString('latin1', 1, 4) === 'PNG' ? 'png'
+      : buf.toString('latin1', 0, 4) === 'RIFF' && buf.toString('latin1', 8, 12) === 'WEBP' ? 'webp' : null;
+    return ext && buf.length <= 1.5e6 ? { ext, content: b64 } : null;
+  }).filter(Boolean).map((f, i) => ({ filename: `foto-${i + 1}.${f.ext}`, content: f.content }));
+}
 async function rotaLeads(req, res) {
-  await migra();
-  // dados de cliente: só a Aceima lê e altera. O site continua podendo CRIAR lead (POST).
-  if (req.method !== 'POST' && !autorizado(req)) return negar(res);
+  // dados de cliente: só a Aceima lê, muda e apaga. O site continua podendo CRIAR lead (POST)
+  if (req.method !== 'POST') {
+    if (!(await autorizado(req))) return negar(res);
+    await migra();
+  }
   if (req.method === 'GET') {
     const { rows } = await query(
       `select le.*, lo.nome as loja_nome,
@@ -922,28 +1090,51 @@ async function rotaLeads(req, res) {
     return res.json(rows);
   }
   if (req.method === 'PATCH') {
-    const b = req.body || {};
-    if (!b.id) return res.status(400).json({ erro: 'id obrigatório' });
-    const { rows: [l] } = await query('update leads set status=$2 where id=$1 returning id, status', [b.id, b.status || 'novo']);
+    const b = req.body || {}, id = inteiro(b.id);
+    if (!id) return res.status(400).json({ erro: 'id obrigatório' });
+    const { rows: [l] } = await query('update leads set status=$2 where id=$1 returning id, status', [id, STATUS_LEAD.includes(b.status) ? b.status : 'novo']);
     return res.json({ ok: true, lead: l });
   }
   if (req.method === 'DELETE') {
-    const id = (req.query && req.query.id) || (req.body || {}).id;
+    const id = inteiro((req.query && req.query.id) || (req.body || {}).id);
     if (!id) return res.status(400).json({ erro: 'id obrigatório' });
     await query('delete from leads where id = $1', [id]);
     return res.json({ ok: true });
   }
   if (req.method !== 'POST') return res.status(405).end();
-  const b = req.body || {};
+  const b = req.body && typeof req.body === 'object' ? req.body : {};
+  // armadilha para robôs: um campo escondido no formulário, que gente não vê nem preenche. Preenchido, finge que deu certo e não grava
+  if (b.website) return res.status(201).json({ ok: true });
+  const tipo = TIPOS_LEAD.includes(b.tipo) ? b.tipo : null;
+  const nome = txtLead(b.cliente_nome, 80), tel = String(b.cliente_telefone || '').replace(/\D/g, '').slice(0, 15), email = txtLead(b.cliente_email, 160);
+  if (!tipo || !nome || nome.length < 2 || tel.length < 10) return res.status(400).json({ erro: 'Confira o nome e o WhatsApp.' });
+  if (email && !/^[^@\s"'<>]+@[^@\s"'<>]+\.[a-z]{2,}$/i.test(email)) return res.status(400).json({ erro: 'Confira o e-mail.' });
+  // do mesmo lugar, até 6 contatos em 10 minutos e 20 por dia: mais do que isso é robô ou abuso (cada "quero vender" vai para todas as lojas)
+  const ip = ipDe(req);
+  if ((await contar('lead:' + ip, 6, 600)) || (await contar('lead-dia:' + ip, 20, 86400)))
+    return res.status(429).json({ erro: 'Muitos envios seguidos. Espere alguns minutos e tente de novo.' });
+  await migra();
+  // a loja do lead sai do carro escolhido, e não do pedido: ninguém manda lead para uma loja qualquer
+  let lojaId = null, veiculoId = null;
+  if (tipo === 'venda' && inteiro(b.veiculo_id)) {
+    const { rows: [v] } = await query('select id, loja_id from veiculos where id = $1', [inteiro(b.veiculo_id)]);
+    if (v) { veiculoId = v.id; lojaId = v.loja_id; }
+  }
+  // as fotos vão só para o e-mail (anexo). Não entram no banco: virariam megabytes de base64
+  const anexos = tipo === 'compra' ? anexosDoLead(b.fotos) : [];
+  const det = detalhesLead(tipo, b.detalhes) || (tipo === 'compra' ? {} : null);
+  if (tipo === 'compra') det.fotos = anexos.length;
   const { rows: [lead] } = await query(
     `insert into leads (loja_id, veiculo_id, cliente_nome, cliente_telefone, cliente_email, forma_compra, entrada, canal, tipo, detalhes)
      values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning *`,
-    [b.loja_id || null, b.veiculo_id || null, b.cliente_nome, b.cliente_telefone, b.cliente_email,
-     b.forma_compra, b.entrada, b.canal || 'formulario', b.tipo || 'venda', b.detalhes ? JSON.stringify(b.detalhes) : null]);
-  // as fotos vão só para o e-mail (anexo). Não entram no banco: virariam megabytes de base64.
-  const anexos = Array.isArray(b.fotos) ? b.fotos.slice(0, 8) : [];
-  enviarEmailsLead(lead, false, anexos).catch(() => {});
-  res.status(201).json({ ok: true, lead });
+    [lojaId, veiculoId, nome, tel, email, tipo === 'venda' ? txtLead(b.forma_compra, 30) : null, tipo === 'venda' ? txtLead(b.entrada, 120) : null,
+     CANAIS_LEAD.includes(b.canal) ? b.canal : 'formulario', tipo, det ? JSON.stringify(det) : null]);
+  // os e-mails: até 80 por dia no total (o plano grátis do Resend manda 100) e até 30 "quero vender" por dia (cada um vai para todas as
+  // lojas). Passando disso, o lead fica gravado e aparece no painel; só o e-mail não sai. O envio termina antes da resposta: a Vercel
+  // pode parar a função logo depois de responder, e o e-mail ficava pelo caminho
+  const demais = (await contar('emails:dia', 80, 86400)) || (tipo === 'compra' && (await contar('compra:dia', 30, 86400)));
+  if (!demais) { try { await enviarEmailsLead(lead, false, anexos); } catch (e) { console.error('[leads] e-mail não saiu:', e && e.message); } }
+  res.status(201).json({ ok: true, id: lead.id });
 }
 
 // importa UMA loja (usado pelo importar manual, pelo cron e pelo refresh por visita)
@@ -1104,11 +1295,19 @@ async function resumoSeDevido() {
 }
 
 async function rotaImportar(req, res) {
-  // o cron do Vercel chama sem token; aceitamos, mas quem vem de fora precisa estar autorizado
-  const doCron = !!(req.headers && (req.headers['x-vercel-cron'] || /vercel-cron/i.test(req.headers['user-agent'] || '')));
-  if (!doCron && !autorizado(req)) return negar(res);
+  // Quem pode: a Aceima e os robôs do GitHub (a senha do painel), e o cron da Vercel. O cron se identifica pelo CRON_SECRET (a Vercel manda
+  // "Authorization: Bearer" com ele quando a variável existe). Sem a variável, o cabeçalho do cron dá para imitar: aí ele vale no máximo uma
+  // vez a cada 30 minutos e nunca para uma loja escolhida (antes, qualquer um disparava importações sem parar fingindo ser o cron)
+  const h = req.headers || {}, segredo = process.env.CRON_SECRET;
+  const cron = !!segredo && iguais(String(h.authorization || ''), 'Bearer ' + segredo);
+  const comSenha = !cron && await autorizado(req);
+  if (!cron && !comSenha) {
+    const pareceCron = !segredo && !!(h['x-vercel-cron'] || /vercel-cron/i.test(h['user-agent'] || ''));
+    if (!pareceCron) return negar(res);
+    if (await contar('importar:sem-senha', 1, 1800)) return res.status(429).json({ ok: false, erro: 'importação recente' });
+  }
   await migra();
-  const soLoja = req.query.loja;
+  const soLoja = (cron || comSenha) ? inteiro(req.query && req.query.loja) : null;
   // sem ?loja=ID, importa UMA loja por chamada (a mais desatualizada) para não estourar o tempo da função
   const { rows: lojas } = soLoja
     ? await query('select * from lojas where ativa = true and id = $1', [soLoja])
@@ -1116,17 +1315,37 @@ async function rotaImportar(req, res) {
   const resultado = [];
   for (const loja of lojas) { resultado.push(await importarLoja(loja)); }
   await resumoSeDevido();
+  try { await retencao(); } catch (e) { console.error('[retencao]', e && e.message); }
   res.json({ ok: true, lojas: resultado });
+}
+
+// LGPD: o que não precisa mais ficar guardado sai sozinho, no máximo uma vez por dia (pelas importações do cron e do GitHub).
+// Os prazos estão na Política de Privacidade (index.html, privacidade()): mudou aqui, muda lá
+async function retencao() {
+  const { rows: [c] } = await query("select em from config where chave = 'retencao'");
+  if (c && Date.now() - new Date(c.em).getTime() < 20 * 3600e3) return;
+  await query("insert into config (chave, valor, em) values ('retencao', 'ok', now()) on conflict (chave) do update set em = now()");
+  // leads com mais de 12 meses (o contato já foi feito; o painel e os relatórios usam só os recentes)
+  await query("delete from leads where criado_em < now() - interval '12 months'");
+  // estatísticas de visita e buscas: 13 meses (o painel compara até 90 dias com os 90 anteriores)
+  try { await query("delete from visitas where criado_em < now() - interval '13 months'"); } catch (_) {}
+  try { await query("delete from buscas where criado_em < now() - interval '13 months'"); } catch (_) {}
+  // os contadores de tentativas e as sessões vencidas
+  try { await query("delete from limites where ate < now() - interval '1 day'"); } catch (_) {}
+  try { await query('delete from painel_sessoes where expira < now()'); } catch (_) {}
+  try { await query('delete from repasse_sessoes where expira < now()'); } catch (_) {}
+  // carros que saíram do Repasse há mais de 6 meses (as fotos já saíram antes)
+  try { await query(`delete from repasse_carros where status in ('tirado', 'vencido', 'repassado') and coalesce(status_em, criado_em) < now() - interval '6 months'`); } catch (_) {}
 }
 
 // atualização por visita: relê a loja mais desatualizada, com trava para não repetir
 async function rotaRefresh(req, res) {
-  await migra();
-  const horas = Math.max(1, parseInt(req.query.horas || '2') || 2);
+  const horas = Math.min(48, Math.max(1, parseInt((req.query && req.query.horas) || '2', 10) || 2));
   try {
     const { rows: [lk] } = await query("select em from config where chave='refresh_lock'");
     if (lk && (Date.now() - new Date(lk.em).getTime()) < 150000) return res.json({ ok: true, pulado: 'recente' });
   } catch (_) {}
+  await migra();
   const { rows: [loja] } = await query(
     `select * from lojas where ativa = true
        and (ultima_sync is null or ultima_sync < now() - ($1 || ' hours')::interval)
@@ -1271,6 +1490,13 @@ async function rotaTesteEmail(req, res) {
 // no mesmo ramo desta publicação: editar na prévia não mexe no site no ar.
 // Precisa da variável GITHUB_TOKEN na Vercel (token do GitHub com escrita em Contents deste repositório).
 const CAMPOS_CONTEUDO = ['texto', 'tam', 'cor', 'fonte', 'peso'];
+const CAMPO_OK = {
+  texto: x => typeof x === 'string' && x.length <= 4000,
+  tam: x => typeof x === 'number' && x >= 0.3 && x <= 4,
+  cor: x => typeof x === 'string' && /^#[0-9a-f]{3,8}$/i.test(x),
+  fonte: x => typeof x === 'string' && x.length <= 40 && /^[\wÀ-ú ]+$/.test(x),
+  peso: x => Number.isInteger(x) && x >= 100 && x <= 900
+};
 async function rotaConteudo(req, res) {
   const token = process.env.GITHUB_TOKEN, ramo = process.env.VERCEL_GIT_COMMIT_REF;
   if (req.method === 'GET') return res.json({ ok: true, ramo: ramo || null, pronto: !!(token && ramo) });
@@ -1289,10 +1515,11 @@ async function rotaConteudo(req, res) {
     atual = JSON.parse(txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1));
   }
   const ids = [];
-  for (const [id, v] of Object.entries((req.body && req.body.mudancas) || {})) {
-    if (!/^[\w.-]+$/.test(id)) continue;
+  for (const [id, v] of Object.entries((req.body && req.body.mudancas) || {}).slice(0, 400)) {
+    if (!/^[\w.-]{1,80}$/.test(id)) continue;
     ids.push(id);
-    if (v && typeof v === 'object') atual[id] = Object.fromEntries(Object.entries(v).filter(([k]) => CAMPOS_CONTEUDO.includes(k)));
+    // cada campo com o tipo e o formato que o modo de edição manda (o site também só aceita cor, fonte e peso das listas dele)
+    if (v && typeof v === 'object') atual[id] = Object.fromEntries(Object.entries(v).filter(([k, x]) => CAMPOS_CONTEUDO.includes(k) && CAMPO_OK[k](x)));
     else delete atual[id];
   }
   if (!ids.length) return res.json({ ok: true, ramo });
@@ -1335,7 +1562,7 @@ async function rotaPublicacoes(req, res) {
   const lerLista = async ref => {
     const r = await gh(`contents/publicacoes.json?ref=${encodeURIComponent(ref)}`);
     if (r.status === 404) return [];
-    if (!r.ok) throw new Error(`o GitHub respondeu ${r.status} ao ler as publicações`);
+    if (!r.ok) throw Object.assign(new Error(`o GitHub respondeu ${r.status} ao ler as publicações`), { publico: true });
     const lista = JSON.parse(Buffer.from((await r.json()).content, 'base64').toString('utf8'));
     return Array.isArray(lista) ? lista : [];
   };
@@ -1347,6 +1574,11 @@ async function rotaPublicacoes(req, res) {
     const m = String(d).match(/^data:image\/(webp|jpeg|png);base64,([A-Za-z0-9+/=]+)$/);
     if (!m) return { erro: 400 };
     if (m[2].length > 4e6) return { erro: 413 };
+    // o arquivo tem que ser mesmo a imagem que diz ser (os primeiros bytes de um JPG, PNG ou WebP)
+    const ini = Buffer.from(m[2].slice(0, 24), 'base64');
+    const de = { jpeg: ini[0] === 0xff && ini[1] === 0xd8, png: ini[0] === 0x89 && ini.toString('latin1', 1, 4) === 'PNG',
+      webp: ini.toString('latin1', 0, 4) === 'RIFF' && ini.toString('latin1', 8, 12) === 'WEBP' };
+    if (!de[m[1]]) return { erro: 400 };
     return { ext: m[1] === 'jpeg' ? 'jpg' : m[1], base64: m[2] };
   };
   const recusa = e => res.status(e).json({ erro: e === 413 ? 'foto grande demais' : 'foto em formato inválido' });
@@ -1463,6 +1695,7 @@ async function credenciados() {
 // a descrição curta e os contatos lidos no site de um credenciado novo. A descrição é a da página (a primeira frase) ou, sem ela, o título
 // sem o nome da empresa ("Ar condicionado para veículos | FRIOLINE" vira "Ar condicionado para veículos.")
 async function infoDoSite(site, nome) {
+  if (!urlPublica(site)) return { erro: 'endereço não permitido' };
   try {
     const r = await fetch(site, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ACEIMA-Importer/1.0)' }, redirect: 'follow', signal: AbortSignal.timeout(8000) });
     if (!r.ok) return { erro: 'HTTP ' + r.status };
@@ -1516,6 +1749,17 @@ function mesmaLoja(nosso, google) {
   const chave = palavraChave(nosso);
   return !!chave && semAcento(google).replace(/[^a-z0-9]/g, '').includes(chave);
 }
+// endereço que vem de fora e vai para um href ou src no site: só https (nada de javascript: ou data:)
+const soHttps = u => /^https:\/\/[^\s"'<>]+$/i.test(String(u || '')) ? String(u).slice(0, 600) : '';
+// endereço que o robô vai ler de dentro da Vercel: só http(s) de um nome público (nada de localhost, IP interno ou porta estranha)
+function urlPublica(u) {
+  let x; try { x = new URL(String(u)); } catch (_) { return false; }
+  const h = x.hostname.toLowerCase();
+  if (!/^https?:$/.test(x.protocol) || (x.port && !['80', '443'].includes(x.port)) || x.username || x.password) return false;
+  if (!h.includes('.') || /^(localhost|.*\.local|.*\.internal|metadata\..*)$/.test(h) || h.endsWith('.localhost')) return false;
+  if (/^\[/.test(h) || /^\d+\.\d+\.\d+\.\d+$/.test(h)) return false;   // IP escrito direto: nenhum associado tem site assim
+  return true;
+}
 // devolve { lista, nota, total } do associado (lista vazia se o Google não achou), ou null se a consulta falhou
 async function avaliacoesDaLoja(loja, chave) {
   try {
@@ -1535,8 +1779,8 @@ async function avaliacoesDaLoja(loja, chave) {
     // só as boas (4 e 5 estrelas) e com texto
     return { nota: p.rating || null, total: p.userRatingCount || null,
       lista: (p.reviews || []).filter(v => v.rating >= 4 && v.text && v.text.text && v.authorAttribution)
-        .map(v => ({ loja: loja.nome, autor: v.authorAttribution.displayName || '', foto: v.authorAttribution.photoUri || '',
-          texto: v.text.text, link: v.googleMapsUri || v.authorAttribution.uri || '' })) };
+        .map(v => ({ loja: loja.nome, autor: String(v.authorAttribution.displayName || '').slice(0, 80), foto: soHttps(v.authorAttribution.photoUri),
+          texto: String(v.text.text).slice(0, 2000), link: soHttps(v.googleMapsUri || v.authorAttribution.uri) })) };
   } catch (_) { return null; }
 }
 async function avaliacoesGoogle() {
@@ -1591,7 +1835,7 @@ async function logosDosParceiros(lista) {
 // endereço ou no texto alternativo (assim não pega a logo do grupo nem a do sistema de reservas). null se não achou
 async function logoDoParceiro(p) {
   const chave = palavraChave(p.nome);
-  if (!chave || !p.site) return null;
+  if (!chave || !p.site || !urlPublica(p.site)) return null;
   try {
     const h = { 'User-Agent': 'Mozilla/5.0 (compatible; ACEIMA-Importer/1.0)' };
     const r = await fetch(p.site, { headers: h, redirect: 'follow', signal: AbortSignal.timeout(8000) });
@@ -1608,7 +1852,9 @@ async function logoDoParceiro(p) {
       src = (op.find(x => x[1] >= 600) || op[op.length - 1] || [u])[0];
     });
     if (!src) return null;
-    const i = await fetch(new URL(src, r.url || p.site).href, { headers: h, redirect: 'follow', signal: AbortSignal.timeout(8000) });
+    const alvo = new URL(src, r.url || p.site).href;
+    if (!urlPublica(alvo)) return null;
+    const i = await fetch(alvo, { headers: h, redirect: 'follow', signal: AbortSignal.timeout(8000) });
     const ct = (i.headers.get('content-type') || '').split(';')[0].trim();
     if (!i.ok || !/^image\//.test(ct)) return null;
     const buf = Buffer.from(await i.arrayBuffer());
@@ -1632,7 +1878,7 @@ async function tabelasVisitas() {
   await query('create index if not exists buscas_criado_em on buscas (criado_em)');
   visitasProntas = true;
 }
-const PAGINAS_SITE = ['home', 'estoque', 'associados', 'veiculo', 'aceima', 'associar', 'publicacoes', 'publicacao', 'servicos'];
+const PAGINAS_SITE = ['home', 'estoque', 'associados', 'veiculo', 'aceima', 'associar', 'publicacoes', 'publicacao', 'servicos', 'privacidade', 'termos'];
 const APARELHOS = ['Celular', 'Tablet', 'Computador'];
 const ORIGENS = ['Google', 'Instagram', 'Facebook', 'WhatsApp', 'YouTube', 'TikTok', 'Bing', 'Direto', 'Outros sites'];
 // o site manda pelo sendBeacon (o corpo pode chegar como texto). Pedido fora do formato é ignorado em silêncio
@@ -1642,15 +1888,18 @@ async function rotaVisita(req, res) {
   if (typeof b === 'string') { try { b = JSON.parse(b); } catch (_) { b = {}; } }
   const s = String(b.s || '');
   if (!/^[a-z0-9]{8,40}$/.test(s)) return res.status(204).end();
+  // uma pessoa navegando manda uma por página: 240 em 10 minutos do mesmo lugar já é robô enchendo o banco
+  if (contarNaMemoria('visita:' + ipDe(req), 240, 600)) return res.status(204).end();
   await tabelasVisitas();
   if (b.busca != null) {
-    const termo = String(b.busca).toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 60);
-    if (termo.length >= 2) await query('insert into buscas (sessao, termo) values ($1, $2)', [s, termo]);
+    const termo = String(b.busca).toLowerCase().replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+    // dado pessoal não entra nas estatísticas: busca com e-mail ou com um número de telefone (8 dígitos ou mais) é descartada
+    if (termo.length >= 2 && !/@/.test(termo) && !/\d{8,}/.test(termo.replace(/[\s().-]/g, ''))) await query('insert into buscas (sessao, termo) values ($1, $2)', [s, termo]);
     return res.status(204).end();
   }
   const n = parseInt(b.n, 10), pg = String(b.pg || '');
   if (!(n >= 1 && n <= 1000) || !PAGINAS_SITE.includes(pg)) return res.status(204).end();
-  const ref = b.ref == null || b.ref === '' ? null : String(b.ref).slice(0, 120);
+  const ref = b.ref == null || b.ref === '' ? null : (String(b.ref).replace(/[^\w.-]+/g, '').slice(0, 120) || null);
   // a mesma página manda o tempo de novo quando a aba some e volta: fica o maior
   await query(`insert into visitas (sessao, vista, pagina, ref, veiculo_id, segundos, origem, aparelho) values ($1, $2, $3, $4, $5, $6, $7, $8)
                  on conflict (sessao, vista) do update set segundos = greatest(visitas.segundos, excluded.segundos)`,
@@ -1709,7 +1958,7 @@ async function rotaVisitas(req, res) {
 // ---------------- PÁGINA DO VEÍCULO ----------------
 // logo de uma loja como imagem (o banco guarda como data URI), com cache: a página do veículo mostra a logo sem pesar a lista de lojas
 async function rotaLogo(req, res) {
-  const id = parseInt((req.query && req.query.id) || '', 10), parc = req.query && req.query.parceiro;
+  const id = parseInt((req.query && req.query.id) || '', 10), parc = req.query && req.query.parceiro ? String(req.query.parceiro).slice(0, 120) : '';
   if (!id && !parc) return res.status(400).end();
   const { rows: [l] } = parc   // credenciado: a logo escolhida no painel ou, sem ela, a que o robô leu no site dele
     ? await query(`select coalesce((select logo_url from parceiros where nome = $1 and ativa = true and logo_url is not null and coalesce(categoria, '') <> all($2) limit 1),
@@ -1736,7 +1985,7 @@ async function rotaDetalhe(req, res) {
   let descricao = '';
   if (v && v.autocerto_id && (v.autocerto_url || v.origem)) {
     const fonte = fonteDaLoja(v.autocerto_url || v.origem);
-    try {
+    if (urlPublica(fonte.base)) try {
       const r = await fetch(`${fonte.base}/Veiculo/x/${encodeURIComponent(v.autocerto_id)}/detalhes`,
         { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ACEIMA-Importer/1.0)' }, redirect: 'follow', signal: AbortSignal.timeout(8000) });
       if (r.ok) descricao = descricaoDoAnuncio(cheerio.load(await r.text()));
@@ -1795,6 +2044,9 @@ async function confereSenha(senha, h) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 const hashToken = t => createHash('sha256').update(String(t)).digest('hex');
+// um scrypt de mentira, para o login sem conta demorar o mesmo que o com conta
+const SENHA_FALSA = 's1$' + '0'.repeat(32) + '$' + '0'.repeat(64);
+const SENHA_MIN = 8;   // as senhas novas (a que o painel sugere tem 8 letras e números)
 const txtR = (v, n) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, n);
 const emailR = s => /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(s);
 // o WhatsApp com o 55 na frente (o wa.me não abre o número sem o país)
@@ -1830,13 +2082,19 @@ async function limparRepasse() {
   await query('delete from repasse_sessoes where expira < now()');
 }
 async function entrarRepasse(req, res) {
-  const b = req.body || {}, email = txtR(b.email, 120).toLowerCase(), senha = String(b.senha || '');
+  const b = req.body || {}, email = txtR(b.email, 120).toLowerCase(), senha = String(b.senha || '').slice(0, 200);
   if (!email || !senha) return res.status(400).json({ erro: 'Escreva o e-mail e a senha.' });
+  // do mesmo lugar, até 20 senhas erradas em 15 minutos, em qualquer e-mail (cada e-mail também trava sozinho, com 8 erros seguidos)
+  const lugar = 'repasse:' + ipDe(req);
+  if (await passou(lugar, 20)) return res.status(429).json({ erro: 'Muitas tentativas com a senha errada. Espere 15 minutos e tente de novo.' });
   const { rows: [a] } = await query(`select a.*, ${NOME_LOJA} as loja from repasse_acessos a ${LOJA_REPASSE} where a.email = $1 and ${LOJA_ATIVA}`, [email]);
   if (a && a.bloqueio && new Date(a.bloqueio) > new Date()) return res.status(429).json({ erro: 'Muitas tentativas com a senha errada. Espere 15 minutos e tente de novo.' });
-  if (!a || !(await confereSenha(senha, a.senha))) {
+  // sem conta, faz a mesma conta (scrypt) de quando há: o tempo de resposta não conta quais e-mails têm acesso
+  const certa = a ? await confereSenha(senha, a.senha) : (await confereSenha(senha, SENHA_FALSA), false);
+  if (!certa) {
     // oito erros seguidos travam o e-mail por 15 minutos
     if (a) await query(`update repasse_acessos set falhas = falhas + 1, bloqueio = case when falhas + 1 >= 8 then now() + interval '15 minutes' end where id = $1`, [a.id]);
+    await contar(lugar, 20, 900);
     await pausa(400);
     return res.status(401).json({ erro: 'E-mail ou senha não conferem.' });
   }
@@ -1884,7 +2142,9 @@ const ASSINATURAS = [['image/jpeg', [0xff, 0xd8, 0xff]], ['image/png', [0x89, 0x
 function imagemDe(dataUrl, max) {
   const m = String(dataUrl || '').match(/^data:image\/[a-z]+;base64,([A-Za-z0-9+/=]+)$/);
   if (!m) return null;
-  const buf = Buffer.from(m[1], 'base64'), t = ASSINATURAS.find(([, sig]) => sig.every((x, i) => buf[i] === x));
+  const buf = Buffer.from(m[1], 'base64');
+  // RIFF é também o começo de áudio e vídeo: o WebP tem "WEBP" logo depois do tamanho
+  const t = ASSINATURAS.find(([tipo, sig]) => sig.every((x, i) => buf[i] === x) && (tipo !== 'image/webp' || buf.toString('latin1', 8, 12) === 'WEBP'));
   return buf.length && buf.length <= max && t ? { tipo: t[0], b64: m[1] } : null;
 }
 // a foto nova chega no carro que está sendo publicado ("enviando") ou no que está sendo editado (no repasse), sempre da própria loja
@@ -1937,8 +2197,8 @@ async function mudarRepasse(s, b, res) {
   return res.json({ ok: true });
 }
 async function senhaRepasse(s, b, req, res) {
-  const nova = String(b.nova || '');
-  if (nova.length < 6) return res.status(400).json({ erro: 'A senha nova precisa ter pelo menos 6 letras ou números.' });
+  const nova = String(b.nova || '').slice(0, 200);
+  if (nova.length < SENHA_MIN) return res.status(400).json({ erro: `A senha nova precisa ter pelo menos ${SENHA_MIN} letras ou números.` });
   const { rows: [a] } = await query('select senha from repasse_acessos where id = $1', [s.id]);
   if (!a || !(await confereSenha(String(b.atual || ''), a.senha))) return res.status(400).json({ erro: 'A senha atual não confere.' });
   await query('update repasse_acessos set senha = $2 where id = $1', [s.id, await hashSenha(nova)]);
@@ -1958,11 +2218,11 @@ async function acessosRepasse(req, res) {
     return res.json(rows);
   }
   if (req.method === 'POST') {
-    const lojaId = parseInt(b.loja_id, 10), email = txtR(b.email, 120).toLowerCase(), senha = String(b.senha || ''), wa = waR(b.whatsapp) || null;
+    const lojaId = parseInt(b.loja_id, 10), email = txtR(b.email, 120).toLowerCase(), senha = String(b.senha || '').slice(0, 200), wa = waR(b.whatsapp) || null;
     if (!(lojaId >= 0)) return res.status(400).json({ erro: 'loja obrigatória' });   // 0: o acesso da Aceima, sem loja
     if (!emailR(email)) return res.status(400).json({ erro: 'Confira o e-mail.' });
     const { rows: [ja] } = await query('select id from repasse_acessos where loja_id = $1', [lojaId]);
-    if ((!ja || senha) && senha.length < 6) return res.status(400).json({ erro: 'A senha precisa ter pelo menos 6 letras ou números.' });
+    if ((!ja || senha) && senha.length < SENHA_MIN) return res.status(400).json({ erro: `A senha precisa ter pelo menos ${SENHA_MIN} letras ou números.` });
     const { rows: [outro] } = await query('select id from repasse_acessos where email = $1 and loja_id <> $2', [email, lojaId]);
     if (outro) return res.status(409).json({ erro: 'Esse e-mail já é o acesso de outra loja.' });
     const h = senha ? await hashSenha(senha) : null;
@@ -1996,7 +2256,7 @@ async function rotaRepasse(req, res) {
   await tabelasRepasse();
   res.setHeader('Cache-Control', 'no-store');
   const acao = String((req.query && req.query.acao) || ''), b = req.body || {};
-  if (acao === 'acessos') return autorizado(req) ? await acessosRepasse(req, res) : negar(res);
+  if (acao === 'acessos') return (await autorizado(req)) ? await acessosRepasse(req, res) : negar(res);
   if (acao === 'entrar') return req.method === 'POST' ? await entrarRepasse(req, res) : res.status(405).end();
   const s = await sessaoRepasse(req);
   if (!s) return res.status(401).json({ erro: 'Entre de novo.' });
@@ -2026,6 +2286,8 @@ async function rotaFotoRepasse(req, res) {
 }
 
 // ---------------- ROTEADOR ----------------
+// rotas só da Aceima (a senha do painel)
+const SO_PAINEL = { resumo: () => rotaResumo, testeemail: () => rotaTesteEmail, conteudo: () => rotaConteudo, publicacoes: () => rotaPublicacoes, visitas: () => rotaVisitas };
 export default async function handler(req, res) {
   let rota;
   const p = req.query && req.query.path;
@@ -2034,6 +2296,9 @@ export default async function handler(req, res) {
   if (!rota) {
     try { rota = new URL(req.url, 'http://x').pathname.replace(/^\/api\//, '').split('/').filter(Boolean)[0]; } catch (_) {}
   }
+  // nenhuma resposta da API fica guardada no aparelho nem na Vercel, a não ser as rotas públicas que dizem o contrário (o estoque, as
+  // logos, as fotos, as avaliações): assim os dados do painel nunca ficam num cache
+  res.setHeader('Cache-Control', 'private, no-store');
   try {
     if (rota === 'lojas') return await rotaLojas(req, res);
     if (rota === 'parceiros') return await rotaParceiros(req, res);
@@ -2042,13 +2307,9 @@ export default async function handler(req, res) {
     if (rota === 'detalhe') return await rotaDetalhe(req, res);
     if (rota === 'leads') return await rotaLeads(req, res);
     if (rota === 'importar') return await rotaImportar(req, res);
-    if (rota === 'resumo') return autorizado(req) ? await rotaResumo(req, res) : negar(res);
     if (rota === 'refresh') return await rotaRefresh(req, res);
-    if (rota === 'testeemail') return autorizado(req) ? await rotaTesteEmail(req, res) : negar(res);
-    if (rota === 'conteudo') return autorizado(req) ? await rotaConteudo(req, res) : negar(res);
-    if (rota === 'publicacoes') return autorizado(req) ? await rotaPublicacoes(req, res) : negar(res);
+    if (Object.hasOwn(SO_PAINEL, String(rota))) return (await autorizado(req)) ? await SO_PAINEL[rota]()(req, res) : negar(res);
     if (rota === 'visita') return await rotaVisita(req, res);
-    if (rota === 'visitas') return autorizado(req) ? await rotaVisitas(req, res) : negar(res);
     if (rota === 'repasse') return await rotaRepasse(req, res);
     if (rota === 'rfoto') return await rotaFotoRepasse(req, res);
     if (rota === 'avaliacoes') {
@@ -2057,14 +2318,13 @@ export default async function handler(req, res) {
       res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=604800');
       return res.json(lista);
     }
-    // login do painel: confere a senha sem nunca devolvê-la
-    if (rota === 'auth') {
-      const b = req.body || {};
-      if (!PAINEL_TOKEN) return res.json({ ok: true, protegido: false });
-      return (b.token === PAINEL_TOKEN) ? res.json({ ok: true, protegido: true }) : negar(res);
-    }
-    res.status(404).json({ erro: 'rota não encontrada', rota });
+    // login do painel e do modo de edição: confere a senha sem nunca devolvê-la e abre a sessão no cookie
+    if (rota === 'auth') return await rotaAuth(req, res);
+    res.status(404).json({ erro: 'rota não encontrada' });
   } catch (e) {
-    res.status(500).json({ erro: e.message });
+    // o detalhe do erro fica no registro da Vercel; quem pediu recebe só o aviso (a mensagem do banco mostrava tabelas e colunas).
+    // Os erros escritos para a Aceima (e.publico) passam, como "o GitHub respondeu 502"
+    console.error('[api]', rota, e && (e.stack || e.message) || e);
+    if (!res.headersSent) res.status(500).json({ erro: e && e.publico ? e.message : 'Erro interno. Tente de novo em instantes.' });
   }
 }

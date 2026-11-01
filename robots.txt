@@ -1,0 +1,5 @@
+# aintendente.com.br
+# O painel da Aceima e o Repasse (área das lojas associadas) ficam fora dos buscadores.
+User-agent: *
+Disallow: /painel
+Disallow: /repasse

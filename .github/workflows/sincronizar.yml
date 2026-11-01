@@ -7,9 +7,13 @@ on:
     - cron: '0 * * * *'
   workflow_dispatch:
 
+# este robô não mexe no repositório: nenhuma permissão para o token do GitHub (01/11/2026)
+permissions: {}
+
 jobs:
   sincronizar:
     runs-on: ubuntu-latest
+    timeout-minutes: 50
     env:
       # mesma senha do painel (variável PAINEL_TOKEN na Vercel).
       # cadastrar em: Settings > Secrets and variables > Actions > New repository secret
@@ -20,13 +24,14 @@ jobs:
           SITE="https://intendente-shopping-car.vercel.app"
           if [ -z "$PAINEL_TOKEN" ]; then
             echo "AVISO: secret PAINEL_TOKEN não cadastrado neste repositório."
-            echo "A API vai recusar a importação (401)."
+            echo "A API vai recusar a lista de lojas e a importação (401)."
           fi
           echo "Buscando lojas ativas..."
-          IDS=$(curl -s --max-time 30 "$SITE/api/lojas?path=lojas" \
+          # a lista completa das lojas pede a senha do painel desde 01/11/2026 (ela traz o e-mail que recebe os leads)
+          IDS=$(curl -s --max-time 30 -H "x-painel-token: $PAINEL_TOKEN" "$SITE/api/lojas?path=lojas" \
                 | grep -o '"id":[0-9]*' | cut -d: -f2)
           if [ -z "$IDS" ]; then
-            echo "Nenhuma loja encontrada (API fora do ar?)."
+            echo "Nenhuma loja encontrada (API fora do ar ou senha errada?)."
             exit 0
           fi
           for ID in $IDS; do
