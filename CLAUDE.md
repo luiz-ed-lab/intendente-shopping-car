@@ -173,8 +173,8 @@ Deploy: repositório GitHub **luiz-ed-lab/intendente-shopping-car**, ligado ao p
 - Domínios (na Vercel, em Settings, Domains): **aintendente.com.br** é o endereço do site, e o www leva para ele. O intendenteautoshopping.com.br e o www dele (o endereço do site antigo) levam para o aintendente.com.br (308). O endereço da Vercel, intendente-shopping-car.vercel.app, continua respondendo, fora dos buscadores (`X-Robots-Tag` no `vercel.json`), porque os robôs do GitHub usam ele.
 - DNS: os dois domínios ficam no Registro.br, na conta do Luiz, no modo avançado. No aintendente.com.br, o `A` da raiz aponta para a Vercel (216.198.79.1), o www é um `CNAME` da Vercel, e os registros do Resend (o DKIM em `resend._domainkey`, os `CNAME` `send` e `rsend` e o `_dmarc`) fazem os e-mails saírem dele. O intendenteautoshopping.com.br só leva ao site novo: nada do site depende dele.
 - O modo de edição e o Mural do painel gravam no ramo do endereço aberto: no site no ar, na `main`. O robô da vitrine também grava na `main`. Antes de mexer no seu ramo, traga a `main` para ele (`git pull origin main`).
-- Trabalhe sempre em branch. A Vercel gera um endereço de prévia para cada branch, e é esse endereço que o Luiz deve ver para aprovar.
-- Merge na `main` só com aprovação explícita dele.
+- Trabalhe no `site-novo` e confira na prévia (a Vercel gera um endereço de prévia para cada branch). Conferido, mande para a `main`, que publica: não precisa esperar o ok do Luiz (pedido dele, 31/10/2026: "pode publicar sempre").
+- Variações de layout são o caso à parte: quando ele pede opções, ele vê antes (numa página com as opções) e escolhe; a escolhida vai para o site.
 - Depois de qualquer push, confira se o commit tem mesmo os arquivos esperados. Os uploads grandes pela interface web do GitHub já falharam sem aviso.
 
 ## Regra principal de design
@@ -212,7 +212,7 @@ Deploy: repositório GitHub **luiz-ed-lab/intendente-shopping-car**, ligado ao p
 
 ## Como trabalhar com o Luiz
 
-- **Nada vai para o ar sem a aprovação dele.** Isso vale para deploy, troca de domínio e mudança no banco de produção.
+- **Publique direto** (pedido do Luiz, 31/10/2026: "pode publicar sempre"). Terminou e conferiu, manda para a `main` e avisa que está no ar. Ele nunca pediu a regra antiga, de esperar o ok dele para cada publicação: o ver antes vale só para as variações de layout, quando ele pede opções para escolher. Subir limite ou cota de serviço pago continua só com o ok dele.
 - Confira a tela (print desktop e celular) antes de dizer que está pronto, mas não mande os prints nem o link da prévia a cada entrega (pedido dele em 13/10/2026): os prints são para a sua conferência. Mande um print só se ele pedir ou se uma decisão dele depender de ver a tela.
 - A prévia abre sem login desde 13/10/2026 (ele desligou a proteção da Vercel). Quando for mandar o endereço, mande o limpo, sem o `_vercel_share` (pedido de 07/10/2026).
 - Quando ele devolver um arquivo editado, compare o arquivo inteiro com o seu antes de regerar qualquer coisa. As edições dele valem em tudo.
