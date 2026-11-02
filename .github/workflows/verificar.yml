@@ -18,6 +18,16 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262   # v4.4.0
+        with:
+          fetch-depth: 0   # o histórico inteiro, para o passo abaixo
+      # Em 02/11/2026 o histórico foi reescrito para tirar a senha antiga do painel e o vídeo do modelo de terceiros. Uma cópia de antes
+      # disso, juntada com git pull ou merge, traria tudo de volta: este commit só existe no histórico antigo
+      - name: O histórico antigo não pode voltar
+        run: |
+          if git cat-file -e 3f6eab97c660e6aa9d66d6bd10923208e50b8e99^{commit} 2>/dev/null; then
+            echo "::error::O histórico antigo voltou (um merge com uma cópia de antes de 02/11/2026). Desfaça o envio e baixe o repositório de novo."
+            exit 1
+          fi
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020   # v4.4.0
         with:
           node-version: '22'
