@@ -2292,26 +2292,6 @@ async function rotaFotoRepasse(req, res) {
 // ---------------- ROTEADOR ----------------
 // rotas só da Aceima (a senha do painel)
 const SO_PAINEL = { resumo: () => rotaResumo, testeemail: () => rotaTesteEmail, conteudo: () => rotaConteudo, publicacoes: () => rotaPublicacoes, visitas: () => rotaVisitas };
-// ---------------- ENXURRADA DE PEDIDOS (02/11/2026) ----------------
-// Os endereços públicos que a Vercel guarda em cache (o estoque, as lojas, as logos...) só chegam ao banco no formato que o site usa. Com
-// um parâmetro a mais (?x=1, ?x=2...), cada pedido seria um endereço novo, fora do cache: um robô assim faria o banco montar o estoque
-// inteiro a cada pedido e gastaria em minutos a cota grátis da Vercel e do Neon. Fora do formato, 400, sem tocar no banco
-const PUBLICAS = { lojas: ['site'], parceiros: ['site'], veiculos: ['site'], avaliacoes: [], logo: ['id', 'parceiro', 'v'], detalhe: ['id'], rfoto: ['id', 'm'] };
-const FORMATO = { site: /^1$/, id: /^[0-9a-f]{1,32}$/, parceiro: /^[^\u0000-\u001f]{1,120}$/, v: /^\d{1,13}$/, m: /^1$/ };
-function foraDoFormato(req, rota) {
-  if (req.method !== 'GET' && req.method !== 'HEAD') return false;
-  const aceitos = PUBLICAS[rota];
-  if (!aceitos || (aceitos[0] === 'site' && !doSite(req))) return false;   // lojas, parceiros e veículos sem site=1 são do painel (pedem a senha)
-  let q; try { q = new URL(req.url, 'http://x').searchParams; } catch (_) { return true; }
-  const vistos = new Set(); let caminhos = 0;
-  for (const [k, v] of q) {
-    if (k === 'path') { if (v !== rota || ++caminhos > 2) return true; continue; }
-    if (!aceitos.includes(k) || vistos.has(k) || !FORMATO[k].test(v)) return true;
-    vistos.add(k);
-  }
-  return false;
-}
-
 export default async function handler(req, res) {
   let rota;
   const p = req.query && req.query.path;
@@ -2326,7 +2306,6 @@ export default async function handler(req, res) {
   // mais de 300 pedidos por minuto do mesmo lugar, nesta instância: 429, sem tocar no banco. Uma visita faz poucos pedidos à API (o resto
   // sai do cache da Vercel), e o painel abre com uns 20
   if (contarNaMemoria('api:' + ipDe(req), 300, 60)) { res.setHeader('Retry-After', '60'); return res.status(429).json({ erro: 'Muitos pedidos seguidos. Espere um minuto.' }); }
-  if (foraDoFormato(req, rota)) { res.setHeader('Cache-Control', 's-maxage=3600'); return res.status(400).json({ erro: 'Endereço fora do formato.' }); }
   try {
     if (rota === 'lojas') return await rotaLojas(req, res);
     if (rota === 'parceiros') return await rotaParceiros(req, res);

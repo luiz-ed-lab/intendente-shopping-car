@@ -145,18 +145,7 @@ const handler = new Function('rotaLojas', 'console', 'contarNaMemoria', 'ipDe', 
 r = resposta(); await handler({ method: 'GET', query: { path: 'lojas' }, headers: {}, url: '/api/lojas?path=lojas' }, r);
 assert(r.st === 500 && !/relation|character/.test(JSON.stringify(r.corpo)) && r.h['Cache-Control'] === 'private, no-store', 'erro interno: sem a mensagem do banco, e nenhuma resposta da API fica em cache por padrão');
 
-// ---- enxurrada de pedidos (02/11/2026): endereço público fora do formato não chega ao banco, e o mesmo lugar tem limite por minuto
-lojasChamadas = 0;
-for (const u of ['/api/lojas?path=lojas&site=1&x=1', '/api/lojas?path=lojas&site=1&site=1', '/api/logo?path=logo&id=1&cb=9', '/api/avaliacoes?path=avaliacoes&t=1', '/api/veiculos?path=veiculos&site=1&path=outra']) {
-  const q = Object.fromEntries(new URL(u, 'http://x').searchParams); q.path = new URL(u, 'http://x').pathname.split('/')[2];
-  r = resposta(); await handler({ method: 'GET', query: q, headers: {}, url: u }, r);
-  assert(r.st === 400 && /s-maxage/.test(r.h['Cache-Control'] || ''), 'fora do formato, sem ir ao banco: ' + u.replace('/api/', ''));
-}
-assert(lojasChamadas === 0, 'nenhum desses pedidos chegou à rota');
-r = resposta(); await handler({ method: 'GET', query: { path: 'lojas', site: '1' }, headers: {}, url: '/api/lojas?path=lojas&site=1' }, r);
-assert(lojasChamadas === 1, 'o endereço do site passa');
-r = resposta(); await handler({ method: 'GET', query: { path: 'lojas' }, headers: {}, url: '/api/lojas?path=lojas&qualquer=1' }, r);
-assert(lojasChamadas === 2, 'sem site=1 é o painel (pede a senha na rota): não é barrado aqui');
+// ---- enxurrada de pedidos (02/11/2026): o mesmo lugar tem limite por minuto, antes do banco
 let barrados = 0;
 for (let i = 0; i < 310; i++) { r = resposta(); await handler({ method: 'GET', query: { path: 'nada' }, headers: { 'x-real-ip': 'robo' }, url: '/api/nada?path=nada' }, r); if (r.st === 429) barrados++; }
 assert(barrados === 10, 'o mesmo lugar: até 300 pedidos por minuto, depois 429 (' + barrados + ' barrados)');
