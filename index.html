@@ -43,9 +43,9 @@ video.luz{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;poin
 .gl.fix>video.luz{position:fixed}
 .gl>*:not(.luz),.glc>*:not(.luz){position:relative;z-index:2}
 /* o vídeo entra só depois que a página carregou, em fusão (02/11/2026, pedido do Luiz: ele aparecia antes de tudo e, enquanto baixava, o
-   quadro parado ficava em força total no fundo, como se estivesse por cima da página). Até lá, o fundo é só o azul (.espera) */
-video.luz{transition:opacity 1.6s ease}
-.espera video.luz{opacity:0!important;transition:none}
+   quadro parado ficava em força total no fundo, como se estivesse por cima da página). Até lá, o fundo é só o azul (.espera); a fusão é
+   do entrarFundo() */
+.espera video.luz{opacity:0!important}
 /* o aparelho não deixou o vídeo tocar (a economia de bateria do celular): o quadro parado, no tom do vídeo, anda devagar */
 .parado video.luz{animation:vidro-quadro 38s ease-in-out infinite alternate}
 @keyframes vidro-quadro{from{transform:scale(1.15) translate(-3%,-2%)}to{transform:scale(1.15) translate(3%,2%)}}
@@ -1574,14 +1574,22 @@ const LUZ=`<video class="luz" poster="fundo-aceima-quadro.jpg" muted loop playsi
 const FUNDO={url:null,ped:null};
 function pedirFundo(){
   if(FUNDO.ped)return;
-  if(SEM_MOV.matches){FUNDO.ped=1;document.body.classList.remove('espera');return;}
+  if(SEM_MOV.matches){FUNDO.ped=1;entrarFundo();return;}
   const ligar=u=>{FUNDO.url=u;document.querySelectorAll('video.luz').forEach(v=>{if(!v.getAttribute('src')){v.src=u;tocarLuz(v);}});};
   FUNDO.ped=fetch(VIDEO).then(r=>r.ok?r.blob():Promise.reject()).then(b=>ligar(URL.createObjectURL(b))).catch(()=>ligar(VIDEO));
 }
 // toca um vídeo do fundo que está na tela; se o aparelho não deixar (economia de bateria), fica o quadro parado andando devagar (.parado)
 function tocarLuz(v){
   if(!v.getAttribute('src')||v._visto===false||document.hidden||SEM_MOV.matches)return;
-  const p=v.play();if(p&&p.catch)p.catch(e=>{if(e&&e.name==='NotAllowedError')document.body.classList.replace('espera','parado');});
+  const p=v.play();if(p&&p.catch)p.catch(e=>{if(e&&e.name==='NotAllowedError'&&document.body.classList.contains('espera')){document.body.classList.add('parado');entrarFundo();}});
+}
+// o fundo acende devagar, em 4 s, suave no começo e no fim (02/11/2026, pedido do Luiz: "tá entrando direto e muito agressivo"). A fusão
+// é uma animação do próprio vídeo (Web Animations): a transição de CSS de antes era curta e era cortada quando a página se redesenhava
+// logo depois da carga (os dados chegando), e o vídeo aparecia de uma vez
+function entrarFundo(){
+  if(!document.body.classList.contains('espera'))return;
+  document.body.classList.remove('espera');
+  document.querySelectorAll('video.luz').forEach(v=>{const fim=+getComputedStyle(v).opacity;if(fim&&v.animate)v.animate([{opacity:0},{opacity:fim}],{duration:4000,easing:'ease-in-out'});});
 }
 if(document.readyState==='complete')setTimeout(pedirFundo,200);else addEventListener('load',()=>setTimeout(pedirFundo,200),{once:true});
 // cada vídeo do fundo só toca enquanto aparece na tela: fora dela, pausa (o navegador deixa de decodificar o vídeo) e volta de onde parou
@@ -3816,7 +3824,7 @@ function render(topo){
   if(pagAtual==='associar')bnfGira();
   if(pagAtual==='home'){girar();alturaCategorias();alinharA();faixaAvaliacoes();document.fonts.ready.then(()=>{if(pagAtual==='home'){alturaCategorias();alinharA();}});}
   if(EDIT){sel=null;pintarBarra();}
-  document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;if(FUNDO.url&&!v.getAttribute('src'))v.src=FUNDO.url;if(!v._luz){v._luz=1;v.addEventListener('playing',()=>document.body.classList.remove('espera','parado'),{once:true});if(olhoVideo)olhoVideo.observe(v);}tocarLuz(v);});
+  document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;if(FUNDO.url&&!v.getAttribute('src'))v.src=FUNDO.url;if(!v._luz){v._luz=1;v.addEventListener('playing',()=>{document.body.classList.remove('parado');setTimeout(entrarFundo,300);},{once:true});if(olhoVideo)olhoVideo.observe(v);}tocarLuz(v);});
   if(typeof topo==='number')irPara(topo);else if(topo)scrollTo(0,0);   // voltando pelo histórico, a página abre onde estava
   if(pagAtual==='associados'&&rolarAssoc&&selAssoc&&entradasAssoc().some(e=>e.nome===selAssoc)){rolarAssoc=false;setTimeout(rolarParaLoja,topo?500:80);}   // aberto pela logo: desce até a loja
   if(TITULOS[pagAtual])document.title=TITULOS[pagAtual];
