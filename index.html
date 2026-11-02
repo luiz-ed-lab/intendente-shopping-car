@@ -45,7 +45,7 @@ video.luz{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;poin
 /* se o vídeo não carregar, entra o quadro parado da mesma animação */
 /* enquanto o vídeo não toca, o quadro da mesma animação corre na diagonal; quando o vídeo toca, ele assume */
 .semvideo video.luz{opacity:0!important}
-.semvideo .gl{background:#00091A url('fundo-animado-frame.jpg') 0% 0%/160% auto;animation:vidro 38s ease-in-out infinite alternate}
+.semvideo .gl{background:#00091A url('fundo-aceima-quadro.jpg') 0% 0%/160% auto;animation:vidro 38s ease-in-out infinite alternate}
 .semvideo .gl.fix{background-attachment:fixed}
 @keyframes vidro{from{background-position:0% 0%}to{background-position:100% 100%}}
 @media(prefers-reduced-motion:reduce){.semvideo .gl{animation:none}}
@@ -980,7 +980,7 @@ body.lb-on{overflow:hidden}
 .as2-hl h1{font:600 clamp(1.8rem,2.7vw,3.2rem)/1.14 var(--f1);letter-spacing:-.03em;white-space:pre-line}   /* sem a chamada em cima (pedido do Luiz, 13/10/2026) */
 .as2 .as2-hl p{max-width:620px;margin-top:clamp(20px,2vw,36px);font:400 clamp(.95rem,1vw,1.1rem)/1.7 var(--f2);color:#5E6B7E}
 .as2-hl .as2-bo{margin-top:clamp(28px,2.6vw,44px)}
-.as2-foto{position:relative;min-height:clamp(420px,42vw,800px);display:grid;place-items:center;background:#00091A url('fundo-animado-frame.jpg') 0% 0%/200% 200% no-repeat;animation:vidro 38s ease-in-out infinite alternate}
+.as2-foto{position:relative;min-height:clamp(420px,42vw,800px);display:grid;place-items:center;background:#00091A url('fundo-aceima-quadro.jpg') 0% 0%/200% 200% no-repeat;animation:vidro 38s ease-in-out infinite alternate}
 .as2-foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 58%}   /* no tamanho original da metade, a foto em pé é recortada: o rosto e os braços cruzados (pedido do Luiz, 13/10/2026) */
 .as2-foto>div{display:flex;flex-direction:column;align-items:center;gap:16px;color:rgba(255,255,255,.62);font:500 clamp(.72rem,.78vw,.88rem)/1.3 var(--f2);letter-spacing:.24em;text-transform:uppercase}
 .as2-foto>div svg{width:clamp(44px,4vw,64px);height:auto;stroke-width:1.2}
@@ -1558,19 +1558,17 @@ body.lb-on{overflow:hidden}
 <script src="conteudo.js"></script>
 <script>
 /* ==================== CONSTANTES ==================== */
-// vídeo do fundo: o mesmo do template aprovado (21st/payload), agora dentro da pasta do site.
-// Antes de publicar: confirmar a licença do template ou trocar por um vídeo nosso.
-// o vídeo do fundo em versão leve (31/10/2026: o original, em Full HD, tinha 17 MB e pesava no carregamento e na rolagem): 1280x720 no
-// computador e 960x540 no tablet e no celular, com 2,9 MB e 1,8 MB. Na tela fica igual: o vídeo aparece a 17% e a 7%, e a diferença medida
-// quadro a quadro ficou abaixo de um tom em 255. O original fica no repositório (fundo-vidro.mp4), fora do site (.vercelignore)
-const VIDEO=matchMedia('(max-width:1100px)').matches?'fundo-vidro-540.mp4':'fundo-vidro-720.mp4';
+// vídeo do fundo: o nosso, vidro ondulado com luz azul e dourada (02/11/2026, a opção C que o Luiz escolheu), gerado do zero por cálculo
+// (docs/fundo-animado/gerar.py) no lugar do vídeo do modelo de terceiros: um ciclo de 20 s que se repete sem emenda, 1280x720 no computador
+// e 960x540 no tablet e no celular (0,9 MB e 0,6 MB). Vídeo novo vai com nome novo: o aparelho guarda o vídeo por um ano
+const VIDEO=matchMedia('(max-width:1100px)').matches?'fundo-aceima-540.mp4':'fundo-aceima-720.mp4';
 // quem pediu ao aparelho para reduzir o movimento (acessibilidade, 01/11/2026) vê o quadro parado do vídeo, sem animação
 const SEM_MOV=matchMedia('(prefers-reduced-motion: reduce)');
 // O vídeo do fundo vem num pedido só, e todas as cópias da página tocam o mesmo arquivo (02/11/2026). Antes, cada <video> pedia o arquivo
 // aos pedaços e o navegador não juntava: no computador, a página inicial baixava o vídeo duas vezes, e as outras páginas, de novo (medido no
 // servidor de teste). Agora é um fetch, que o navegador guarda por um ano (vercel.json), e um endereço blob: para todos (a CSP libera blob:
 // em media-src). Enquanto chega, fica o quadro parado andando (.semvideo), como antes. Quem pede menos movimento não baixa o vídeo
-const LUZ=`<video class="luz" poster="fundo-animado-frame.jpg" muted loop playsinline aria-hidden="true"></video>`;
+const LUZ=`<video class="luz" poster="fundo-aceima-quadro.jpg" muted loop playsinline aria-hidden="true"></video>`;
 const FUNDO={url:null,ped:null};
 function pedirFundo(){
   if(FUNDO.ped||SEM_MOV.matches)return;
@@ -1954,7 +1952,7 @@ function vdCorpo(){
      </div>
      <div class="vnd-a">${voltar(2)}<button type="button" class="btnp" id="vdBt3" onclick="vdEnviar()"${vdOk(3)&&!VD.env?'':' disabled'}>${VD.env?T('inicio.venda-enviando','Enviando...'):T('inicio.venda-enviar','Enviar para as lojas')}${ic(SETA_DIAG,16)}</button></div>
      <p class="vnd-er" role="alert">${VD.erro?esc(VD.erro):''}</p>
-     ${avisoDados('inicio.venda-aviso','Seus dados e as fotos vão para as lojas associadas, que respondem pelo WhatsApp.','vnd-lg')}`)
+     ${avisoDados('inicio.venda-aviso','Seus dados e as fotos vão para as lojas associadas, com cópia para a Aceima.','vnd-lg')}`)
    +passo(4,`<div class="vnd-ok" aria-live="polite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
       <h3>${T('inicio.venda-pronto','Pronto,')} <em id="vdOkNome">${esc(VD.nome.trim().split(/\s+/)[0]||'')}.</em></h3>
       <p>${T('inicio.venda-pronto-texto','As lojas associadas receberam o seu pedido. Quem tiver interesse no seu carro fala com você pelo WhatsApp.')}</p>
@@ -2853,7 +2851,7 @@ function veiculo(){
      <button type="button" class="btnp vp-f-bt" onclick="chamarLoja()" disabled>${T('veiculo.botao','Chamar a loja no WhatsApp')}${ic(SETA_DIAG,16)}</button>
     </div>
    </div>
-   ${avisoDados('veiculo.aviso-dados','Seu nome e o seu WhatsApp vão só para a loja deste anúncio.')}
+   ${avisoDados('veiculo.aviso-dados','Seu nome e o seu WhatsApp vão para a loja deste anúncio, com cópia para a Aceima.')}
    <div class="vp-ct-i">
     <a class="vp-l-lg${lgUrl?'':' sem'}" href="${hr('associados',v.loja)}">${lg()}<span>${esc(iniciais(v.loja))}</span></a>
     ${L.endereco?`<div class="vp-ct-e"><span>${T('veiculo.endereco','Endereço')}</span><p>${esc(L.endereco)}</p></div>`:''}
@@ -3296,7 +3294,7 @@ function associar(){
      <button type="button" class="btnp as2-f-bt" onclick="enviarAssoc()" disabled>${T('associar.botao','Falar com a associação')}${ic(SETA_DIAG,16)}</button>
     </div>
    </div>
-   ${avisoDados('associar.aviso-dados','Seus dados vão só para a Aceima, que responde pelo WhatsApp.')}
+   ${avisoDados('associar.aviso-dados','Seus dados vão só para a Aceima.')}
    <div class="vp-ct-i">
     <div class="vp-ct-e"><span>${T('aceima.endereco-rotulo','Endereço')}</span><p>${T('aceima.endereco','Estrada Intendente Magalhães, 830 · Vila Valqueire, RJ')}</p></div>
     <div><span>${T('aceima.telefones-rotulo','Telefones')}</span><p>${T('aceima.telefones','(21) 3283-6600 · (21) 99104-1424')}</p></div>
@@ -3479,7 +3477,7 @@ function paginaLegal(pre,chamada,titulo,sub,secoes,outra){
   <p class="lg-dt">${T(pre+'.data',(pre==='termos'?'Atualizados em ':'Atualizada em ')+LEGAL.data+'.')}</p>
   ${secoes.map(s=>secaoLegal(pre,s)).join('')}
   <section id="contato"><h2>${T(pre+'.contato-titulo',pre==='privacidade'?'Fale com a Aceima sobre privacidade':'Contato')}</h2>
-   <p>${T(pre+'.contato-texto',pre==='privacidade'?'Para exercer os seus direitos ou tirar dúvidas sobre esta política, fale com a Aceima pelo canal de privacidade:':'Dúvidas sobre estes termos ou sobre o site:')}</p>
+   <p>${T(pre+'.contato-texto',pre==='privacidade'?'Para exercer os seus direitos ou tirar dúvidas sobre esta política:':'Dúvidas sobre estes termos ou sobre o site:')}</p>
    ${contatoLegal(pre)}
   </section>
   <p class="lg-outra"><a href="${hr(outra[0])}">${T(pre+'.ver-'+outra[0],outra[1])}</a>${pre==='privacidade'?` · <button type="button" class="lg-bt" onclick="abrirCookies()">${T(pre+'.ver-cookies','Mudar a escolha sobre as estatísticas')}</button>`:''}</p>
@@ -3487,50 +3485,47 @@ function paginaLegal(pre,chamada,titulo,sub,secoes,outra){
 </div>${rodape()}`;}
 function privacidade(){
   const L=LEGAL;
-  return paginaLegal('privacidade','Privacidade','Política de Privacidade.','Como a Aceima trata os dados de quem usa o site, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).',[
+  return paginaLegal('privacidade','Privacidade','Política de Privacidade.','Como a Aceima trata os dados de quem usa o site, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).',[
   ['quem','Quem cuida dos seus dados',
-   `O aintendente.com.br é o site da ${L.razao} (Aceima), inscrita no CNPJ sob o nº ${L.cnpj}, com sede na ${L.endereco}. A Aceima é a controladora dos dados pessoais tratados no site.`,
-   'Quando você fala com uma loja ou empresa associada, ela também passa a ter os seus dados e responde pelo uso que fizer deles.'],
+   `O aintendente.com.br é o site da ${L.razao} (Aceima), CNPJ ${L.cnpj}, com sede na ${L.endereco}. A Aceima é a controladora dos dados pessoais tratados no site.`,
+   'A loja ou empresa associada que recebe o seu contato responde pelo uso que fizer dele.'],
   ['coleta','O que coletamos e para quê',
-   'Coletamos só o necessário para cada pedido que você faz no site:',
-   ['Interesse em um veículo: nome, WhatsApp, a forma de pagamento que pretende e, se informar, o valor de entrada ou o carro que dá na troca. A loja que anuncia o veículo usa esses dados para falar com você.',
-    'Venda seu veículo: marca, modelo, versão, ano, quilometragem, valor pretendido e fotos do veículo, além de nome, WhatsApp e, se quiser, e-mail. As lojas associadas usam esses dados para avaliar o veículo e fazer propostas.',
-    'Seja um associado: nome, WhatsApp, nome da empresa e ramo, para a Aceima falar com você sobre a associação.',
-    'Repasse: o e-mail e o WhatsApp do acesso de cada loja associada e a data do último acesso, para a loja entrar no Repasse e receber o contato das outras lojas.'],
-   'Nos formulários de interesse e de associação, o site também abre uma conversa no WhatsApp com a mensagem pronta. O que você envia por lá segue a política de privacidade do WhatsApp.',
-   'Não pedimos dados sensíveis, como saúde ou religião, nem documentos. Nas fotos do veículo, evite mostrar pessoas, documentos ou a placa inteira.'],
+   ['Interesse em um veículo: nome, WhatsApp, forma de pagamento e, se você informar, o valor de entrada ou o carro da troca, para a loja que anuncia falar com você.',
+    'Venda seu veículo: marca, modelo, versão, ano, quilometragem, valor pretendido, fotos do veículo, nome, WhatsApp e, se quiser, e-mail, para as lojas associadas avaliarem o veículo e fazerem propostas.',
+    'Seja um associado: nome, WhatsApp, empresa e ramo, para a Aceima falar com você sobre a associação.',
+    'Repasse: e-mail e WhatsApp do acesso de cada loja associada e a data do último acesso, para a loja entrar e receber o contato das outras.'],
+   'Os formulários de interesse e de associação também abrem uma conversa no WhatsApp, e o que você envia por lá segue a política do WhatsApp.',
+   'Não pedimos dados sensíveis nem documentos. Nas fotos do veículo, evite mostrar pessoas, documentos e a placa.'],
   ['navegacao','Estatísticas de navegação',
-   'Com a sua permissão, o site conta as visitas para saber quais páginas e veículos interessam mais: a página vista, o veículo, o tempo na página, o tipo de aparelho (celular, tablet ou computador), de onde a visita veio (Google, Instagram, um link direto) e o que foi procurado no estoque.',
-   'Essas estatísticas não guardam o seu endereço IP nem o seu nome. Cada aba do navegador recebe um número sorteado, que vai junto com as visitas e some do aparelho quando a aba é fechada. Buscas que pareçam um e-mail ou um telefone são descartadas.',
-   'Sem a sua permissão, nada disso é enviado. Você pode mudar a escolha quando quiser, em "Cookies", no rodapé do site.'],
-  ['bases','Por que podemos usar os seus dados',
-   ['Para atender o pedido que você faz (falar com uma loja, vender o seu veículo, conhecer a associação) e para o acesso das lojas associadas ao Repasse: a execução de um contrato ou de procedimentos preliminares a ele, a seu pedido (art. 7º, V, da LGPD).',
-    'Para as estatísticas de navegação: o seu consentimento (art. 7º, I), que você pode retirar a qualquer momento.',
-    'Para a segurança do site e para evitar fraudes e abusos: o legítimo interesse da Aceima e de quem usa o site (art. 7º, IX).',
-    'Para cumprir obrigações legais e ordens de autoridades (art. 7º, II) e para defender direitos da Aceima em processos (art. 7º, VI).']],
+   'Com a sua permissão, o site registra a página vista, o veículo, o tempo na página, o tipo de aparelho, de onde veio a visita e o que foi procurado no estoque.',
+   'As estatísticas não guardam o seu IP nem o seu nome. Cada aba recebe um número sorteado, apagado do aparelho quando a aba fecha. Buscas que pareçam e-mail ou telefone são descartadas.',
+   'Sem a sua permissão, nada é enviado. A escolha muda em "Cookies", no rodapé.'],
+  ['bases','Bases legais',
+   ['Atender o seu pedido e dar às lojas associadas o acesso ao Repasse: execução de contrato ou de procedimentos preliminares a ele (art. 7º, V, da LGPD).',
+    'Estatísticas de navegação: o seu consentimento (art. 7º, I), que pode ser retirado a qualquer momento.',
+    'Segurança do site e prevenção de fraudes e abusos: legítimo interesse (art. 7º, IX).',
+    'Obrigações legais e ordens de autoridades (art. 7º, II) e defesa de direitos em processos (art. 7º, VI).']],
   ['compartilhamento','Com quem compartilhamos',
    ['Lojas associadas: o interesse em um veículo vai para a loja que o anuncia, e o "Venda seu veículo" vai para todas as lojas associadas ativas.',
-    'A própria Aceima recebe uma cópia de cada contato no e-mail dela, que é do Gmail (Google).',
-    'Fornecedores que fazem o site funcionar, só para isso: a hospedagem do site e do sistema (Vercel), o banco de dados (Neon), o envio de e-mails (Resend), o repositório dos textos e das publicações do site (GitHub) e quem faz a manutenção técnica do site, contratado pela Aceima.',
-    'Auto Certo e Google: as fotos dos veículos vêm do Auto Certo, o sistema dos sites das lojas, e a foto de quem avaliou um associado vem do Google. Para mostrar essas imagens, o seu navegador as busca nos servidores deles, que recebem o seu endereço IP.',
-    'WhatsApp: quando você escolhe conversar por lá.',
-    'Autoridades públicas, quando a lei exigir.'],
-   'A Aceima não vende dados pessoais e não usa os seus dados para publicidade.'],
+    'Aceima: recebe uma cópia de cada contato no e-mail dela, no Gmail (Google).',
+    'Fornecedores, só para o site funcionar: hospedagem (Vercel), banco de dados (Neon), envio de e-mails (Resend), arquivos do site (GitHub) e a manutenção técnica, contratada pela Aceima.',
+    'Sites das lojas e Google: as fotos dos veículos são carregadas dos sites das lojas, e a foto de quem avaliou um associado, do Google. Os servidores deles recebem o seu endereço IP.',
+    'WhatsApp, quando você escolhe conversar por lá, e autoridades públicas, quando a lei exigir.'],
+   'A Aceima não vende dados nem os usa para publicidade.'],
   ['internacional','Dados fora do Brasil',
-   'Alguns desses fornecedores guardam ou processam dados fora do Brasil, principalmente nos Estados Unidos. Isso acontece só para o site funcionar e para atender o que você pediu (art. 33 da LGPD).'],
+   'Alguns fornecedores guardam dados fora do Brasil, principalmente nos Estados Unidos, só para o site funcionar e atender o seu pedido (art. 33 da LGPD).'],
   ['prazos','Por quanto tempo guardamos',
-   ['Contatos dos formulários: 12 meses no sistema do site. Depois, são apagados automaticamente.',
-    'Fotos do "Venda seu veículo": não ficam no site. Vão anexadas ao e-mail das lojas.',
+   ['Contatos dos formulários: 12 meses, depois apagados automaticamente.',
+    'Fotos do "Venda seu veículo": não ficam no site, vão anexadas ao e-mail das lojas.',
     'Estatísticas de navegação e buscas: 13 meses.',
-    'Proteção contra abuso: um código cifrado a partir do endereço IP (o IP em si não é guardado), por até dois dias.',
-    'Repasse: o acesso de cada loja, até a Aceima excluí-lo. Os carros saem do Repasse em até 30 dias, com as fotos, e o registro deles é apagado 6 meses depois.',
-    'Registros técnicos da hospedagem (endereço IP, data e hora dos acessos): pelo prazo do fornecedor, em geral de horas a poucos dias, para a segurança e o funcionamento do site.'],
-   'As cópias que chegam às lojas e à Aceima por e-mail ou pelo WhatsApp ficam fora do site e seguem a guarda de cada uma.'],
+    'Proteção contra abuso: um código cifrado do seu IP, por até dois dias.',
+    'Repasse: o acesso, até a Aceima excluí-lo; os carros saem em até 30 dias, com as fotos, e o registro deles é apagado 6 meses depois.',
+    'Registros da hospedagem (IP, data e hora): pelo prazo do fornecedor, em geral de horas a poucos dias.'],
+   'As cópias recebidas por e-mail ou WhatsApp seguem a guarda de quem as recebe.'],
   ['cookies','Cookies e armazenamento no aparelho',
-   'O site não usa cookies de publicidade nem de rastreamento. O que fica guardado no seu navegador:',
-   ['Necessários, sempre ligados: a sua escolha sobre as estatísticas; o ponto da página onde você estava, para o voltar funcionar; uma cópia das avaliações, para a página abrir mais rápido; e, só para quem entra no painel da Aceima ou no Repasse, a sessão de acesso.',
-    'Estatísticas, só com a sua permissão: o número sorteado da aba, descrito em "Estatísticas de navegação".'],
-   'Você também pode apagar esses dados nas configurações do navegador.'],
+   'O site não usa cookies de publicidade nem de rastreamento. O navegador guarda:',
+   ['Sempre: a sua escolha sobre as estatísticas, a posição na página (para o voltar), uma cópia das avaliações (para abrir mais rápido) e, no painel e no Repasse, a sessão de acesso.',
+    'Só com a sua permissão: o número sorteado da aba.']],
   ['direitos','Os seus direitos',
    'Você pode pedir à Aceima, a qualquer momento e sem custo:',
    ['a confirmação de que tratamos dados seus e o acesso a eles;','a correção de dados incompletos, inexatos ou desatualizados;',
@@ -3539,46 +3534,45 @@ function privacidade(){
     'a oposição a um tratamento que não cumpra a lei.'],
    'Respondemos em até 15 dias. Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD), em gov.br/anpd.'],
   ['seguranca','Segurança',
-   'O site só funciona com conexão protegida (HTTPS). O painel e o Repasse têm acesso restrito por senha, com bloqueio depois de várias tentativas erradas, e os formulários têm proteção contra robôs e envios em massa.',
-   'Se acontecer um incidente de segurança que possa trazer risco ou dano relevante, a Aceima avisa a ANPD e as pessoas afetadas, como manda a LGPD.'],
+   'O site usa conexão protegida (HTTPS), o painel e o Repasse têm acesso por senha, com bloqueio depois de várias tentativas erradas, e os formulários têm proteção contra robôs.',
+   'Um incidente de segurança que possa trazer risco ou dano relevante será comunicado à ANPD e às pessoas afetadas, como manda a LGPD.'],
   ['menores','Crianças e adolescentes',
-   'O site não é voltado a menores de 18 anos, e os formulários devem ser preenchidos por adultos.'],
+   'O site não é voltado a menores de 18 anos.'],
   ['mudancas','Mudanças nesta política',
-   'Esta política pode mudar quando o site ou a lei mudarem. A data da última atualização fica no começo da página.']
+   'Quando esta política mudar, a data no começo da página muda junto.']
   ],['termos','Termos de uso']);
 }
 function termos(){
   const L=LEGAL;
   return paginaLegal('termos','Termos de uso','Termos de Uso.','As regras para usar o site da Aceima e o Repasse.',[
   ['site','O que é este site',
-   `O aintendente.com.br é o site da ${L.razao} (Aceima), CNPJ ${L.cnpj}. Ele apresenta a associação, as empresas associadas e o estoque das lojas de veículos da Estrada Intendente Magalhães, e põe você em contato com elas.`,
-   'Ao usar o site, você concorda com estes termos. O uso dos seus dados está explicado na Política de Privacidade.'],
+   `O aintendente.com.br é o site da ${L.razao} (Aceima), CNPJ ${L.cnpj}. Ele apresenta a associação, as empresas associadas e o estoque das lojas de veículos da Estrada Intendente Magalhães.`,
+   'Ao usar o site, você concorda com estes termos.'],
   ['anuncios','Os anúncios de veículos',
-   'A Aceima não vende veículos. Cada anúncio é da loja associada que tem o veículo, e as informações (preço, fotos, quilometragem, versão, opcionais e descrição) vêm do site da própria loja, atualizadas automaticamente ao longo do dia.',
-   'Por isso, um anúncio pode ficar desatualizado por algumas horas, por exemplo quando o veículo acaba de ser vendido ou o preço muda. Antes de fechar negócio, confirme com a loja o preço, as condições e a disponibilidade.',
-   'A negociação, o pagamento e a entrega acontecem diretamente entre você e a loja, que responde pelo veículo e pela oferta, nos termos do Código de Defesa do Consumidor. A Aceima não recebe pagamentos nem participa da negociação.',
-   'Antes de comprar, veja o veículo pessoalmente, confira a documentação e faça uma vistoria cautelar. Não pague sinal sem confirmar o negócio com a loja.'],
+   'A Aceima não vende veículos. Cada anúncio é da loja associada, e as informações vêm do site dela, atualizadas ao longo do dia.',
+   'Um anúncio pode ficar desatualizado por algumas horas. Confirme com a loja o preço, as condições e a disponibilidade antes de fechar negócio.',
+   'A negociação é feita direto com a loja, que responde pelo veículo e pela oferta, nos termos do Código de Defesa do Consumidor. A Aceima não recebe pagamentos nem participa da negociação.'],
   ['venda','Venda seu veículo',
    'Ao enviar o "Venda seu veículo", você autoriza o envio das informações e das fotos às lojas associadas, que podem procurar você com propostas. Não há garantia de proposta nem de valor.',
    'Você declara que as informações são verdadeiras e que pode enviar as fotos e negociar o veículo.'],
-  ['associados','Associados, credenciados e avaliações',
-   'As informações sobre cada empresa associada (endereço, telefone, descrição e logo) são fornecidas por ela ou lidas no site dela. As avaliações exibidas vêm do Google Maps e expressam a opinião de quem as escreveu, não a da Aceima.'],
+  ['associados','Associados e avaliações',
+   'Os dados de cada empresa associada vêm dela ou do site dela. As avaliações vêm do Google Maps e são a opinião de quem as escreveu.'],
   ['repasse','Repasse',
-   'O Repasse é uma área restrita às lojas associadas, com acesso criado pela Aceima, para as lojas oferecerem entre si veículos pegos na troca. Cada loja responde pelos anúncios que publica e pela negociação, que acontece fora do site.',
-   'O acesso é da loja e não deve ser passado a terceiros. Os dados das outras lojas vistos no Repasse só podem ser usados para negociar os veículos anunciados. A Aceima pode suspender ou encerrar um acesso em caso de uso indevido ou de saída da associação.'],
+   'O Repasse é uma área restrita às lojas associadas, com acesso criado pela Aceima, para as lojas oferecerem entre si veículos pegos na troca. Cada loja responde pelos anúncios que publica e pela negociação, feita fora do site.',
+   'O acesso é da loja e não pode ser passado a terceiros. Os dados das outras lojas vistos no Repasse só podem ser usados para negociar os veículos anunciados. A Aceima pode suspender ou encerrar um acesso em caso de uso indevido ou de saída da associação.'],
   ['uso','Uso adequado',
    'Não é permitido usar o site para:',
    ['enviar informações falsas, dados de outra pessoa sem autorização ou mensagens em massa;','tentar entrar em áreas restritas, no painel ou nos dados de outras pessoas;',
     'sobrecarregar o site, explorar falhas ou copiar os dados dele de forma automatizada;','qualquer finalidade ilegal.'],
-   'Encontrou uma falha de segurança? Conte para a Aceima pelos contatos abaixo antes de divulgar.'],
+   'Falhas de segurança devem ser informadas à Aceima, pelos contatos abaixo, antes de qualquer divulgação.'],
   ['marcas','Marcas e conteúdo',
    'O nome e as logos da Aceima e da Intendente, os textos, o desenho do site e as fotos institucionais pertencem à Aceima ou são usados com autorização. As marcas, as logos e as fotos das lojas e dos veículos pertencem às respectivas empresas. Nada disso pode ser copiado ou usado sem autorização.'],
   ['links','Links para outros sites',
-   'O site tem links para os sites das lojas, para o WhatsApp e para o Google Maps. Esses serviços têm termos e políticas próprios, e a Aceima não responde pelo conteúdo deles.'],
+   'Os sites das lojas, o WhatsApp e o Google Maps têm termos e políticas próprios, e a Aceima não responde pelo conteúdo deles.'],
   ['disponibilidade','Disponibilidade',
-   'O site pode sair do ar para manutenção ou por falhas dos serviços que o hospedam, e a Aceima não garante que ele funcione sem interrupção.'],
+   'A Aceima não garante que o site funcione sem interrupção.'],
   ['mudancas','Mudanças nestes termos',
-   'Estes termos podem mudar. A data da última atualização fica no começo da página.'],
+   'Quando estes termos mudarem, a data no começo da página muda junto.'],
   ['lei','Lei e foro',
    'Estes termos seguem as leis brasileiras. Fica eleito o foro da comarca da capital do Rio de Janeiro (RJ), ressalvado o direito do consumidor de propor a ação no foro do seu domicílio.']
   ],['privacidade','Política de Privacidade']);

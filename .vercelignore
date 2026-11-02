@@ -1,8 +1,7 @@
 # Arquivos internos do projeto: ficam no repositório, mas não vão para o site (26/10/2026).
 # Sem este arquivo, a Vercel publicava tudo, e /CLAUDE.md, /docs e /testes abriam para qualquer pessoa.
 # Continuam publicados as páginas (index.html, painel.html, repasse.html), conteudo.js, publicacoes.json, vitrine.json, as imagens, os
-# vídeos leves do fundo, a pasta api/ e o que a função dela precisa (package.json, package-lock.json e vercel.json).
-# O vídeo original do fundo (17 MB, em Full HD) fica só no repositório, para gerar outras versões; o site usa as leves (31/10/2026).
+# vídeos do fundo, a pasta api/ e o que a função dela precisa (package.json, package-lock.json e vercel.json).
 CLAUDE.md
 PRODUCT.md
 DESIGN.md
@@ -17,4 +16,3 @@ docs
 arquivo
 testes
 fotos-home/*.py
-fundo-vidro.mp4
