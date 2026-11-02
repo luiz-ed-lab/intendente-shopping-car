@@ -1018,12 +1018,13 @@ async function rotaVeiculos(req, res) {
     return res.json({ ok: true, veiculo: v });
   }
   if (req.method !== 'GET') return res.status(405).end();
-  const q = req.query || {}, comSenha = await autorizado(req);
-  if (comSenha) await migra();
-  // o site não mostra o que está oculto; o painel (com a senha) PRECISA ver, senão a Aceima esconde um carro e nunca mais
-  // consegue trazer de volta. Sem a senha, só as colunas públicas (as mesmas do site)
+  // sem a senha, a lista é a pública, do cache (02/11/2026): antes, montava a lista no banco a cada pedido, sem cache, e um robô
+  // pedindo sem parar gastava a cota grátis. O painel (com a senha) PRECISA ver os ocultos: senão a Aceima esconde um carro e nunca mais
+  // consegue trazer de volta
+  if (!(await autorizado(req))) { res.setHeader('Cache-Control', 's-maxage=86400'); res.setHeader('Location', '/api/veiculos?path=veiculos&site=1'); return res.status(308).end(); }
+  await migra();
+  const q = req.query || {};
   const cond = ['v.ativo = true']; const p = [];
-  if (!comSenha) { cond.push('coalesce(v.oculto,false) = false'); p.push(FORA_DO_SITE); cond.push('l.nome <> all($1)'); }
   const add = (frag, val) => { p.push(val); cond.push(frag.replace('?', '$' + p.length)); };
   const num = v => { const n = Number(v); return v !== '' && Number.isFinite(n) ? n : null; };
   if (q.tipo) add('v.tipo = ?', String(q.tipo).slice(0, 20));
@@ -1035,9 +1036,8 @@ async function rotaVeiculos(req, res) {
   if (num(q.anoDe) != null) add('v.ano_modelo >= ?', Math.trunc(num(q.anoDe)));
   if (num(q.anoAte) != null) add('v.ano_modelo <= ?', Math.trunc(num(q.anoAte)));
   if (num(q.kmAte) != null) add('v.km <= ?', Math.trunc(num(q.kmAte)));
-  const colunas = comSenha ? 'v.*' : 'v.id, v.loja_id, v.tipo, v.marca, v.modelo, v.versao, v.ano_modelo, v.ano_fabricacao, v.km, v.preco, v.cambio, v.combustivel, v.fotos, v.opcionais';
   const { rows } = await query(
-    `select ${colunas}, l.nome as loja_nome, l.whatsapp as loja_whatsapp
+    `select v.*, l.nome as loja_nome, l.whatsapp as loja_whatsapp
        from veiculos v join lojas l on l.id = v.loja_id
       where ${cond.join(' and ')} order by v.sincronizado_em desc limit 3000`, p);
   res.json(rows);
@@ -1330,8 +1330,9 @@ async function retencao() {
   // estatísticas de visita e buscas: 13 meses (o painel compara até 90 dias com os 90 anteriores)
   try { await query("delete from visitas where criado_em < now() - interval '13 months'"); } catch (_) {}
   try { await query("delete from buscas where criado_em < now() - interval '13 months'"); } catch (_) {}
-  // os contadores de tentativas e as sessões vencidas
-  try { await query("delete from limites where ate < now() - interval '1 day'"); } catch (_) {}
+  // os contadores de tentativas já vencidos (a Política de Privacidade diz "até dois dias": a janela maior é de um dia, e esta limpeza
+  // roda uma vez por dia) e as sessões vencidas
+  try { await query('delete from limites where ate < now()'); } catch (_) {}
   try { await query('delete from painel_sessoes where expira < now()'); } catch (_) {}
   try { await query('delete from repasse_sessoes where expira < now()'); } catch (_) {}
   // carros que saíram do Repasse há mais de 6 meses (as fotos já saíram antes)
@@ -1958,7 +1959,7 @@ async function rotaVisitas(req, res) {
 // ---------------- PÁGINA DO VEÍCULO ----------------
 // logo de uma loja como imagem (o banco guarda como data URI), com cache: a página do veículo mostra a logo sem pesar a lista de lojas
 async function rotaLogo(req, res) {
-  const id = parseInt((req.query && req.query.id) || '', 10), parc = req.query && req.query.parceiro ? String(req.query.parceiro).slice(0, 120) : '';
+  const id = inteiro(req.query && req.query.id), parc = req.query && req.query.parceiro ? String(req.query.parceiro).slice(0, 120) : '';
   if (!id && !parc) return res.status(400).end();
   const { rows: [l] } = parc   // credenciado: a logo escolhida no painel ou, sem ela, a que o robô leu no site dele
     ? await query(`select coalesce((select logo_url from parceiros where nome = $1 and ativa = true and logo_url is not null and coalesce(categoria, '') <> all($2) limit 1),
@@ -1977,7 +1978,7 @@ async function rotaLogo(req, res) {
 // Descrição que a loja escreveu no anúncio ("Informações do Veículo"). Não fica no banco: é lida no site da loja
 // quando alguém abre o anúncio, e a Vercel guarda por um dia. Sem descrição (loja fora do ar, carro vendido), volta vazia.
 async function rotaDetalhe(req, res) {
-  const id = parseInt((req.query && req.query.id) || '', 10);
+  const id = inteiro(req.query && req.query.id);
   if (!id) return res.status(400).json({ erro: 'id obrigatório' });
   const { rows: [v] } = await query(
     `select v.autocerto_id, l.autocerto_url, l.autocerto_id as origem from veiculos v join lojas l on l.id = v.loja_id
@@ -2087,6 +2088,9 @@ async function entrarRepasse(req, res) {
   // do mesmo lugar, até 20 senhas erradas em 15 minutos, em qualquer e-mail (cada e-mail também trava sozinho, com 8 erros seguidos)
   const lugar = 'repasse:' + ipDe(req);
   if (await passou(lugar, 20)) return res.status(429).json({ erro: 'Muitas tentativas com a senha errada. Espere 15 minutos e tente de novo.' });
+  // no total, até 40 tentativas por minuto (02/11/2026): cada uma faz a conta da senha (scrypt), que pesa no processador, e um ataque de
+  // muitos lugares ao mesmo tempo gastaria a cota da Vercel. As lojas entram poucas vezes (a sessão dura 30 dias)
+  if (await contar('repasse:entrar', 40, 60)) return res.status(429).json({ erro: 'Muitas tentativas de entrada agora. Espere um minuto e tente de novo.' });
   const { rows: [a] } = await query(`select a.*, ${NOME_LOJA} as loja from repasse_acessos a ${LOJA_REPASSE} where a.email = $1 and ${LOJA_ATIVA}`, [email]);
   if (a && a.bloqueio && new Date(a.bloqueio) > new Date()) return res.status(429).json({ erro: 'Muitas tentativas com a senha errada. Espere 15 minutos e tente de novo.' });
   // sem conta, faz a mesma conta (scrypt) de quando há: o tempo de resposta não conta quais e-mails têm acesso
@@ -2288,6 +2292,26 @@ async function rotaFotoRepasse(req, res) {
 // ---------------- ROTEADOR ----------------
 // rotas só da Aceima (a senha do painel)
 const SO_PAINEL = { resumo: () => rotaResumo, testeemail: () => rotaTesteEmail, conteudo: () => rotaConteudo, publicacoes: () => rotaPublicacoes, visitas: () => rotaVisitas };
+// ---------------- ENXURRADA DE PEDIDOS (02/11/2026) ----------------
+// Os endereços públicos que a Vercel guarda em cache (o estoque, as lojas, as logos...) só chegam ao banco no formato que o site usa. Com
+// um parâmetro a mais (?x=1, ?x=2...), cada pedido seria um endereço novo, fora do cache: um robô assim faria o banco montar o estoque
+// inteiro a cada pedido e gastaria em minutos a cota grátis da Vercel e do Neon. Fora do formato, 400, sem tocar no banco
+const PUBLICAS = { lojas: ['site'], parceiros: ['site'], veiculos: ['site'], avaliacoes: [], logo: ['id', 'parceiro', 'v'], detalhe: ['id'], rfoto: ['id', 'm'] };
+const FORMATO = { site: /^1$/, id: /^[0-9a-f]{1,32}$/, parceiro: /^[^\u0000-\u001f]{1,120}$/, v: /^\d{1,13}$/, m: /^1$/ };
+function foraDoFormato(req, rota) {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return false;
+  const aceitos = PUBLICAS[rota];
+  if (!aceitos || (aceitos[0] === 'site' && !doSite(req))) return false;   // lojas, parceiros e veículos sem site=1 são do painel (pedem a senha)
+  let q; try { q = new URL(req.url, 'http://x').searchParams; } catch (_) { return true; }
+  const vistos = new Set(); let caminhos = 0;
+  for (const [k, v] of q) {
+    if (k === 'path') { if (v !== rota || ++caminhos > 2) return true; continue; }
+    if (!aceitos.includes(k) || vistos.has(k) || !FORMATO[k].test(v)) return true;
+    vistos.add(k);
+  }
+  return false;
+}
+
 export default async function handler(req, res) {
   let rota;
   const p = req.query && req.query.path;
@@ -2299,6 +2323,10 @@ export default async function handler(req, res) {
   // nenhuma resposta da API fica guardada no aparelho nem na Vercel, a não ser as rotas públicas que dizem o contrário (o estoque, as
   // logos, as fotos, as avaliações): assim os dados do painel nunca ficam num cache
   res.setHeader('Cache-Control', 'private, no-store');
+  // mais de 300 pedidos por minuto do mesmo lugar, nesta instância: 429, sem tocar no banco. Uma visita faz poucos pedidos à API (o resto
+  // sai do cache da Vercel), e o painel abre com uns 20
+  if (contarNaMemoria('api:' + ipDe(req), 300, 60)) { res.setHeader('Retry-After', '60'); return res.status(429).json({ erro: 'Muitos pedidos seguidos. Espere um minuto.' }); }
+  if (foraDoFormato(req, rota)) { res.setHeader('Cache-Control', 's-maxage=3600'); return res.status(400).json({ erro: 'Endereço fora do formato.' }); }
   try {
     if (rota === 'lojas') return await rotaLojas(req, res);
     if (rota === 'parceiros') return await rotaParceiros(req, res);

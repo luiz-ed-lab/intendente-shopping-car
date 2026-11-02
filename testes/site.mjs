@@ -9,7 +9,7 @@ const query = async (sql, p) => { sqls.push(sql); params.push(p); return { rows:
 const { rotaLojas, rotaVeiculos } = new Function('query', 'migra', 'autorizado', 'negar', 'FORA_DO_SITE', trecho + '; return { rotaLojas, rotaVeiculos };')(
   query, async () => { migrou++; }, () => comSenha, res => res.status(401).json({}), ['Lions Seminovos']);
 const pedido = q => ({ method: 'GET', query: q, headers: {} });
-const resposta = () => { const r = { h: {}, setHeader(k, v) { r.h[k] = v; }, status() { return r; }, json() { return r; } }; return r; };
+const resposta = () => { const r = { h: {}, setHeader(k, v) { r.h[k] = v; }, status() { return r; }, json() { return r; }, end() { return r; } }; return r; };
 const assert = (c, m) => { if (!c) { console.log('FALHOU:', m); process.exitCode = 1; } else console.log('ok:', m); };
 
 let r = resposta(); await rotaLojas(pedido({ site: '1' }), r);
@@ -30,9 +30,13 @@ assert(/select \* from lojas/.test(sqls[0]) && !r.h['Cache-Control'], 'painel: l
 comSenha = false; sqls = []; r = resposta(); let st = 200; r.status = s => { st = s; return r; };
 await rotaLojas(pedido({}), r);
 assert(st === 401 && !sqls.length, 'sem senha: lojas completas negadas, sem ir ao banco');
-sqls = []; params = []; r = resposta(); await rotaVeiculos(pedido({ precoAte: '50000', loja: 'x; drop table veiculos' }), r);
-assert(!/v\.\*/.test(sqls[0]) && /coalesce\(v\.oculto,false\) = false/.test(sqls[0]) && /l\.nome <> all\(\$1\)/.test(sqls[0]), 'sem senha: estoque com as colunas públicas, sem oculto e sem a loja fora do site');
-assert(params[0].length === 2 && params[0][1] === 50000 && !/v\.loja_id = /.test(sqls[0]), 'filtros só com número de verdade (o texto no lugar do id da loja é ignorado)');
+// 02/11/2026: sem a senha e sem site=1, o estoque leva ao endereço público (do cache), sem montar a lista no banco a cada pedido
+sqls = []; params = []; st = 200; r = resposta(); r.status = s => { st = s; return r; };
+await rotaVeiculos(pedido({ precoAte: '50000' }), r);
+assert(st === 308 && /site=1/.test(r.h.Location || '') && /s-maxage/.test(r.h['Cache-Control'] || '') && !sqls.length, 'sem senha: o estoque leva ao endereço público, do cache, sem ir ao banco');
+comSenha = true; sqls = []; params = []; r = resposta(); await rotaVeiculos(pedido({ precoAte: '50000', loja: 'x; drop table veiculos' }), r);
+assert(params[0].length === 1 && params[0][0] === 50000 && !/v\.loja_id = /.test(sqls[0]), 'filtros só com número de verdade (o texto no lugar do id da loja é ignorado)');
+comSenha = false;
 for (const m of ['POST', 'PATCH', 'DELETE']) {
   sqls = []; st = 200; r = resposta(); r.status = s => { st = s; return r; };
   await rotaLojas({ method: m, query: {}, headers: {}, body: { id: 1, nome: 'X' } }, r);

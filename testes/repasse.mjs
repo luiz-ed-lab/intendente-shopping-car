@@ -48,6 +48,9 @@ assert(r.st === 401 && r.corpo.erro === 'E-mail ou senha não conferem.' && Date
 limites['repasse:lugar-teste'] = 20; sqls = [];
 r = await chama(rotaRepasse, 'POST', { acao: 'entrar' }, { email: 'loja@teste.com', senha: 'senha-teste-1' });
 assert(r.st === 429 && !usou(/from repasse_acessos a left join lojas/), 'vinte senhas erradas do mesmo lugar em 15 minutos: trava o lugar, sem nem procurar o e-mail');
+limites = { 'repasse:entrar': 40 }; sqls = [];
+r = await chama(rotaRepasse, 'POST', { acao: 'entrar' }, { email: 'loja@teste.com', senha: 'senha-teste-1' });
+assert(r.st === 429 && !usou(/from repasse_acessos a left join lojas/), 'mais de 40 tentativas de entrada por minuto, somando todos os lugares: espera um minuto, sem a conta da senha (02/11/2026)');
 limites = {};
 linhas = s => /from repasse_acessos a left join lojas/.test(s) ? [{ id: 7, email: 'loja@teste.com', senha: h, ativo: true, loja: 'TurboMix Veículos', falhas: 0, bloqueio: null }] : [];
 

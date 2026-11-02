@@ -3,8 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- endereços como /veiculo/123 não podem quebrar os caminhos relativos (logo, vídeo, fotos); do disco, fica como está -->
-<script>if(location.protocol!=='file:'){const b=document.createElement('base');b.href='/';document.head.prepend(b)}</script>
+<!-- endereços como /veiculo/123 não podem quebrar os caminhos relativos (logo, vídeo, fotos). A base fica escrita no HTML (02/11/2026):
+     criada por script, ela chegava tarde, e o navegador já tinha pedido conteudo.js e fotos.js em /veiculo/... (a página inteira, duas
+     vezes, a cada carro aberto por link). Do disco (file://), a base volta para a pasta do arquivo -->
+<base href="/">
+<script>if(location.protocol==='file:')document.querySelector('base').href=location.href.split('#')[0].split('?')[0].replace(/[^/]*$/,'')</script>
 <!-- ícone do site: a logo redonda da Intendente que o Luiz enviou em 07/10/2026 (original recortado em marca-nova/simbolo-redondo.png) -->
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/png" sizes="32x32" href="marca-nova/icone-32.png">
@@ -1492,20 +1495,18 @@ body.lb-on{overflow:hidden}
 .rod-lg a,.rod-ck{color:#B9C6DA;text-decoration:underline;text-underline-offset:2px}
 .rod-ck{background:none;border:0;padding:0;font:inherit;cursor:pointer}
 .rod-lg a:hover,.rod-ck:hover{color:var(--gold3)}
-/* o aviso de cookies: um cartão azul no canto de baixo, que não cobre o menu nem bloqueia o site */
-.ckb{position:fixed;left:24px;bottom:24px;z-index:60;width:min(400px,calc(100vw - 32px));padding:20px 22px 18px;border-radius:22px;background:#0B1A33;color:#D7DFEA;
-  box-shadow:0 24px 60px -20px rgba(0,9,26,.7);border:1px solid rgba(255,255,255,.08);font:400 .9rem/1.55 var(--f2);opacity:0;transform:translateY(14px);transition:opacity .3s,transform .3s var(--ease)}
+/* o aviso de cookies (02/11/2026, pedido do Luiz: a menor letra possível, no canto de baixo à direita no computador): um cartão
+   azul pequeno, na linha de baixo do menu; até 1279px o menu (com as setas das páginas do estoque) chega perto do canto, e o cartão
+   sobe para cima dele. Letra de 12px, o mínimo legível. "Recusar" e "Aceitar" iguais, sem empurrar para o aceite (guia de cookies da ANPD) */
+.ckb{position:fixed;right:24px;bottom:24px;z-index:60;width:272px;padding:12px 14px 14px;border-radius:16px;background:#0B1A33;color:#D7DFEA;
+  box-shadow:0 18px 44px -18px rgba(0,9,26,.7);border:1px solid rgba(255,255,255,.08);font:400 12px/1.45 var(--f2);opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s var(--ease)}
 .ckb.on{opacity:1;transform:none}
 .ckb p{color:#D7DFEA;font-weight:400;font-size:inherit;line-height:inherit}
-.ckb .ckb-t{font:600 .7rem/1 var(--f2);letter-spacing:2.6px;text-transform:uppercase;color:var(--gold3);margin-bottom:8px}
 .ckb a{color:#fff;text-decoration:underline;text-underline-offset:2px}
-.ckb .ckb-at{margin-top:8px;color:#B9C6DA;font-size:.82rem}
-.ckb-b{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-.ckb-b button{height:42px;border-radius:21px;font:600 .9rem/1 var(--f2);cursor:pointer;transition:background .2s,color .2s,border-color .2s}
-.ckb-n{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.55)}
-.ckb-n:hover{border-color:#fff;background:rgba(255,255,255,.08)}
-.ckb-s{background:linear-gradient(135deg,var(--gold3),var(--gold));color:#00091A;border:0}
-@media (max-width:1100px) and (min-width:761px){.ckb{left:50%;bottom:96px;transform:translate(-50%,14px)}.ckb.on{transform:translate(-50%,0)}}
+.ckb-b{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.ckb-b button{height:28px;padding:0 12px;border-radius:14px;font:600 12px/1 var(--f2);cursor:pointer;background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.45);transition:color .2s,border-color .2s}
+.ckb-b button:hover{border-color:var(--gold3);color:var(--gold3)}
+@media (max-width:1279px) and (min-width:761px){.ckb{bottom:88px}}
 @media (max-width:760px){
   .lg-top{padding-top:4vw;padding-bottom:9vw}
   .lgl{padding:6vw 0 12vw}
@@ -1513,9 +1514,10 @@ body.lb-on{overflow:hidden}
   .lgl p,.lgl li,.lg-bt{font-size:3.47vw}
   .lgl .lg-dt{font-size:3vw}
   .lg-ct b{min-width:22vw}
-  .ckb{left:16px;right:16px;bottom:16px;width:auto;padding:4.6vw 5vw 4.2vw;border-radius:5.6vw;font-size:3.3vw}
-  .ckb .ckb-t{font-size:2.82vw}
-  .ckb-b button{height:10.6vw;font-size:3.3vw}
+  .ckb{left:3vw;right:3vw;bottom:3vw;width:auto;display:flex;align-items:center;gap:2.6vw;padding:2.6vw 2.6vw 2.6vw 3.6vw;border-radius:3.6vw;font-size:max(11px,3vw)}
+  .ckb p{flex:1}
+  .ckb-b{display:flex;gap:1.6vw;margin:0;flex:none}
+  .ckb-b button{height:max(26px,7.4vw);padding:0 3vw;border-radius:99px;font-size:max(11px,3vw)}
 }
 @media (prefers-reduced-motion:reduce){.ckb{transition:none}}
 /* o aviso de para onde vão os dados, embaixo dos formulários (01/11/2026) */
@@ -1564,7 +1566,17 @@ body.lb-on{overflow:hidden}
 const VIDEO=matchMedia('(max-width:1100px)').matches?'fundo-vidro-540.mp4':'fundo-vidro-720.mp4';
 // quem pediu ao aparelho para reduzir o movimento (acessibilidade, 01/11/2026) vê o quadro parado do vídeo, sem animação
 const SEM_MOV=matchMedia('(prefers-reduced-motion: reduce)');
-const LUZ=`<video class="luz" src="${VIDEO}" poster="fundo-animado-frame.jpg" ${SEM_MOV.matches?'':'autoplay '}muted loop playsinline preload="${SEM_MOV.matches?'none':'auto'}" aria-hidden="true"></video>`;
+// O vídeo do fundo vem num pedido só, e todas as cópias da página tocam o mesmo arquivo (02/11/2026). Antes, cada <video> pedia o arquivo
+// aos pedaços e o navegador não juntava: no computador, a página inicial baixava o vídeo duas vezes, e as outras páginas, de novo (medido no
+// servidor de teste). Agora é um fetch, que o navegador guarda por um ano (vercel.json), e um endereço blob: para todos (a CSP libera blob:
+// em media-src). Enquanto chega, fica o quadro parado andando (.semvideo), como antes. Quem pede menos movimento não baixa o vídeo
+const LUZ=`<video class="luz" poster="fundo-animado-frame.jpg" muted loop playsinline aria-hidden="true"></video>`;
+const FUNDO={url:null,ped:null};
+function pedirFundo(){
+  if(FUNDO.ped||SEM_MOV.matches)return;
+  const ligar=u=>{FUNDO.url=u;document.querySelectorAll('video.luz').forEach(v=>{if(!v.getAttribute('src')){v.src=u;if(v._visto!==false&&!document.hidden)v.play().catch(()=>{});}});};
+  FUNDO.ped=fetch(VIDEO).then(r=>r.ok?r.blob():Promise.reject()).then(b=>ligar(URL.createObjectURL(b))).catch(()=>ligar(VIDEO));
+}
 // cada vídeo do fundo só toca enquanto aparece na tela: fora dela, pausa (o navegador deixa de decodificar o vídeo) e volta de onde parou
 const olhoVideo=typeof IntersectionObserver==='function'?new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;v._visto=e.isIntersecting;
   if(!e.isIntersecting)v.pause();else if(!document.hidden&&!SEM_MOV.matches)v.play().catch(()=>{});}),{rootMargin:'120px 0px'}):null;
@@ -3440,7 +3452,7 @@ function servicos(){
 // edição. Os prazos de guarda têm que bater com a função retencao() da API: mudou lá, muda aqui (e o contrário)
 const LEGAL={
   razao:'Associação dos Comerciantes da Estrada Intendente Magalhães e Adjacências',cnpj:'02.444.116/0001-45',
-  email:'aceima.adm2026@gmail.com',endereco:'Estrada Intendente Magalhães, 830, Vila Valqueire, Rio de Janeiro (RJ)',data:'1º de novembro de 2026'
+  email:'aceima.adm2026@gmail.com',endereco:'Estrada Intendente Magalhães, 830, Vila Valqueire, Rio de Janeiro (RJ)',data:'2 de novembro de 2026'
 };
 // uma seção: o título e, na ordem, parágrafos (texto) e listas (array de itens)
 function secaoLegal(pre,[id,titulo,...blocos]){
@@ -3464,10 +3476,10 @@ function paginaLegal(pre,chamada,titulo,sub,secoes,outra){
    <p class="sv-sub">${T(pre+'.subtitulo',sub)}</p>
   </div></div>
  <div class="wrap"><article class="lgl">
-  <p class="lg-dt">${T(pre+'.data','Atualizada em '+LEGAL.data+'.')}</p>
+  <p class="lg-dt">${T(pre+'.data',(pre==='termos'?'Atualizados em ':'Atualizada em ')+LEGAL.data+'.')}</p>
   ${secoes.map(s=>secaoLegal(pre,s)).join('')}
   <section id="contato"><h2>${T(pre+'.contato-titulo',pre==='privacidade'?'Fale com a Aceima sobre privacidade':'Contato')}</h2>
-   <p>${T(pre+'.contato-texto',pre==='privacidade'?'Para exercer os seus direitos ou tirar dúvidas sobre esta política, fale com o canal de privacidade da Aceima (encarregado pelo tratamento de dados):':'Dúvidas sobre estes termos ou sobre o site:')}</p>
+   <p>${T(pre+'.contato-texto',pre==='privacidade'?'Para exercer os seus direitos ou tirar dúvidas sobre esta política, fale com a Aceima pelo canal de privacidade:':'Dúvidas sobre estes termos ou sobre o site:')}</p>
    ${contatoLegal(pre)}
   </section>
   <p class="lg-outra"><a href="${hr(outra[0])}">${T(pre+'.ver-'+outra[0],outra[1])}</a>${pre==='privacidade'?` · <button type="button" class="lg-bt" onclick="abrirCookies()">${T(pre+'.ver-cookies','Mudar a escolha sobre as estatísticas')}</button>`:''}</p>
@@ -3475,46 +3487,47 @@ function paginaLegal(pre,chamada,titulo,sub,secoes,outra){
 </div>${rodape()}`;}
 function privacidade(){
   const L=LEGAL;
-  return paginaLegal('privacidade','Privacidade','Política de Privacidade.','Como a Aceima cuida dos dados de quem usa o site, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).',[
+  return paginaLegal('privacidade','Privacidade','Política de Privacidade.','Como a Aceima trata os dados de quem usa o site, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).',[
   ['quem','Quem cuida dos seus dados',
-   `O site aintendente.com.br é mantido pela ${L.razao} (Aceima), inscrita no CNPJ sob o nº ${L.cnpj}, com sede na ${L.endereco}. A Aceima é a controladora dos dados pessoais tratados no site.`,
+   `O aintendente.com.br é o site da ${L.razao} (Aceima), inscrita no CNPJ sob o nº ${L.cnpj}, com sede na ${L.endereco}. A Aceima é a controladora dos dados pessoais tratados no site.`,
    'Quando você fala com uma loja ou empresa associada, ela também passa a ter os seus dados e responde pelo uso que fizer deles.'],
   ['coleta','O que coletamos e para quê',
    'Coletamos só o necessário para cada pedido que você faz no site:',
-   ['Interesse em um veículo: nome, WhatsApp, a forma de pagamento que pretende e, se informar, o valor de entrada ou o carro que dá na troca. Servem para a loja que anuncia o veículo falar com você.',
-    'Venda seu veículo: marca, modelo, versão, ano, quilometragem, valor pretendido e fotos do veículo, além de nome, WhatsApp e, se quiser, e-mail. Servem para as lojas associadas avaliarem o veículo e fazerem propostas.',
-    'Seja um associado: nome, WhatsApp, nome da empresa e ramo. Servem para a Aceima falar com você sobre a associação.',
-    'Repasse: o e-mail e o WhatsApp do acesso de cada loja associada e a data do último acesso. Servem para a loja entrar no Repasse e receber o contato das outras lojas.'],
+   ['Interesse em um veículo: nome, WhatsApp, a forma de pagamento que pretende e, se informar, o valor de entrada ou o carro que dá na troca. A loja que anuncia o veículo usa esses dados para falar com você.',
+    'Venda seu veículo: marca, modelo, versão, ano, quilometragem, valor pretendido e fotos do veículo, além de nome, WhatsApp e, se quiser, e-mail. As lojas associadas usam esses dados para avaliar o veículo e fazer propostas.',
+    'Seja um associado: nome, WhatsApp, nome da empresa e ramo, para a Aceima falar com você sobre a associação.',
+    'Repasse: o e-mail e o WhatsApp do acesso de cada loja associada e a data do último acesso, para a loja entrar no Repasse e receber o contato das outras lojas.'],
    'Nos formulários de interesse e de associação, o site também abre uma conversa no WhatsApp com a mensagem pronta. O que você envia por lá segue a política de privacidade do WhatsApp.',
-   'Não pedimos dados sensíveis (como religião, saúde ou biometria) nem documentos. Nas fotos do veículo, evite mostrar pessoas, documentos ou a placa inteira.'],
+   'Não pedimos dados sensíveis, como saúde ou religião, nem documentos. Nas fotos do veículo, evite mostrar pessoas, documentos ou a placa inteira.'],
   ['navegacao','Estatísticas de navegação',
    'Com a sua permissão, o site conta as visitas para saber quais páginas e veículos interessam mais: a página vista, o veículo, o tempo na página, o tipo de aparelho (celular, tablet ou computador), de onde a visita veio (Google, Instagram, um link direto) e o que foi procurado no estoque.',
-   'Essas estatísticas não guardam o seu endereço IP, o seu nome nem um identificador permanente. Cada aba do navegador recebe um número sorteado, que some quando a aba é fechada. Buscas que pareçam um e-mail ou um telefone são descartadas.',
+   'Essas estatísticas não guardam o seu endereço IP nem o seu nome. Cada aba do navegador recebe um número sorteado, que vai junto com as visitas e some do aparelho quando a aba é fechada. Buscas que pareçam um e-mail ou um telefone são descartadas.',
    'Sem a sua permissão, nada disso é enviado. Você pode mudar a escolha quando quiser, em "Cookies", no rodapé do site.'],
   ['bases','Por que podemos usar os seus dados',
-   ['Para atender o pedido que você fez (falar com uma loja, vender o seu veículo, conhecer a associação): procedimentos preliminares a um contrato, a seu pedido (art. 7º, V, da LGPD).',
+   ['Para atender o pedido que você faz (falar com uma loja, vender o seu veículo, conhecer a associação) e para o acesso das lojas associadas ao Repasse: a execução de um contrato ou de procedimentos preliminares a ele, a seu pedido (art. 7º, V, da LGPD).',
     'Para as estatísticas de navegação: o seu consentimento (art. 7º, I), que você pode retirar a qualquer momento.',
     'Para a segurança do site e para evitar fraudes e abusos: o legítimo interesse da Aceima e de quem usa o site (art. 7º, IX).',
-    'Para cumprir obrigações legais ou ordens de autoridades: art. 7º, II e VI.']],
+    'Para cumprir obrigações legais e ordens de autoridades (art. 7º, II) e para defender direitos da Aceima em processos (art. 7º, VI).']],
   ['compartilhamento','Com quem compartilhamos',
-   ['Lojas associadas: o interesse em um veículo vai para a loja que o anuncia. O "Venda seu veículo" vai para todas as lojas associadas ativas, e uma não vê o e-mail da outra.',
-    'Fornecedores que fazem o site funcionar, só para isso: a hospedagem do site e do sistema (Vercel), o banco de dados (Neon), o envio de e-mails (Resend) e o repositório dos textos e das publicações do site (GitHub).',
-    'Google: as avaliações dos associados mostradas no site são públicas, vêm do Google Maps, e a foto de quem avaliou é carregada dos servidores do Google.',
+   ['Lojas associadas: o interesse em um veículo vai para a loja que o anuncia, e o "Venda seu veículo" vai para todas as lojas associadas ativas.',
+    'A própria Aceima recebe uma cópia de cada contato no e-mail dela, que é do Gmail (Google).',
+    'Fornecedores que fazem o site funcionar, só para isso: a hospedagem do site e do sistema (Vercel), o banco de dados (Neon), o envio de e-mails (Resend), o repositório dos textos e das publicações do site (GitHub) e quem faz a manutenção técnica do site, contratado pela Aceima.',
+    'Auto Certo e Google: as fotos dos veículos vêm do Auto Certo, o sistema dos sites das lojas, e a foto de quem avaliou um associado vem do Google. Para mostrar essas imagens, o seu navegador as busca nos servidores deles, que recebem o seu endereço IP.',
     'WhatsApp: quando você escolhe conversar por lá.',
     'Autoridades públicas, quando a lei exigir.'],
    'A Aceima não vende dados pessoais e não usa os seus dados para publicidade.'],
   ['internacional','Dados fora do Brasil',
-   'Alguns desses fornecedores processam ou guardam dados fora do Brasil, principalmente nos Estados Unidos. Escolhemos fornecedores que adotam medidas de segurança e de proteção de dados reconhecidas internacionalmente, e a transferência acontece só para prestar o serviço que você pediu (art. 33 da LGPD).'],
+   'Alguns desses fornecedores guardam ou processam dados fora do Brasil, principalmente nos Estados Unidos. Isso acontece só para o site funcionar e para atender o que você pediu (art. 33 da LGPD).'],
   ['prazos','Por quanto tempo guardamos',
-   ['Contatos dos formulários: 12 meses. Depois, são apagados do site automaticamente.',
+   ['Contatos dos formulários: 12 meses no sistema do site. Depois, são apagados automaticamente.',
     'Fotos do "Venda seu veículo": não ficam no site. Vão anexadas ao e-mail das lojas.',
     'Estatísticas de navegação e buscas: 13 meses.',
-    'Proteção contra abuso: um código tirado do endereço IP, que não permite descobrir o IP, guardado por até um dia.',
-    'Repasse: os acessos, enquanto a loja for associada. Os carros saem do Repasse em até 30 dias, com as fotos, e o registro deles é apagado 6 meses depois.',
-    'Registros técnicos da hospedagem (endereço IP, data e hora dos acessos): pelo prazo do fornecedor, em geral poucos dias, para a segurança e o funcionamento do site.'],
-   'As cópias que as lojas recebem por e-mail ou pelo WhatsApp ficam sob a responsabilidade delas.'],
+    'Proteção contra abuso: um código cifrado a partir do endereço IP (o IP em si não é guardado), por até dois dias.',
+    'Repasse: o acesso de cada loja, até a Aceima excluí-lo. Os carros saem do Repasse em até 30 dias, com as fotos, e o registro deles é apagado 6 meses depois.',
+    'Registros técnicos da hospedagem (endereço IP, data e hora dos acessos): pelo prazo do fornecedor, em geral de horas a poucos dias, para a segurança e o funcionamento do site.'],
+   'As cópias que chegam às lojas e à Aceima por e-mail ou pelo WhatsApp ficam fora do site e seguem a guarda de cada uma.'],
   ['cookies','Cookies e armazenamento no aparelho',
-   'O site não usa cookies de publicidade nem de rastreamento e não carrega ferramentas de terceiros para isso. O que fica guardado no seu navegador:',
+   'O site não usa cookies de publicidade nem de rastreamento. O que fica guardado no seu navegador:',
    ['Necessários, sempre ligados: a sua escolha sobre as estatísticas; o ponto da página onde você estava, para o voltar funcionar; uma cópia das avaliações, para a página abrir mais rápido; e, só para quem entra no painel da Aceima ou no Repasse, a sessão de acesso.',
     'Estatísticas, só com a sua permissão: o número sorteado da aba, descrito em "Estatísticas de navegação".'],
    'Você também pode apagar esses dados nas configurações do navegador.'],
@@ -3526,8 +3539,8 @@ function privacidade(){
     'a oposição a um tratamento que não cumpra a lei.'],
    'Respondemos em até 15 dias. Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD), em gov.br/anpd.'],
   ['seguranca','Segurança',
-   'O site só funciona com conexão protegida (HTTPS). O painel e o Repasse têm acesso restrito, com senha guardada de forma cifrada e bloqueio depois de várias tentativas erradas, e os formulários têm proteção contra robôs e envios em massa.',
-   'Nenhum sistema é totalmente imune. Se acontecer um incidente de segurança que possa trazer risco ou dano relevante, a Aceima avisará a ANPD e as pessoas afetadas, como manda a LGPD.'],
+   'O site só funciona com conexão protegida (HTTPS). O painel e o Repasse têm acesso restrito por senha, com bloqueio depois de várias tentativas erradas, e os formulários têm proteção contra robôs e envios em massa.',
+   'Se acontecer um incidente de segurança que possa trazer risco ou dano relevante, a Aceima avisa a ANPD e as pessoas afetadas, como manda a LGPD.'],
   ['menores','Crianças e adolescentes',
    'O site não é voltado a menores de 18 anos, e os formulários devem ser preenchidos por adultos.'],
   ['mudancas','Mudanças nesta política',
@@ -3539,7 +3552,7 @@ function termos(){
   return paginaLegal('termos','Termos de uso','Termos de Uso.','As regras para usar o site da Aceima e o Repasse.',[
   ['site','O que é este site',
    `O aintendente.com.br é o site da ${L.razao} (Aceima), CNPJ ${L.cnpj}. Ele apresenta a associação, as empresas associadas e o estoque das lojas de veículos da Estrada Intendente Magalhães, e põe você em contato com elas.`,
-   'Ao usar o site, você concorda com estes termos e com a Política de Privacidade.'],
+   'Ao usar o site, você concorda com estes termos. O uso dos seus dados está explicado na Política de Privacidade.'],
   ['anuncios','Os anúncios de veículos',
    'A Aceima não vende veículos. Cada anúncio é da loja associada que tem o veículo, e as informações (preço, fotos, quilometragem, versão, opcionais e descrição) vêm do site da própria loja, atualizadas automaticamente ao longo do dia.',
    'Por isso, um anúncio pode ficar desatualizado por algumas horas, por exemplo quando o veículo acaba de ser vendido ou o preço muda. Antes de fechar negócio, confirme com a loja o preço, as condições e a disponibilidade.',
@@ -3563,7 +3576,7 @@ function termos(){
   ['links','Links para outros sites',
    'O site tem links para os sites das lojas, para o WhatsApp e para o Google Maps. Esses serviços têm termos e políticas próprios, e a Aceima não responde pelo conteúdo deles.'],
   ['disponibilidade','Disponibilidade',
-   'Trabalhamos para o site ficar sempre no ar, mas ele pode passar por manutenções ou ficar fora do ar por motivos que não controlamos.'],
+   'O site pode sair do ar para manutenção ou por falhas dos serviços que o hospedam, e a Aceima não garante que ele funcione sem interrupção.'],
   ['mudancas','Mudanças nestes termos',
    'Estes termos podem mudar. A data da última atualização fica no começo da página.'],
   ['lei','Lei e foro',
@@ -3719,18 +3732,22 @@ function guardarCookies(sim){
 }
 function abrirCookies(primeira){
   if(document.getElementById('ckb'))return;
-  const c=escolhaCookies(),d=document.createElement('div');
-  d.id='ckb';d.className='ckb';d.setAttribute('role','dialog');d.setAttribute('aria-labelledby','ckbT');d.setAttribute('aria-describedby','ckbX');
-  d.innerHTML=`<p class="ckb-t" id="ckbT">${TX('cookies.titulo','Privacidade')}</p>
-   <p id="ckbX">${TX('cookies.texto','Usamos o armazenamento do navegador para o site funcionar. Com a sua permissão, também contamos as visitas, sem saber quem você é, para melhorar o site. Nada de anúncios nem rastreamento.')}
+  const d=document.createElement('div');
+  d.id='ckb';d.className='ckb';d.tabIndex=-1;d.setAttribute('role','dialog');d.setAttribute('aria-label',TX('cookies.titulo','Privacidade'));d.setAttribute('aria-describedby','ckbX');
+  d.innerHTML=`<p id="ckbX">${TX('cookies.texto','Com a sua permissão, contamos as visitas, sem saber quem você é.')}
     <a href="${hr('privacidade')}#cookies">${TX('cookies.saiba','Saiba mais')}</a></p>
-   ${c?`<p class="ckb-at">${TX('cookies.atual','Escolha atual')}: ${c.estatisticas?TX('cookies.atual-sim','estatísticas aceitas'):TX('cookies.atual-nao','estatísticas recusadas')}.</p>`:''}
    <div class="ckb-b"><button type="button" class="ckb-n" onclick="guardarCookies(false)">${TX('cookies.recusar','Recusar')}</button><button type="button" class="ckb-s" onclick="guardarCookies(true)">${TX('cookies.aceitar','Aceitar')}</button></div>`;
   document.body.appendChild(d);
   requestAnimationFrame(()=>d.classList.add('on'));
-  if(!primeira)setTimeout(()=>d.querySelector(c&&c.estatisticas?'.ckb-n':'.ckb-s').focus(),60);   // aberto pelo rodapé: o foco vai para a escolha
+  // aberto pelo rodapé ou pela Política: o foco vai para o aviso (o leitor de tela lê o texto) e volta para quem abriu
+  if(!primeira){abrirCookies.dono=document.activeElement;setTimeout(()=>d.focus(),60);}
 }
-function fecharCookies(){const d=document.getElementById('ckb');if(!d)return;d.classList.remove('on');setTimeout(()=>d.remove(),MOV_RED.matches?0:320);}
+function fecharCookies(){
+  const d=document.getElementById('ckb');if(!d)return;
+  const dono=abrirCookies.dono;abrirCookies.dono=null;
+  if(dono&&d.contains(document.activeElement)&&document.contains(dono))dono.focus();
+  d.classList.remove('on');setTimeout(()=>d.remove(),MOV_RED.matches?0:320);
+}
 
 /* ==================== ROTAS ==================== */
 const VIEWS={home,estoque,associados,veiculo,aceima,associar,publicacoes,publicacao,servicos,privacidade,termos};
@@ -3795,7 +3812,8 @@ function render(topo){
   if(pagAtual==='associar')bnfGira();
   if(pagAtual==='home'){girar();alturaCategorias();alinharA();faixaAvaliacoes();document.fonts.ready.then(()=>{if(pagAtual==='home'){alturaCategorias();alinharA();}});}
   if(EDIT){sel=null;pintarBarra();}
-  document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;if(!v._luz){v._luz=1;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});if(olhoVideo)olhoVideo.observe(v);}if(v._visto!==false&&!SEM_MOV.matches)v.play().catch(()=>{});});
+  pedirFundo();
+  document.querySelectorAll('video.luz').forEach(v=>{v.muted=true;if(FUNDO.url&&!v.getAttribute('src'))v.src=FUNDO.url;if(!v._luz){v._luz=1;v.addEventListener('playing',()=>document.body.classList.remove('semvideo'),{once:true});if(olhoVideo)olhoVideo.observe(v);}if(v._visto!==false&&!SEM_MOV.matches)v.play().catch(()=>{});});
   if(typeof topo==='number')irPara(topo);else if(topo)scrollTo(0,0);   // voltando pelo histórico, a página abre onde estava
   if(pagAtual==='associados'&&rolarAssoc&&selAssoc&&entradasAssoc().some(e=>e.nome===selAssoc)){rolarAssoc=false;setTimeout(rolarParaLoja,topo?500:80);}   // aberto pela logo: desce até a loja
   if(TITULOS[pagAtual])document.title=TITULOS[pagAtual];
