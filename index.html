@@ -1921,7 +1921,7 @@ function vdLojas(){
 }
 function vendaSeuVeiculo(){
   // as logos passando: duas vezes a mesma fila, para emendar sem pulo; cada uma leva a Associados com o associado aberto
-  const L=vdLojas(),lj=(l,copia)=>`<a class="vnd-lj" href="${hr('associados',l.nome)}" title="${esc(l.nome)}"${copia?' tabindex="-1"':''}>${l.lg?`<img src="${l.lg}" alt="${esc(l.nome)}" data-cor="${esc(l.cor)}" onload="tomLogo(this)" onerror="this.parentNode.classList.add('sem')">`:''}<span>${esc(l.nome)}</span></a>`;
+  const L=vdLojas(),lj=(l,copia)=>`<a class="vnd-lj" href="${hr('associados',l.nome)}" title="${esc(l.nome)}"${copia?' tabindex="-1"':''}>${l.lg?`<img src="${l.lg}" alt="${esc(l.nome)}" data-cor="${esc(l.cor)}" loading="lazy" onload="tomLogo(this)" onerror="this.parentNode.classList.add('sem')">`:''}<span>${esc(l.nome)}</span></a>`;
   const grupo=copia=>`<div class="vnd-grupo"${copia?' aria-hidden="true"':''}>${L.map(l=>lj(l,copia)).join('')}</div>`;
   return `<section class="vnd" id="vnd" aria-label="${TX('inicio.venda-rotulo','Venda seu veículo')}">
   <div class="vnd-in">
