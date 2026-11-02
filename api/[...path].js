@@ -848,7 +848,10 @@ async function detalhePortal(base, slug, id) {
 // (nunca o que está oculto, mesmo com senha) e com cache na Vercel. O painel pede sem site=1
 // e continua recebendo tudo, sem cache. Sem migra(): o site só lê colunas que já existem.
 const doSite = req => !!(req.query && req.query.site === '1');
-const CACHE_SITE = 's-maxage=300, stale-while-revalidate=86400';   // 5 min novo; depois disso, entrega o anterior na hora e atualiza por trás
+// 3 horas novo; depois disso, entrega o anterior na hora e atualiza por trás. O estoque tem 2 MB: relido a cada 5 minutos, gastaria o dobro da
+// transferência grátis da Neon num mês com visitas o dia todo (pedido do Luiz, 02/11/2026). Em troca, o que muda no painel (carro oculto, loja
+// editada) leva até 3 horas para chegar ao site; uma publicação nova na Vercel limpa o cache
+const CACHE_SITE = 's-maxage=10800, stale-while-revalidate=86400';
 // número de registro (id) que veio no pedido: inteiro positivo, ou null (o banco não recebe mais texto solto no lugar de um id)
 const inteiro = v => { const n = Number(v); return Number.isInteger(n) && n > 0 && n < 2147483647 ? n : null; };
 // os campos de um associado (loja ou credenciado), conferidos antes de gravar: tamanho, e-mail, cor e logo. Gravamos só estes campos,

@@ -1735,7 +1735,8 @@ async function carregar(){
   // recarregou a página (ou voltou de outro site e ela abriu do zero): volta ao lugar onde estava, se ainda não rolou
   const nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0],p=POS[chaveAtual];
   if(nav&&/reload|back_forward/.test(nav.type)&&p&&p.pg===pagAtual&&p.y>0&&scrollY<2)irPara(p.y);
-  if(API!==null)setTimeout(()=>fetch('/api/refresh?path=refresh&horas=2').catch(()=>{}),1500);
+  // a loja mais desatualizada é relida na visita só se o robô de 6 em 6 horas falhar: com 7 horas, um atraso normal do GitHub não dispara nada
+  if(API!==null)setTimeout(()=>fetch('/api/refresh?path=refresh&horas=7').catch(()=>{}),1500);
 }
 const nVeic=()=>V.length;
 const nLojas=()=>LJ.length||22;

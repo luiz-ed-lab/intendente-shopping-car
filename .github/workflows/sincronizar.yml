@@ -1,10 +1,10 @@
 name: Sincronizar estoque das lojas
 
-# De hora em hora. Chama a nossa API uma loja por vez, para nenhuma
-# chamada estourar o tempo limite da função.
+# De 6 em 6 horas (pedido do Luiz, 02/11/2026: cada rodada acorda o banco, e o Neon grátis tem limite). Chama a nossa API uma loja por vez,
+# para nenhuma chamada estourar o tempo limite da função. Se o GitHub pular uma rodada, a visita ao site relê as lojas com mais de 7 horas.
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '17 3,9,15,21 * * *'   # 0h17, 6h17, 12h17 e 18h17 no Rio. Fora do começo da hora: ali o GitHub adia ou pula rodadas quando está cheio
   workflow_dispatch:
 
 # este robô não mexe no repositório: nenhuma permissão para o token do GitHub (01/11/2026)
