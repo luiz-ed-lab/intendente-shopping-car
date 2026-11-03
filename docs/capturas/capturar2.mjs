@@ -1,6 +1,6 @@
 // Filma o site da Aceima para a apresentação em motion (v2). Computador 1440x900 (1,25x) e celular 390x844 (2x).
-// Navegador com a identificação comum do Chrome: o servidor das fotos das lojas recusa o navegador sem tela, e as fotos dos carros
-// não apareciam. Sem o menu (a apresentação desenha o dela). Cada página sai em partes, uma por tela, para montar a faixa que rola no
+// O navegador se apresenta como ele é (sem tela): as fotos dos carros vêm do servidor das lojas, que recusa esse navegador, então
+// ficam de fora destas telas. Sem o menu (a apresentação desenha o dela). Cada página sai em partes, uma por tela, para montar a faixa que rola no
 // vídeo, mais as telas com interação (a busca, a lista de marcas, a loja aberta, o valor do carro).
 // Uso: node capturar2.mjs <endereço do site> <pasta de saída>. Só olha: não envia formulário, não entra em área restrita.
 import { createRequire } from 'node:module';
@@ -10,10 +10,7 @@ const { chromium } = require('playwright');
 const SITE = (process.argv[2] || 'https://aintendente.com.br').replace(/\/$/, '');
 const OUT = process.argv[3] || 'capturas';
 fs.mkdirSync(OUT, { recursive: true });
-const UA = {
-  pc: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-  cel: 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
-};
+
 const SEM_MENU = '#nav,.est-cont,#ckb,.pular,.nb-pg{display:none!important} .gl.fix>video.luz{position:absolute!important}';
 const espera = ms => new Promise(r => setTimeout(r, ms));
 const lista = [];
@@ -27,11 +24,6 @@ try {
   const novos = ok.filter(v => (v.ano_modelo || 0) >= 2019);
   CARRO = (novos.length ? novos : ok).sort((a, b) => (b.preco || 0) - (a.preco || 0))[0] || null;
   console.log('carro:', CARRO && [CARRO.id, CARRO.marca, CARRO.modelo, CARRO.ano_modelo, CARRO.preco, CARRO.loja_nome].join(' | '));
-  const url = (vs.find(v => v.fotos && v.fotos[0]) || {}).fotos?.[0];
-  for (const [n, ua] of [['sem tela', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/131.0.0.0 Safari/537.36'], ['comum', UA.pc]]) {
-    const f = await fetch(new URL(url, SITE + '/'), { headers: { 'user-agent': ua, referer: SITE + '/' } }).catch(e => ({ status: e.message }));
-    console.log('foto de teste, navegador', n + ':', f.status);
-  }
 } catch (e) { console.log('sem a lista dos carros:', e.message); }
 
 async function fotosProntas(pg, ms) {
@@ -86,8 +78,8 @@ async function ate(pg, sel, folga) {
 
 const nav = await chromium.launch();
 const APARELHOS = [
-  ['pc', { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1.25, userAgent: UA.pc }],
-  ['cel', { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, userAgent: UA.cel }],
+  ['pc', { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1.25 }],
+  ['cel', { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }],
 ];
 for (const [disp, opc] of APARELHOS) {
   const ctx = await nav.newContext({ ...opc, locale: 'pt-BR', timezoneId: 'America/Sao_Paulo' });
