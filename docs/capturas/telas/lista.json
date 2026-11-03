@@ -1,0 +1,270 @@
+{
+ "site": "https://aintendente.com.br",
+ "em": "2026-11-03T04:55:15.440Z",
+ "fotos": [
+  {
+   "nome": "inicio-topo",
+   "disp": "pc",
+   "arq": "inicio-topo-pc.jpg",
+   "tam": 291279
+  },
+  {
+   "nome": "inicio-aceima",
+   "disp": "pc",
+   "arq": "inicio-aceima-pc.jpg",
+   "tam": 154058
+  },
+  {
+   "nome": "inicio-vitrine",
+   "disp": "pc",
+   "arq": "inicio-vitrine-pc.jpg",
+   "tam": 148951
+  },
+  {
+   "nome": "venda-1",
+   "disp": "pc",
+   "arq": "venda-1-pc.jpg",
+   "tam": 156902
+  },
+  {
+   "nome": "venda-marca",
+   "disp": "pc",
+   "arq": "venda-marca-pc.jpg",
+   "tam": 160114
+  },
+  {
+   "nome": "estoque-topo",
+   "disp": "pc",
+   "arq": "estoque-topo-pc.jpg",
+   "tam": 195814
+  },
+  {
+   "nome": "estoque-grade",
+   "disp": "pc",
+   "arq": "estoque-grade-pc.jpg",
+   "tam": 157353
+  },
+  {
+   "nome": "estoque-mouse",
+   "disp": "pc",
+   "arq": "estoque-mouse-pc.jpg",
+   "tam": 140591
+  },
+  {
+   "nome": "estoque-busca",
+   "disp": "pc",
+   "arq": "estoque-busca-pc.jpg",
+   "tam": 169280
+  },
+  {
+   "nome": "carro-topo",
+   "disp": "pc",
+   "arq": "carro-topo-pc.jpg",
+   "tam": 168673
+  },
+  {
+   "nome": "carro-valor",
+   "disp": "pc",
+   "arq": "carro-valor-pc.jpg",
+   "tam": 249909
+  },
+  {
+   "nome": "assoc-topo",
+   "disp": "pc",
+   "arq": "assoc-topo-pc.jpg",
+   "tam": 180950
+  },
+  {
+   "nome": "assoc-lista",
+   "disp": "pc",
+   "arq": "assoc-lista-pc.jpg",
+   "tam": 188912
+  },
+  {
+   "nome": "assoc-loja",
+   "disp": "pc",
+   "arq": "assoc-loja-pc.jpg",
+   "tam": 223890
+  },
+  {
+   "nome": "associar-topo",
+   "disp": "pc",
+   "arq": "associar-topo-pc.jpg",
+   "tam": 237154
+  },
+  {
+   "nome": "associar-beneficios",
+   "disp": "pc",
+   "arq": "associar-beneficios-pc.jpg",
+   "tam": 240928
+  },
+  {
+   "nome": "associar-logos",
+   "disp": "pc",
+   "arq": "associar-logos-pc.jpg",
+   "tam": 271441
+  },
+  {
+   "nome": "aceima-topo",
+   "disp": "pc",
+   "arq": "aceima-topo-pc.jpg",
+   "tam": 307195
+  },
+  {
+   "nome": "aceima-historia",
+   "disp": "pc",
+   "arq": "aceima-historia-pc.jpg",
+   "tam": 222507
+  },
+  {
+   "nome": "publicacoes",
+   "disp": "pc",
+   "arq": "publicacoes-pc.jpg",
+   "tam": 289282
+  },
+  {
+   "nome": "repasse-entrada",
+   "disp": "pc",
+   "arq": "repasse-entrada-pc.jpg",
+   "tam": 83276
+  },
+  {
+   "nome": "painel-entrada",
+   "disp": "pc",
+   "arq": "painel-entrada-pc.jpg",
+   "tam": 78672
+  },
+  {
+   "nome": "inicio-topo",
+   "disp": "cel",
+   "arq": "inicio-topo-cel.jpg",
+   "tam": 255170
+  },
+  {
+   "nome": "inicio-aceima",
+   "disp": "cel",
+   "arq": "inicio-aceima-cel.jpg",
+   "tam": 187821
+  },
+  {
+   "nome": "inicio-vitrine",
+   "disp": "cel",
+   "arq": "inicio-vitrine-cel.jpg",
+   "tam": 114665
+  },
+  {
+   "nome": "venda-1",
+   "disp": "cel",
+   "arq": "venda-1-cel.jpg",
+   "tam": 159687
+  },
+  {
+   "nome": "venda-marca",
+   "disp": "cel",
+   "arq": "venda-marca-cel.jpg",
+   "tam": 149275
+  },
+  {
+   "nome": "estoque-topo",
+   "disp": "cel",
+   "arq": "estoque-topo-cel.jpg",
+   "tam": 115570
+  },
+  {
+   "nome": "estoque-grade",
+   "disp": "cel",
+   "arq": "estoque-grade-cel.jpg",
+   "tam": 55507
+  },
+  {
+   "nome": "estoque-busca",
+   "disp": "cel",
+   "arq": "estoque-busca-cel.jpg",
+   "tam": 110418
+  },
+  {
+   "nome": "carro-topo",
+   "disp": "cel",
+   "arq": "carro-topo-cel.jpg",
+   "tam": 122689
+  },
+  {
+   "nome": "carro-ficha",
+   "disp": "cel",
+   "arq": "carro-ficha-cel.jpg",
+   "tam": 223287
+  },
+  {
+   "nome": "carro-valor",
+   "disp": "cel",
+   "arq": "carro-valor-cel.jpg",
+   "tam": 151773
+  },
+  {
+   "nome": "assoc-topo",
+   "disp": "cel",
+   "arq": "assoc-topo-cel.jpg",
+   "tam": 175051
+  },
+  {
+   "nome": "assoc-lista",
+   "disp": "cel",
+   "arq": "assoc-lista-cel.jpg",
+   "tam": 174916
+  },
+  {
+   "nome": "assoc-loja",
+   "disp": "cel",
+   "arq": "assoc-loja-cel.jpg",
+   "tam": 173943
+  },
+  {
+   "nome": "associar-topo",
+   "disp": "cel",
+   "arq": "associar-topo-cel.jpg",
+   "tam": 216768
+  },
+  {
+   "nome": "associar-beneficios",
+   "disp": "cel",
+   "arq": "associar-beneficios-cel.jpg",
+   "tam": 201542
+  },
+  {
+   "nome": "associar-logos",
+   "disp": "cel",
+   "arq": "associar-logos-cel.jpg",
+   "tam": 247986
+  },
+  {
+   "nome": "aceima-topo",
+   "disp": "cel",
+   "arq": "aceima-topo-cel.jpg",
+   "tam": 321563
+  },
+  {
+   "nome": "aceima-historia",
+   "disp": "cel",
+   "arq": "aceima-historia-cel.jpg",
+   "tam": 165017
+  },
+  {
+   "nome": "publicacoes",
+   "disp": "cel",
+   "arq": "publicacoes-cel.jpg",
+   "tam": 300254
+  },
+  {
+   "nome": "repasse-entrada",
+   "disp": "cel",
+   "arq": "repasse-entrada-cel.jpg",
+   "tam": 83934
+  },
+  {
+   "nome": "painel-entrada",
+   "disp": "cel",
+   "arq": "painel-entrada-cel.jpg",
+   "tam": 70359
+  }
+ ]
+}
