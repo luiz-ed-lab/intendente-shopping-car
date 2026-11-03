@@ -1766,9 +1766,10 @@ const DADOS_SITE={pubs:{url:'publicacoes.json',usa:usarPubs},lojas:{url:'/api/lo
 const pedirFonte=k=>fetch(DADOS_SITE[k].url).then(r=>{if(r.ok)DADOS_SITE[k].etag=r.headers.get('etag');return r;});
 /* o site em dia sem recarregar a página (pedidos do Luiz, 03/11/2026). A cada troca de página e quando a aba volta a aparecer, o site pergunta
    se as publicações, as lojas, os credenciados e o estoque mudaram. A pergunta é leve: o navegador manda a marca (ETag) da cópia dele e, sem
-   mudança, a Vercel responde vazio (304), sem acordar o banco. A troca de página espera a resposta por pouco tempo, dentro da fusão, e a
-   página nova já entra certa. Chegando depois disso, a página muda em fusão, se ninguém está escrevendo nela; senão, vale na próxima troca */
-const DADOS_ESPERA=150;
+   mudança, a Vercel responde vazio (304), sem acordar o banco. Se a última resposta é de mais de 30 segundos atrás, a troca de página espera
+   a nova por pouco tempo, dentro da fusão, e a página já entra certa; navegando, a troca não espera nada. O que chega depois da fusão muda a
+   página em fusão, se ninguém está escrevendo nela; senão, vale na próxima troca */
+const DADOS_ESPERA=120,DADOS_NOVOS=30000;
 let conferencia=null,conferidoEm=0;
 function conferirDados(){
   if(!pronto)return Promise.resolve();
@@ -1818,7 +1819,7 @@ async function carregar(){
   if(!V.length)V=AMOSTRA_V.slice();
   if(!LJ.length)LJ=AMOSTRA_L.slice();
   usarPubs(await pubsP);
-  pronto=true;rota(true);
+  pronto=true;conferidoEm=Date.now();rota(true);
   // recarregou a página (ou voltou de outro site e ela abriu do zero): volta ao lugar onde estava, se ainda não rolou
   const nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0],p=POS[chaveAtual];
   if(nav&&/reload|back_forward/.test(nav.type)&&p&&p.pg===pagAtual&&p.y>0&&scrollY<2)irPara(p.y);
@@ -3939,7 +3940,7 @@ function go(pg,arg){
 // novidade: a mesma página de novo, com os dados que acabaram de chegar (novidades)
 function trocarPagina(semAnimacao,de,y,novidade){
   const topo=y==null?true:y;   // y: o lugar onde a página estava (voltando pelo histórico)
-  const conferido=novidade?null:Promise.race([conferirDados(),new Promise(r=>setTimeout(r,DADOS_ESPERA))]),depois=()=>{if(!novidade)conferirDados().then(novidades);};
+  const conferido=novidade||Date.now()-conferidoEm<DADOS_NOVOS?null:Promise.race([conferirDados(),new Promise(r=>setTimeout(r,DADOS_ESPERA))]),depois=()=>{if(!novidade)conferirDados().then(novidades);};
   if(semAnimacao||matchMedia('(prefers-reduced-motion: reduce)').matches){usarNovos();render(topo);depois();return;}
   if(document.startViewTransition){
     const troca=de!=null&&(de==='aceima')!==(pagAtual==='aceima');
