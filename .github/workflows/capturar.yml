@@ -1,0 +1,36 @@
+name: Capturar telas do site (apresentação)
+
+# Temporário (03/11/2026): filma o site no ar para a apresentação em motion e grava as telas nesta branch. Só roda nesta
+# branch, que é apagada depois. Abre as páginas públicas e as telas de entrada do Repasse e do painel, sem senha nenhuma.
+on:
+  push:
+    branches: [midia-apresentacao]
+
+permissions:
+  contents: write
+
+jobs:
+  capturar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262   # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020   # v4.4.0
+        with:
+          node-version: '22'
+      - name: Playwright
+        working-directory: docs/capturas
+        run: |
+          npm init -y > /dev/null
+          npm i playwright@1.49.1 --no-fund --no-audit
+          npx playwright install --with-deps chromium
+      - name: Filmar o site
+        working-directory: docs/capturas
+        run: node capturar.mjs https://aintendente.com.br telas
+      - name: Gravar as telas nesta branch
+        run: |
+          git config user.name "capturas-aceima"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/capturas/telas
+          git commit -m "Telas do site para a apresentação"
+          git push
