@@ -1393,6 +1393,7 @@ async function retencao() {
 const LIMITE_SYNC_MIN = 360, MAX_LOJAS_RODADA = 60, LOJA_COM_SITE = "coalesce(autocerto_url, autocerto_id, '') <> ''";
 async function rotaRefresh(req, res) {
   const passo = parseInt(req.query && req.query.seguir, 10) || 0, seguindo = passo > 0 && await autorizado(req);
+  const emTeste = process.env.VERCEL_ENV === 'preview' && req.query && req.query.teste === '1', LIMITE_AGORA = emTeste ? 60 : LIMITE_SYNC_MIN;
   if (!seguindo) try {
     const { rows: [lk] } = await query("select em from config where chave='refresh_lock'");
     if (lk && (Date.now() - new Date(lk.em).getTime()) < 150000) { res.setHeader('Cache-Control', 's-maxage=60'); return res.json({ ok: true, pulado: 'recente' }); }
@@ -1400,7 +1401,7 @@ async function rotaRefresh(req, res) {
   await migra();
   const { rows: [loja] } = await query(
     `select * from lojas where ativa = true and ${LOJA_COM_SITE}
-       and (ultima_sync is null or ultima_sync < now() - interval '${LIMITE_SYNC_MIN} minutes')
+       and (ultima_sync is null or ultima_sync < now() - interval '${LIMITE_AGORA} minutes')
      order by ultima_sync asc nulls first limit 1`);
   if (!loja) {
     if (seguindo) { await atualizarSite('site-veiculos', 'site-lojas'); return res.json({ ok: true, atualizado: false }); }   // o fim da rodada
@@ -1415,7 +1416,7 @@ async function rotaRefresh(req, res) {
     await importarLoja(loja);
     await resumoSeDevido();
     if (passo < MAX_LOJAS_RODADA && process.env.VERCEL_URL) {
-      await fetch(`https://${process.env.VERCEL_URL}/api/refresh?path=refresh&seguir=${passo + 1}`, { headers: { 'x-painel-token': PAINEL_TOKEN }, signal: AbortSignal.timeout(15000) });
+      await fetch(`https://${process.env.VERCEL_URL}/api/refresh?path=refresh&seguir=${passo + 1}${emTeste ? '&teste=1' : ''}`, { headers: { 'x-painel-token': PAINEL_TOKEN }, signal: AbortSignal.timeout(15000) });
     }
   })().catch(e => console.error('[refresh]', e && e.message));
   const contexto = globalThis[Symbol.for('@vercel/request-context')]?.get?.();
@@ -2373,6 +2374,10 @@ export default async function handler(req, res) {
   // sai do cache da Vercel), e o painel abre com uns 20
   if (contarNaMemoria('api:' + ipDe(req), 300, 60)) { res.setHeader('Retry-After', '60'); return res.status(429).json({ erro: 'Muitos pedidos seguidos. Espere um minuto.' }); }
   try {
+    if (rota === 'testesync' && process.env.VERCEL_ENV === 'preview') {
+      const { rows } = await query("select nome, ultima_sync, left(ultimo_erro, 40) as erro from lojas where ativa = true order by ultima_sync desc nulls last");
+      return res.json(rows);
+    }
     if (rota === 'lojas') return await rotaLojas(req, res);
     if (rota === 'parceiros') return await rotaParceiros(req, res);
     if (rota === 'veiculos') return await rotaVeiculos(req, res);
