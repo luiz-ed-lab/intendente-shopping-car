@@ -1,0 +1,445 @@
+{
+ "site": "https://aintendente.com.br",
+ "em": "2026-11-03T05:11:43.791Z",
+ "carro": {
+  "id": 2870,
+  "nome": "LAND ROVER RANGE ROVER EVOQUE 2024",
+  "loja": "AG Rio Car"
+ },
+ "fotos": [
+  {
+   "nome": "inicio-p0",
+   "disp": "pc",
+   "arq": "inicio-p0-pc.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "inicio-p1",
+   "disp": "pc",
+   "arq": "inicio-p1-pc.jpg",
+   "y": 900,
+   "quebradas": 0
+  },
+  {
+   "nome": "inicio-p2",
+   "disp": "pc",
+   "arq": "inicio-p2-pc.jpg",
+   "y": 1800,
+   "quebradas": 4
+  },
+  {
+   "nome": "inicio-p3",
+   "disp": "pc",
+   "arq": "inicio-p3-pc.jpg",
+   "y": 2223,
+   "quebradas": 2
+  },
+  {
+   "nome": "venda-1",
+   "disp": "pc",
+   "arq": "venda-1-pc.jpg",
+   "y": 2223,
+   "quebradas": 2
+  },
+  {
+   "nome": "venda-marca",
+   "disp": "pc",
+   "arq": "venda-marca-pc.jpg",
+   "y": 2223,
+   "quebradas": 2
+  },
+  {
+   "nome": "estoque-p0",
+   "disp": "pc",
+   "arq": "estoque-p0-pc.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "estoque-p1",
+   "disp": "pc",
+   "arq": "estoque-p1-pc.jpg",
+   "y": 900,
+   "quebradas": 0
+  },
+  {
+   "nome": "estoque-p2",
+   "disp": "pc",
+   "arq": "estoque-p2-pc.jpg",
+   "y": 1800,
+   "quebradas": 0
+  },
+  {
+   "nome": "estoque-mouse",
+   "disp": "pc",
+   "arq": "estoque-mouse-pc.jpg",
+   "y": 249,
+   "quebradas": 0
+  },
+  {
+   "nome": "estoque-busca",
+   "disp": "pc",
+   "arq": "estoque-busca-pc.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "carro-p0",
+   "disp": "pc",
+   "arq": "carro-p0-pc.jpg",
+   "y": 0,
+   "quebradas": 1
+  },
+  {
+   "nome": "carro-p1",
+   "disp": "pc",
+   "arq": "carro-p1-pc.jpg",
+   "y": 900,
+   "quebradas": 0
+  },
+  {
+   "nome": "carro-valor",
+   "disp": "pc",
+   "arq": "carro-valor-pc.jpg",
+   "y": 989,
+   "quebradas": 0
+  },
+  {
+   "nome": "assoc-p0",
+   "disp": "pc",
+   "arq": "assoc-p0-pc.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "assoc-p1",
+   "disp": "pc",
+   "arq": "assoc-p1-pc.jpg",
+   "y": 192,
+   "quebradas": 0
+  },
+  {
+   "nome": "assoc-loja",
+   "disp": "pc",
+   "arq": "assoc-loja-pc.jpg",
+   "y": 192,
+   "quebradas": 0
+  },
+  {
+   "nome": "associar-p0",
+   "disp": "pc",
+   "arq": "associar-p0-pc.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "associar-p1",
+   "disp": "pc",
+   "arq": "associar-p1-pc.jpg",
+   "y": 900,
+   "quebradas": 0
+  },
+  {
+   "nome": "associar-p2",
+   "disp": "pc",
+   "arq": "associar-p2-pc.jpg",
+   "y": 1800,
+   "quebradas": 0
+  },
+  {
+   "nome": "associar-beneficios",
+   "disp": "pc",
+   "arq": "associar-beneficios-pc.jpg",
+   "y": 1288,
+   "quebradas": 0
+  },
+  {
+   "nome": "associar-logos",
+   "disp": "pc",
+   "arq": "associar-logos-pc.jpg",
+   "y": 1790,
+   "quebradas": 0
+  },
+  {
+   "nome": "aceima-p0",
+   "disp": "pc",
+   "arq": "aceima-p0-pc.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "aceima-p1",
+   "disp": "pc",
+   "arq": "aceima-p1-pc.jpg",
+   "y": 900,
+   "quebradas": 0
+  },
+  {
+   "nome": "publicacoes-p0",
+   "disp": "pc",
+   "arq": "publicacoes-p0-pc.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "publicacoes-p1",
+   "disp": "pc",
+   "arq": "publicacoes-p1-pc.jpg",
+   "y": 442,
+   "quebradas": 0
+  },
+  {
+   "nome": "repasse-entrada",
+   "disp": "pc",
+   "arq": "repasse-entrada-pc.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "painel-entrada",
+   "disp": "pc",
+   "arq": "painel-entrada-pc.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "inicio-p0",
+   "disp": "cel",
+   "arq": "inicio-p0-cel.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "inicio-p1",
+   "disp": "cel",
+   "arq": "inicio-p1-cel.jpg",
+   "y": 844,
+   "quebradas": 2
+  },
+  {
+   "nome": "inicio-p2",
+   "disp": "cel",
+   "arq": "inicio-p2-cel.jpg",
+   "y": 1688,
+   "quebradas": 4
+  },
+  {
+   "nome": "inicio-p3",
+   "disp": "cel",
+   "arq": "inicio-p3-cel.jpg",
+   "y": 1958,
+   "quebradas": 0
+  },
+  {
+   "nome": "inicio-p4",
+   "disp": "cel",
+   "arq": "inicio-p4-cel.jpg",
+   "y": 1958,
+   "quebradas": 0
+  },
+  {
+   "nome": "venda-1",
+   "disp": "cel",
+   "arq": "venda-1-cel.jpg",
+   "y": 1936,
+   "quebradas": 0
+  },
+  {
+   "nome": "venda-marca",
+   "disp": "cel",
+   "arq": "venda-marca-cel.jpg",
+   "y": 1936,
+   "quebradas": 0
+  },
+  {
+   "nome": "estoque-p0",
+   "disp": "cel",
+   "arq": "estoque-p0-cel.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "estoque-p1",
+   "disp": "cel",
+   "arq": "estoque-p1-cel.jpg",
+   "y": 844,
+   "quebradas": 0
+  },
+  {
+   "nome": "estoque-p2",
+   "disp": "cel",
+   "arq": "estoque-p2-cel.jpg",
+   "y": 1688,
+   "quebradas": 0
+  },
+  {
+   "nome": "estoque-p3",
+   "disp": "cel",
+   "arq": "estoque-p3-cel.jpg",
+   "y": 2532,
+   "quebradas": 0
+  },
+  {
+   "nome": "estoque-p4",
+   "disp": "cel",
+   "arq": "estoque-p4-cel.jpg",
+   "y": 3376,
+   "quebradas": 0
+  },
+  {
+   "nome": "estoque-busca",
+   "disp": "cel",
+   "arq": "estoque-busca-cel.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "estoque-busca2",
+   "disp": "cel",
+   "arq": "estoque-busca2-cel.jpg",
+   "y": 560,
+   "quebradas": 0
+  },
+  {
+   "nome": "carro-p0",
+   "disp": "cel",
+   "arq": "carro-p0-cel.jpg",
+   "y": 0,
+   "quebradas": 1
+  },
+  {
+   "nome": "carro-p1",
+   "disp": "cel",
+   "arq": "carro-p1-cel.jpg",
+   "y": 844,
+   "quebradas": 0
+  },
+  {
+   "nome": "carro-p2",
+   "disp": "cel",
+   "arq": "carro-p2-cel.jpg",
+   "y": 1688,
+   "quebradas": 0
+  },
+  {
+   "nome": "carro-valor",
+   "disp": "cel",
+   "arq": "carro-valor-cel.jpg",
+   "y": 1559,
+   "quebradas": 0
+  },
+  {
+   "nome": "assoc-p0",
+   "disp": "cel",
+   "arq": "assoc-p0-cel.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "assoc-p1",
+   "disp": "cel",
+   "arq": "assoc-p1-cel.jpg",
+   "y": 844,
+   "quebradas": 0
+  },
+  {
+   "nome": "assoc-loja",
+   "disp": "cel",
+   "arq": "assoc-loja-cel.jpg",
+   "y": 286,
+   "quebradas": 0
+  },
+  {
+   "nome": "associar-p0",
+   "disp": "cel",
+   "arq": "associar-p0-cel.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "associar-p1",
+   "disp": "cel",
+   "arq": "associar-p1-cel.jpg",
+   "y": 844,
+   "quebradas": 0
+  },
+  {
+   "nome": "associar-p2",
+   "disp": "cel",
+   "arq": "associar-p2-cel.jpg",
+   "y": 1688,
+   "quebradas": 0
+  },
+  {
+   "nome": "associar-p3",
+   "disp": "cel",
+   "arq": "associar-p3-cel.jpg",
+   "y": 2532,
+   "quebradas": 0
+  },
+  {
+   "nome": "associar-beneficios",
+   "disp": "cel",
+   "arq": "associar-beneficios-cel.jpg",
+   "y": 1678,
+   "quebradas": 0
+  },
+  {
+   "nome": "associar-logos",
+   "disp": "cel",
+   "arq": "associar-logos-cel.jpg",
+   "y": 2119,
+   "quebradas": 0
+  },
+  {
+   "nome": "aceima-p0",
+   "disp": "cel",
+   "arq": "aceima-p0-cel.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "aceima-p1",
+   "disp": "cel",
+   "arq": "aceima-p1-cel.jpg",
+   "y": 844,
+   "quebradas": 0
+  },
+  {
+   "nome": "aceima-p2",
+   "disp": "cel",
+   "arq": "aceima-p2-cel.jpg",
+   "y": 1551,
+   "quebradas": 0
+  },
+  {
+   "nome": "publicacoes-p0",
+   "disp": "cel",
+   "arq": "publicacoes-p0-cel.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "publicacoes-p1",
+   "disp": "cel",
+   "arq": "publicacoes-p1-cel.jpg",
+   "y": 792,
+   "quebradas": 0
+  },
+  {
+   "nome": "repasse-entrada",
+   "disp": "cel",
+   "arq": "repasse-entrada-cel.jpg",
+   "y": 0,
+   "quebradas": 0
+  },
+  {
+   "nome": "painel-entrada",
+   "disp": "cel",
+   "arq": "painel-entrada-cel.jpg",
+   "y": 0,
+   "quebradas": 0
+  }
+ ]
+}
