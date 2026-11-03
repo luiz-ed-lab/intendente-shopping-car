@@ -61,6 +61,12 @@ html{scrollbar-color:#C9C3BB transparent}
 .campo::placeholder{color:#8D9BB3}
 .campo:focus{border-color:var(--gold3);background:rgba(255,255,255,.09)}
 .ent-form .ouro{margin-top:8px;height:54px;font-size:16px}
+/* a escolha de continuar conectado, antes de entrar (pedido do Luiz, 03/11/2026) */
+.ent-form .ent-manter{display:flex;align-items:center;gap:10px;width:max-content;max-width:100%;padding:4px 0;font-size:14px;color:var(--clara);cursor:pointer}
+.ent-manter input{appearance:none;-webkit-appearance:none;flex:none;display:grid;place-content:center;width:20px;height:20px;margin:0;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.06);cursor:pointer;transition:background .2s,border-color .2s}
+.ent-manter input:checked{background:var(--gold3);border-color:var(--gold3)}
+.ent-manter input:checked::after{content:"";width:10px;height:5px;margin-top:-2px;border-left:2px solid var(--navy);border-bottom:2px solid var(--navy);transform:rotate(-45deg)}
+.ent-manter input:focus-visible{outline:2px solid var(--gold3);outline-offset:3px;border-radius:6px}
 .ent-nota{margin-top:22px;max-width:460px;font-size:14px;color:var(--clara)}
 .ent-nota a{color:var(--gold3);font-weight:600;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
 
@@ -397,6 +403,7 @@ a.marca:hover{opacity:.85}
   <input class="campo" id="entEmail" type="email" autocomplete="username" placeholder="loja@exemplo.com.br" required>
   <label for="entSenha">Senha</label>
   <input class="campo" id="entSenha" type="password" autocomplete="current-password" placeholder="Sua senha" required>
+  <label class="ent-manter"><input type="checkbox" id="entManter"><span>Manter conectado</span></label>
   <button class="ouro" type="submit" id="entBt">Entrar</button>
  </form>
  <p class="ent-nota">Primeiro acesso? <a href="https://wa.me/5521991041424?text=Ol%C3%A1!%20Quero%20o%20acesso%20da%20minha%20loja%20ao%20Repasse%20Intendente." target="_blank" rel="noopener">Clique aqui.</a></p>
@@ -945,8 +952,10 @@ async function publicar(){
 }
 
 /* ---------- abas (tablet e celular) ---------- */
-function aba(k){abaAtual=k;$('folhaIn').className='folha-in '+(k==='meus'?'so-meus':'so-mercado');
-  [['abaMercado','mercado'],['abaMeus','meus']].forEach(([id,v])=>{const b=$(id);b.classList.toggle('on',v===k);b.setAttribute('aria-selected',v===k);});}
+// trocando de aba, nada do que foi aberto, filtrado ou escrito continua lá (pedido do Luiz, 03/11/2026)
+function aba(k){const mudou=k!==abaAtual;abaAtual=k;$('folhaIn').className='folha-in '+(k==='meus'?'so-meus':'so-mercado');
+  [['abaMercado','mercado'],['abaMeus','meus']].forEach(([id,v])=>{const b=$(id);b.classList.toggle('on',v===k);b.setAttribute('aria-selected',v===k);});
+  if(mudou){fecharForm();aberto=null;marcarEndereco();F={chip:'todos',q:'',ord:'novos'};$('busca').value='';tudo();}}
 
 let tt;function toast(t,ms){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),ms||2800);}
 function tudo(){pintarTopo();pintarFiltros();pintarLista(false);pintarMeus();}
@@ -954,7 +963,8 @@ function tudo(){pintarTopo();pintarFiltros();pintarLista(false);pintarMeus();}
 /* ---------- a API e a sessão (o token fica no aparelho por 30 dias; Sair apaga) ---------- */
 const SESSAO='aceima_repasse';
 const guarda={pega(){try{return localStorage.getItem(SESSAO)||sessionStorage.getItem(SESSAO);}catch(e){return null;}},
-  poe(t){try{localStorage.setItem(SESSAO,t);}catch(e){try{sessionStorage.setItem(SESSAO,t);}catch(_){}}},
+  // com "Manter conectado", fica no aparelho; sem, só nesta aba: fechou, saiu
+  poe(t,manter){try{(manter?localStorage:sessionStorage).setItem(SESSAO,t);}catch(e){try{sessionStorage.setItem(SESSAO,t);}catch(_){}}},
   tira(){try{localStorage.removeItem(SESSAO);sessionStorage.removeItem(SESSAO);}catch(e){}}};
 let TOKEN=guarda.pega();
 async function api(acao,corpo){
@@ -1003,11 +1013,11 @@ function sessaoCaiu(){if(!TOKEN)return;TOKEN=null;guarda.tira();mostrarEntrada()
 function sair(){const t=TOKEN;if(t)fetch('/api/repasse?path=repasse&acao=sair',{method:'POST',headers:{'x-repasse-token':t,'Content-Type':'application/json'},body:'{}',keepalive:true}).catch(()=>{});
   TOKEN=null;guarda.tira();location.replace('/repasse');}
 $('entForm').addEventListener('submit',async e=>{e.preventDefault();
-  const em=$('entEmail'),se=$('entSenha'),bt=$('entBt');
+  const em=$('entEmail'),se=$('entSenha'),bt=$('entBt'),manter=$('entManter').checked;
   if(!em.value.trim()){em.focus();toast('Escreva o e-mail da loja.');return;}
   if(!se.value){se.focus();toast('Escreva a senha.');return;}
   bt.disabled=true;bt.textContent='Entrando…';
-  try{const d=await api('entrar',{email:em.value,senha:se.value});TOKEN=d.token;guarda.poe(TOKEN);EU=d.loja;se.value='';await abrirApp();}
+  try{const d=await api('entrar',{email:em.value,senha:se.value,manter});TOKEN=d.token;guarda.poe(TOKEN,manter);EU=d.loja;se.value='';await abrirApp();}
   catch(er){toast(er.message||'Não deu para entrar.',4000);se.select();}
   bt.disabled=false;bt.textContent='Entrar';
 });

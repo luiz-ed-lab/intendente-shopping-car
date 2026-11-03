@@ -3,6 +3,7 @@
 import fs from 'fs';
 const src = fs.readFileSync(new URL('../api/[...path].js', import.meta.url), 'utf8');
 const trecho = src.slice(src.indexOf('const CATEGORIAS_PUB'), src.indexOf('// ---------------- AVALIAÇÕES DO GOOGLE'));
+if (!/'Anúncio'/.test(trecho.slice(0, 200))) { console.log('FALHOU: a categoria Anúncio não está na API'); process.exitCode = 1; } else console.log('ok: a categoria Anúncio está na API');
 const criar = new Function('return (async()=>{' + trecho + '; return rotaPublicacoes;})()');
 const assert = (c, m) => { if (!c) { console.log('FALHOU:', m); process.exitCode = 1; } else console.log('ok:', m); };
 Object.assign(process.env, { GITHUB_TOKEN: 'x', VERCEL_GIT_COMMIT_REF: 'site-novo', VERCEL_GIT_REPO_OWNER: 'luiz-ed-lab', VERCEL_GIT_REPO_SLUG: 'intendente-shopping-car' });

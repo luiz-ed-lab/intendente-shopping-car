@@ -34,14 +34,30 @@ jobs:
             echo "Nenhuma loja encontrada (API fora do ar ou senha errada?)."
             exit 0
           fi
-          for ID in $IDS; do
-            echo "--- Sincronizando loja $ID"
+          ler() {
+            echo "--- Sincronizando loja $1"
+            rm -f /tmp/out.json
             CODE=$(curl -s -o /tmp/out.json -w '%{http_code}' --max-time 90 \
                    -H "x-painel-token: $PAINEL_TOKEN" \
-                   "$SITE/api/importar?path=importar&loja=$ID" || echo "erro")
+                   "$SITE/api/importar?path=importar&loja=$1" || echo "erro")
             echo "HTTP $CODE"
             head -c 400 /tmp/out.json 2>/dev/null || true
             echo ""
+            [ "$CODE" = "200" ] && ! grep -q '"erro"' /tmp/out.json
+          }
+          FALHAS=""
+          for ID in $IDS; do
+            ler "$ID" || FALHAS="$FALHAS $ID"
             sleep 5
           done
+          # a loja com falha na leitura sai do site (pedido do Luiz, 03/11/2026): antes disso, mais uma tentativa, para um tropeço de um minuto
+          # no site dela não deixar a loja seis horas fora
+          if [ -n "$FALHAS" ]; then
+            echo "Tentando de novo, em 3 minutos:$FALHAS"
+            sleep 180
+            for ID in $FALHAS; do
+              ler "$ID" || true
+              sleep 5
+            done
+          fi
           echo "Sincronização concluída."

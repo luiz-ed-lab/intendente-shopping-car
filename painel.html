@@ -553,6 +553,7 @@ button.row:hover .row-tx b{color:var(--gold)}
 .switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s var(--ease)}
 .switch.on{background:var(--gold2)}
 .switch.on::after{transform:translateX(18px)}
+.switch:disabled{opacity:.5;cursor:not-allowed}
 .cam .switch{background:rgba(255,255,255,.18)}.cam .switch.on{background:var(--gold2)}
 .pager{display:none}
 /* leads */
@@ -602,7 +603,7 @@ button.row:hover .row-tx b{color:var(--gold)}
 .fsel.aberto .fsel-at svg{transform:rotate(90deg)}
 .fsel-in .chip{transition:transform .42s var(--ease) calc(var(--i) * 12ms),opacity .24s calc(var(--i) * 12ms),box-shadow .25s,background .25s,color .25s}
 .fsel:not(.aberto) .fsel-in .chip{transform:translateX(calc((-100% - 8px) * var(--i)));opacity:0;visibility:hidden;pointer-events:none;transition:transform .36s var(--ease),opacity .2s .1s,visibility 0s .36s}
-@media (max-width:1220px){
+@media (max-width:1300px){
   .mbar{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:0}
   .fsel{display:contents}
   .fsel .fsel-at{grid-column:1;grid-row:1;justify-self:start;min-width:200px;height:42px}
@@ -610,6 +611,7 @@ button.row:hover .row-tx b{color:var(--gold)}
   .fsel-ops{display:grid;grid-column:1/-1;grid-row:2;grid-template-rows:0fr;transition:grid-template-rows .42s var(--ease),margin-top .42s var(--ease)}
   .fsel.aberto .fsel-ops{grid-template-rows:1fr;margin-top:8px}
   .fsel-in{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;min-height:0;overflow:hidden}
+  .fsel-in .chip:last-child:nth-child(3n+1){grid-column:1/-1}
   .fsel-at svg{transform:none}
   .fsel.aberto .fsel-at svg{transform:rotate(180deg)}
   .fsel:not(.aberto) .fsel-in .chip{transform:translateY(-10px)}
@@ -648,6 +650,7 @@ button.row:hover .row-tx b{color:var(--gold)}
 .ed-g .cp input{height:44px;font-size:14.5px}
 .ed-g .seg{flex-wrap:nowrap}
 .ed-g .seg button{height:38px;padding:0 16px;font-size:13px}
+@media (max-width:1300px){.ed-g .seg{gap:5px}.ed-g .seg button{flex:1 1 auto;padding:0 10px;font-size:12.5px}}
 .ed-g .sw-l{height:44px}
 .ed-txt textarea{min-height:0;resize:none;overflow:hidden;transition:height .2s}
 /* a data no padrão das listas do site: o botão abre um calendário escuro, como a lista dos filtros */
@@ -665,7 +668,7 @@ button.row:hover .row-tx b{color:var(--gold)}
 .cal-h button:hover{background:rgba(255,255,255,.08);color:#fff}
 .cal-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
 .cal-g span{padding:6px 0;text-align:center;font:600 10.5px/1 var(--f2);letter-spacing:.08em;text-transform:uppercase;color:var(--gold3)}
-.cal-g button{height:36px;border-radius:10px;color:#CFD9E8;font-size:13.5px;font-variant-numeric:tabular-nums;transition:background .15s,color .15s}
+.cal-g button{height:36px;border-radius:10px;color:#CFD9E8;font-size:13.5px;font-variant-numeric:tabular-nums;text-align:center;transition:background .15s,color .15s}
 .cal-g button:hover{background:rgba(255,255,255,.08);color:#fff}
 .cal-g button.hoje{box-shadow:inset 0 0 0 1px rgba(244,176,92,.5)}
 .cal-g button.sel{background:var(--gold2);color:var(--navy);font-weight:700}
@@ -799,6 +802,8 @@ button.row:hover .row-tx b{color:var(--gold)}
   .ed-fotos{grid-template-columns:repeat(3,minmax(0,1fr))}
   .fsel .fsel-at{justify-self:stretch;min-width:0}
   .fsel-in{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fsel-in .chip:last-child:nth-child(3n+1){grid-column:auto}
+  .fsel-in .chip:last-child:nth-child(odd){grid-column:1/-1}
   .fsel-in .chip{padding:0 12px}
   .prow{grid-template-columns:22vw minmax(0,1fr) auto;gap:12px}
   .prow .pr-t,.prow>.lk{display:none}
@@ -898,8 +903,8 @@ button.row:hover .row-tx b{color:var(--gold)}
   /* o editor do mural: o título numa linha, a data e o destaque na de baixo, e as quatro categorias numa linha só */
   .ed-l1{grid-template-columns:minmax(0,1fr) auto}
   .ed-l1 .ed-ti{grid-column:1/-1}
-  .ed-g .seg{gap:5px}
-  .ed-g .seg button{flex:1 1 auto;min-width:0;height:34px;padding:0 1.6vw;font-size:2.95vw}
+  .ed-g .seg{gap:5px;flex-wrap:wrap}
+  .ed-g .seg button{flex:1 1 22%;min-width:0;height:34px;padding:0 1.6vw;font-size:2.95vw}
   .ll-h{display:none}
   .ll{grid-template-columns:10px minmax(0,1fr) auto;grid-template-areas:"n c t" "n i i" "n l d";row-gap:5px;padding:12px 0}
   .ll>.nv,.ll>.nv0{grid-area:n;align-self:start;margin-top:7px}
@@ -1131,7 +1136,9 @@ function origemLabel(chave){const s=String(chave||'');if(/^https?:\/\//i.test(s)
 const urlSite=s=>/^https?:/i.test(s)?s:'https://'+s;
 // a falha do robô em duas palavras (pedido do Luiz, 20/10/2026): o endereço não existe (página 404, domínio que não existe ou sem site
 // cadastrado) ou o site não respondeu (fora do ar, lento, bloqueado)
-const erroLegivel=e=>/sem site|HTTP 404|ENOTFOUND|getaddrinfo/i.test(String(e||''))?'Site não existe':'Site indisponível';
+const erroLegivel=e=>/sem site|HTTP 404|ENOTFOUND|getaddrinfo/i.test(String(e||''))?'Site não existe':/nenhum anúncio/i.test(String(e||''))?'Site sem anúncios':'Site indisponível';
+// o carro fora do site: escondido pela Aceima ou da loja com falha na leitura há mais de 6 horas (a API conta, com a mesma regra do site)
+const foraV=v=>v.oculto===true||v.fora_por_falha===true;
 // nomes dos carros como no site: as lojas mandam tudo em maiúsculas; fica maiúscula só a primeira letra, e as siglas inteiras
 const SIGLAS=['BMW','BYD','JAC','RAM','GWM','GM','VW','GAC','KTM','CAOA','MV','DS','ABS','CBS','TSI','TFSI','MPI','MPFI','MI','MSI','SCE','TCE','DCI','TGDI','CGI','GDI','THP','HPE','VVT','VCT','VTEC','MIVEC','TDI','TD','CRDI','GNV','CVT','DCT','DSG','EDC','AT','MT','AWD','AWC','FWD','RWD','PHEV','HEV','DHT','KW','CV','CC','SUV',
   'LT','LTZ','LS','LX','LXL','LXR','EX','EXL','EXS','DX','SE','SEL','SR','SRV','SV','SL','GL','GLS','GLX','GLI','GT','GTI','GTS','RS','ST','XS','XL','XLS','XLT','XLI','XEI','XR','XRE','XRX','XTZ','XVS','YBR','YS','ZR','NK','NXR','PCX','CG','CB','NMAX','XMAX','ADV','TXS','VTI','HSE','CD','CS','STD','ED','EL','ELX','DI','SED','MHD','SFI','GS','GSX','XE','SRX','SW','CL','DLX','PDK','AMG','RT','ACT',
@@ -1168,7 +1175,7 @@ async function carregarPainel(){
   lojasApi=Array.isArray(lj)?lj:[];veicAll=Array.isArray(ve)?ve:[];leadsRaw=Array.isArray(le)?le:[];
   if(Array.isArray(ra)){repAcessos={};ra.forEach(a=>{repAcessos[a.loja_id]=a;});}
   if(Array.isArray(pc))credenciados=pc.map(p=>({id:p.id||null,painel:!!p.painel,nome:p.nome,nota:Number(p.nota)||0,aval:Number(p.total)||0,site:p.site||'',ramo:p.ramo||'',
-    desc:p.descricao||'',end:p.endereco||'',tel:p.telefone||'',wa:p.whatsapp||'',logo:p.logo?'/api/logo?path=logo&parceiro='+encodeURIComponent(p.nome)+(LOGO_NOVA[p.nome]?'&v='+LOGO_NOVA[p.nome]:''):''}));
+    desc:p.descricao||'',end:p.endereco||'',tel:p.telefone||'',wa:p.whatsapp||'',logo:p.logo?'/api/logo?path=logo&parceiro='+encodeURIComponent(p.nome)+(p.logo_v?'&v='+p.logo_v:''):''}));
   if(vs&&vs.ok)VIS=vs;
   montarDados();montarFiltros();
   const primeira=!dadosProntos;dadosProntos=true;
@@ -1204,7 +1211,7 @@ async function carregarPubs(){
 /* ---------- topo: a data, o título e os números de cada parte ---------- */
 const TIT={associados:['Empresas ','associadas.'],veiculos:['Veículos ','no ar.'],leads:['Central de ','leads.'],mural:['Mural ','Aceima.']};
 function contas(){
-  const noSite=lojas.filter(l=>!l.fora),noAr=veicAll.filter(v=>v.oculto!==true).length,semFoto=veicAll.filter(v=>!fotoV(v)).length,syncs=lojas.map(l=>l.sync).filter(Boolean).sort(),agora=Date.now();
+  const noSite=lojas.filter(l=>!l.fora),noAr=veicAll.filter(v=>!foraV(v)).length,semFoto=veicAll.filter(v=>!fotoV(v)).length,syncs=lojas.map(l=>l.sync).filter(Boolean).sort(),agora=Date.now();
   return {empresas:noSite.length+credenciados.length,integradas:noSite.filter(l=>l.n>0).length,noAr,ocultos:veicAll.length-noAr,semFoto,
     novos:leads.filter(l=>l.novo).length,n7:leads.filter(l=>agora-new Date(l.criado)<7*864e5).length,n24:leads.filter(l=>agora-new Date(l.criado)<864e5).length,
     ult:syncs[syncs.length-1],falhas:lojas.filter(l=>l.erro).length};
@@ -1759,7 +1766,7 @@ function camAssoc(e){
     <div class="cm-n"><div><b>${fmt(l.n)}</b><span>${l.n===1?'veículo':'veículos'}</span></div>${nota?`<div><b>${nota}<i>★</i></b><span>${fmt(l.aval)} avaliações</span></div>`:''}</div></div>
    <div class="cm-i" id="ci-${l.id}">
     ${info('Endereço',l.end)}${info('Telefone',l.tel&&fmtTel(l.tel))}${info('WhatsApp',l.wa&&fmtTel(l.wa))}${info('E-mail dos leads',l.email)}
-    <div><span>Sincronização</span><p class="${l.erro?'erro':''}">${l.erro?esc(erroLegivel(l.erro)+' · última tentativa '+quando(l.sync)):l.sync?esc('Sincronizado '+quando(l.sync)):'O robô ainda não leu o site'}</p></div>
+    <div><span>Sincronização</span><p class="${l.erro?'erro':''}">${l.erro?esc(erroLegivel(l.erro)+' · última tentativa '+quando(l.sync)+(veicAll.some(v=>v.loja_id===l.id&&v.fora_por_falha)?' · anúncios fora do site':'')):l.sync?esc('Sincronizado '+quando(l.sync)):'O robô ainda não leu o site'}</p></div>
     ${infoRepasse(l)}
    </div>
    <div class="cm-b" id="cb-${l.id}">
@@ -1780,7 +1787,7 @@ async function importarAgora(id){
   const l=lojas.find(x=>x.id===id),box=$('cb-'+id);if(!l||!box)return;
   const passos=['Abrindo o site da loja','Lendo os anúncios','Conferindo as fotos','Publicando no site'];let k=0;
   andamento(box,0,passos);const tick=setInterval(()=>{if(k<passos.length-1)andamento(box,++k,passos);},1600);
-  const r=await api('/api/importar?path=importar&loja='+id).then(x=>x.json()).catch(e=>({erro:e.message}));
+  const r=await api('/api/importar?path=importar&painel=1&loja='+id).then(x=>x.json()).catch(e=>({erro:e.message}));
   clearInterval(tick);
   const r0=(r&&r.lojas&&r.lojas[0])||{},erro=(r&&r.erro)||r0.erro;
   if(!erro)andamento(box,passos.length,passos);
@@ -1919,7 +1926,7 @@ async function cadastrar(){
   try{
     const r=await jsonPost('/api/lojas?path=lojas',{nome,autocerto_id:site});loja=await r.json().catch(()=>null);
     if(!r.ok||!loja||!loja.id)throw new Error((loja&&loja.erro)||('erro '+r.status));
-    const ri=await api('/api/importar?path=importar&loja='+loja.id).then(x=>x.json()).catch(e=>({erro:e.message}));
+    const ri=await api('/api/importar?path=importar&painel=1&loja='+loja.id).then(x=>x.json()).catch(e=>({erro:e.message}));
     r0=(ri&&ri.lojas&&ri.lojas[0])||{};erro=(ri&&ri.erro)||r0.erro||null;
   }catch(e){clearInterval(tick);deNovo(e.message);return;}
   clearInterval(tick);andamento(box,passos.length,passos);
@@ -1953,7 +1960,6 @@ async function completar(id){
 }
 /* credenciados cadastrados pelo painel (tabela parceiros da API, com o ramo em "categoria"): o robô lê o site (a descrição, os contatos e a
    logo) e as avaliações no Google; o que ele não achar, o painel pede */
-const LOGO_NOVA={};   // logo trocada agora: o endereço muda, senão aparece a guardada da Vercel (um dia)
 let credNovo=null;
 const abrirCredNovo=()=>{const c=credNovo&&credenciados.find(x=>x.id===credNovo);assocFiltro='todos';assocAberto=c?'c:'+c.nome:null;renderAssoc(true);};
 async function cadastrarCred(nome,site,ramo){
@@ -1991,7 +1997,7 @@ async function completarCred(id){
   const v=k=>($(k)?$(k).value.trim():''),corpo={id},c=credenciados.find(x=>x.id===id);
   if(logoData)corpo.logo_url=logoData;if(v('cDesc'))corpo.descricao=v('cDesc');if(v('cEnd'))corpo.endereco=v('cEnd');if(v('cTel'))corpo.telefone=v('cTel');if(v('cWa'))corpo.whatsapp=waDe(v('cWa'));
   try{const r=await jsonPost('/api/parceiros?path=parceiros',corpo,'PATCH');if(!r.ok)throw new Error('erro '+r.status);
-    if(logoData&&c)LOGO_NOVA[c.nome]=Date.now();logoData=null;
+    logoData=null;
     await carregarPainel();toast('Cadastro completo');fecharNovo(abrirCredNovo);}
   catch(e){toast('Não deu para salvar: '+e.message);}
 }
@@ -2015,7 +2021,7 @@ async function salvarCred(id){
   const corpo={id,nome,site:v('eSite'),categoria:$('eRamo').value,descricao:v('eDesc'),endereco:v('eEnd'),telefone:v('eTel'),whatsapp:waDe(v('eWa')),logo_url:logoData||null};
   const cb=$('cb-c'+id);if(cb)cb.innerHTML=`<div class="and"><p>${spin}Salvando…</p></div>`;
   try{const r=await jsonPost('/api/parceiros?path=parceiros',corpo,'PATCH');if(!r.ok)throw new Error('erro '+r.status);
-    if(logoData)LOGO_NOVA[nome]=Date.now();logoData=null;assocAberto='c:'+nome;await carregarPainel();toast(nome+' atualizado');}
+    logoData=null;assocAberto='c:'+nome;await carregarPainel();toast(nome+' atualizado');}
   catch(e){toast('Não deu para salvar: '+e.message);renderAssoc();}
 }
 // ler o site de novo (o site mudou, ou a primeira leitura falhou): só o que estiver vazio é preenchido
@@ -2117,8 +2123,8 @@ function filtrarVeic(animar){
   let list=veicAll.filter(v=>{
     if(lj&&v.loja_nome!==lj)return false;
     if(mc&&titulo(v.marca)!==mc)return false;
-    if(st==='nosite'&&v.oculto===true)return false;
-    if(st==='ocultos'&&v.oculto!==true)return false;
+    if(st==='nosite'&&foraV(v))return false;
+    if(st==='ocultos'&&!foraV(v))return false;
     if(st==='semfoto'&&fotoV(v))return false;
     return true;
   });
@@ -2132,9 +2138,10 @@ function filtrarVeic(animar){
   const pags=Math.max(1,Math.ceil(list.length/VPOR));if(VPAG>=pags)VPAG=pags-1;
   renderVeic(animar);
 }
+const FILTROS_V=[['fVLoja',''],['fVMarca',''],['fVOrd','recentes'],['fVStatus','todos']];
 function limparFiltrosVeic(quieto){
   $('fVBusca').value='';
-  [['fVLoja',''],['fVMarca',''],['fVOrd','recentes'],['fVStatus','todos']].forEach(([id,v])=>{const e=$(id);if(e){const m=e.value!==v;e.value=v;if(e.__dd)e.__dd.atualizar(m&&!quieto);}});
+  FILTROS_V.forEach(([id,v])=>{const e=$(id);if(e){const m=e.value!==v;e.value=v;if(e.__dd)e.__dd.atualizar(m&&!quieto);}});
   VPAG=0;if(!quieto)filtrarVeic(true);
 }
 // trocando entre grade e lista, o carro aberto fecha (pedido do Luiz, 22/10/2026)
@@ -2142,7 +2149,7 @@ function modoVeic(m){if(m===VMODO)return;VMODO=m;veicAberto=null;try{localStorag
 const precoV=v=>(v.preco&&+v.preco>0)?money(v.preco):'Consultar';
 const kmV=v=>v.km==null?'—':(Number(v.km)===0?'0 km':fmt(v.km)+' km');
 const etiquetaV=v=>!fotoV(v)?'<span class="pl erro">sem foto</span>':'';   // o oculto não leva a palavra (pedido do Luiz, 31/10/2026): a chave já mostra
-const chave=v=>`<button type="button" class="switch${v.oculto===true?'':' on'}" data-sw="${v.id}" role="switch" aria-checked="${v.oculto!==true}" aria-label="Aparece no site" title="${v.oculto===true?'Oculto no site':'Aparece no site'}" onclick="event.stopPropagation();toggleVeic(${v.id})"></button>`;
+const chave=v=>v.fora_por_falha?`<button type="button" class="switch" disabled role="switch" aria-checked="false" aria-label="Fora do site" title="Fora do site: a leitura do site da loja está com falha" onclick="event.stopPropagation()"></button>`:`<button type="button" class="switch${v.oculto===true?'':' on'}" data-sw="${v.id}" role="switch" aria-checked="${v.oculto!==true}" aria-label="Aparece no site" title="${v.oculto===true?'Oculto no site':'Aparece no site'}" onclick="event.stopPropagation();toggleVeic(${v.id})"></button>`;
 const tocar=id=>`data-k="${id}" tabindex="0" role="button" aria-expanded="false" onclick="abrirVeic(${id},this)" onkeydown="if((event.key==='Enter'||event.key===' ')&&event.target===this){event.preventDefault();abrirVeic(${id},this)}"`;
 let veicAberto=null;   // o carro com as informações abertas embaixo dele
 function renderVeic(trocou){
@@ -2246,7 +2253,7 @@ function camVeic(id){
       <div class="cv-acoes">
         ${mvFotos.length?`<a class="bto" href="${url}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a>`:''}
         ${loja?`<button type="button" class="bto" onclick="verAssoc(${loja.id})">Ver a loja</button>`:''}
-        <label class="sw-l">${chave(v)}<span id="mvEstadoTxt">${oc?'Oculto no site':'Aparece no site'}</span></label>
+        <label class="sw-l">${chave(v)}<span id="mvEstadoTxt">${v.fora_por_falha?'Fora do site: a leitura da loja está com falha':oc?'Oculto no site':'Aparece no site'}</span></label>
       </div>
       ${opcionais.length?`<div class="cv-o"><span>Opcionais</span><div class="chipsx">${opcionais.map(o=>`<span>${esc(o)}</span>`).join('')}</div></div>`:''}
     </div>
@@ -2381,7 +2388,7 @@ function fecharPops(){sumir($('gPop'));fecharAvisos();fecharDds();fecharMenu();f
 /* ---------- mural (as publicações do site) ---------- */
 // ficam em publicacoes.json, no próprio site; o painel grava pela API, que faz um commit no ramo desta publicação (pedido do Luiz,
 // 16/10/2026). A foto é diminuída aqui antes de subir, e a que acabou de subir aparece daqui até o site ser publicado de novo
-const CATS_PUB=['Ações no polo','Conquistas','Comunicados','Imprensa','Reuniões','Notícias'];   // Reuniões e Notícias: pedido do Luiz, 31/10/2026 (as mesmas do site e da API)
+const CATS_PUB=['Ações no polo','Conquistas','Comunicados','Imprensa','Reuniões','Notícias','Anúncio'];   // Reuniões e Notícias: pedido do Luiz, 31/10/2026; Anúncio: 03/11/2026 (as mesmas do site e da API)
 const FOTO_LOCAL={};
 // as fotos da publicação: cada uma é a que já está no site ({caminho}) ou uma nova ({nova: data URI}); a primeira é a capa
 let pubFiltro='Todas',pubEdit=null,pubFotos=[],pubCat=CATS_PUB[0],pubDest=false,pubsProntas=false;
@@ -2420,7 +2427,8 @@ function modoMural(m){if(m===MMODO)return;MMODO=m;try{localStorage.setItem('pain
 // lugar no caminho
 let filtroPubAberto=false;
 const contaPub=()=>{const c={Todas:PUBS.length};PUBS.forEach(p=>{c[p.categoria]=(c[p.categoria]||0)+1;});return c;};
-const opcoesPub=()=>{const cont=contaPub();return ['Todas',...CATS_PUB].filter(c=>c!==pubFiltro).map((c,i)=>`<button type="button" class="chip" style="--i:${i+1}" data-c="${esc(c)}" onclick="filtPub(this.dataset.c)">${esc(c)}<i>${cont[c]||0}</i></button>`).join('');};
+// o filtro do Anúncio só aparece com algum anúncio, como a aba dele no site
+const opcoesPub=()=>{const cont=contaPub();return ['Todas',...CATS_PUB].filter(c=>c!==pubFiltro&&(c!=='Anúncio'||cont[c])).map((c,i)=>`<button type="button" class="chip" style="--i:${i+1}" data-c="${esc(c)}" onclick="filtPub(this.dataset.c)">${esc(c)}<i>${cont[c]||0}</i></button>`).join('');};
 function pintarFiltroPub(){
   const ch=$('pubChips');
   if(!ch.querySelector('.fsel-at'))ch.innerHTML=`<button type="button" class="chip on fsel-at" aria-haspopup="true" aria-expanded="false" onclick="alternarFiltroPub(!filtroPubAberto)"><span></span><i></i>${sv('<path d="m6 9 6 6 6-6"/>','sm')}</button><div class="fsel-ops"><div class="fsel-in"></div></div>`;
@@ -2448,6 +2456,7 @@ function renderPubs(){
   if(pubsErro){ch.innerHTML='';g.innerHTML=`<p class="vazio" style="grid-column:1/-1">Não deu para abrir as publicações: ${esc(pubsErro)}</p>`;return;}
   // antes de as publicações chegarem, o esqueleto dos cartões
   if(!pubsProntas){ch.innerHTML='';g.className='pgrid';g.innerHTML=Array.from({length:6},()=>'<article class="pc"><div class="pc-f esq" style="border-radius:0"></div><div class="pc-b"><i class="esq" style="width:46%;height:11px"></i><i class="esq" style="width:82%;height:16px;margin-top:10px"></i><i class="esq" style="width:64%;height:12px;margin-top:8px"></i></div><div class="pc-a"><i class="esq" style="width:90px;height:13px"></i><i class="esq" style="width:40px;height:40px;border-radius:50%"></i></div></article>').join('');return;}
+  if(pubFiltro==='Anúncio'&&!contaPub()[pubFiltro])pubFiltro='Todas';
   pintarFiltroPub();
   const lista=PUBS.filter(p=>pubFiltro==='Todas'||p.categoria===pubFiltro);
   $('v-mural').querySelectorAll('.modo button').forEach(b=>b.classList.toggle('on',b.dataset.m===MMODO));
@@ -2645,21 +2654,34 @@ const VISTAS=['dash','associados','veiculos','leads','mural'],ANTIGAS={lojas:'as
 /* voltar pelo navegador (pedido do Luiz, 22/10/2026): cada troca de parte é uma entrada no histórico, e a parte que fica para trás guarda o
    ponto exato da página, o filtro e o que estava aberto nela. Voltando (ou avançando), a parte abre como estava */
 const abertoDe=v=>v==='associados'?assocAberto:v==='leads'?leadAberto:v==='veiculos'?veicAberto:null;
-const filtroDe=v=>v==='associados'?assocFiltro:v==='leads'?[leadFiltro,LPAG]:v==='veiculos'?VPAG:v==='mural'?pubFiltro:null;
+const filtroDe=v=>v==='associados'?assocFiltro:v==='leads'?[leadFiltro,LPAG]:v==='veiculos'?{p:VPAG,b:$('fVBusca').value,c:FILTROS_V.map(([id])=>$(id).value)}:v==='mural'?pubFiltro:null;
 function guardarLugar(){try{history.replaceState({v:vistaAtual,y:Math.round(scrollY),a:abertoDe(vistaAtual),f:filtroDe(vistaAtual)},'','#'+vistaAtual);}catch(e){}}
 function restaurar(s){
   const v=s.v,f=s.f;
   if(v==='associados'){if(f)assocFiltro=f;assocAberto=s.a||null;renderAssoc();}
   else if(v==='leads'){if(Array.isArray(f)){leadFiltro=f[0];LPAG=f[1]||0;}leadAberto=s.a||null;renderLeads();}
-  else if(v==='veiculos'){if(typeof f==='number')VPAG=f;veicAberto=s.a||null;renderVeic();}
+  else if(v==='veiculos'){veicAberto=s.a||null;
+    if(f&&f.c){$('fVBusca').value=f.b||'';FILTROS_V.forEach(([id],i)=>{const e=$(id);e.value=f.c[i];if(e.__dd)e.__dd.atualizar();});VPAG=f.p||0;filtrarVeic();}else renderVeic();}
   else if(v==='mural'){if(f)pubFiltro=f;renderPubs();}
   scrollTo(0,s.y||0);
+}
+// entrando numa parte pelo menu ou por um link, nada do que foi aberto, filtrado ou escolhido nela continua lá (pedido do Luiz, 03/11/2026: abri
+// um associado, troquei de parte e, voltando, ele continuava aberto). Só o voltar do navegador refaz como estava (pedido de 22/10/2026). O que
+// fica guardado no aparelho (grade ou lista, as visitas recolhidas) é escolha dele e continua
+function zerarParte(v){
+  $('gBusca').value='';
+  if((v==='dash'||v==='leads')&&REP.p!=='semana'){REP={p:'semana',de:'',ate:''};pintarRel();}
+  if(v==='dash'){if(GDIAS!==30)trocarPeriodo(30);}
+  else if(v==='associados'){if(assocFiltro!=='todos'||assocAberto){assocFiltro='todos';assocAberto=null;renderAssoc();}}
+  else if(v==='veiculos'){if(veicAberto||VPAG||$('fVBusca').value||FILTROS_V.some(([id,p])=>$(id).value!==p)){veicAberto=null;limparFiltrosVeic(true);filtrarVeic();}}
+  else if(v==='leads'){if(leadFiltro!=='todos'||leadAberto||LPAG){leadFiltro='todos';leadAberto=null;LPAG=0;renderLeads();}}
+  else if(v==='mural'){alternarFiltroPub(false);if(pubFiltro!=='Todas'||pubEdit){pubFiltro='Todas';pubEdit=null;fecharCal();renderPubs();}}
 }
 // volta: o estado guardado na entrada do histórico (do popstate); sem ele, é uma troca nova, que entra no histórico
 function nav(v,depois,semAnim,volta){
   v=ANTIGAS[v]||v;if(!VISTAS.includes(v))v='dash';
   fecharPops();
-  const de=vistaAtual;
+  const de=vistaAtual,entrou=!volta&&!primeiraVez&&de!==v;
   if(de!==v&&!volta&&!primeiraVez)guardarLugar();   // o ponto exato de onde se saiu
   const troca=()=>{
     vistaAtual=v;
@@ -2672,7 +2694,7 @@ function nav(v,depois,semAnim,volta){
     if(de!==v||primeiraVez){pintarHero(primeiraVez);primeiraVez=false;scrollTo(0,0);}
     $('menuBt').innerHTML=sv(IC[v]);setasPagina();
     if(volta)restaurar(volta);
-    else if(de!==v)try{history.pushState({v,y:0},'','#'+v);}catch(e){}
+    else if(de!==v){if(entrou)zerarParte(v);try{history.pushState({v,y:0},'','#'+v);}catch(e){}}
     if(depois)depois();
   };
   if(de===v||semAnim||!document.startViewTransition||reduz()){troca();return;}

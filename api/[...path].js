@@ -849,9 +849,27 @@ async function detalhePortal(base, slug, id) {
 // e continua recebendo tudo, sem cache. Sem migra(): o site só lê colunas que já existem.
 const doSite = req => !!(req.query && req.query.site === '1');
 // 3 horas novo; depois disso, entrega o anterior na hora e atualiza por trás. O estoque tem 2 MB: relido a cada 5 minutos, gastaria o dobro da
-// transferência grátis da Neon num mês com visitas o dia todo (pedido do Luiz, 02/11/2026). Em troca, o que muda no painel (carro oculto, loja
-// editada) leva até 3 horas para chegar ao site; uma publicação nova na Vercel limpa o cache
+// transferência grátis da Neon num mês com visitas o dia todo (pedido do Luiz, 02/11/2026). Uma publicação nova na Vercel limpa o cache
 const CACHE_SITE = 's-maxage=10800, stale-while-revalidate=86400';
+// o que muda no painel chega ao site na hora (pedido do Luiz, 03/11/2026): cada lista do site guardada na Vercel tem uma etiqueta, e o painel
+// apaga a etiqueta do que mudou. O pedido seguinte lê o banco uma vez e a lista volta a ficar guardada. Os robôs não apagam nada: o estoque
+// relido a cada loja de cada rodada gastaria a transferência grátis da Neon
+const cacheSite = (res, etiqueta) => { res.setHeader('Cache-Control', CACHE_SITE); res.setHeader('Vercel-Cache-Tag', etiqueta); };
+// é o que o dangerouslyDeleteByTag, de @vercel/functions, faz por dentro (conferido na Vercel em 03/11/2026), sem a dependência. Fora da Vercel
+// não faz nada; se falhar, o painel continua e o site atualiza em até 3 horas
+async function atualizarSite(...etiquetas) {
+  try {
+    const purga = globalThis[Symbol.for('@vercel/request-context')]?.get?.()?.purge;
+    if (purga) await purga.dangerouslyDeleteByTag(etiquetas);
+  } catch (e) { console.error('[cache]', e && e.message); }
+}
+// um anúncio só fica no site com a loja em dia (pedido do Luiz, 03/11/2026: o site da Riomix saiu do ar e os carros continuavam). Com a leitura
+// da loja falhando, o anúncio sai quando passa do tempo. São 5h30, e não 6h, para a própria rodada de 6 em 6 horas que falha já tirar os
+// carros: ela lê a loja de 5h55 a 6h05 depois da última leitura boa. Mais da metade das lojas falhando ao mesmo tempo é problema do robô ou
+// do provedor dos sites, não das lojas: os anúncios ficam, e o painel e o resumo do dia avisam
+const LIMITE_FALHA_MIN = 330;
+const ANUNCIO_EM_DIA = `(l.ultimo_erro is null or v.sincronizado_em >= now() - interval '${LIMITE_FALHA_MIN} minutes'
+  or (select count(*) filter (where ultimo_erro is not null) * 2 > count(*) from lojas where ativa = true))`;
 // número de registro (id) que veio no pedido: inteiro positivo, ou null (o banco não recebe mais texto solto no lugar de um id)
 const inteiro = v => { const n = Number(v); return Number.isInteger(n) && n > 0 && n < 2147483647 ? n : null; };
 // os campos de um associado (loja ou credenciado), conferidos antes de gravar: tamanho, e-mail, cor e logo. Gravamos só estes campos,
@@ -876,10 +894,11 @@ function dadosAssociado(b) {
 }
 async function rotaLojas(req, res) {
   if (req.method === 'GET' && doSite(req)) {
-    // sem logo_url: os logos (imagens embutidas) eram quase todo o peso. A página do veículo pede a logo da loja sozinha (rota logo);
-    // cor é o fundo da logo que a Aceima escolheu no painel
-    const { rows } = await query('select id, nome, endereco, telefone, whatsapp, google_nota, google_avaliacoes, cor from lojas where ativa = true and nome <> all($1) order by nome', [FORA_DO_SITE]);
-    res.setHeader('Cache-Control', CACHE_SITE);
+    // sem a logo: as imagens embutidas eram quase todo o peso. A página do veículo pede a logo da loja sozinha (rota logo). logo_v muda quando
+    // a logo muda: entra no endereço dela, senão o aparelho e a Vercel mostrariam a antiga por um dia; cor é o fundo da logo que a Aceima
+    // escolheu no painel
+    const { rows } = await query('select id, nome, endereco, telefone, whatsapp, google_nota, google_avaliacoes, cor, left(md5(logo_url), 8) as logo_v from lojas where ativa = true and nome <> all($1) order by nome', [FORA_DO_SITE]);
+    cacheSite(res, 'site-lojas');
     return res.json(rows);
   }
   // a lista completa (com o e-mail das lojas, que recebe os leads) e qualquer mudança: só com a senha do painel
@@ -898,6 +917,7 @@ async function rotaLojas(req, res) {
       `insert into lojas (nome, endereco, telefone, whatsapp, email, autocerto_id, autocerto_url, logo_url, google_nota, google_avaliacoes)
        values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning *`,
       [d.nome, d.endereco, d.telefone, d.whatsapp, d.email, d.autocerto_id, d.autocerto_url, d.logo_url, d.google_nota, d.google_avaliacoes]);
+    await atualizarSite('site-lojas');
     return res.status(201).json(loja);
   }
   if (req.method === 'PATCH') {
@@ -913,6 +933,7 @@ async function rotaLojas(req, res) {
          google_nota = coalesce($10, google_nota), google_avaliacoes = coalesce($11, google_avaliacoes)
        where id=$1 returning *`,
       [id, d.nome, d.endereco, d.telefone, d.whatsapp, d.email, d.autocerto_id, d.logo_url, d.cor, d.google_nota, d.google_avaliacoes]);
+    await atualizarSite('site-lojas', 'site-veiculos');   // o estoque leva o nome e o WhatsApp da loja
     return res.json(loja || { erro: 'loja não encontrada' });
   }
   if (req.method === 'DELETE') {
@@ -920,6 +941,7 @@ async function rotaLojas(req, res) {
     if (!id) return res.status(400).json({ erro: 'id obrigatório' });
     await query('update veiculos set ativo=false where loja_id=$1', [id]);
     await query('delete from lojas where id=$1', [id]);
+    await atualizarSite('site-lojas', 'site-veiculos');
     return res.json({ ok: true });
   }
   res.status(405).end();
@@ -935,15 +957,15 @@ async function rotaParceiros(req, res) {
     // avaliações guarda tudo em config), e os dados dos que o painel cadastrou. Sem migra()
     if (painel && !(await autorizado(req))) return negar(res);
     const [{ rows }, doPainel] = await Promise.all([
-      query(`select chave, case when chave = 'avaliacoes_google' then valor end as valor, left(valor, 5) = 'data:' as tem
+      query(`select chave, case when chave = 'avaliacoes_google' then valor end as valor, left(valor, 5) = 'data:' as tem, left(md5(valor), 8) as v
                from config where chave = 'avaliacoes_google' or chave like 'logo_parceiro:%'`),
       credenciadosDoPainel()]);
     const g = rows.find(r => r.chave === 'avaliacoes_google'), av = g && g.valor ? JSON.parse(g.valor) : {};
-    const comLogo = new Set(rows.filter(r => r.chave.startsWith('logo_parceiro:') && r.tem).map(r => r.chave.slice(14)));
+    const logoLida = new Map(rows.filter(r => r.chave.startsWith('logo_parceiro:') && r.tem).map(r => [r.chave.slice(14), r.v]));
     const nota = n => ({ nota: (av[n] || {}).nota || null, total: (av[n] || {}).total || null });
-    res.setHeader('Cache-Control', painel ? 'no-store' : CACHE_SITE);
-    return res.json(PARCEIROS_ROBO.map(p => ({ nome: p.nome, ...nota(p.nome), logo: comLogo.has(p.nome), site: p.site || null, ramo: p.ramo, descricao: p.descricao }))
-      .concat(doPainel.map(p => ({ nome: p.nome, ...nota(p.nome), logo: comLogo.has(p.nome) || p.tem_logo, site: p.site || null, ramo: p.ramo, descricao: p.descricao || '',
+    if (painel) res.setHeader('Cache-Control', 'no-store'); else cacheSite(res, 'site-parceiros');
+    return res.json(PARCEIROS_ROBO.map(p => ({ nome: p.nome, ...nota(p.nome), logo: logoLida.has(p.nome), logo_v: logoLida.get(p.nome) || null, site: p.site || null, ramo: p.ramo, descricao: p.descricao }))
+      .concat(doPainel.map(p => ({ nome: p.nome, ...nota(p.nome), logo: logoLida.has(p.nome) || p.tem_logo, logo_v: p.logo_v || logoLida.get(p.nome) || null, site: p.site || null, ramo: p.ramo, descricao: p.descricao || '',
         endereco: p.endereco || '', telefone: p.telefone || '', whatsapp: p.whatsapp || '', painel: true, ...(painel ? { id: p.id } : {}) }))));
   }
   // a tabela inteira (também os inativos e as logos) e qualquer mudança: só com a senha do painel
@@ -957,6 +979,7 @@ async function rotaParceiros(req, res) {
   // o robô no credenciado que o painel acabou de cadastrar (ou de novo, quando o site muda)
   if (req.method === 'POST' && req.query && req.query.acao === 'ler') {
     const r = await lerCredenciado(inteiro(b.id) || 0);
+    await atualizarSite('site-parceiros');
     return r ? res.json({ ok: true, ...r }) : res.status(404).json({ erro: 'credenciado não encontrado' });
   }
   if (d.erro) return res.status(400).json({ erro: d.erro });
@@ -972,6 +995,7 @@ async function rotaParceiros(req, res) {
        values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,coalesce($11,100)) returning *`,
       [nome, d.categoria || 'servico', d.descricao, d.beneficio, d.endereco, d.telefone,
        d.whatsapp, siteCompleto(d.site), d.logo_url, d.cor || null, ordem]);
+    await atualizarSite('site-parceiros');
     return res.status(201).json(p);
   }
   if (req.method === 'PATCH') {
@@ -989,12 +1013,14 @@ async function rotaParceiros(req, res) {
       [id, d.nome, d.categoria, d.descricao, d.beneficio, d.endereco, d.telefone,
        d.whatsapp, d.site === '' ? '' : d.site ? siteCompleto(d.site) : null, d.logo_url, d.cor,
        ordem, (b.ativa === undefined ? null : !!b.ativa)]);
+    await atualizarSite('site-parceiros');
     return res.json(p || { erro: 'parceiro não encontrado' });
   }
   if (req.method === 'DELETE') {
     const id = inteiro((req.query && req.query.id) || b.id);
     if (!id) return res.status(400).json({ erro: 'id obrigatório' });
     await query('delete from parceiros where id = $1', [id]);
+    await atualizarSite('site-parceiros');
     return res.json({ ok: true });
   }
   return res.status(405).end();
@@ -1006,8 +1032,9 @@ async function rotaVeiculos(req, res) {
       `select v.id, v.loja_id, v.tipo, v.marca, v.modelo, v.versao, v.ano_modelo, v.ano_fabricacao, v.km, v.preco, v.cambio, v.combustivel, v.fotos, v.opcionais,
               l.nome as loja_nome, l.whatsapp as loja_whatsapp
          from veiculos v join lojas l on l.id = v.loja_id
-        where v.ativo = true and coalesce(v.oculto,false) = false and l.nome <> all($1) order by v.sincronizado_em desc limit 3000`, [FORA_DO_SITE]);
-    res.setHeader('Cache-Control', CACHE_SITE);
+        where v.ativo = true and coalesce(v.oculto,false) = false and l.ativa = true and l.nome <> all($1) and ${ANUNCIO_EM_DIA}
+        order by v.sincronizado_em desc limit 3000`, [FORA_DO_SITE]);
+    cacheSite(res, 'site-veiculos');
     return res.json(rows);
   }
   if (req.method === 'POST' || req.method === 'PATCH') {
@@ -1018,6 +1045,7 @@ async function rotaVeiculos(req, res) {
     const oculto = b.oculto === true || b.ativo === false;
     const { rows: [v] } = await query(
       "update veiculos set oculto=$2, oculto_motivo='manual' where id=$1 returning id, oculto", [id, oculto]);
+    await atualizarSite('site-veiculos');
     return res.json({ ok: true, veiculo: v });
   }
   if (req.method !== 'GET') return res.status(405).end();
@@ -1040,7 +1068,7 @@ async function rotaVeiculos(req, res) {
   if (num(q.anoAte) != null) add('v.ano_modelo <= ?', Math.trunc(num(q.anoAte)));
   if (num(q.kmAte) != null) add('v.km <= ?', Math.trunc(num(q.kmAte)));
   const { rows } = await query(
-    `select v.*, l.nome as loja_nome, l.whatsapp as loja_whatsapp
+    `select v.*, l.nome as loja_nome, l.whatsapp as loja_whatsapp, coalesce(not ${ANUNCIO_EM_DIA}, true) as fora_por_falha
        from veiculos v join lojas l on l.id = v.loja_id
       where ${cond.join(' and ')} order by v.sincronizado_em desc limit 3000`, p);
   res.json(rows);
@@ -1150,6 +1178,8 @@ async function importarLoja(loja) {
       let itens, logoSite = null, contato = null, ignorados = [];
       if (fonte.tipo === 'site') { const r = await lerSite(fonte.base); itens = r.itens; ignorados = r.ignorados || []; logoSite = r.logo; contato = r.contato; }
       else { itens = await lerPortal(fonte.base, fonte.portalId); }
+      // a página abriu e não tem nenhum anúncio (domínio à venda, site trocado): conta como falha, senão os carros ficariam no site para sempre
+      if (!itens.length) throw new Error('nenhum anúncio encontrado no site');
       // o robô preenche os dados da loja sozinho (inclusive o e-mail, lido da página de contato)
       let emailSite = null;
       if (fonte.tipo === 'site') { try { emailSite = await pegarEmail(fonte.base); } catch (_) {} }
@@ -1277,12 +1307,24 @@ async function importarLoja(loja) {
         } catch (_) {}
       }
       try { await query('update lojas set ultima_sync = now(), ultimo_erro = null where id = $1', [loja.id]); } catch (_) {}
+      if (loja.ultimo_erro) await atualizarSite('site-veiculos');   // a loja voltou: os carros voltam para o site agora, sem esperar o cache
       return { loja: loja.nome, veiculos: itens.length, sairam: saiuDoAr, sem_nome: (ignorados || []).length, galerias_lidas: detalhesLidos, galerias_pendentes: detalhesPendentes };
     } catch (e) {
       try { await query('update lojas set ultima_sync = now(), ultimo_erro = $1 where id = $2', [String(e.message).slice(0, 300), loja.id]); } catch (_) {}
+      await tirarSeVenceu(loja);
       return { loja: loja.nome, erro: e.message };
     }
   }
+}
+// a loja falhou: se com esta leitura passou do tempo (na anterior, ainda não), os carros saem do site agora, sem esperar o cache. loja traz o
+// que estava no banco antes desta leitura
+async function tirarSeVenceu(loja) {
+  try {
+    const { rows: [r] } = await query('select max(sincronizado_em) as em from veiculos where loja_id = $1 and ativo = true', [loja.id]);
+    if (!r || !r.em) return;
+    const em = new Date(r.em).getTime(), limite = LIMITE_FALHA_MIN * 60000, antes = loja.ultima_sync ? new Date(loja.ultima_sync).getTime() : 0;
+    if (Date.now() - em >= limite && (!loja.ultimo_erro || antes - em < limite)) await atualizarSite('site-veiculos');
+  } catch (_) {}
 }
 
 // resumo diário (no máximo 1x a cada 20h), disparado junto das sincronizações
@@ -1319,6 +1361,7 @@ async function rotaImportar(req, res) {
   for (const loja of lojas) { resultado.push(await importarLoja(loja)); }
   await resumoSeDevido();
   try { await retencao(); } catch (e) { console.error('[retencao]', e && e.message); }
+  if (comSenha && req.query && req.query.painel === '1') await atualizarSite('site-lojas', 'site-veiculos');   // o Importar agora do painel; os robôs não mandam
   res.json({ ok: true, lojas: resultado });
 }
 
@@ -1542,7 +1585,7 @@ async function rotaConteudo(req, res) {
 // publicações no painel). O painel grava direto no GitHub, no mesmo ramo desta publicação, como o modo de edição: editar na prévia não
 // mexe no site no ar, e nada muda no banco. Cada gravação é um commit só, com a lista e a foto juntas, e a Vercel publica o site em
 // cerca de um minuto. Se outro commit entrar no meio (um texto salvo pelo modo de edição), a gravação é refeita em cima dele.
-const CATEGORIAS_PUB = ['Ações no polo', 'Conquistas', 'Comunicados', 'Imprensa', 'Reuniões', 'Notícias'];   // Reuniões e Notícias: pedido do Luiz, 31/10/2026
+const CATEGORIAS_PUB = ['Ações no polo', 'Conquistas', 'Comunicados', 'Imprensa', 'Reuniões', 'Notícias', 'Anúncio'];   // Reuniões e Notícias: pedido do Luiz, 31/10/2026; Anúncio: 03/11/2026
 const slugPub = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '') || 'publicacao';
 function limparPub(p) {
@@ -1687,7 +1730,7 @@ const PARCEIROS_ROBO = [
 const CATS_ANTIGAS = ['vistoria', 'manutencao', 'alimentacao', 'servico'];
 async function credenciadosDoPainel() {
   try {
-    const { rows } = await query(`select id, nome, categoria as ramo, descricao, endereco, telefone, whatsapp, site, logo_url is not null as tem_logo
+    const { rows } = await query(`select id, nome, categoria as ramo, descricao, endereco, telefone, whatsapp, site, logo_url is not null as tem_logo, left(md5(logo_url), 8) as logo_v
                                     from parceiros where ativa = true and coalesce(categoria, '') <> all($1) order by nome`, [CATS_ANTIGAS]);
     return rows.filter(r => !PARCEIROS_ROBO.some(p => p.nome === r.nome));
   } catch (_) { return []; }
@@ -2107,7 +2150,8 @@ async function entrarRepasse(req, res) {
   }
   if (!a.ativo) return res.status(403).json({ erro: 'O acesso da sua loja está desativado. Fale com a Aceima.' });
   const token = randomBytes(32).toString('hex');
-  await query(`insert into repasse_sessoes (token, acesso_id, expira) values ($1, $2, now() + interval '30 days')`, [hashToken(token), a.id]);
+  // "Manter conectado" (pedido do Luiz, 03/11/2026): 30 dias; sem marcar, o aparelho guarda só até fechar a aba, e aqui vale por 12 horas
+  await query(`insert into repasse_sessoes (token, acesso_id, expira) values ($1, $2, now() + interval '${b.manter === true ? '30 days' : '12 hours'}')`, [hashToken(token), a.id]);
   await query('update repasse_acessos set falhas = 0, bloqueio = null, ultimo_acesso = now() where id = $1', [a.id]);
   return res.json({ ok: true, token, loja: a.loja });
 }
