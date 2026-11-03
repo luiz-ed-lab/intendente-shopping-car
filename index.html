@@ -466,9 +466,13 @@ button.fp{border:1px solid transparent;cursor:pointer}
 .pb-tit{margin-top:10px;font-size:2.3rem}
 .pb-fil{container-type:inline-size;min-width:0}
 .pb-fil .fbar{display:flex;flex-wrap:wrap;gap:5px}
-.pb-fil .fbar .fp{flex:1 1 auto;justify-content:center;padding:.62em .7em;font-size:clamp(11px,calc((100cqi - 44px) / 44),13px)}
+.pb-fil .fbar .fp{flex:1 1 auto;justify-content:center;padding:.62em .7em;font-size:clamp(11px,calc((100cqi - 52px) / 51),13px)}
 /* sem lugar para os sete numa linha, ficam em duas cheias, quatro em cima e três embaixo, da largura da lista */
-@container (max-width:540px){.pb-fil .fbar .fp{flex-basis:22%;font-size:11px}}
+@container (max-width:680px){.pb-fil .fbar .fp{flex-basis:22%;font-size:11px}}
+@container (max-width:340px){.pb-fil .fbar .fp{padding-left:.35em;padding-right:.35em}}
+.pb-fil-in{display:flex;align-items:stretch;gap:5px}
+.pb-fil-in .fbar{flex:1;min-width:0}
+@container (max-width:430px){.pb-fil-in{flex-wrap:wrap}.pb-fil-in .fbar{flex-basis:100%}.pb-fil-in .pb-anc{flex:1 1 100%}}
 .pb-grid{padding-top:24px;flex:1;align-items:start}
 .pb-dest{min-width:0}
 .pb-midia{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
@@ -509,14 +513,13 @@ button.fp{border:1px solid transparent;cursor:pointer}
 .pb-vazio{font-family:var(--f2);color:var(--mut)}
 /* o Anúncio (pedido do Luiz, 03/11/2026): a aba própria, ao lado dos filtros, e o anúncio em destaque numa folha azul, com a foto no aro dourado */
 @media (min-width:761px){
-  .pb-fil .fbar:has(.pb-anc) .fp{font-size:clamp(11px,calc((100cqi - 52px) / 51),13px)}
-  @container (max-width:680px){.pb-fil .fbar:has(.pb-anc) .fp{flex-basis:22%;font-size:11px}}
-  @container (max-width:340px){.pb-fil .fbar:has(.pb-anc) .fp{padding-left:.35em;padding-right:.35em}}
+  .pb-fil-in:has(.pb-anc) .fbar .fp{font-size:clamp(11px,calc((100cqi - 150px) / 51),13px)}
+  @container (max-width:780px){.pb-fil-in:has(.pb-anc) .fbar .fp{flex-basis:22%;font-size:11px}}
 }
-.pb-fil .fbar .fp.pb-anc{gap:.45em;background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
-.pb-fil .fbar .fp.pb-anc::before{content:"";flex:none;width:.5em;height:.5em;border-radius:50%;background:var(--gold3);animation:ancPisca 2.4s ease-in-out infinite}
-.pb-fil .fbar .fp.pb-anc.on{background:linear-gradient(135deg,#C8862E,#F0AD57);border-color:transparent;color:#001128}
-.pb-fil .fbar .fp.pb-anc.on::before{background:#001128;animation:none}
+.pb-fil-in .fp.pb-anc{flex:none;justify-content:center;padding:.62em 1em;font-size:12px;gap:.45em;background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+.pb-fil-in .fp.pb-anc::before{content:"";flex:none;width:.5em;height:.5em;border-radius:50%;background:var(--gold3);animation:ancPisca 2.4s ease-in-out infinite}
+.pb-fil-in .fp.pb-anc.on{background:linear-gradient(135deg,#C8862E,#F0AD57);border-color:transparent;color:#001128}
+.pb-fil-in .fp.pb-anc.on::before{background:#001128;animation:none}
 @keyframes ancPisca{0%,100%{box-shadow:0 0 0 0 rgba(244,176,92,.55)}60%{box-shadow:0 0 0 .42em rgba(244,176,92,0)}}
 .pb-dest.anc{padding:clamp(16px,1.5vw,26px);border-radius:clamp(20px,1.7vw,30px);background:radial-gradient(110% 80% at 100% 0,rgba(200,134,46,.24),transparent 62%),var(--navy);box-shadow:0 34px 60px -38px rgba(0,9,26,.8)}
 .pb-dest.anc .pb-foto{box-shadow:0 0 0 2px var(--gold2),0 0 34px -6px rgba(244,176,92,.55)}
@@ -525,7 +528,7 @@ button.fp{border:1px solid transparent;cursor:pointer}
 .pb-dest.anc .pb-dt{color:#fff;font-size:clamp(2rem,2.7vw,3.1rem)}
 .pb-dest.anc .pb-tx p{color:#D5DEEB}
 .pb-item.anc .pb-ic small{display:inline-block;padding:.32em .75em;border-radius:99px;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;letter-spacing:.3px}
-@media (prefers-reduced-motion:reduce){.pb-fil .fbar .fp.pb-anc::before{animation:none}}
+@media (prefers-reduced-motion:reduce){.pb-fil-in .fp.pb-anc::before{animation:none}}
 @media (max-width:1100px){
   .pb-top,.pb-grid{grid-template-columns:minmax(0,1fr);row-gap:22px}
   .pb-grid{row-gap:36px}
@@ -539,6 +542,9 @@ button.fp{border:1px solid transparent;cursor:pointer}
   .pb-fil{width:100%}
   .pb-fil .fbar{gap:1.41vw}
   .pb-fil .fbar .fp{flex-basis:22%;padding:1.6vw 2.11vw;font-size:2.82vw}
+  .pb-fil-in{flex-wrap:wrap;gap:1.41vw}
+  .pb-fil-in .fbar{flex-basis:100%}
+  .pb-fil-in .fp.pb-anc{flex:1 1 100%;padding:1.6vw 2.11vw;font-size:2.82vw}
   .pb-grid{padding-top:5.63vw;row-gap:8.45vw}
   .pb-midia.mais{grid-template-columns:minmax(0,1fr)}
   .pb-foto{aspect-ratio:4/3;border-radius:4.23vw}
@@ -1823,8 +1829,8 @@ async function carregar(){
   // recarregou a página (ou voltou de outro site e ela abriu do zero): volta ao lugar onde estava, se ainda não rolou
   const nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0],p=POS[chaveAtual];
   if(nav&&/reload|back_forward/.test(nav.type)&&p&&p.pg===pagAtual&&p.y>0&&scrollY<2)irPara(p.y);
-  // a loja mais desatualizada é relida na visita só se o robô de 6 em 6 horas falhar: com 7 horas, um atraso normal do GitHub não dispara nada
-  if(API!==null)setTimeout(()=>fetch('/api/refresh?path=refresh&horas=7').catch(()=>{}),1500);
+  // o estoque não fica mais de 6 horas sem atualizar: passou disso, a visita começa uma rodada (rotaRefresh). Até lá, a resposta vem do cache da Vercel
+  if(API!==null)setTimeout(()=>fetch('/api/refresh?path=refresh').catch(()=>{}),1500);
 }
 const logoLoja=l=>API!==null&&l&&l.id?'/api/logo?path=logo&id='+l.id+(l.logo_v?'&v='+l.logo_v:''):'';   // v: logo trocada no painel tem outro endereço, senão fica a guardada por um dia
 const nVeic=()=>V.length;
@@ -3440,7 +3446,7 @@ function enviarAssoc(){
 // e o texto todo); à direita, a lista, com a aberta marcada. Tocar numa da lista troca a aberta ali mesmo, sem página nova, e o endereço
 // acompanha (/publicacoes/id): o link de uma publicação abre esta página com ela aberta. Entrando, abre a marcada como destaque (ou a mais
 // nova). Os filtros separam por categoria. Título e texto vêm do painel: o modo de edição muda o estilo deles (E), não o texto
-const CATS_PUB=['Ações no polo','Conquistas','Comunicados','Imprensa','Reuniões','Notícias'];
+const CATS_PUB=['Ações no polo','Conquistas','Comunicados','Imprensa','Reuniões','Notícias','Eventos'];   // Eventos: pedido do Luiz, 03/11/2026
 // o Anúncio (pedido do Luiz, 03/11/2026) fica fora da lista dos filtros: tem uma aba própria ao lado deles, só quando existe algum, e, marcado
 // como destaque, abre numa folha azul, para chamar mais atenção na página clara
 const CAT_ANUNCIO='Anúncio',anuncioDestaque=p=>!!p&&!!p.destaque&&p.categoria===CAT_ANUNCIO;
@@ -3476,7 +3482,7 @@ function publicacoes(){
  <div class="gl topo" style="flex:none">${LUZ}${hd()}</div>
  <div class="wrap pb-top">
    <div><div class="kick">${T('publicacoes.chamada','Nosso trabalho')}</div><h2 class="pb-tit" aria-level="1">${T('publicacoes.titulo','O que a Aceima faz pelo polo.')}</h2></div>
-   <div class="pb-fil"><div class="fbar">${['Tudo',...CATS_PUB].map((f,i)=>`<button type="button" class="fp ${f===catPub?'on':'lite'}" onclick="filtrarPub('${f}')">${T(`publicacoes.filtro${i+1}`,f)}</button>`).join('')}${temAnuncio?`<button type="button" class="fp pb-anc${catPub===CAT_ANUNCIO?' on':''}" onclick="filtrarPub('${CAT_ANUNCIO}')">${T('publicacoes.filtro-anuncios','Anúncios')}</button>`:''}</div></div>
+   <div class="pb-fil"><div class="pb-fil-in"><div class="fbar">${['Tudo',...CATS_PUB].map((f,i)=>`<button type="button" class="fp ${f===catPub?'on':'lite'}" onclick="filtrarPub('${f}')">${T(`publicacoes.filtro${i+1}`,f)}</button>`).join('')}</div>${temAnuncio?`<button type="button" class="fp pb-anc${catPub===CAT_ANUNCIO?' on':''}" onclick="filtrarPub('${CAT_ANUNCIO}')">${T('publicacoes.filtro-anuncios','Anúncios')}</button>`:''}</div></div>
  </div>
  ${p?`<div class="wrap pb-grid">
    <article class="pb-dest${anuncioDestaque(p)?' anc':''}" id="pbDest">${pubCorpo(p)}</article>

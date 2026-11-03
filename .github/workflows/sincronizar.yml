@@ -1,7 +1,7 @@
 name: Sincronizar estoque das lojas
 
 # De 6 em 6 horas (pedido do Luiz, 02/11/2026: cada rodada acorda o banco, e o Neon grátis tem limite). Chama a nossa API uma loja por vez,
-# para nenhuma chamada estourar o tempo limite da função. Se o GitHub pular uma rodada, a visita ao site relê as lojas com mais de 7 horas.
+# para nenhuma chamada estourar o tempo limite da função. O GitHub atrasa e pula rodadas: quem garante as 6 horas é a visita ao site (rotaRefresh).
 on:
   schedule:
     - cron: '17 3,9,15,21 * * *'   # 0h17, 6h17, 12h17 e 18h17 no Rio. Fora do começo da hora: ali o GitHub adia ou pula rodadas quando está cheio
@@ -60,4 +60,6 @@ jobs:
               sleep 5
             done
           fi
+          # o site mostra o estoque novo na hora: o cache da lista é apagado uma vez, no fim da rodada (se alguma loja ainda estiver vencida, ela é lida antes)
+          curl -s -o /dev/null --max-time 30 -H "x-painel-token: $PAINEL_TOKEN" "$SITE/api/refresh?path=refresh&seguir=1" || true
           echo "Sincronização concluída."

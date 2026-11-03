@@ -597,13 +597,14 @@ button.row:hover .row-tx b{color:var(--gold)}
    numa linha e no celular, descem embaixo dela e recolhem para cima, e a grade e a lista ficam ao lado da escolhida */
 .fsel{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;width:max-content;max-width:100%}
 .fsel-ops,.fsel-in{display:contents}
-.fsel .chip{position:relative;z-index:1;padding:0 30px}
+.fsel .chip{position:relative;z-index:1;padding:0 18px;font-size:12.5px}
+.fsel .fsel-at{padding-right:28px}
 .fsel .fsel-at{z-index:2}
 .fsel-at svg{position:absolute;right:11px;top:50%;margin-top:-7px;width:14px;height:14px;transform:rotate(-90deg);transition:transform .36s var(--ease)}
 .fsel.aberto .fsel-at svg{transform:rotate(90deg)}
 .fsel-in .chip{transition:transform .42s var(--ease) calc(var(--i) * 12ms),opacity .24s calc(var(--i) * 12ms),box-shadow .25s,background .25s,color .25s}
 .fsel:not(.aberto) .fsel-in .chip{transform:translateX(calc((-100% - 8px) * var(--i)));opacity:0;visibility:hidden;pointer-events:none;transition:transform .36s var(--ease),opacity .2s .1s,visibility 0s .36s}
-@media (max-width:1300px){
+@media (max-width:1380px){
   .mbar{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:0}
   .fsel{display:contents}
   .fsel .fsel-at{grid-column:1;grid-row:1;justify-self:start;min-width:200px;height:42px}
@@ -650,7 +651,7 @@ button.row:hover .row-tx b{color:var(--gold)}
 .ed-g .cp input{height:44px;font-size:14.5px}
 .ed-g .seg{flex-wrap:nowrap}
 .ed-g .seg button{height:38px;padding:0 16px;font-size:13px}
-@media (max-width:1300px){.ed-g .seg{gap:5px}.ed-g .seg button{flex:1 1 auto;padding:0 10px;font-size:12.5px}}
+@media (max-width:1430px){.ed-g .seg{gap:5px;flex-wrap:wrap}.ed-g .seg button{flex:1 1 auto;padding:0 10px;font-size:12.5px}}
 .ed-g .sw-l{height:44px}
 .ed-txt textarea{min-height:0;resize:none;overflow:hidden;transition:height .2s}
 /* a data no padrão das listas do site: o botão abre um calendário escuro, como a lista dos filtros */
@@ -2388,7 +2389,7 @@ function fecharPops(){sumir($('gPop'));fecharAvisos();fecharDds();fecharMenu();f
 /* ---------- mural (as publicações do site) ---------- */
 // ficam em publicacoes.json, no próprio site; o painel grava pela API, que faz um commit no ramo desta publicação (pedido do Luiz,
 // 16/10/2026). A foto é diminuída aqui antes de subir, e a que acabou de subir aparece daqui até o site ser publicado de novo
-const CATS_PUB=['Ações no polo','Conquistas','Comunicados','Imprensa','Reuniões','Notícias','Anúncio'];   // Reuniões e Notícias: pedido do Luiz, 31/10/2026; Anúncio: 03/11/2026 (as mesmas do site e da API)
+const CATS_PUB=['Ações no polo','Conquistas','Comunicados','Imprensa','Reuniões','Notícias','Eventos','Anúncio'];   // Reuniões e Notícias: pedido do Luiz, 31/10/2026; Eventos e Anúncio: 03/11/2026 (as mesmas do site e da API)
 const FOTO_LOCAL={};
 // as fotos da publicação: cada uma é a que já está no site ({caminho}) ou uma nova ({nova: data URI}); a primeira é a capa
 let pubFiltro='Todas',pubEdit=null,pubFotos=[],pubCat=CATS_PUB[0],pubDest=false,pubsProntas=false;

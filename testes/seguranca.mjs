@@ -7,7 +7,7 @@ const src = fs.readFileSync(new URL('../api/[...path].js', import.meta.url), 'ut
 const corte = (de, ate) => src.slice(src.indexOf(de), src.indexOf(ate));
 const seguranca = corte('// ---------------- SEGURANÇA', '// ---------------- MODELO VISUAL DOS E-MAILS');
 const leads = corte('// ---------------- LEADS', '// importa UMA loja');
-const importar = corte('async function rotaImportar', '// atualização por visita');
+const importar = corte('async function rotaImportar', '// o estoque não fica mais de 6 horas sem atualizar');
 const roteador = src.slice(src.indexOf('// ---------------- ROTEADOR')).replace('export default async function handler', 'async function handler');
 const assert = (c, m) => { if (!c) { console.log('FALHOU:', m); process.exitCode = 1; } else console.log('ok:', m); };
 

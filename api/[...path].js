@@ -1385,23 +1385,42 @@ async function retencao() {
   try { await query(`delete from repasse_carros where status in ('tirado', 'vencido', 'repassado') and coalesce(status_em, criado_em) < now() - interval '6 months'`); } catch (_) {}
 }
 
-// atualização por visita: relê a loja mais desatualizada, com trava para não repetir
+// o estoque não fica mais de 6 horas sem atualizar (pedido do Luiz, 03/11/2026). O robô do GitHub não garante isso: medido em 03/11/2026, ele
+// rodou com intervalos de 8, 15 e 8 horas. Quem garante é a visita: enquanto nenhuma loja venceu, "nada a fazer" fica guardado na Vercel até a
+// hora exata em que a mais antiga vence, e a visita não acorda o banco. Vencida, a primeira visita começa uma rodada aqui mesmo, uma loja por
+// chamada (como o robô), e cada chamada pede a seguinte; no fim, o cache do site é apagado uma vez. O robô chama a mesma rota com seguir=1 no
+// fim da rodada dele, para o site mostrar o estoque novo na hora. Sem visitas, ninguém vê o estoque velho, e o robô faz o que conseguir
+const LIMITE_SYNC_MIN = 360, MAX_LOJAS_RODADA = 60, LOJA_COM_SITE = "coalesce(autocerto_url, autocerto_id, '') <> ''";
 async function rotaRefresh(req, res) {
-  const horas = Math.min(48, Math.max(1, parseInt((req.query && req.query.horas) || '2', 10) || 2));
-  try {
+  const passo = parseInt(req.query && req.query.seguir, 10) || 0, seguindo = passo > 0 && await autorizado(req);
+  if (!seguindo) try {
     const { rows: [lk] } = await query("select em from config where chave='refresh_lock'");
-    if (lk && (Date.now() - new Date(lk.em).getTime()) < 150000) return res.json({ ok: true, pulado: 'recente' });
+    if (lk && (Date.now() - new Date(lk.em).getTime()) < 150000) { res.setHeader('Cache-Control', 's-maxage=60'); return res.json({ ok: true, pulado: 'recente' }); }
   } catch (_) {}
   await migra();
   const { rows: [loja] } = await query(
-    `select * from lojas where ativa = true
-       and (ultima_sync is null or ultima_sync < now() - ($1 || ' hours')::interval)
-     order by ultima_sync asc nulls first limit 1`, [String(horas)]);
-  if (!loja) return res.json({ ok: true, atualizado: false });
+    `select * from lojas where ativa = true and ${LOJA_COM_SITE}
+       and (ultima_sync is null or ultima_sync < now() - interval '${LIMITE_SYNC_MIN} minutes')
+     order by ultima_sync asc nulls first limit 1`);
+  if (!loja) {
+    if (seguindo) { await atualizarSite('site-veiculos', 'site-lojas'); return res.json({ ok: true, atualizado: false }); }   // o fim da rodada
+    const { rows: [m] } = await query(`select min(ultima_sync) as em from lojas where ativa = true and ${LOJA_COM_SITE}`);
+    const falta = m && m.em ? Math.ceil((new Date(m.em).getTime() + LIMITE_SYNC_MIN * 60000 - Date.now()) / 1000) : 3600;
+    res.setHeader('Cache-Control', `s-maxage=${Math.max(60, falta)}`);
+    return res.json({ ok: true, atualizado: false });
+  }
   await query("insert into config (chave, valor, em) values ('refresh_lock','1',now()) on conflict (chave) do update set em = now()");
-  const r = await importarLoja(loja);
-  await resumoSeDevido();
-  res.json({ ok: true, atualizado: true, ...r });
+  // a resposta sai logo e a leitura continua por trás: nem a visita nem a chamada anterior ficam esperando a loja
+  const trabalho = (async () => {
+    await importarLoja(loja);
+    await resumoSeDevido();
+    if (passo < MAX_LOJAS_RODADA && process.env.VERCEL_URL) {
+      await fetch(`https://${process.env.VERCEL_URL}/api/refresh?path=refresh&seguir=${passo + 1}`, { headers: { 'x-painel-token': PAINEL_TOKEN }, signal: AbortSignal.timeout(15000) });
+    }
+  })().catch(e => console.error('[refresh]', e && e.message));
+  const contexto = globalThis[Symbol.for('@vercel/request-context')]?.get?.();
+  if (contexto && contexto.waitUntil) contexto.waitUntil(trabalho); else await trabalho;
+  return res.json({ ok: true, atualizado: true, loja: loja.nome });
 }
 
 // resumo diário para a Aceima
@@ -1585,7 +1604,7 @@ async function rotaConteudo(req, res) {
 // publicações no painel). O painel grava direto no GitHub, no mesmo ramo desta publicação, como o modo de edição: editar na prévia não
 // mexe no site no ar, e nada muda no banco. Cada gravação é um commit só, com a lista e a foto juntas, e a Vercel publica o site em
 // cerca de um minuto. Se outro commit entrar no meio (um texto salvo pelo modo de edição), a gravação é refeita em cima dele.
-const CATEGORIAS_PUB = ['Ações no polo', 'Conquistas', 'Comunicados', 'Imprensa', 'Reuniões', 'Notícias', 'Anúncio'];   // Reuniões e Notícias: pedido do Luiz, 31/10/2026; Anúncio: 03/11/2026
+const CATEGORIAS_PUB = ['Ações no polo', 'Conquistas', 'Comunicados', 'Imprensa', 'Reuniões', 'Notícias', 'Eventos', 'Anúncio'];   // Reuniões e Notícias: pedido do Luiz, 31/10/2026; Eventos e Anúncio: 03/11/2026
 const slugPub = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '') || 'publicacao';
 function limparPub(p) {
