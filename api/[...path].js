@@ -1387,40 +1387,42 @@ async function retencao() {
 
 // o estoque não fica mais de 6 horas sem atualizar (pedido do Luiz, 03/11/2026). O robô do GitHub não garante isso: medido em 03/11/2026, ele
 // rodou com intervalos de 8, 15 e 8 horas. Quem garante é a visita: enquanto nenhuma loja venceu, "nada a fazer" fica guardado na Vercel até a
-// hora exata em que a mais antiga vence, e a visita não acorda o banco. Vencida, a primeira visita começa uma rodada aqui mesmo, uma loja por
-// chamada (como o robô), e cada chamada pede a seguinte; no fim, o cache do site é apagado uma vez. O robô chama a mesma rota com seguir=1 no
-// fim da rodada dele, para o site mostrar o estoque novo na hora. Sem visitas, ninguém vê o estoque velho, e o robô faz o que conseguir
-const LIMITE_SYNC_MIN = 360, MAX_LOJAS_RODADA = 60, LOJA_COM_SITE = "coalesce(autocerto_url, autocerto_id, '') <> ''";
+// hora exata em que a mais antiga vence, e a visita não acorda o banco. Vencida, cada chamada lê uma loja (como o robô, dentro dos 60 segundos
+// da função) e a página da visita chama de novo enquanto faltar alguma (continuar=1). Uma chamada da função pedindo a seguinte parou na quinta
+// loja no teste de 03/11/2026: quem pede a seguinte é a página. A chamada que lê a última loja apaga o cache do site uma vez. O robô chama com
+// fim=1 no fim da rodada dele, para o site mostrar o estoque novo na hora. Sem visitas, ninguém vê o estoque velho, e o robô faz o que conseguir
+const LIMITE_SYNC_MIN = 360, LOJA_COM_SITE = "coalesce(autocerto_url, autocerto_id, '') <> ''";
+const lojaVencida = async () => (await query(`select * from lojas where ativa = true and ${LOJA_COM_SITE}
+    and (ultima_sync is null or ultima_sync < now() - interval '${LIMITE_SYNC_MIN} minutes')
+  order by ultima_sync asc nulls first limit 1`)).rows[0];
 async function rotaRefresh(req, res) {
-  const passo = parseInt(req.query && req.query.seguir, 10) || 0, seguindo = passo > 0 && await autorizado(req);
-  if (!seguindo) try {
-    const { rows: [lk] } = await query("select em from config where chave='refresh_lock'");
-    if (lk && (Date.now() - new Date(lk.em).getTime()) < 150000) { res.setHeader('Cache-Control', 's-maxage=60'); return res.json({ ok: true, pulado: 'recente' }); }
-  } catch (_) {}
+  const q = req.query || {}, fimDoRobo = q.fim === '1' && await autorizado(req), publica = !fimDoRobo && q.continuar !== '1';
   await migra();
-  const { rows: [loja] } = await query(
-    `select * from lojas where ativa = true and ${LOJA_COM_SITE}
-       and (ultima_sync is null or ultima_sync < now() - interval '${LIMITE_SYNC_MIN} minutes')
-     order by ultima_sync asc nulls first limit 1`);
+  const loja = await lojaVencida();
   if (!loja) {
-    if (seguindo) { await atualizarSite('site-veiculos', 'site-lojas'); return res.json({ ok: true, atualizado: false }); }   // o fim da rodada
-    const { rows: [m] } = await query(`select min(ultima_sync) as em from lojas where ativa = true and ${LOJA_COM_SITE}`);
-    const falta = m && m.em ? Math.ceil((new Date(m.em).getTime() + LIMITE_SYNC_MIN * 60000 - Date.now()) / 1000) : 3600;
-    res.setHeader('Cache-Control', `s-maxage=${Math.max(60, falta)}`);
-    return res.json({ ok: true, atualizado: false });
+    if (fimDoRobo) await atualizarSite('site-veiculos', 'site-lojas');
+    if (publica) {
+      const { rows: [m] } = await query(`select min(ultima_sync) as em from lojas where ativa = true and ${LOJA_COM_SITE}`);
+      const falta = m && m.em ? Math.ceil((new Date(m.em).getTime() + LIMITE_SYNC_MIN * 60000 - Date.now()) / 1000) : 3600;
+      res.setHeader('Cache-Control', `s-maxage=${Math.max(60, falta)}`);
+    }
+    return res.json({ ok: true, atualizado: false, fim: !publica });
   }
-  await query("insert into config (chave, valor, em) values ('refresh_lock','1',now()) on conflict (chave) do update set em = now()");
-  // a resposta sai logo e a leitura continua por trás: nem a visita nem a chamada anterior ficam esperando a loja
-  const trabalho = (async () => {
+  // uma leitura por vez: a trava é tomada de uma vez só no banco e solta no fim; se a chamada morrer, vence em 1 minuto
+  const { rows: [trava] } = await query(`insert into config (chave, valor, em) values ('refresh_lock', '1', now())
+      on conflict (chave) do update set em = now() where config.em < now() - interval '60 seconds' returning em`);
+  if (!trava) { if (publica) res.setHeader('Cache-Control', 's-maxage=30'); return res.json({ ok: true, pulado: 'recente', continua: true }); }
+  try {
+    // marcada antes de ler: uma loja que não termina dentro do tempo da função não trava a rodada
+    await query('update lojas set ultima_sync = now() where id = $1', [loja.id]);
     await importarLoja(loja);
     await resumoSeDevido();
-    if (passo < MAX_LOJAS_RODADA && process.env.VERCEL_URL) {
-      await fetch(`https://${process.env.VERCEL_URL}/api/refresh?path=refresh&seguir=${passo + 1}`, { headers: { 'x-painel-token': PAINEL_TOKEN }, signal: AbortSignal.timeout(15000) });
-    }
-  })().catch(e => console.error('[refresh]', e && e.message));
-  const contexto = globalThis[Symbol.for('@vercel/request-context')]?.get?.();
-  if (contexto && contexto.waitUntil) contexto.waitUntil(trabalho); else await trabalho;
-  return res.json({ ok: true, atualizado: true, loja: loja.nome });
+  } finally {
+    await query("delete from config where chave = 'refresh_lock'").catch(() => {});
+  }
+  const resta = await lojaVencida();
+  if (!resta || fimDoRobo) await atualizarSite('site-veiculos', 'site-lojas');
+  return res.json({ ok: true, atualizado: true, loja: loja.nome, continua: !!resta, fim: !resta });
 }
 
 // resumo diário para a Aceima

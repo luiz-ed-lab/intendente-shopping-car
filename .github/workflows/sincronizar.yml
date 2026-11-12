@@ -61,5 +61,5 @@ jobs:
             done
           fi
           # o site mostra o estoque novo na hora: o cache da lista é apagado uma vez, no fim da rodada (se alguma loja ainda estiver vencida, ela é lida antes)
-          curl -s -o /dev/null --max-time 30 -H "x-painel-token: $PAINEL_TOKEN" "$SITE/api/refresh?path=refresh&seguir=1" || true
+          curl -s -o /dev/null --max-time 30 -H "x-painel-token: $PAINEL_TOKEN" "$SITE/api/refresh?path=refresh&fim=1" || true
           echo "Sincronização concluída."

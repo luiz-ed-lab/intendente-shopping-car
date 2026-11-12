@@ -1829,8 +1829,12 @@ async function carregar(){
   // recarregou a página (ou voltou de outro site e ela abriu do zero): volta ao lugar onde estava, se ainda não rolou
   const nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0],p=POS[chaveAtual];
   if(nav&&/reload|back_forward/.test(nav.type)&&p&&p.pg===pagAtual&&p.y>0&&scrollY<2)irPara(p.y);
-  // o estoque não fica mais de 6 horas sem atualizar: passou disso, a visita começa uma rodada (rotaRefresh). Até lá, a resposta vem do cache da Vercel
-  if(API!==null)setTimeout(()=>fetch('/api/refresh?path=refresh').catch(()=>{}),1500);
+  // o estoque não fica mais de 6 horas sem atualizar: passou disso, cada chamada lê uma loja, e esta página chama de novo enquanto faltar alguma
+  // (rotaRefresh). Até lá, a resposta vem do cache da Vercel. No fim, a página mostra o estoque novo
+  const rodada=(n,mais)=>fetch('/api/refresh?path=refresh'+(mais?'&continuar=1':'')).then(r=>r.json()).then(j=>{
+    if(j&&j.fim)conferirDados().then(novidades);
+    else if(j&&j.continua&&n<40)setTimeout(()=>rodada(n+1,true),j.pulado?20000:500);}).catch(()=>{});
+  if(API!==null)setTimeout(()=>rodada(0,false),1500);
 }
 const logoLoja=l=>API!==null&&l&&l.id?'/api/logo?path=logo&id='+l.id+(l.logo_v?'&v='+l.logo_v:''):'';   // v: logo trocada no painel tem outro endereço, senão fica a guardada por um dia
 const nVeic=()=>V.length;

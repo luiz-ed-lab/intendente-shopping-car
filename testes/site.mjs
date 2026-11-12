@@ -97,40 +97,43 @@ assert(!res.erro && apagadas.join() === 'site-veiculos' && qs.some(([s]) => /ult
 qs = []; apagadas.length = 0; await importar(async () => ({ itens: [{ anuncioId: 'a', marca: 'FIAT', modelo: 'UNO' }], ignorados: [] }), qs, hora(1))({ id: 7, nome: 'Normal', autocerto_url: 'x', google_em: new Date().toISOString(), ultima_sync: hora(6), ultimo_erro: null });
 assert(!apagadas.length, 'a leitura normal do robô não apaga o cache (o estoque relido a cada loja gastaria a Neon)');
 
-// 03/11/2026: o estoque não fica mais de 6 horas sem atualizar: a visita garante, e o "nada a fazer" não acorda o banco até a hora de a loja vencer
+// 03/11/2026: o estoque não fica mais de 6 horas sem atualizar: a visita garante, e o "nada a fazer" não acorda o banco até a hora de a loja vencer.
+// 12/11/2026: uma loja por chamada, e a página chama de novo (a chamada da função pedindo a seguinte parava na quinta loja)
 {
   const ini = src.indexOf('const LIMITE_SYNC_MIN'), fimR = src.indexOf('// resumo diário para a Aceima');
   assert(ini > 0 && fimR > ini, 'a rota da visita foi achada no arquivo');
-  const rotaR = estado => new Function('query', 'migra', 'autorizado', 'importarLoja', 'resumoSeDevido', 'atualizarSite', 'PAINEL_TOKEN', 'fetch', 'process',
-    src.slice(ini, fimR) + '; return rotaRefresh;')(
-    async sql => { estado.sqls.push(sql);
-      if (/refresh_lock' *$|chave='refresh_lock'$/.test(sql.trim()) && /^select/.test(sql)) return { rows: estado.trava ? [{ em: estado.trava }] : [] };
-      if (/min\(ultima_sync\)/.test(sql)) return { rows: [{ em: estado.maisAntiga }] };
-      if (/select \* from lojas/.test(sql)) return { rows: estado.vencida ? [estado.vencida] : [] };
+  const rotaR = e => new Function('query', 'migra', 'autorizado', 'importarLoja', 'resumoSeDevido', 'atualizarSite', src.slice(ini, fimR) + '; return rotaRefresh;')(
+    async sql => { e.sqls.push(sql);
+      if (/min\(ultima_sync\)/.test(sql)) return { rows: [{ em: e.maisAntiga }] };
+      if (/select \* from lojas/.test(sql)) return { rows: e.vencidas.length ? [e.vencidas[0]] : [] };
+      if (/insert into config/.test(sql)) return { rows: e.trava ? [] : [{ em: new Date() }] };
+      if (/update lojas set ultima_sync = now\(\)/.test(sql)) { e.marcadas.push(e.vencidas[0].nome); return { rows: [] }; }
+      if (/delete from config/.test(sql)) { e.soltou = true; return { rows: [] }; }
       return { rows: [] }; },
-    async () => {}, async () => estado.senha, async l => { estado.lidas.push(l.nome); }, async () => {}, async (...t) => { estado.apagadas.push(...t); }, 'senha-teste',
-    async (u, o) => { estado.pedidos.push([u, o.headers['x-painel-token']]); return { ok: true }; }, { env: { VERCEL_URL: 'deploy.vercel.app' } });
-  const novo = c => Object.assign({ sqls: [], lidas: [], apagadas: [], pedidos: [], senha: false }, c);
+    async () => {}, async () => e.senha, async l => { e.lidas.push(l.nome); e.vencidas.shift(); }, async () => {}, async (...t) => { e.apagadas.push(...t); });
+  const novo = c => Object.assign({ sqls: [], lidas: [], marcadas: [], apagadas: [], vencidas: [], senha: false, soltou: false }, c);
   const chama = async (e, q) => { const x = resposta(); let corpo; x.json = o => { corpo = o; return x; }; await rotaR(e)({ method: 'GET', query: q || {}, headers: {} }, x); return { h: x.h, corpo }; };
   const hora = h => new Date(Date.now() - h * 3600e3).toISOString();
   let e = novo({ maisAntiga: hora(2) }), r0 = await chama(e);
   const s = +(/s-maxage=(\d+)/.exec(r0.h['Cache-Control'] || '') || [])[1];
   assert(s > 3.9 * 3600 && s <= 4 * 3600, 'nada a fazer, loja mais antiga com 2 horas: fica no cache da Vercel pelas 4 horas que faltam', s);
-  assert(!e.lidas.length && !e.apagadas.length && !e.pedidos.length, 'nada a fazer: não lê nem apaga nada');
+  assert(!e.lidas.length && !e.apagadas.length, 'nada a fazer: não lê nem apaga nada');
   assert(/ultima_sync < now\(\) - interval '360 minutes'/.test(e.sqls.join()) && /coalesce\(autocerto_url, autocerto_id, ''\) <> ''/.test(e.sqls.join()), 'vence com 6 horas, e só loja com site');
   e = novo({ maisAntiga: hora(5.999) }); r0 = await chama(e);
   assert(/s-maxage=60$/.test(r0.h['Cache-Control']), 'perto de vencer: guarda no mínimo um minuto');
-  e = novo({ trava: new Date().toISOString() }); r0 = await chama(e);
-  assert(r0.corpo.pulado && /s-maxage=60$/.test(r0.h['Cache-Control']) && !e.lidas.length, 'rodada em andamento: pula, e a resposta fica guardada por um minuto');
-  e = novo({ vencida: { nome: 'Jazz' } }); r0 = await chama(e);
-  assert(e.lidas.join() === 'Jazz' && r0.corpo.atualizado && !/s-maxage/.test(r0.h['Cache-Control'] || ''), 'loja vencida: a primeira visita lê a loja, e essa resposta não fica guardada');
-  assert(e.pedidos.length === 1 && e.pedidos[0][0] === 'https://deploy.vercel.app/api/refresh?path=refresh&seguir=1' && e.pedidos[0][1] === 'senha-teste', 'e pede a loja seguinte, com a senha, no endereço da própria Vercel');
-  e = novo({ vencida: { nome: 'Lazari' }, senha: true }); await chama(e, { seguir: '7' });
-  assert(e.lidas.join() === 'Lazari' && /seguir=8$/.test(e.pedidos[0][0]) && !e.sqls.some(q => /^select em from config/.test(q)), 'no meio da rodada: não olha a trava e passa para a seguinte');
-  e = novo({ vencida: { nome: 'Lazari' }, senha: true }); await chama(e, { seguir: '60' });
-  assert(e.lidas.length === 1 && !e.pedidos.length, 'a rodada para em 60 lojas, mesmo que uma não saia da lista');
-  e = novo({ senha: true }); r0 = await chama(e, { seguir: '5' });
-  assert(e.apagadas.includes('site-veiculos') && e.apagadas.includes('site-lojas') && !/s-maxage/.test(r0.h['Cache-Control'] || ''), 'fim da rodada: apaga o cache do estoque e das lojas uma vez, e essa resposta não fica guardada');
-  e = novo({ senha: false, maisAntiga: hora(1) }); r0 = await chama(e, { seguir: '5' });
-  assert(!e.apagadas.length && /s-maxage/.test(r0.h['Cache-Control'] || ''), 'seguir sem a senha: é uma visita comum, não apaga nada');
+  e = novo({ vencidas: [{ nome: 'Jazz' }, { nome: 'Lazari' }] }); r0 = await chama(e);
+  assert(e.lidas.join() === 'Jazz' && e.marcadas.join() === 'Jazz' && e.soltou, 'loja vencida: lê uma loja só, marcada antes de ler, e solta a trava');
+  assert(r0.corpo.continua && !r0.corpo.fim && !e.apagadas.length && !/s-maxage/.test(r0.h['Cache-Control'] || ''), 'falta outra: a resposta diz para continuar, não fica guardada e não apaga o cache ainda');
+  r0 = await chama(e, { continuar: '1' });
+  assert(e.lidas.join() === 'Jazz,Lazari' && r0.corpo.fim && e.apagadas.includes('site-veiculos') && e.apagadas.includes('site-lojas'), 'a chamada que lê a última apaga o cache do estoque e das lojas, uma vez');
+  r0 = await chama(e, { continuar: '1' });
+  assert(r0.corpo.fim && !/s-maxage/.test(r0.h['Cache-Control'] || '') && e.apagadas.length === 2, 'continuar sem nada vencido: acabou, sem guardar a resposta e sem apagar de novo');
+  e = novo({ vencidas: [{ nome: 'Jazz' }], trava: true }); r0 = await chama(e);
+  assert(r0.corpo.pulado && r0.corpo.continua && /s-maxage=30$/.test(r0.h['Cache-Control']) && !e.lidas.length, 'outra leitura em andamento: pula, e a página tenta de novo mais tarde');
+  e = novo({ vencidas: [{ nome: 'Jazz' }], trava: true }); r0 = await chama(e, { continuar: '1' });
+  assert(r0.corpo.pulado && !/s-maxage/.test(r0.h['Cache-Control'] || ''), 'pulado ao continuar: não fica guardado');
+  e = novo({ senha: true }); r0 = await chama(e, { fim: '1' });
+  assert(e.apagadas.includes('site-veiculos') && r0.corpo.fim, 'o fim da rodada do robô apaga o cache do site');
+  e = novo({ senha: false, maisAntiga: hora(1) }); r0 = await chama(e, { fim: '1' });
+  assert(!e.apagadas.length && /s-maxage/.test(r0.h['Cache-Control'] || ''), 'fim=1 sem a senha: é uma visita comum, não apaga nada');
 }
