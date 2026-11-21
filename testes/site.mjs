@@ -137,3 +137,42 @@ assert(!apagadas.length, 'a leitura normal do robô não apaga o cache (o estoqu
   e = novo({ senha: false, maisAntiga: hora(1) }); r0 = await chama(e, { fim: '1' });
   assert(!e.apagadas.length && /s-maxage/.test(r0.h['Cache-Control'] || ''), 'fim=1 sem a senha: é uma visita comum, não apaga nada');
 }
+
+// 20/11/2026: o anúncio e a publicação saem do servidor com o título, a descrição, a foto e os dados no formato do Google (a prévia do link no
+// WhatsApp e os buscadores), e o mapa do site lista as páginas, as publicações e os carros
+{
+  const iniP = src.indexOf('// ---------------- O QUE SÓ LÊ O HTML'), fimP = src.indexOf('// os arquivos do site que vão junto com a função');
+  assert(iniP > 0 && fimP > iniP, 'as rotas da prévia foram achadas no arquivo');
+  const siteHtml = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const siglasSite = JSON.parse(siteHtml.match(/const SIGLAS=(\[[\s\S]*?\]);/)[1].replace(/'/g, '"'));
+  const inteiro = v => { const n = Number(v); return Number.isInteger(n) && n > 0 && n < 2147483647 ? n : null; };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  let linha = null, pedidos = [];
+  const R = new Function('query', 'esc', 'inteiro', 'cacheSite', 'ANUNCIO_EM_DIA', 'FORA_DO_SITE', src.slice(iniP, fimP) + '; return { SIGLAS, titulo, montarPagina, rotaPagina, rotaSitemap, urlCarro };')(
+    async (sql, p) => { pedidos.push([sql, p]); return { rows: linha ? [].concat(linha) : [] }; }, esc, inteiro,
+    (res, et) => { res.setHeader('Cache-Control', 's-maxage=10800'); res.setHeader('Vercel-Cache-Tag', et); }, '(true)', ['Lions Seminovos']);
+  assert(JSON.stringify(R.SIGLAS) === JSON.stringify(siglasSite), 'as siglas dos nomes dos carros são as mesmas do site');
+  assert(R.titulo('TOYOTA COROLLA XEI 2.0 FLEX') === 'Toyota Corolla XEI 2.0 Flex' && R.titulo('VOLKSWAGEN T-CROSS') === 'Volkswagen T-Cross', 'os nomes dos carros como no site', R.titulo('TOYOTA COROLLA XEI 2.0 FLEX'));
+  assert(siteHtml.includes('<!--meta-->') && siteHtml.includes('<!--/meta-->') && /og:image" content="https:\/\/aintendente\.com\.br\/marca-nova\/og-intendente\.jpg"/.test(siteHtml), 'o site tem a prévia padrão entre os marcadores');
+  const arquivo = nome => nome === 'index.html' ? siteHtml : JSON.stringify([{ id: 'p1', titulo: 'Feirão de <novembro>', categoria: 'Eventos', data: '2026-11-20', texto: 'Texto da publicação.', fotos: ['fotos-publicacoes/p1.webp'] }]);
+  const chamaP = async q => { const x = resposta(); let corpo = ''; x.statusCode = 200; x.end = b => { corpo = b; return x; }; await R.rotaPagina({ query: q }, x, arquivo); return { st: x.statusCode, h: x.h, corpo }; };
+  linha = { id: 123, marca: 'TOYOTA', modelo: 'COROLLA', versao: 'XEI 2.0', ano_modelo: 2020, km: 68000, preco: 89500, cambio: 'AUTOMATICO', combustivel: 'FLEX', fotos: ['https://loja.teste/a.jpg', 'https://loja.teste/b.jpg'], loja: 'Jazz Veículos', endereco: 'Estrada Intendente Magalhães, 830', telefone: '(21) 3333-4444' };
+  let r = await chamaP({ veiculo: '123-toyota-corolla-2020' });
+  assert(r.st === 200 && /<title>Toyota Corolla XEI 2\.0 2020 · R\$ 89\.500 \| Aceima<\/title>/.test(r.corpo), 'o anúncio sai com o título do carro e o preço', (r.corpo.match(/<title>[^<]*/) || [])[0]);
+  assert(/og:image" content="https:\/\/loja\.teste\/a\.jpg"/.test(r.corpo) && /canonical" href="https:\/\/aintendente\.com\.br\/veiculo\/123-toyota-corolla-2020"/.test(r.corpo), 'com a foto da capa e o endereço oficial do anúncio');
+  const ld = JSON.parse(r.corpo.match(/<script type="application\/ld\+json">([^<]*)<\/script>/)[1]);
+  assert(ld['@type'] === 'Car' && ld.offers.price === 89500 && ld.offers.priceCurrency === 'BRL' && ld.offers.seller.name === 'Jazz Veículos' && ld.mileageFromOdometer.value === 68000, 'os dados do carro no formato do Google');
+  assert(r.corpo.split('<title>').length === 2 && (r.corpo.match(/og:image/g) || []).length === 1, 'sem a prévia padrão repetida');
+  assert(r.h['Vercel-Cache-Tag'] === 'site-veiculos' && /\$1/.test(pedidos[0][0]) && pedidos[0][1][0] === 123, 'lê só aquele carro, e a página fica no cache com a etiqueta do estoque');
+  linha = null; r = await chamaP({ veiculo: '999-vendido' });
+  assert(r.st === 404 && /<title>Aceima \| Intendente/.test(r.corpo), 'carro vendido: a página normal, com 404 para o Google tirar o endereço');
+  r = await chamaP({ publicacao: 'p1' });
+  assert(r.st === 200 && /<title>Feirão de &lt;novembro&gt; \| Aceima<\/title>/.test(r.corpo) && /og:image" content="https:\/\/aintendente\.com\.br\/fotos-publicacoes\/p1\.webp"/.test(r.corpo) && /"@type":"Article"/.test(r.corpo), 'a publicação sai com o título, a foto e os dados');
+  assert(!/<novembro>/.test(r.corpo.split('<!--/meta-->')[0]) && /\\u003cnovembro>/.test(r.corpo), 'o texto da publicação não abre etiqueta no HTML');
+  r = await chamaP({ publicacao: 'nao-existe' });
+  assert(r.st === 404, 'publicação que não existe: 404');
+  linha = [{ id: 1, marca: 'FIAT', modelo: 'UNO', ano_modelo: 2019 }, { id: 2, marca: 'HONDA', modelo: 'HR-V', ano_modelo: 2021 }];
+  const x = resposta(); let xml = ''; x.end = b => { xml = b; return x; }; await R.rotaSitemap({ query: {} }, x, arquivo);
+  assert(/^<\?xml/.test(xml) && xml.includes('<loc>https://aintendente.com.br/estoque</loc>') && xml.includes('<loc>https://aintendente.com.br/veiculo/1-fiat-uno-2019</loc>') && xml.includes('<loc>https://aintendente.com.br/veiculo/2-honda-hr-v-2021</loc>') && xml.includes('/publicacoes/p1</loc><lastmod>2026-11-20</lastmod>'), 'o mapa do site tem as páginas, as publicações e os carros');
+  assert(x.h['Content-Type'] === 'application/xml; charset=utf-8' && x.h['Vercel-Cache-Tag'] === 'site-veiculos', 'o mapa sai como XML e fica no cache com a etiqueta do estoque');
+}

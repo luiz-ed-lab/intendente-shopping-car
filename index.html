@@ -13,8 +13,25 @@
 <link rel="icon" type="image/png" sizes="32x32" href="marca-nova/icone-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="marca-nova/icone-192.png">
 <link rel="apple-touch-icon" href="marca-nova/apple-touch-icon.png">
+<!-- o que a prévia do link (WhatsApp, Instagram, Facebook) e os buscadores leem (pedido do Luiz, 20/11/2026). O anúncio de um carro e a
+     publicação trocam as linhas entre os marcadores no servidor (rotaPagina, na API); nas outras páginas, a descrição e o endereço oficial
+     acompanham a página aberta (metaDaPagina) -->
+<!--meta-->
 <title>Aceima | Intendente, Polo Comercial e Automotivo do Rio</title>
 <meta name="description" content="A Aceima reúne as empresas da Estrada Intendente Magalhães desde 1998: lojas de veículos, serviços e comércio sob um mesmo padrão de qualidade e de atendimento.">
+<link rel="canonical" href="https://aintendente.com.br/">
+<meta property="og:site_name" content="Aceima">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Aceima | Intendente, Polo Comercial e Automotivo do Rio">
+<meta property="og:description" content="Carros, lojas e serviços da Estrada Intendente Magalhães, no Rio de Janeiro, num site só.">
+<meta property="og:url" content="https://aintendente.com.br/">
+<meta property="og:image" content="https://aintendente.com.br/marca-nova/og-intendente.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Aceima","alternateName":["A Intendente","Associação dos Comerciantes da Estrada Intendente Magalhães e Adjacências"],"url":"https://aintendente.com.br/","logo":"https://aintendente.com.br/marca-nova/icone-192.png","telephone":"+55 21 3283-6600","address":{"@type":"PostalAddress","streetAddress":"Estrada Intendente Magalhães, 830, Vila Valqueire","addressLocality":"Rio de Janeiro","addressRegion":"RJ","addressCountry":"BR"}}</script>
+<!--/meta-->
 <!-- as letras ficam no próprio site (01/11/2026): nenhum pedido ao Google, nem o endereço de quem visita -->
 <link rel="preload" href="/fontes/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fontes/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -3855,8 +3872,25 @@ function fecharCookies(){
 const VIEWS={home,estoque,associados,veiculo,aceima,associar,publicacoes,publicacao,servicos,privacidade,termos};
 const ROTAS={home:'/',estoque:'/estoque',associados:'/associados',aceima:'/a-aceima',associar:'/seja-um-associado',publicacoes:'/publicacoes',servicos:'/servicos',privacidade:'/privacidade',termos:'/termos'};
 const ANTIGAS={'/lojas':'associados','/aceima':'aceima','/vender':'associar','/contato':'aceima','/politica-de-privacidade':'privacidade','/termos-de-uso':'termos'};
-const TITULOS={home:'Aceima | Intendente, Polo Comercial e Automotivo do Rio',estoque:'Nosso estoque | Aceima',associados:'Associados | Aceima',aceima:'A Aceima | Aceima',associar:'Seja um associado | Aceima',publicacoes:'Publicações | Aceima',servicos:'Serviços do polo | Aceima',privacidade:'Política de Privacidade | Aceima',termos:'Termos de Uso | Aceima'};
+const TITULOS={home:'Aceima | Intendente, Polo Comercial e Automotivo do Rio',estoque:'Carros e motos na Intendente Magalhães | Aceima',associados:'Lojas e serviços da Intendente Magalhães | Aceima',aceima:'A Aceima | Aceima',associar:'Seja um associado | Aceima',publicacoes:'Publicações | Aceima',servicos:'Serviços do polo | Aceima',privacidade:'Política de Privacidade | Aceima',termos:'Termos de Uso | Aceima'};
 const HASH=location.protocol==='file:';   // aberto do computador: rotas pelo #
+// o que os buscadores leem de cada página (pedido do Luiz, 20/11/2026): a descrição e o endereço oficial (canonical) acompanham a página aberta
+const DESCRICOES={home:'A Aceima reúne as empresas da Estrada Intendente Magalhães desde 1998: lojas de veículos, serviços e comércio sob um mesmo padrão de qualidade e de atendimento.',
+  estoque:'Carros e motos das lojas da Estrada Intendente Magalhães, no Rio de Janeiro, numa busca só, com foto, preço e contato direto com a loja.',
+  associados:'As lojas de veículos, os serviços e o comércio associados da Estrada Intendente Magalhães, com a nota no Google, o endereço e o contato de cada um.',
+  aceima:'Desde 1998, a Aceima une as empresas da Estrada Intendente Magalhães, em Vila Valqueire, no Rio de Janeiro. A história e o trabalho da associação.',
+  associar:'Associe a sua empresa à Aceima e faça parte do polo da Estrada Intendente Magalhães. Os benefícios e o contato direto com a associação.',
+  publicacoes:'Ações, conquistas, eventos e comunicados da Aceima e das empresas da Estrada Intendente Magalhães.',
+  servicos:'Os serviços e o comércio credenciados da Estrada Intendente Magalhães, com o endereço e o contato de cada um.',
+  privacidade:'Como o site da Aceima trata os dados de quem visita e de quem entra em contato.',termos:'As regras de uso do site da Aceima.'};
+function metaDaPagina(){
+  if(HASH)return;
+  const d=document.querySelector('meta[name="description"]'),c=document.querySelector('link[rel="canonical"]');
+  let txt=DESCRICOES[pagAtual]||DESCRICOES.home,cam=ROTAS[pagAtual]||'/';
+  if(pagAtual==='veiculo'){const v=V.find(x=>String(x.id)===String(vAtual));if(v){txt=[nomeV(v),v.ver,v.ano].filter(Boolean).join(' ')+(v.preco>0?', por '+precoT(v.preco):'')+(v.loja?'. Na '+v.loja+', Estrada Intendente Magalhães, Rio de Janeiro.':'.');cam=urlV(v);}}
+  else if(pagAtual==='publicacao'){const p=PUBS.find(x=>x.id===pubAtual);if(p){txt=String(p.texto||p.titulo).replace(/\s+/g,' ').trim().slice(0,200);cam='/publicacoes/'+encodeURIComponent(p.id);}}
+  if(d)d.setAttribute('content',txt);if(c)c.setAttribute('href','https://aintendente.com.br'+cam);
+}
 const slug=s=>norm(s).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 const urlV=v=>'/veiculo/'+v.id+'-'+slug(nomeV(v)+' '+(v.ano||''));
 function urlDe(pg,arg){
@@ -3921,6 +3955,7 @@ function render(topo){
   if(TITULOS[pagAtual])document.title=TITULOS[pagAtual];
   else if(pagAtual==='veiculo'){const v=V.find(x=>String(x.id)===String(vAtual));if(v)document.title=nomeV(v)+' '+(v.ano||'')+' | Aceima';}
   else if(pagAtual==='publicacao'){const p=PUBS.find(x=>x.id===pubAtual);document.title=(p?p.titulo:'Publicações')+' | Aceima';}
+  metaDaPagina();
   if(pagAtual==='estoque'){const u=urlDe('estoque',F.loja);if(caminho()!==u)try{history.replaceState(history.state,'',(HASH?'#':'')+u);}catch(e){}}   // o endereço acompanha a loja do filtro
   setasPagina();menuNoRodape();contarVisita();
 }

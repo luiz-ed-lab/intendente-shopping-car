@@ -3,3 +3,5 @@
 User-agent: *
 Disallow: /painel
 Disallow: /repasse
+
+Sitemap: https://aintendente.com.br/sitemap.xml

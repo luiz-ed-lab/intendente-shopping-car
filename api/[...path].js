@@ -20,6 +20,7 @@
 import { Pool } from '@neondatabase/serverless';
 import * as cheerio from 'cheerio';
 import { scrypt, randomBytes, createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const query = (t, p) => pool.query(t, p);
@@ -2357,6 +2358,101 @@ async function rotaFotoRepasse(req, res) {
   return res.end(Buffer.from(f.b64, 'base64'));
 }
 
+// ---------------- O QUE SÓ LÊ O HTML: a prévia do link e os buscadores (pedido do Luiz, 20/11/2026) ----------------
+// O site é uma página só, montada no aparelho: quem não roda o site (a prévia do link no WhatsApp, no Instagram e no Facebook, e os
+// buscadores na primeira leitura) via o mesmo título e nenhuma foto em todo link. O anúncio de um carro e uma publicação passam por aqui
+// (rewrite do vercel.json): sai o mesmo index.html, com o título, a descrição e a foto deles e com os dados no formato que o Google entende
+// (schema.org), no lugar das linhas entre <!--meta--> e <!--/meta-->. Carro vendido ou fora do site sai com o status 404: a página diz que o
+// anúncio saiu do ar, e o Google tira o endereço da busca. O resto do site continua saindo direto da Vercel. O mapa do site (sitemap.xml)
+// lista as páginas, as publicações e os carros
+const SITE_PUB = 'https://aintendente.com.br';
+// a mesma regra do titulo() do index.html (as lojas mandam os nomes em maiúsculas): testes/site.mjs confere se as listas continuam iguais
+const SIGLAS = ['BMW', 'BYD', 'JAC', 'RAM', 'GWM', 'GM', 'VW', 'GAC', 'KTM', 'CAOA', 'MV', 'DS', 'ABS', 'CBS', 'TSI', 'TFSI', 'MPI', 'MPFI', 'MI', 'MSI', 'SCE', 'TCE', 'DCI', 'TGDI', 'CGI', 'GDI', 'THP', 'HPE', 'VVT', 'VCT', 'VTEC', 'MIVEC', 'TDI', 'TD', 'CRDI', 'GNV', 'CVT', 'DCT', 'DSG', 'EDC', 'AT', 'MT', 'AWD', 'AWC', 'FWD', 'RWD', 'PHEV', 'HEV', 'DHT', 'KW', 'CV', 'CC', 'SUV', 'LT', 'LTZ', 'LS', 'LX', 'LXL', 'LXR', 'EX', 'EXL', 'EXS', 'DX', 'SE', 'SEL', 'SR', 'SRV', 'SV', 'SL', 'GL', 'GLS', 'GLX', 'GLI', 'GT', 'GTI', 'GTS', 'RS', 'ST', 'XS', 'XL', 'XLS', 'XLT', 'XLI', 'XEI', 'XR', 'XRE', 'XRX', 'XTZ', 'XVS', 'YBR', 'YS', 'ZR', 'NK', 'NXR', 'PCX', 'CG', 'CB', 'NMAX', 'XMAX', 'ADV', 'TXS', 'VTI', 'HSE', 'CD', 'CS', 'STD', 'ED', 'EL', 'ELX', 'DI', 'SED', 'MHD', 'SFI', 'GS', 'GSX', 'XE', 'SRX', 'SW', 'CL', 'DLX', 'PDK', 'AMG', 'RT', 'ACT', 'GLA', 'GLC', 'GLE', 'CLA', 'SLK', 'CRV', 'HRV', 'WRV', 'ASX', 'TT', 'II', 'III', 'IV', 'VI', 'VII'];
+const MINUSC = ['de', 'da', 'do', 'das', 'dos', 'e', 'com', 'sem', 'para', 'em'];
+const maiusc1 = p => p.toLowerCase().replace(/[a-zà-ÿ]/, c => c.toUpperCase());
+const titulo = s => String(s || '').trim().split(/\s+/).filter(Boolean).map((w, i) => {
+  if (i && MINUSC.includes(w.toLowerCase())) return w.toLowerCase();
+  if (/\d/.test(w) || (w.includes('-') && w.split('-').every(p => p.length <= 2))) return w.toUpperCase();
+  return w.split(/([\-\/.,()])/).map(p => SIGLAS.includes(p.toUpperCase()) ? p.toUpperCase() : maiusc1(p)).join('');
+}).join(' ');
+const slugDe = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const resumoTxt = (s, n) => { const t = String(s || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : t; };
+const precoBR = n => 'R$ ' + Math.round(Number(n)).toLocaleString('pt-BR');
+// o mesmo endereço que o site monta (urlV, no index.html)
+const urlCarro = v => `${SITE_PUB}/veiculo/${v.id}-${slugDe(`${v.marca || ''} ${v.modelo || ''} ${v.ano_modelo || ''}`)}`;
+function montarPagina(html, m) {
+  const tags = [`<title>${esc(m.titulo)}</title>`, `<meta name="description" content="${esc(m.descricao)}">`, `<link rel="canonical" href="${esc(m.url)}">`,
+    '<meta property="og:site_name" content="Aceima">', '<meta property="og:locale" content="pt_BR">', `<meta property="og:type" content="${m.tipo}">`,
+    `<meta property="og:title" content="${esc(m.titulo)}">`, `<meta property="og:description" content="${esc(m.descricao)}">`,
+    `<meta property="og:url" content="${esc(m.url)}">`, `<meta property="og:image" content="${esc(m.imagem)}">`, '<meta name="twitter:card" content="summary_large_image">',
+    `<script type="application/ld+json">${JSON.stringify(m.dados).replace(/</g, '\\u003c')}</script>`];
+  return html.replace(/<!--meta-->[\s\S]*?<!--\/meta-->/, () => `<!--meta-->\n${tags.join('\n')}\n<!--/meta-->`);
+}
+// arquivo: lê um arquivo do site que vai junto com a função (includeFiles, no vercel.json)
+async function rotaPagina(req, res, arquivo) {
+  const q = req.query || {};
+  let html;
+  try { html = arquivo('index.html'); } catch (e) { console.error('[pagina]', e && e.message); res.statusCode = 302; res.setHeader('Location', '/'); return res.end(); }
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  if (q.veiculo) {
+    const id = inteiro(String(q.veiculo).split('-')[0]);
+    const { rows: [v] } = id ? await query(
+      `select v.id, v.marca, v.modelo, v.versao, v.ano_modelo, v.km, v.preco, v.cambio, v.combustivel, v.fotos, l.nome as loja, l.endereco, l.telefone
+         from veiculos v join lojas l on l.id = v.loja_id
+        where v.id = $1 and v.ativo = true and coalesce(v.oculto,false) = false and l.ativa = true and l.nome <> all($2) and ${ANUNCIO_EM_DIA}`,
+      [id, FORA_DO_SITE]) : { rows: [] };
+    cacheSite(res, 'site-veiculos');
+    if (!v) { res.statusCode = 404; return res.end(html); }
+    const nome = titulo(`${v.marca || ''} ${v.modelo || ''}`), versao = titulo(v.versao || ''), ano = v.ano_modelo || '', url = urlCarro(v);
+    const fotos = (v.fotos || []).filter(f => /^https?:\/\//i.test(f)).slice(0, 6), preco = Number(v.preco) > 0 ? precoBR(v.preco) : '';
+    const ficha = [v.km != null ? `${Number(v.km).toLocaleString('pt-BR')} km` : '', titulo(v.cambio || ''), titulo(v.combustivel || '')].filter(Boolean).join(', ');
+    const completo = [nome, versao, ano].filter(Boolean).join(' ');
+    const dados = { '@context': 'https://schema.org', '@type': 'Car', name: completo, brand: { '@type': 'Brand', name: titulo(v.marca || '') }, model: titulo(v.modelo || ''), url, image: fotos };
+    if (ano) dados.vehicleModelDate = String(ano);
+    if (v.km != null) dados.mileageFromOdometer = { '@type': 'QuantitativeValue', value: Number(v.km), unitCode: 'KMT' };
+    if (v.cambio) dados.vehicleTransmission = titulo(v.cambio);
+    if (v.combustivel) dados.fuelType = titulo(v.combustivel);
+    if (preco) dados.offers = { '@type': 'Offer', price: Number(v.preco), priceCurrency: 'BRL', availability: 'https://schema.org/InStock', url,
+      seller: { '@type': 'AutoDealer', name: v.loja, ...(v.endereco ? { address: v.endereco } : {}), ...(v.telefone ? { telephone: v.telefone } : {}) } };
+    return res.end(montarPagina(html, { tipo: 'product', url, dados, imagem: fotos[0] || `${SITE_PUB}/marca-nova/og-intendente.jpg`,
+      titulo: `${completo}${preco ? ' · ' + preco : ''} | Aceima`,
+      descricao: resumoTxt(`${completo}${ficha ? ', ' + ficha : ''}${preco ? ', por ' + preco : ''}. Na ${v.loja}, Estrada Intendente Magalhães, Rio de Janeiro. Fale com a loja pelo site da Aceima.`, 200) }));
+  }
+  if (q.publicacao) {
+    let lista = [];
+    try { lista = JSON.parse(arquivo('publicacoes.json')); } catch (_) {}
+    const p = Array.isArray(lista) ? lista.find(x => x && x.id === String(q.publicacao)) : null;
+    res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=604800');   // a publicação nova vem numa publicação nova da Vercel, que limpa o cache
+    if (!p) { res.statusCode = 404; return res.end(html); }
+    const url = `${SITE_PUB}/publicacoes/${encodeURIComponent(p.id)}`, foto = (Array.isArray(p.fotos) && p.fotos[0]) || p.foto;
+    const imagem = foto ? `${SITE_PUB}/${String(foto).replace(/^\/+/, '')}` : `${SITE_PUB}/marca-nova/og-intendente.jpg`;
+    const dados = { '@context': 'https://schema.org', '@type': 'Article', headline: p.titulo, datePublished: p.data, articleSection: p.categoria, image: [imagem], url,
+      publisher: { '@type': 'Organization', name: 'Aceima', logo: { '@type': 'ImageObject', url: `${SITE_PUB}/marca-nova/icone-192.png` } } };
+    return res.end(montarPagina(html, { tipo: 'article', url, imagem, dados, titulo: `${p.titulo} | Aceima`, descricao: resumoTxt(p.texto || p.titulo, 200) }));
+  }
+  res.setHeader('Cache-Control', 's-maxage=86400');
+  return res.end(html);
+}
+async function rotaSitemap(req, res, arquivo) {
+  const { rows } = await query(
+    `select v.id, v.marca, v.modelo, v.ano_modelo from veiculos v join lojas l on l.id = v.loja_id
+      where v.ativo = true and coalesce(v.oculto,false) = false and l.ativa = true and l.nome <> all($1) and ${ANUNCIO_EM_DIA}
+      order by v.id`, [FORA_DO_SITE]);
+  let pubs = [];
+  try { pubs = JSON.parse(arquivo('publicacoes.json')); } catch (_) {}
+  const urls = [['/', 'daily', '1.0'], ['/estoque', 'daily', '0.9'], ['/associados', 'weekly', '0.8'], ['/a-aceima', 'monthly', '0.6'], ['/seja-um-associado', 'monthly', '0.6'],
+    ['/publicacoes', 'weekly', '0.6'], ['/privacidade', 'yearly', '0.2'], ['/termos', 'yearly', '0.2']]
+    .map(([c, f, p]) => `<url><loc>${SITE_PUB}${c}</loc><changefreq>${f}</changefreq><priority>${p}</priority></url>`)
+    .concat((Array.isArray(pubs) ? pubs : []).filter(p => p && p.id).map(p => `<url><loc>${SITE_PUB}/publicacoes/${encodeURIComponent(p.id)}</loc>${/^\d{4}-\d{2}-\d{2}$/.test(p.data || '') ? `<lastmod>${p.data}</lastmod>` : ''}</url>`))
+    .concat(rows.map(v => `<url><loc>${esc(urlCarro(v))}</loc></url>`));
+  cacheSite(res, 'site-veiculos');
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  return res.end(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`);
+}
+// os arquivos do site que vão junto com a função, lidos uma vez por instância
+const ARQUIVOS = {};
+const arquivoDoSite = nome => ARQUIVOS[nome] || (ARQUIVOS[nome] = readFileSync(process.cwd() + '/' + nome, 'utf8'));   // na Vercel, a pasta da função é a raiz do site
+
 // ---------------- ROTEADOR ----------------
 // rotas só da Aceima (a senha do painel)
 const SO_PAINEL = { resumo: () => rotaResumo, testeemail: () => rotaTesteEmail, conteudo: () => rotaConteudo, publicacoes: () => rotaPublicacoes, visitas: () => rotaVisitas };
@@ -2383,6 +2479,8 @@ export default async function handler(req, res) {
     if (rota === 'leads') return await rotaLeads(req, res);
     if (rota === 'importar') return await rotaImportar(req, res);
     if (rota === 'refresh') return await rotaRefresh(req, res);
+    if (rota === 'pagina') return await rotaPagina(req, res, arquivoDoSite);
+    if (rota === 'sitemap') return await rotaSitemap(req, res, arquivoDoSite);
     if (Object.hasOwn(SO_PAINEL, String(rota))) return (await autorizado(req)) ? await SO_PAINEL[rota]()(req, res) : negar(res);
     if (rota === 'visita') return await rotaVisita(req, res);
     if (rota === 'repasse') return await rotaRepasse(req, res);
