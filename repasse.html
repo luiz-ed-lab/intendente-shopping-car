@@ -767,7 +767,9 @@ function pedirCatalogo(){
   }).catch(()=>{catPedido=null;});
   return catPedido;
 }
-function frMarcas(){const m=new Map();VD_MARCAS.forEach(x=>m.set(frChave(x),x));CAT.forEach(v=>{const k=frChave(v.b);if(v.b&&!/\//.test(v.b)&&!m.has(k))m.set(k,v.b);});return frOrdem(m);}
+// marca sem letra nenhuma não entra na lista, como no index.html: "1.0" é a cilindrada lida no lugar da marca (Autryx, 21/11/2026)
+const marcaComLetra=b=>/[a-z]/i.test(b||'');
+function frMarcas(){const m=new Map();VD_MARCAS.forEach(x=>m.set(frChave(x),x));CAT.forEach(v=>{const k=frChave(v.b);if(v.b&&!/\//.test(v.b)&&marcaComLetra(v.b)&&!m.has(k))m.set(k,v.b);});return frOrdem(m);}
 function frModelos(marca=NF.marca){const k=frChave(marca),m=new Map();if(!k)return [];
   CAT.forEach(v=>{const c=frChave(v.mod);if(v.mod&&frChave(v.b)===k&&!m.has(c))m.set(c,v.mod);});
   (VD_MODELOS[k]||[]).forEach(x=>{if(!m.has(frChave(x)))m.set(frChave(x),x);});

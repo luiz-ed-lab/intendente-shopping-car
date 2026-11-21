@@ -179,3 +179,85 @@ assert(!apagadas.length, 'a leitura normal do robô não apaga o cache (o estoqu
   assert(/^<\?xml/.test(xml) && xml.includes('<loc>https://aintendente.com.br/estoque</loc>') && xml.includes('<loc>https://aintendente.com.br/veiculo/1-fiat-uno-2019</loc>') && xml.includes('<loc>https://aintendente.com.br/veiculo/2-honda-hr-v-2021</loc>') && xml.includes('/publicacoes/p1</loc><lastmod>2026-11-20</lastmod>'), 'o mapa do site tem as páginas, as publicações e os carros');
   assert(x.h['Content-Type'] === 'application/xml; charset=utf-8' && x.h['Vercel-Cache-Tag'] === 'site-veiculos', 'o mapa sai como XML e fica no cache com a etiqueta do estoque');
 }
+
+// 21/11/2026: o modelo novo de site do AutoCerto (o da Autryx) traz a marca e o modelo em campos próprios, e o único cabeçalho do cartão é a
+// versão. Lido como nome, a cilindrada virava a marca ("1.0") e um pedaço da versão, o modelo ("200"), e as listas de marcas do site
+// mostravam "1.0, 1.3, 1.5". Os cartões abaixo seguem o HTML da página de estoque da Autryx e o da Auto Barra (o modelo antigo)
+{
+  let cheerio = null;
+  try { cheerio = await import('cheerio'); } catch (_) {}
+  assert(cheerio, 'o cheerio está instalado (rode npm ci antes dos testes)');
+  const ini1 = src.indexOf('function precoDe'), fim1 = src.indexOf('// Ano a partir do qual');
+  const ini2 = src.indexOf('function uniqTexts'), fim2 = src.indexOf('// decide a origem do estoque');
+  const ini3 = src.indexOf('// extrai os cartões de anúncio'), fim3 = src.indexOf('// detalhe do site próprio');
+  assert(ini1 > 0 && fim1 > ini1 && ini2 > 0 && fim2 > ini2 && ini3 > 0 && fim3 > ini3, 'o leitor dos cartões das lojas foi achado no arquivo');
+  if (cheerio) {
+    const { colherCards, uniqTexts } = new Function(src.slice(ini1, fim1) + src.slice(ini2, fim2) + src.slice(ini3, fim3) + '; return { colherCards, uniqTexts };')();
+    const ler = html => {   // como o lerSite: as marcas e os modelos dos filtros da página, maiores primeiro
+      const $ = cheerio.load(html), maior = (a, b) => b.length - a.length;
+      const ctx = { marcas: uniqTexts($, 'a[href*="marca="]').map(t => t.toUpperCase()).sort(maior), modelos: uniqTexts($, 'a[href*="modelo="]').map(t => t.toUpperCase()).sort(maior), vistos: new Set(), itens: [], ignorados: [] };
+      colherCards($, ctx);
+      return ctx;
+    };
+    const novo = (slug, id, foto, marca, modelo, cabecalho, comb, km, ano, preco) => `<div class="result-item">
+      <div class="result-item-image"><a href="/Veiculo/${slug}/${id}/detalhes" class="media-box loadPageAjax"><img src="${foto}" width="1024" height="768" alt="${marca} ${modelo}"><span class="zoom"><span class="icon"><i class="fa fa-plus-circle"></i></span></span></a></div>
+      <div class="result-item-in">
+        <div class="vehicle-brand-row"><img src="https://www.autocerto.com/fabricantes/x.webp" class="vehicle-brand-logo" alt="${marca}">
+          <span class="vehicle-brand-text"><strong class="vehicle-brand-model">${modelo}</strong><small class="vehicle-brand-name">${marca}</small></span></div>
+        <h4 class="result-item-sub-title">${cabecalho}</h4>
+        <div class="vehicle-card-specs">
+          <span class="vc-spec"><i class="fa-solid fa-gas-pump"></i><em class="vc-spec-txt"><small>Combustível</small><strong>${comb}</strong></em></span>
+          <span class="vc-spec"><i class="fa fa-cog"></i><em class="vc-spec-txt"><small>Câmbio</small><strong>Autom&#225;tico</strong></em></span>
+          <span class="vc-spec"><i class="fa fa-tachometer"></i><em class="vc-spec-txt"><small>Km</small><strong>${km}<span class="vc-unidade"> km</span></strong></em></span>
+          <span class="vc-spec"><i class="fa fa-calendar"></i><em class="vc-spec-txt"><small>Ano</small><strong>${ano}</strong></em></span>
+        </div>
+      </div>
+      <div class="result-item-cont result-item-pricing-home"><div class="row"><div class="col-md-7"><div class="price"><small>R$ </small>${preco}</div></div>
+        <div class="col-md-5 divdetalhes"><a href="/Veiculo/${slug}/${id}/detalhes" class="btn btn-primary btnDetalhes loadPageAjax">Ver mais</a>
+          <a href="https://api.whatsapp.com/send?phone=5521999999999" class="btn btnWhatsCard"><i class="fa fa-whatsapp"></i> Fale Conosco</a></div></div></div>
+    </div>`;
+    const autryx = `<ul><li><a href="/Veiculos?marca=TOYOTA" class="loadPageAjax"> <i class="fa fa-caret-right"></i> TOYOTA</a></li>
+      <li><a href="/Veiculos?marca=VOLKSWAGEN" class="loadPageAjax"> <i class="fa fa-caret-right"></i> VOLKSWAGEN</a></li>
+      <li><a href="/Veiculos?modelo=COROLLA CROSS" class="loadPageAjax">COROLLA CROSS</a></li><li><a href="/Veiculos?modelo=POLO" class="loadPageAjax">POLO</a></li></ul>
+      <div class="results-list-view">`
+      + novo('polo-1.0-200-tsi-comfortline-automatico-2022', '4496574', 'https://www.autocerto.com/fotos/1719/4496574/16_050357.jpg', 'VOLKSWAGEN', 'POLO', '1.0 200 TSI COMFORTLINE AUTOM&#193;TICO', 'Flex', '20.950', '2022/2022', '92.900,00')
+      + novo('corolla-cross-2.0-vvt-ie-flex-xre-direct-shift-2024', '5655548', 'https://www.autocerto.com/fotos/1719/5655548/20_060050.jpg', 'TOYOTA', 'COROLLA CROSS', 'TOYOTA COROLLA CROSS 2.0 VVT-IE FLEX XRE DIRECT SHIFT', 'Gasolina', '43.700', '2023/2024', '149.900,00')
+      + `</div>`;
+    let c = ler(autryx);
+    const polo = c.itens.find(i => i.anuncioId === '4496574') || {}, cross = c.itens.find(i => i.anuncioId === '5655548') || {};
+    assert(c.itens.length === 2 && !c.ignorados.length, 'Autryx: os dois cartões entram, cada um uma vez (a foto e o "Ver mais" levam ao mesmo anúncio)', c.itens.length);
+    assert(polo.marca === 'VOLKSWAGEN' && polo.modelo === 'POLO' && polo.versao === '1.0 200 TSI COMFORTLINE AUTOMÁTICO', 'Autryx: a marca e o modelo vêm dos campos do cartão, e o cabeçalho é a versão inteira (a cilindrada não vira a marca)', JSON.stringify([polo.marca, polo.modelo, polo.versao]));
+    assert(cross.marca === 'TOYOTA' && cross.modelo === 'COROLLA CROSS' && cross.versao === '2.0 VVT-IE FLEX XRE DIRECT SHIFT', 'Autryx: modelo de duas palavras inteiro, e o cabeçalho que repete a marca e o modelo vira só a versão', JSON.stringify([cross.marca, cross.modelo, cross.versao]));
+    assert(polo.combustivel === 'Flex' && cross.combustivel === 'Gasolina', 'Autryx: o combustível vem da ficha do cartão (o endereço do anúncio não traz)', polo.combustivel + ' ' + cross.combustivel);
+    assert(polo.ano === 2022 && polo.km === 20950 && polo.preco === 92900 && polo.cambio === 'Automático' && /4496574\/16_050357\.jpg$/.test(polo.img || '') && cross.ano === 2024, 'Autryx: ano, km, preço, câmbio e a foto da capa', JSON.stringify([polo.ano, polo.km, polo.preco, polo.cambio]));
+    // o modelo antigo (Auto Barra): o nome inteiro no link, o combustível no endereço. Continua como era
+    c = ler(`<a href="/Veiculos?marca=AUDI">AUDI</a><a href="/Veiculos?modelo=A3">A3</a><div class="lista-veiculos"><div id="results-holder" class="results-list-view"><div class="result-item">
+      <div class="col-md-6 fotoVeiculo"><a href="Veiculo/a3-1.8-tfsi-sedan-16v-180cv-gasolina-4p-automatico-gasolina-2015/5802318/detalhes" class="media-box"><img src="https://www.autocerto.com/fotos/551/5802318/1_023216.jpg" alt=""></a><span class="label label-primary vehicle-age">Gasolina</span></div>
+      <div class="col-md-6"><h4 class="result-item-title"><a href="Veiculo/a3-1.8-tfsi-sedan-16v-180cv-gasolina-4p-automatico-gasolina-2015/5802318/detalhes">
+        AUDI A3<br />
+        <span class="versaoVeiculo">1.8 TFSI SEDAN 16V 180CV GASOLINA 4P AUTOM&#193;TICO</span></a></h4>
+      <div class="result-item-pricing"><div class="price"><span>R$ </span> 72.900,00</div></div>
+      <ul class="listaEspecificacoes"><li><span>Ano</span><p>2015</p></li><li><span>Km</span><p>111469</p></li></ul></div></div></div></div>`);
+    const a3 = c.itens[0] || {};
+    assert(c.itens.length === 1 && a3.marca === 'AUDI' && a3.modelo === 'A3' && a3.versao === '1.8 TFSI SEDAN 16V 180CV GASOLINA 4P AUTOMÁTICO' && a3.combustivel === 'Gasolina' && a3.km === 111469 && a3.preco === 72900, 'modelo antigo (Auto Barra): continua lido como antes', JSON.stringify([a3.marca, a3.modelo, a3.versao, a3.combustivel, a3.km]));
+    // nenhum outro jeito de chegar à marca: o cartão que só tem a versão não entra com a cilindrada no lugar da marca
+    c = ler(`<div class="result-item"><a href="/Veiculo/polo-1.0-mpi-track-manual-2024/5706848/detalhes" class="media-box"><img src="https://www.autocerto.com/fotos/1719/5706848/20_050823.jpg"></a>
+      <h4>1.0 MPI TRACK MANUAL</h4><div class="price">R$ 73.900,00</div></div>`);
+    assert(!c.itens.length && c.ignorados.join() === '5706848', 'marca sem letra ("1.0") nunca entra: o anúncio fica de fora, contado como sem nome');
+  }
+  // as listas de marcas do site (o filtro do estoque e o Venda seu veículo) e a do Repasse: marca sem letra não entra
+  const siteHtml = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const repHtml = fs.readFileSync(new URL('../repasse.html', import.meta.url), 'utf8');
+  const pedacos = (html, onde, res) => { const ms = res.map(re => html.match(re)); assert(ms.every(Boolean), `${onde}: o código da lista de marcas foi achado`); return ms.map(m => m ? m[0] : ''); };
+  const ps = pedacos(siteHtml, 'site', [/^const norm=.*$/m, /^const uniq=.*$/m, /^const VD_MARCAS=\[[\s\S]*?\];$/m, /^const vdChave=.*$/m, /^const vdOrdem=.*$/m,
+    /^const marcaComLetra=.*$/m, /^function vdMarcas\(\)\{.*$/m, /^\s*if\(k==='marca'\)return .*$/m]);
+  ps.push('function marcasDoFiltro(k){' + ps.pop() + '}');   // a linha da marca no opcoes() do filtro do estoque
+  const estoque = [{ b: '1.0' }, { b: '1.5' }, { b: '2.0' }, { b: 'Volkswagen' }, { b: 'Gac' }, { b: 'Toyota' }];
+  const listas = new Function('V', 'F', ps.join('\n') + '; return { vdMarcas, marcasDoFiltro };')(estoque, {});
+  const filtro = listas.marcasDoFiltro('marca'), venda = listas.vdMarcas();
+  assert(filtro.join() === 'Gac,Toyota,Volkswagen', 'filtro Marca do estoque: sem "1.0, 1.5, 2.0"', filtro.join());
+  assert(!venda.some(b => !/[a-z]/i.test(b)) && venda.includes('Gac') && venda.includes('Volkswagen'), 'Venda seu veículo: a lista de marcas sem número (e com as marcas do estoque)', venda.slice(0, 6).join());
+  const pr = pedacos(repHtml, 'Repasse', [/^const norm=.*$/m, /^const VD_MARCAS=\[[\s\S]*?\];$/m, /^const frChave=.*$/m, /^const frOrdem=.*$/m, /^const marcaComLetra=.*$/m, /^function frMarcas\(\)\{.*$/m]);
+  const rep = new Function('CAT', pr.join('\n') + '; return frMarcas;')(estoque)();
+  assert(!rep.some(b => !/[a-z]/i.test(b)) && rep.includes('Gac'), 'Repasse: a lista de marcas do formulário também sem número', rep.slice(0, 6).join());
+}

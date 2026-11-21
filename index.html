@@ -2020,7 +2020,9 @@ const VD_MODELOS={byd:['Dolphin','Dolphin Mini','Han','King','Seal','Shark','Son
   harleydavidson:['Fat Bob','Fat Boy','Heritage Classic','Iron 883','Low Rider','Nightster','Road Glide','Road King','Sportster S','Street Bob','Street Glide']};
 const vdChave=s=>norm(s).replace(/[^a-z0-9]/g,'');
 const vdOrdem=m=>[...m.values()].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true}));
-function vdMarcas(){const m=new Map();VD_MARCAS.forEach(x=>m.set(vdChave(x),x));V.forEach(v=>{const k=vdChave(v.b);if(v.b&&!/\//.test(v.b)&&!m.has(k))m.set(k,v.b);});return vdOrdem(m);}
+// marca sem letra nenhuma não entra nas listas de marcas (aqui e no filtro do estoque): "1.0" é a cilindrada lida no lugar da marca (Autryx, 21/11/2026)
+const marcaComLetra=b=>/[a-z]/i.test(b||'');
+function vdMarcas(){const m=new Map();VD_MARCAS.forEach(x=>m.set(vdChave(x),x));V.forEach(v=>{const k=vdChave(v.b);if(v.b&&!/\//.test(v.b)&&marcaComLetra(v.b)&&!m.has(k))m.set(k,v.b);});return vdOrdem(m);}
 function vdModelos(){const k=vdChave(VD.marca),m=new Map();if(!k)return [];
   V.forEach(v=>{const c=vdChave(v.mod);if(v.mod&&vdChave(v.b)===k&&!m.has(c))m.set(c,v.mod);});
   (VD_MODELOS[k]||[]).forEach(x=>{if(!m.has(vdChave(x)))m.set(vdChave(x),x);});
@@ -2362,7 +2364,7 @@ const LOTE=36;   // anúncios por vez: fecha as linhas de 2, 3 e 4 colunas
 const PAG=100;   // anúncios por página (pedido do Luiz, 14/10/2026)
 let mostrar=LOTE,buscando=false,pagEst=0;
 function opcoes(k){
-  if(k==='marca')return uniq(V.map(v=>v.b));
+  if(k==='marca')return uniq(V.map(v=>v.b).filter(marcaComLetra));
   if(k==='modelo')return uniq(V.filter(v=>!F.marca||v.b===F.marca).map(v=>v.mod));
   if(k==='ano')return [...new Set(V.map(v=>v.ano).filter(Boolean))].sort((a,b)=>b-a).map(a=>'A partir de '+a);
   if(k==='preco')return PRECOS.map(p=>p[0]);

@@ -707,6 +707,8 @@ async function lerSite(base) {
 // extrai os cartões de anúncio de uma página (ou do pedaço devolvido pela rolagem)
 // textos de botão que NÃO são nome de veículo (cada loja usa o seu)
 const ROTULO_GENERICO = /^(ver mais|mais detalhes|saiba mais|ver detalhes|detalhes|financiamento|ver an[úu]ncio|whatsapp|compartilhar|simular|reservar|\+)$/i;
+// marca sem nenhuma letra ("1.0", "2.0") é a cilindrada lida no lugar da marca: o anúncio não entra assim (Autryx, 21/11/2026)
+const MARCA_SEM_LETRA = /^[^a-z]*$/i;
 function colherCards($, ctx) {
   const { marcas, modelos, vistos, itens, ignorados } = ctx;
   $('a[href*="Veiculo/"][href*="detalhes"]').each((_, a) => {
@@ -730,19 +732,35 @@ function colherCards($, ctx) {
       if (heads[1] && !titulo.toUpperCase().includes(heads[1].toUpperCase())) titulo += ' ' + heads[1];
     }
     if ((!titulo || ROTULO_GENERICO.test(titulo)) && textoLink && !ROTULO_GENERICO.test(textoLink)) titulo = textoLink;
-    if (!titulo || titulo.length < 3 || ROTULO_GENERICO.test(titulo)) return;   // ainda é botão, não é anúncio
+    // O modelo novo de site do AutoCerto (o da Autryx, 21/11/2026) traz a marca e o modelo em campos próprios, e o único cabeçalho do cartão
+    // é a versão ("1.0 200 TSI COMFORTLINE AUTOMÁTICO"): lido como nome, a cilindrada virava a marca e um pedaço da versão, o modelo.
+    // Com os campos, valem eles
+    const campo = sel => card.find(sel).first().text().trim().replace(/\s+/g, ' ').toUpperCase();
+    const marcaDoCartao = campo('.vehicle-brand-name'), modeloDoCartao = campo('.vehicle-brand-model');
+    const temCampos = !!(marcaDoCartao && modeloDoCartao);
+    if (!temCampos && (!titulo || titulo.length < 3 || ROTULO_GENERICO.test(titulo))) return;   // ainda é botão, não é anúncio
 
     vistos.add(id);
     const ctxt = card.text().replace(/\s+/g, ' ');
     const $img = card.find('img').first();
     let img = $img.attr('src') || $img.attr('data-src') || $img.attr('data-original') || null;
     if (img && /embreve/i.test(img)) img = null;
-    const T = titulo.toUpperCase();
-    const marca = marcas.find(x => T.startsWith(x)) || titulo.split(' ')[0].toUpperCase();
-    const resto = titulo.slice(marca.length).trim();
-    const R = resto.toUpperCase();
-    const modelo = modelos.find(x => R.startsWith(x)) || resto.split(' ')[0].toUpperCase();
-    const versao = resto.slice(modelo.length).trim();
+    let marca, modelo, versao;
+    if (temCampos) {
+      marca = marcaDoCartao; modelo = modeloDoCartao;
+      // o cabeçalho é só a versão; se vier com a marca e o modelo na frente, eles saem dela
+      versao = ROTULO_GENERICO.test(titulo) ? '' : titulo;
+      for (const p of [marca, modelo]) if (versao.toUpperCase().startsWith(p + ' ')) versao = versao.slice(p.length).trim();
+    } else {
+      const T = titulo.toUpperCase();
+      marca = marcas.find(x => T.startsWith(x)) || titulo.split(' ')[0].toUpperCase();
+      const resto = titulo.slice(marca.length).trim();
+      const R = resto.toUpperCase();
+      modelo = modelos.find(x => R.startsWith(x)) || resto.split(' ')[0].toUpperCase();
+      versao = resto.slice(modelo.length).trim();
+    }
+    // a ficha do cartão no modelo novo (<small>Combustível</small><strong>Flex</strong>): o endereço do anúncio da Autryx não traz o combustível
+    const fichaDoCartao = rotulo => card.find('.vc-spec').filter((_, e) => rotulo.test($(e).find('small').first().text())).first().find('strong').first().text().trim();
     const sl = parseSlug(m[1]);
     // ano: do slug, "Ano 2021" ou "2021/2021"
     const ano = sl.ano || intDe(ctxt.match(/Ano\s*(\d{4})/i)) || (() => {
@@ -763,10 +781,10 @@ function colherCards($, ctx) {
       marca, modelo, versao,
       preco: precoDe(ctxt), km,
       cambio: (ctxt.match(/C[âa]mbio\s*([A-Za-zÁ-ÿ]+)/i) || [])[1] || null,
-      combustivel: sl.combustivel, ano
+      combustivel: sl.combustivel || fichaDoCartao(/^\s*combust/i) || null, ano
     };
-    // porteira: sem nome utilizável não entra de jeito nenhum (era o caso do "VER MAIS")
-    if (!item.marca || item.marca.length < 2 || ROTULO_GENERICO.test(item.marca)) {
+    // porteira: sem nome utilizável não entra de jeito nenhum (era o caso do "VER MAIS" e da cilindrada no lugar da marca)
+    if (!item.marca || item.marca.length < 2 || ROTULO_GENERICO.test(item.marca) || MARCA_SEM_LETRA.test(item.marca)) {
       if (ignorados) ignorados.push(id);
       return;
     }
