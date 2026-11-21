@@ -2375,6 +2375,8 @@ const titulo = s => String(s || '').trim().split(/\s+/).filter(Boolean).map((w, 
   if (/\d/.test(w) || (w.includes('-') && w.split('-').every(p => p.length <= 2))) return w.toUpperCase();
   return w.split(/([\-\/.,()])/).map(p => SIGLAS.includes(p.toUpperCase()) ? p.toUpperCase() : maiusc1(p)).join('');
 }).join(' ');
+// a versão sem repetir o modelo (versaoDe, no index.html): algumas lojas repetem o modelo inteiro na versão
+const versaoDe = (mod, ver) => mod && (semAcento(ver) === semAcento(mod) || semAcento(ver).startsWith(semAcento(mod) + ' ')) ? ver.slice(mod.length).trim() : ver;
 const slugDe = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 const resumoTxt = (s, n) => { const t = String(s || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : t; };
 const precoBR = n => 'R$ ' + Math.round(Number(n)).toLocaleString('pt-BR');
@@ -2403,7 +2405,7 @@ async function rotaPagina(req, res, arquivo) {
       [id, FORA_DO_SITE]) : { rows: [] };
     cacheSite(res, 'site-veiculos');
     if (!v) { res.statusCode = 404; return res.end(html); }
-    const nome = titulo(`${v.marca || ''} ${v.modelo || ''}`), versao = titulo(v.versao || ''), ano = v.ano_modelo || '', url = urlCarro(v);
+    const nome = titulo(`${v.marca || ''} ${v.modelo || ''}`), versao = versaoDe(titulo(v.modelo || ''), titulo(v.versao || '')), ano = v.ano_modelo || '', url = urlCarro(v);
     const fotos = (v.fotos || []).filter(f => /^https?:\/\//i.test(f)).slice(0, 6), preco = Number(v.preco) > 0 ? precoBR(v.preco) : '';
     const ficha = [v.km != null ? `${Number(v.km).toLocaleString('pt-BR')} km` : '', titulo(v.cambio || ''), titulo(v.combustivel || '')].filter(Boolean).join(', ');
     const completo = [nome, versao, ano].filter(Boolean).join(' ');

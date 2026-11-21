@@ -3887,7 +3887,7 @@ function metaDaPagina(){
   if(HASH)return;
   const d=document.querySelector('meta[name="description"]'),c=document.querySelector('link[rel="canonical"]');
   let txt=DESCRICOES[pagAtual]||DESCRICOES.home,cam=ROTAS[pagAtual]||'/';
-  if(pagAtual==='veiculo'){const v=V.find(x=>String(x.id)===String(vAtual));if(v){txt=[nomeV(v),v.ver,v.ano].filter(Boolean).join(' ')+(v.preco>0?', por '+precoT(v.preco):'')+(v.loja?'. Na '+v.loja+', Estrada Intendente Magalhães, Rio de Janeiro.':'.');cam=urlV(v);}}
+  if(pagAtual==='veiculo'){const v=V.find(x=>String(x.id)===String(vAtual));if(v){txt=nomeTodo(v)+(v.preco>0?', por '+precoT(v.preco):'')+(v.loja?'. Na '+v.loja+', Estrada Intendente Magalhães, Rio de Janeiro.':'.');cam=urlV(v);}}
   else if(pagAtual==='publicacao'){const p=PUBS.find(x=>x.id===pubAtual);if(p){txt=String(p.texto||p.titulo).replace(/\s+/g,' ').trim().slice(0,200);cam='/publicacoes/'+encodeURIComponent(p.id);}}
   if(d)d.setAttribute('content',txt);if(c)c.setAttribute('href','https://aintendente.com.br'+cam);
 }
