@@ -1649,6 +1649,10 @@ async function rotaConteudo(req, res) {
 // mexe no site no ar, e nada muda no banco. Cada gravação é um commit só, com a lista e a foto juntas, e a Vercel publica o site em
 // cerca de um minuto. Se outro commit entrar no meio (um texto salvo pelo modo de edição), a gravação é refeita em cima dele.
 const CATEGORIAS_PUB = ['Ações no polo', 'Conquistas', 'Comunicados', 'Imprensa', 'Reuniões', 'Notícias', 'Eventos', 'Anúncio'];   // Reuniões e Notícias: pedido do Luiz, 31/10/2026; Eventos e Anúncio: 03/11/2026
+const MAX_VIDEO_PUB = 200e6, MAX_PARTES_VIDEO = 80;   // o vídeo da publicação: até 200 MB, em pedaços de até 2,8 MB
+// os primeiros bytes de um MP4 ou MOV (a caixa ftyp, ou moov, mdat, wide, free, skip nos MOV antigos) ou de um WebM (EBML)
+const ehVideo = x => x.length >= 12 && (['ftyp', 'moov', 'mdat', 'wide', 'free', 'skip', 'pnot'].includes(x.toString('latin1', 4, 8)) ||
+  (x[0] === 0x1a && x[1] === 0x45 && x[2] === 0xdf && x[3] === 0xa3));
 const slugPub = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '') || 'publicacao';
 function limparPub(p) {
@@ -1704,25 +1708,49 @@ async function rotaPublicacoes(req, res) {
     if (!bl.ok) return res.status(502).json({ erro: `o GitHub respondeu ${bl.status} ao guardar a foto` });
     return res.json({ ok: true, blob: (await bl.json()).sha, ext: x.ext });
   }
+  // o vídeo (pedido do Luiz, 23/11/2026: "uma opção de vídeo no mural", com o vídeo sempre inteiro): um por publicação. Ele sobe antes,
+  // aos pedaços de até 2,8 MB (o limite de um envio é 4,5 MB), e cada pedaço vira um blob no GitHub, como a foto. A gravação manda a lista
+  // dos pedaços, e o robô .github/videos.py junta, converte para MP4 (H.264, que todo navegador toca) e tira a capa; até lá a publicação
+  // fica fora do site. O primeiro pedaço tem que ser de um vídeo de verdade (MP4, MOV ou WebM)
+  if (b.acao === 'parte') {
+    const d = String(b.parte || '');
+    if (!d || d.length > 4e6 || !/^[A-Za-z0-9+/]+={0,2}$/.test(d)) return res.status(400).json({ erro: 'pedaço do vídeo inválido' });
+    if (b.n === 0 && !ehVideo(Buffer.from(d.slice(0, 64), 'base64'))) return res.status(400).json({ erro: 'o arquivo não é um vídeo em MP4, MOV ou WebM' });
+    const bl = await gh('git/blobs', 'POST', { content: d, encoding: 'base64' });
+    if (!bl.ok) return res.status(502).json({ erro: `o GitHub respondeu ${bl.status} ao guardar o vídeo` });
+    return res.json({ ok: true, blob: (await bl.json()).sha });
+  }
+  // na gravação: { partes, tamanho, nome } é um vídeo novo; { manter: true } deixa o que está; null tira. Sem nada, fica o que está
+  const pv = b.video;
+  let videoNovo = null;
+  if (pv && pv.partes !== undefined) {
+    const ps = pv.partes, tam = Number(pv.tamanho);
+    if (!Array.isArray(ps) || !ps.length || ps.length > MAX_PARTES_VIDEO || !ps.every(x => /^[0-9a-f]{40}$/.test(String(x)))) return res.status(400).json({ erro: 'vídeo inválido' });
+    videoNovo = { partes: ps.map(String), tamanho: Number.isFinite(tam) && tam > 0 && tam <= MAX_VIDEO_PUB ? Math.round(tam) : null,
+      nome: String(pv.nome || '').replace(/[^\wÀ-ú .()-]/g, '').slice(0, 80) };
+  }
   const fotosPedidas = Array.isArray(b.fotos) ? b.fotos.slice(0, 12) : null;
   if (fotosPedidas) for (const f of fotosPedidas) {
     if (f && f.nova) { const x = lerFoto(f.nova); if (x.erro) return recusa(x.erro); f.lida = x; }
     else if (f && f.blob !== undefined) { if (!/^[0-9a-f]{40}$/.test(String(f.blob)) || !['webp', 'jpg', 'png'].includes(f.ext)) return recusa(400); f.lida = { ext: f.ext, sha: f.blob }; }
   }
   const fotosDe = p => Array.isArray(p.fotos) ? p.fotos : (p.foto ? [p.foto] : []);
+  // os arquivos de uma publicação no site: as fotos e, com o vídeo pronto, o MP4 e a capa dele
+  const videoDe = p => p && p.video && typeof p.video === 'object' ? p.video : null;
+  const arquivosDe = p => [...fotosDe(p), ...(videoDe(p) ? [videoDe(p).src, videoDe(p).poster] : [])].filter(Boolean);
   for (let tentativa = 0; tentativa < 3; tentativa++) {
     const ref = await gh(`git/ref/heads/${ramo}`);
     if (!ref.ok) return res.status(502).json({ erro: `o GitHub respondeu ${ref.status} ao ler o ramo` });
     const base = (await ref.json()).object.sha;
     const lista = await lerLista(base);
     const arquivos = [];   // { path, conteudo } (base64) ou { path, apagar: true }
-    const usada = (caminho, menos) => lista.some(x => x !== menos && fotosDe(x).includes(caminho));
+    const usada = (caminho, menos) => lista.some(x => x !== menos && arquivosDe(x).includes(caminho));
     let msg, pub = null;
     if (b.acao === 'excluir') {
       const i = lista.findIndex(x => x.id === b.id);
       if (i < 0) return res.status(404).json({ erro: 'publicação não encontrada' });
       const [velha] = lista.splice(i, 1);
-      fotosDe(velha).forEach(f => { if (!usada(f)) arquivos.push({ path: f, apagar: true }); });
+      arquivosDe(velha).forEach(f => { if (!usada(f)) arquivos.push({ path: f, apagar: true }); });
       msg = `Publicações: excluída "${velha.titulo}"`;
     } else if (b.acao === 'salvar') {
       const dados = limparPub(b.pub || {});
@@ -1747,6 +1775,12 @@ async function rotaPublicacoes(req, res) {
         if (foto) { pub.foto = `fotos-publicacoes/${id}-${Date.now().toString(36)}.${foto.ext}`; arquivos.push({ path: pub.foto, conteudo: foto.base64 }); }
         if (velha && Array.isArray(velha.fotos)) pub.fotos = [pub.foto, ...velha.fotos.slice(1)].filter(Boolean);
       }
+      // o vídeo: o novo entra esperando o robô (com os pedaços), e trocar ou tirar apaga o MP4 e a capa do antigo no mesmo commit
+      const vVelho = videoDe(velha);
+      const apagarVideo = () => { if (vVelho) [vVelho.src, vVelho.poster].filter(Boolean).forEach(f => { if (!usada(f, velha)) arquivos.push({ path: f, apagar: true }); }); };
+      if (videoNovo) { apagarVideo(); pub.video = { id: `${id}-v${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, ...videoNovo }; }
+      else if (pv === null || (pv && pv.tirar)) apagarVideo();
+      else if (vVelho) pub.video = vVelho;
       if (pub.destaque) lista.forEach(x => { x.destaque = false; });   // um destaque só
       if (velha) lista[lista.indexOf(velha)] = pub; else lista.push(pub);
       msg = `Publicações: ${velha ? 'editada' : 'nova'} "${pub.titulo}"`;
@@ -2478,8 +2512,10 @@ async function rotaPagina(req, res, arquivo) {
     try { lista = JSON.parse(arquivo('publicacoes.json')); } catch (_) {}
     const p = Array.isArray(lista) ? lista.find(x => x && x.id === String(q.publicacao)) : null;
     res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=604800');   // a publicação nova vem numa publicação nova da Vercel, que limpa o cache
-    if (!p) { res.statusCode = 404; return res.end(html); }
-    const url = `${SITE_PUB}/publicacoes/${encodeURIComponent(p.id)}`, foto = (Array.isArray(p.fotos) && p.fotos[0]) || p.foto;
+    // a publicação com o vídeo ainda em preparo fica fora do site até o robô terminar (cerca de dois minutos)
+    if (!p || (p.video && p.video.partes)) { res.statusCode = 404; return res.end(html); }
+    // a capa da prévia: a primeira foto ou, na publicação só com vídeo, a capa dele
+    const url = `${SITE_PUB}/publicacoes/${encodeURIComponent(p.id)}`, foto = (Array.isArray(p.fotos) && p.fotos[0]) || p.foto || (p.video && p.video.poster);
     const imagem = foto ? `${SITE_PUB}/${String(foto).replace(/^\/+/, '')}` : `${SITE_PUB}/marca-nova/og-intendente.jpg`;
     const dados = { '@context': 'https://schema.org', '@type': 'Article', headline: p.titulo, datePublished: p.data, articleSection: p.categoria, image: [imagem], url,
       publisher: { '@type': 'Organization', name: 'Aceima', logo: { '@type': 'ImageObject', url: `${SITE_PUB}/marca-nova/icone-192.png` } } };
@@ -2498,7 +2534,7 @@ async function rotaSitemap(req, res, arquivo) {
   const urls = [['/', 'daily', '1.0'], ['/estoque', 'daily', '0.9'], ['/associados', 'weekly', '0.8'], ['/a-aceima', 'monthly', '0.6'], ['/seja-um-associado', 'monthly', '0.6'],
     ['/publicacoes', 'weekly', '0.6'], ['/privacidade', 'yearly', '0.2'], ['/termos', 'yearly', '0.2']]
     .map(([c, f, p]) => `<url><loc>${SITE_PUB}${c}</loc><changefreq>${f}</changefreq><priority>${p}</priority></url>`)
-    .concat((Array.isArray(pubs) ? pubs : []).filter(p => p && p.id).map(p => `<url><loc>${SITE_PUB}/publicacoes/${encodeURIComponent(p.id)}</loc>${/^\d{4}-\d{2}-\d{2}$/.test(p.data || '') ? `<lastmod>${p.data}</lastmod>` : ''}</url>`))
+    .concat((Array.isArray(pubs) ? pubs : []).filter(p => p && p.id && !(p.video && p.video.partes)).map(p => `<url><loc>${SITE_PUB}/publicacoes/${encodeURIComponent(p.id)}</loc>${/^\d{4}-\d{2}-\d{2}$/.test(p.data || '') ? `<lastmod>${p.data}</lastmod>` : ''}</url>`))
     .concat(rows.map(v => `<url><loc>${esc(urlCarro(v))}</loc></url>`));
   cacheSite(res, 'site-veiculos');
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');

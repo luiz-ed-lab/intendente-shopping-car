@@ -693,6 +693,32 @@ button.row:hover .row-tx b{color:var(--gold)}
 .pv b{display:block;margin-top:6px;font:500 16px/1.3 var(--f1);overflow-wrap:anywhere}
 .pv span{display:block;margin-top:6px;font-size:12.5px;color:var(--mut)}
 .cm-b.ed-b{margin-top:24px}
+/* o vídeo da publicação (pedido do Luiz, 23/11/2026): sempre inteiro, no formato dele, em cima do azul com o próprio quadro desfocado em
+   volta (no cartão, na lista, na prévia e no editor). Enquanto o robô prepara, "Preparando o vídeo"; com erro, o aviso */
+.vcapa{position:absolute;inset:0;overflow:hidden;background:var(--navy);display:flex;align-items:center;justify-content:center;color:#CFD9E8}
+.vcapa .vc-fundo{position:absolute;inset:-12%;width:124%;height:124%;object-fit:cover;filter:blur(16px) brightness(.5) saturate(1.15)}
+.vcapa .vc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.vcapa .vc-play{position:relative;z-index:1;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:rgba(0,9,26,.5);border:1px solid rgba(255,255,255,.4);color:#fff}
+.vcapa .vc-play .ic{width:18px;height:18px;margin-left:3px}
+.vcapa .vc-dur{position:absolute;z-index:1;right:10px;bottom:10px;padding:5px 8px;border-radius:99px;background:rgba(0,9,26,.72);color:#fff;font:600 11px/1 var(--f2);font-variant-numeric:tabular-nums}
+.vcapa .vc-st{position:relative;z-index:1;display:flex;align-items:center;gap:8px;padding:8px 13px;border-radius:99px;background:rgba(0,9,26,.74);font:600 12px/1 var(--f2);color:#fff;white-space:nowrap}
+.vcapa .vc-st.erro{background:#9A2F22}
+.vc-gira{width:13px;height:13px;flex:none;border-radius:50%;border:2px solid rgba(255,255,255,.28);border-top-color:var(--gold3);animation:gira .9s linear infinite}
+.pr-f .vcapa .vc-play,.pv-f .vcapa .vc-play{width:28px;height:28px}
+.pr-f .vcapa .vc-play .ic,.pv-f .vcapa .vc-play .ic{width:12px;height:12px;margin-left:2px}
+.pr-f .vcapa .vc-dur,.pv-f .vcapa .vc-dur{display:none}
+.pr-f .vcapa .vc-st,.pv-f .vcapa .vc-st{padding:5px 8px;font-size:10.5px;gap:5px}
+.pr-f .vcapa .vc-st .vc-gira,.pv-f .vcapa .vc-st .vc-gira{display:none}
+.pv-f{position:relative;overflow:hidden}
+/* no editor: o vídeo escolhido (a capa inteira, a duração e o tamanho) ou o botão de escolher, embaixo das fotos */
+.ed-video{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ed-v{position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;box-shadow:0 0 0 2px var(--gold2)}
+.ed-v .x{position:absolute;z-index:2;top:5px;right:5px;width:24px;height:24px;border-radius:50%;background:rgba(0,9,26,.78);color:#fff;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.ed-v .x:hover{background:#9A2F22}
+.ed-vi{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0;font-size:12.5px;line-height:1.35;color:#AFC0D6}
+.ed-vi b{color:#fff;font:500 14px/1.3 var(--f1);overflow-wrap:anywhere}
+.ed-vi .erro{color:#F2A49A}
+.ed-mais.vid{aspect-ratio:auto;min-height:62px;flex-direction:row;gap:8px;grid-column:1/-1}
 
 /* ===== menu: a barra em pílula do site, fixa embaixo. Como no site, a parte aberta mostra o nome, e o mouse em cima de outra abre o
    nome dela também (pedido do Luiz, 20/10/2026) ===== */
@@ -1206,7 +1232,7 @@ async function carregarPubs(){
     if(!r.ok||!j.ok)throw new Error(j.erro||('erro '+r.status));
     PUBS=Array.isArray(j.publicacoes)?j.publicacoes:[];pubsErro=null;
   }catch(e){pubsErro=e.message;}
-  pubsProntas=true;renderPubs();if(vistaAtual==='mural')pintarResumo();
+  pubsProntas=true;renderPubs();if(vistaAtual==='mural')pintarResumo();vigiarVideos();
 }
 
 /* ---------- topo: a data, o título e os números de cada parte ---------- */
@@ -2395,6 +2421,26 @@ const FOTO_LOCAL={};
 // as fotos da publicação: cada uma é a que já está no site ({caminho}) ou uma nova ({nova: data URI}); a primeira é a capa
 let pubFiltro='Todas',pubEdit=null,pubFotos=[],pubCat=CATS_PUB[0],pubDest=false,pubsProntas=false;
 const MAX_FOTOS_PUB=8;
+// o vídeo da publicação (pedido do Luiz, 23/11/2026: "uma opção de vídeo no mural", com o vídeo sempre inteiro): um por publicação.
+// { existente } é o gravado (pronto, preparando ou com erro); { arquivo, dur, w, h, capa } é o escolhido agora. Ele sobe aos pedaços, e o
+// robô do GitHub (.github/videos.py) converte e tira a capa: até lá, a publicação fica fora do site e aqui aparece "Preparando o vídeo"
+let pubVideo=null;
+const MAX_VIDEO_PUB=200e6,MAX_DUR_VIDEO=180,PARTE_VIDEO=2.8e6;
+const VIDEO_LOCAL={};   // a capa do vídeo que acabou de subir (id da publicação → imagem), até o robô terminar
+const videoPendente=p=>!!(p&&p.video&&p.video.partes);
+const durTxt=s=>{s=Math.round(Number(s)||0);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+const mbTxt=b=>(b/1e6).toLocaleString('pt-BR',{maximumFractionDigits:b<1e7?1:0})+' MB';
+const IC_PLAY='<path d="M7 4.8v14.4L19 12z" fill="currentColor" stroke="none"/>';
+// o vídeo num quadro, inteiro, em cima do próprio quadro desfocado: pronto (o play e a duração), preparando ou com erro
+function capaVideo(v,capa){
+  v=v||{};capa=v.poster||capa||'';
+  const fundo=capa?`<img class="vc-fundo" src="${esc(capa)}" alt=""><img class="vc-img" src="${esc(capa)}" alt="">`:'';
+  if(v.erro)return `<div class="vcapa">${fundo}<span class="vc-st erro">Vídeo com erro</span></div>`;
+  if(v.partes)return `<div class="vcapa">${fundo}<span class="vc-st"><i class="vc-gira"></i>Preparando o vídeo</span></div>`;
+  return `<div class="vcapa">${fundo}<span class="vc-play">${sv(IC_PLAY)}</span>${v.dur?`<span class="vc-dur">${durTxt(v.dur)}</span>`:''}</div>`;
+}
+const midiaPub=(p,f)=>p.video?capaVideo(p.video,VIDEO_LOCAL[p.id]):f?imgPub(f):sv(IC.foto);
+const infoVideoPub=p=>p.video?(p.video.dur?` · vídeo de ${durTxt(p.video.dur)}`:' · vídeo'):'';
 const fotoPub=p=>p.foto?(FOTO_LOCAL[p.foto]||p.foto):'';
 const fotosDaPub=p=>Array.isArray(p.fotos)&&p.fotos.length?p.fotos:(p.foto?[p.foto]:[]);
 const srcFotoPub=f=>f.nova||FOTO_LOCAL[f.caminho]||f.caminho;
@@ -2407,8 +2453,8 @@ const etiquetasPub=p=>p.destaque||p.exemplo?`<div class="pc-tags">${p.destaque?'
 // texto em duas, com o lugar delas guardado mesmo quando são mais curtos
 function cartaoPub(p){const f=fotoPub(p),n=fotosDaPub(p).length,tr=trechoPub(p);
   return `<article class="pc" data-k="${esc(p.id)}">
-    <div class="pc-f">${f?imgPub(f):sv(IC.foto)}${etiquetasPub(p)}</div>
-    <div class="pc-b"><div class="pc-k"><b>${esc(p.categoria)}</b> · ${dataLonga(p.data)}${n>1?` · ${n} fotos`:''}</div><h3>${esc(p.titulo||'Título da publicação')}</h3><p>${esc(tr)}</p></div>
+    <div class="pc-f">${midiaPub(p,f)}${etiquetasPub(p)}</div>
+    <div class="pc-b"><div class="pc-k"><b>${esc(p.categoria)}</b> · ${dataLonga(p.data)}${n>1?` · ${n} fotos`:''}${infoVideoPub(p)}</div><h3>${esc(p.titulo||'Título da publicação')}</h3><p>${esc(tr)}</p></div>
     <div class="pc-a"><a class="lk" href="/publicacoes/${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a>
      <div class="pc-ed"><button type="button" class="pc-x" title="Excluir" aria-label="Excluir a publicação" onclick="excluirPub('${p.id}')">${sv(IC.lixo,'sm')}</button><button type="button" class="pc-e" title="Editar" aria-label="Editar a publicação" onclick="abrirPub('${p.id}')">${sv(IC.lapis,'sm')}</button></div></div>
   </article>`;}
@@ -2416,8 +2462,8 @@ function cartaoPub(p){const f=fotoPub(p),n=fotosDaPub(p).length,tr=trechoPub(p);
 // as etiquetas e as ações. A escolha fica guardada no aparelho, como a de Veículos
 function linhaPub(p){const f=fotoPub(p),n=fotosDaPub(p).length;
   return `<article class="prow" data-k="${esc(p.id)}">
-    <div class="pr-f">${f?imgPub(f):sv(IC.foto)}</div>
-    <div class="pr-c"><div class="pc-k"><b>${esc(p.categoria)}</b> · ${dataLonga(p.data)}${n>1?` · ${n} fotos`:''}</div><h3>${esc(p.titulo||'Título da publicação')}</h3></div>
+    <div class="pr-f">${midiaPub(p,f)}</div>
+    <div class="pr-c"><div class="pc-k"><b>${esc(p.categoria)}</b> · ${dataLonga(p.data)}${n>1?` · ${n} fotos`:''}${infoVideoPub(p)}</div><h3>${esc(p.titulo||'Título da publicação')}</h3></div>
     <div class="pr-t">${etiquetasPub(p)}</div>
     <a class="lk" href="/publicacoes/${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Ver no site${sv(IC.fora,'sm')}</a>
     <div class="pc-ed"><button type="button" class="pc-x" title="Excluir" aria-label="Excluir a publicação" onclick="excluirPub('${p.id}')">${sv(IC.lixo,'sm')}</button><button type="button" class="pc-e" title="Editar" aria-label="Editar a publicação" onclick="abrirPub('${p.id}')">${sv(IC.lapis,'sm')}</button></div>
@@ -2482,7 +2528,8 @@ function editorPub(p){
      <label class="cp ed-txt"><span>Texto</span><textarea id="pTexto" rows="2" oninput="crescerTexto(this)">${esc(p?p.texto||'':'')}</textarea></label>
     </div>
     <div class="ed-lado">
-     <div class="cp"><span>Fotos</span><div class="ed-fotos" id="pFotos" data-ordem="moverFotoPub"></div><input type="file" id="pFoto" accept="image/*" multiple hidden data-fotos="Solte as fotos da publicação aqui" onchange="lerFotosPub(this)"></div>
+     <div class="cp"><span>Fotos</span><div class="ed-fotos" id="pFotos" data-ordem="moverFotoPub"></div><input type="file" id="pFoto" accept="image/*" multiple hidden data-fotos="Solte as fotos ou o vídeo da publicação aqui" onchange="lerFotosPub(this)"></div>
+     <div class="cp"><span>Vídeo</span><div class="ed-video" id="pVideo"></div><input type="file" id="pVid" accept="video/*,.mov,.mp4,.m4v,.webm" hidden data-video onchange="lerVideoPub(this)"></div>
      <div class="ed-prev"><span>Como aparece no site</span><div id="pPrev"></div></div>
     </div>
    </div>
@@ -2500,14 +2547,15 @@ function abrirPub(id){
       let card=g.querySelector(`:scope>[data-k="${CSS.escape(p.id)}"]`);
       if(!card){pubFiltro='Todas';renderPubs();card=g.querySelector(`:scope>[data-k="${CSS.escape(p.id)}"]`);if(!card)return;}
       pubEdit=p.id;pubFotos=fotosDaPub(p).map(c=>({caminho:c}));pubCat=CATS_PUB.includes(p.categoria)?p.categoria:CATS_PUB[0];pubDest=!!p.destaque;
+      pubVideo=p.video?{existente:p.video}:null;
       if(MMODO==='lista')abrirCamada(g,card,editorPub(p),true);else abrirCamada(g,card,editorPub(p),true,ancoraGrade(g,card));
-      pintarFotosPub();crescerTexto($('pTexto'));
+      pintarFotosPub();pintarVideoPub();crescerTexto($('pTexto'));
       return;
     }
     if(pubEdit&&b.hidden){abrirCamada(g,null,'');pubEdit=null;}   // fecha o que estava editando embaixo
     if(!b.hidden){$('pTitulo').focus();return;}
-    pubEdit=null;pubFotos=[];pubCat=CATS_PUB[0];pubDest=false;
-    b.innerHTML=editorPub(null);pintarFotosPub();
+    pubEdit=null;pubFotos=[];pubCat=CATS_PUB[0];pubDest=false;pubVideo=null;
+    b.innerHTML=editorPub(null);pintarFotosPub();pintarVideoPub();
     abrirBloco(b);
     if(scrollY>0)scrollTo({top:0,behavior:reduz()?'auto':'smooth'});setTimeout(()=>{const t=$('pTitulo');if(t)t.focus({preventScroll:true});},360);
   });
@@ -2520,7 +2568,9 @@ function fecharPub(){
 }
 // a prévia: a publicação como aparece na lista do site (a capa pequena, a categoria, o título e a data)
 function prevPub(){const box=$('pPrev');if(!box)return;const capa=pubFotos[0]?srcFotoPub(pubFotos[0]):'';
-  box.innerHTML=`<div class="pv"><div class="pv-f"${capa?` style="background-image:url('${esc(capa)}')"`:''}>${capa?'':sv(IC.foto)}</div><div><small>${esc(pubCat)}</small><b>${esc($('pTitulo').value.trim()||'Título da publicação')}</b><span>${dataLonga($('pData').value||hojeISO())}${pubDest?' · Destaque':''}</span></div></div>`;}
+  // com vídeo, a capa da lista do site é a do vídeo, inteira
+  const vid=pubVideo?capaVideo(pubVideo.existente||{dur:pubVideo.dur},pubVideo.capa||(pubEdit&&VIDEO_LOCAL[pubEdit])):'';
+  box.innerHTML=`<div class="pv"><div class="pv-f"${capa&&!vid?` style="background-image:url('${esc(capa)}')"`:''}>${vid||(capa?'':sv(IC.foto))}</div><div><small>${esc(pubCat)}</small><b>${esc($('pTitulo').value.trim()||'Título da publicação')}</b><span>${dataLonga($('pData').value||hojeISO())}${pubDest?' · Destaque':''}</span></div></div>`;}
 // as fotos pequenas: tocada, uma foto vira a capa; o x tira a foto
 function pintarFotosPub(){
   const b=$('pFotos');if(!b)return;
@@ -2529,6 +2579,70 @@ function pintarFotosPub(){
   prevPub();
 }
 function capaPub(i){const [f]=pubFotos.splice(i,1);pubFotos.unshift(f);pintarFotosPub();}
+// o vídeo no editor: o escolhido (a capa inteira, a duração e o tamanho) ou o botão de escolher
+function pintarVideoPub(){
+  const b=$('pVideo');if(!b)return;
+  const v=pubVideo;
+  if(!v){b.innerHTML=`<label class="ed-mais vid" for="pVid">${sv('<rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3"/>')}<span>Escolher vídeo</span></label>`;prevPub();return;}
+  const e=v.existente,linha=e?(e.erro?`<span class="erro">${esc(e.erro)}</span>`:e.partes?'Preparando o vídeo. Leva uns dois minutos depois de salvar.':`${durTxt(e.dur)} · no site`)
+    :`${v.dur?durTxt(v.dur)+' · ':''}${mbTxt(v.arquivo.size)}${v.capa?'':'<br>A prévia não abre neste navegador, mas o vídeo é convertido depois de salvar.'}`;
+  b.innerHTML=`<div class="ed-v">${capaVideo(e||{dur:v.dur},v.capa||(pubEdit&&VIDEO_LOCAL[pubEdit]))}<button type="button" class="x" aria-label="Tirar o vídeo" onclick="pubVideo=null;pintarVideoPub()">${sv(IC.x,'sm')}</button></div>
+    <div class="ed-vi"><b>${esc(e?'Vídeo da publicação':v.arquivo.name)}</b><span>${linha}</span></div>`;
+  prevPub();
+}
+// o arquivo escolhido: até 200 MB e 3 minutos. A duração, o tamanho e a capa vêm do próprio navegador; o vídeo que ele não abre (o HEVC
+// do iPhone no Chrome) sobe do mesmo jeito, e o robô converte
+async function lerVideoPub(input){
+  const f=input.files&&input.files[0];input.value='';if(!f)return;
+  if(!/^video\//.test(f.type)&&!/\.(mp4|mov|m4v|webm|mkv|3gp)$/i.test(f.name)){toast('Escolha um arquivo de vídeo');return;}
+  if(f.size>MAX_VIDEO_PUB){toast('O vídeo passa de 200 MB. Grave em 1080p ou corte um trecho');return;}
+  const info=await lerInfoVideo(f);
+  if(info.dur&&info.dur>MAX_DUR_VIDEO+1){toast('O vídeo passa de 3 minutos. Corte um trecho');return;}
+  pubVideo={arquivo:f,...info};pintarVideoPub();
+}
+function lerInfoVideo(f){return new Promise(ok=>{
+  const u=URL.createObjectURL(f),v=document.createElement('video');let fim=false;
+  const acaba=r=>{if(fim)return;fim=true;clearTimeout(t);URL.revokeObjectURL(u);v.removeAttribute('src');try{v.load();}catch(e){}ok(r);};
+  const t=setTimeout(()=>acaba(v.duration?{dur:v.duration}:{}),9000);
+  v.muted=true;v.playsInline=true;v.preload='auto';
+  v.onloadedmetadata=()=>{if(!v.videoWidth){acaba({dur:v.duration});return;}v.currentTime=Math.min(1,(v.duration||0)*.1);};
+  v.onseeked=()=>{try{const k=Math.min(1,640/Math.max(v.videoWidth,v.videoHeight)),c=document.createElement('canvas');c.width=Math.round(v.videoWidth*k);c.height=Math.round(v.videoHeight*k);
+    c.getContext('2d').drawImage(v,0,0,c.width,c.height);acaba({dur:v.duration,w:v.videoWidth,h:v.videoHeight,capa:c.toDataURL('image/jpeg',.82)});}
+    catch(e){acaba({dur:v.duration,w:v.videoWidth,h:v.videoHeight});}};
+  v.onerror=()=>acaba({});v.src=u;});}
+// um pedaço do arquivo em base64, para subir dentro do JSON, como as fotos
+const base64De=b=>new Promise((ok,erro)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).slice(String(r.result).indexOf(',')+1));r.onerror=erro;r.readAsDataURL(b);});
+// o vídeo sobe aos pedaços de 2,8 MB, um por vez; cada um vira um blob no GitHub. No máximo uns 75 por minuto (o GitHub aceita 80), e o
+// pedaço que falha é tentado de novo
+async function subirVideoPub(bt){
+  const f=pubVideo.arquivo,n=Math.ceil(f.size/PARTE_VIDEO),partes=[];
+  for(let k=0;k<n;k++){
+    bt.textContent=`Enviando o vídeo ${Math.round(k/n*100)}%`;
+    const t0=Date.now(),d=await base64De(f.slice(k*PARTE_VIDEO,(k+1)*PARTE_VIDEO));
+    for(let tentativa=1;;tentativa++){
+      const r=await jsonPost('/api/publicacoes?path=publicacoes',{acao:'parte',n:k,parte:d}).catch(()=>null),j=r?await r.json().catch(()=>({})):{};
+      if(r&&r.ok&&j.ok){partes.push(j.blob);break;}
+      if((r&&r.status===400)||tentativa>=4)throw new Error(j.erro||('erro '+(r?r.status:'de conexão')));
+      await new Promise(ok=>setTimeout(ok,2500*tentativa));
+    }
+    const falta=800-(Date.now()-t0);if(falta>0)await new Promise(ok=>setTimeout(ok,falta));
+  }
+  return {partes,tamanho:f.size,nome:f.name};
+}
+// com vídeo preparando, o mural pergunta de novo a cada 20 segundos, até todos ficarem prontos (cerca de dois minutos)
+let vigiaVideos=0;
+function vigiarVideos(){
+  clearTimeout(vigiaVideos);if(!PUBS.some(videoPendente))return;
+  vigiaVideos=setTimeout(async()=>{
+    try{const r=await api('/api/publicacoes?path=publicacoes'),j=await r.json().catch(()=>({}));
+      if(r.ok&&j.ok&&Array.isArray(j.publicacoes)){
+        const antes=JSON.stringify(PUBS.map(p=>p.video||null));PUBS=j.publicacoes;
+        // com o editor aberto, a lista espera: desenhar de novo fecharia o que está sendo escrito
+        if(JSON.stringify(PUBS.map(p=>p.video||null))!==antes&&!pubEdit&&$('pubEd').hidden){renderPubs();pintarResumo();}
+      }}catch(e){}
+    vigiarVideos();
+  },20000);
+}
 // arrastar uma foto muda a ordem (fotos.js), e a primeira é a capa
 function moverFotoPub(de,para){pubFotos.splice(para,0,pubFotos.splice(de,1)[0]);pintarFotosPub();}
 function tirarFotoPub(i){pubFotos.splice(i,1);pintarFotosPub();}
@@ -2550,7 +2664,7 @@ async function prepararFoto(f){
   return d.length>3.9e6?await reduzirFoto(f,1800,.86):d;
 }
 async function lerFotosPub(input){
-  const fs=[...(input.files||[])].slice(0,MAX_FOTOS_PUB-pubFotos.length);input.value='';
+  const fs=[...(input.files||[])].filter(f=>!/^video\//.test(f.type)).slice(0,MAX_FOTOS_PUB-pubFotos.length);input.value='';
   for(const f of fs){try{pubFotos.push({nova:await prepararFoto(f)});}catch(e){toast('Não deu para ler uma das fotos');}}
   pintarFotosPub();
 }
@@ -2570,14 +2684,20 @@ async function salvarPub(){
       if(!rf.ok||!jf.ok)throw new Error(jf.erro||('erro '+rf.status));
       f.blob=jf.blob;f.ext=jf.ext;
     }
+    // o vídeo: o novo sobe aos pedaços (uma vez só, mesmo se a gravação falhar e for tentada de novo); o que já estava fica; sem vídeo, tira
+    let video=null;
+    if(pubVideo&&pubVideo.arquivo){if(!pubVideo.subido)pubVideo.subido=await subirVideoPub(bt);video=pubVideo.subido;}
+    else if(pubVideo&&pubVideo.existente)video={manter:true};
     bt.textContent='Salvando…';
-    const r=await jsonPost('/api/publicacoes?path=publicacoes',{acao:'salvar',pub,fotos:pubFotos.map(f=>f.blob?{blob:f.blob,ext:f.ext}:f.nova?{nova:f.nova}:{caminho:f.caminho})});
+    const r=await jsonPost('/api/publicacoes?path=publicacoes',{acao:'salvar',pub,video,fotos:pubFotos.map(f=>f.blob?{blob:f.blob,ext:f.ext}:f.nova?{nova:f.nova}:{caminho:f.caminho})});
     const j=await r.json().catch(()=>({}));
     if(!r.ok||!j.ok)throw new Error(j.erro||('erro '+r.status));
     // as fotos novas aparecem daqui até o site ser publicado de novo
     if(j.publicacao&&Array.isArray(j.publicacao.fotos))pubFotos.forEach((f,i)=>{if(f.nova&&j.publicacao.fotos[i])FOTO_LOCAL[j.publicacao.fotos[i]]=f.nova;});
-    PUBS=j.publicacoes||PUBS;pubsErro=null;fecharPub();refazerMural();
-    toast('Publicação salva. O site atualiza em cerca de um minuto');
+    const comVideo=!!(pubVideo&&pubVideo.arquivo);
+    if(comVideo&&j.publicacao)VIDEO_LOCAL[j.publicacao.id]=pubVideo.capa||'';
+    PUBS=j.publicacoes||PUBS;pubsErro=null;fecharPub();refazerMural();vigiarVideos();
+    toast(comVideo?'Publicação salva. Ela entra no site quando o vídeo ficar pronto, em uns dois minutos':'Publicação salva. O site atualiza em cerca de um minuto');
   }catch(e){toast('Não deu para salvar: '+e.message);bt.disabled=false;bt.textContent=txt;}
 }
 async function excluirPub(id){

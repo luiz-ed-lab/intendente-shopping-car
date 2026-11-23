@@ -126,6 +126,48 @@ r = await post({ acao: 'salvar', pub: { titulo: 'X' }, fotos: [{ blob: '../segre
 r = await post({ acao: 'salvar', pub: { titulo: 'X' }, fotos: [{ blob: sha, ext: 'html' }] }); assert(r.code === 400, 'recusa extensão estranha');
 r = await post({ acao: 'excluir', id: gr.id }); assert(r.body.ok, 'exclui a de foto grande');
 
+// 23/11/2026: o vídeo (pedido do Luiz, "uma opção de vídeo no mural"): sobe aos pedaços (cada um vira um blob), a gravação manda a lista,
+// o robô .github/videos.py converte depois; trocar, tirar ou excluir apagam o MP4 e a capa do vídeo pronto
+const MP4 = Buffer.concat([Buffer.from([0, 0, 0, 0x18]), Buffer.from('ftypmp42', 'latin1'), Buffer.from('resto-do-video')]);
+const commitsV = repo.commits.length;
+r = await post({ acao: 'parte', n: 0, parte: MP4.toString('base64') });
+assert(r.body.ok && /^b\d+$/.test(r.body.blob) && repo.commits.length === commitsV, 'o primeiro pedaço de um MP4 vira um blob, sem commit');
+r = await post({ acao: 'parte', n: 0, parte: Buffer.from('<html><script>alert(1)</script></html>').toString('base64') });
+assert(r.code === 400, 'o primeiro pedaço precisa ser de um vídeo de verdade (MP4, MOV ou WebM)');
+r = await post({ acao: 'parte', n: 3, parte: Buffer.from('meio do arquivo').toString('base64') });
+assert(r.body.ok, 'os pedaços do meio são só bytes');
+r = await post({ acao: 'parte', n: 1, parte: 'não é base64!' }); assert(r.code === 400, 'recusa pedaço que não é base64');
+r = await post({ acao: 'parte', n: 1, parte: 'A'.repeat(4e6 + 4) }); assert(r.code === 400, 'recusa pedaço maior que o envio aceita');
+const pA = 'c'.repeat(40), pB = 'd'.repeat(40);
+r = await post({ acao: 'salvar', pub: { titulo: 'Evento em vídeo', categoria: 'Eventos', data: '2026-11-23' }, video: { partes: [pA, pB], tamanho: 5600000, nome: 'IMG_0001.MOV' } });
+let pv = r.body.publicacao;
+assert(r.body.ok && /^2026-11-23-evento-em-video-v[a-z0-9]+$/.test(pv.video.id) && pv.video.partes.join() === [pA, pB].join() && pv.video.tamanho === 5600000 && pv.video.nome === 'IMG_0001.MOV',
+  'o vídeo entra esperando o robô, com os pedaços em ordem');
+assert(repo.arvore.tree.length === 1 && repo.arvore.tree[0].path === 'publicacoes.json', 'os pedaços não entram no site: só a lista muda');
+r = await post({ acao: 'salvar', pub: { titulo: 'X' }, video: { partes: ['../../segredo'] } }); assert(r.code === 400, 'recusa pedaço que não é um sha');
+r = await post({ acao: 'salvar', pub: { titulo: 'X' }, video: { partes: Array(81).fill(pA) } }); assert(r.code === 400, 'recusa vídeo com pedaços demais (mais de 200 MB)');
+r = await post({ acao: 'salvar', pub: { titulo: 'X' }, video: { partes: [] } }); assert(r.code === 400, 'recusa vídeo sem pedaços');
+// o robô terminou: o MP4 e a capa no site, e a publicação com o vídeo pronto
+const vid = pv.video.id, vsrc = `fotos-publicacoes/${vid}.mp4`, vposter = `fotos-publicacoes/${vid}.jpg`;
+const comRobo = lista().map(x => x.id === pv.id ? { ...x, video: { id: vid, src: vsrc, poster: vposter, w: 1080, h: 1920, dur: 42.5 } } : x);
+repo.arquivos['publicacoes.json'] = Buffer.from(JSON.stringify(comRobo, null, 2) + '\n').toString('base64');
+repo.arquivos[vsrc] = 'mp4'; repo.arquivos[vposter] = 'jpg';
+r = await post({ acao: 'salvar', pub: { id: pv.id, titulo: 'Evento em vídeo (editado)', categoria: 'Eventos', data: '2026-11-23' }, video: { manter: true }, fotos: [{ nova: fa }] });
+assert(r.body.publicacao.video.src === vsrc && (vsrc in repo.arquivos) && (vposter in repo.arquivos) && r.body.publicacao.fotos.length === 1, 'editar mantendo o vídeo: ele fica, e a foto nova entra junto');
+r = await post({ acao: 'salvar', pub: { id: pv.id, titulo: 'Evento em vídeo', categoria: 'Eventos', data: '2026-11-23' }, fotos: [] });
+assert(r.body.publicacao.video && r.body.publicacao.video.src === vsrc && (vsrc in repo.arquivos), 'sem dizer nada do vídeo (painel antigo), ele fica');
+r = await post({ acao: 'salvar', pub: { id: pv.id, titulo: 'Evento em vídeo', categoria: 'Eventos', data: '2026-11-23' }, video: { partes: [pB], tamanho: 10, nome: 'novo.mp4' } });
+assert(r.body.publicacao.video.partes && !(vsrc in repo.arquivos) && !(vposter in repo.arquivos) && r.body.publicacao.video.id !== vid, 'trocar o vídeo: o novo espera o robô e o MP4 e a capa do antigo saem do site');
+const vid2 = r.body.publicacao.video.id, vsrc2 = `fotos-publicacoes/${vid2}.mp4`, vposter2 = `fotos-publicacoes/${vid2}.jpg`;
+repo.arquivos['publicacoes.json'] = Buffer.from(JSON.stringify(lista().map(x => x.id === pv.id ? { ...x, video: { id: vid2, src: vsrc2, poster: vposter2, w: 1920, h: 1080, dur: 10 } } : x), null, 2) + '\n').toString('base64');
+repo.arquivos[vsrc2] = 'mp4'; repo.arquivos[vposter2] = 'jpg';
+r = await post({ acao: 'salvar', pub: { id: pv.id, titulo: 'Evento em vídeo', categoria: 'Eventos', data: '2026-11-23' }, video: null });
+assert(!r.body.publicacao.video && !(vsrc2 in repo.arquivos) && !(vposter2 in repo.arquivos), 'tirar o vídeo: ele sai da publicação e do site');
+repo.arquivos['publicacoes.json'] = Buffer.from(JSON.stringify(lista().map(x => x.id === pv.id ? { ...x, video: { id: vid2, src: vsrc2, poster: vposter2, w: 1920, h: 1080, dur: 10 } } : x), null, 2) + '\n').toString('base64');
+repo.arquivos[vsrc2] = 'mp4'; repo.arquivos[vposter2] = 'jpg';
+r = await post({ acao: 'excluir', id: pv.id });
+assert(r.body.ok && !(vsrc2 in repo.arquivos) && !(vposter2 in repo.arquivos), 'excluir a publicação apaga o vídeo e a capa junto com as fotos');
+
 // o enquadramento pelos rostos (fotos.js): a foto anda até onde cabem mais rostos inteiros
 {
   const js = fs.readFileSync(new URL('../fotos.js', import.meta.url), 'utf8');

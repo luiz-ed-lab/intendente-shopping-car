@@ -1,0 +1,58 @@
+name: Vídeos das publicações
+
+# Depois de cada postagem com vídeo (o painel grava publicacoes.json com os pedaços do vídeo, que ficam como blobs no GitHub), junta os
+# pedaços, converte para MP4 H.264 e tira a capa (.github/videos.py). Até lá, a publicação fica fora do site; leva uns dois minutos
+# (pedido do Luiz, 23/11/2026: "uma opção de vídeo no mural"). Sem vídeo esperando, para logo no começo. O commit deste robô não dispara
+# outro (o GitHub não dispara ações com o token dele), mas a Vercel publica o site com ele.
+on:
+  push:
+    branches: [main, site-novo]
+    paths:
+      - 'publicacoes.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: videos-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  videos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      # a ação de terceiros fica presa ao commit exato, como nos outros robôs (este escreve no repositório)
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262   # v4.4.0
+      - name: Ver se tem vídeo esperando
+        id: ver
+        run: python3 .github/videos.py --ver >> "$GITHUB_OUTPUT"
+      - name: Instalar o ffmpeg
+        if: steps.ver.outputs.ha == '1'
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg
+      - name: Preparar os vídeos
+        if: steps.ver.outputs.ha == '1'
+        run: python3 .github/videos.py
+      - name: Gravar
+        if: steps.ver.outputs.ha == '1'
+        run: |
+          if [ -z "$(git status --porcelain -- publicacoes.json fotos-publicacoes)" ]; then echo "Nada mudou."; exit 0; fi
+          git config user.name "videos-aceima"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add publicacoes.json fotos-publicacoes
+          git commit -m "Publicações: vídeo pronto"
+          for i in 1 2 3; do
+            if git pull --rebase && git push; then exit 0; fi
+            # outra gravação entrou no meio: aplica de novo em cima dela (o vídeo convertido fica guardado, não converte outra vez)
+            git rebase --abort 2>/dev/null || true
+            git fetch origin && git reset --hard "origin/${GITHUB_REF_NAME}"
+            python3 .github/videos.py
+            if [ -z "$(git status --porcelain -- publicacoes.json fotos-publicacoes)" ]; then echo "Nada mudou."; exit 0; fi
+            git add publicacoes.json fotos-publicacoes
+            git commit -m "Publicações: vídeo pronto" || exit 0
+          done
+          exit 1

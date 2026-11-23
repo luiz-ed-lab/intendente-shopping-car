@@ -536,6 +536,37 @@ button.fp{border:1px solid transparent;cursor:pointer}
 .pb-item:hover .pb-it{color:var(--gold)}
 .pb-ic span{display:block;margin-top:5px;font:400 .74rem var(--f2);color:var(--mut)}
 .pb-vazio{font-family:var(--f2);color:var(--mut)}
+/* o vídeo (pedido do Luiz, 23/11/2026: "um layout próprio" para o vídeo aparecer todo, sem os problemas das fotos mal enquadradas): o quadro
+   tem o formato do próprio vídeo, nunca cortado. Em pé, ele fica ao lado do texto, quase da altura da tela; deitado, vai de ponta a ponta,
+   com o texto embaixo. Antes de tocar, a capa com o play dourado e a duração; tocando, os controles do navegador */
+.pb-v{display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+.pb-v.vert{grid-template-columns:auto minmax(0,1fr);column-gap:clamp(28px,2.6vw,48px);align-items:start}
+.pb-player{position:relative;overflow:hidden;border-radius:18px;background:var(--navy);aspect-ratio:var(--ar);max-width:100%;box-shadow:0 34px 60px -42px rgba(0,9,26,.75)}
+.pb-v:not(.vert) .pb-player{width:min(100%,calc(70vh * var(--arn)));justify-self:center}
+.pb-v.vert .pb-player{height:min(74vh,740px);width:auto}
+.pb-player video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:var(--navy)}
+.pb-play{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;background:linear-gradient(180deg,rgba(0,9,26,0) 50%,rgba(0,9,26,.42));transition:opacity .3s ease}
+.pb-play>span{display:grid;place-items:center;width:78px;height:78px;border-radius:50%;background:linear-gradient(135deg,#C8862E,#F0AD57);color:#001128;box-shadow:0 18px 40px -14px rgba(0,9,26,.85);transition:transform .35s var(--ease)}
+.pb-play>span svg{margin-left:5px}
+.pb-play:hover>span{transform:scale(1.06)}
+.pb-play small{padding:6px 11px;border-radius:99px;background:rgba(0,9,26,.62);font:600 .8rem/1 var(--f2);font-variant-numeric:tabular-nums}
+.pb-player.tocando .pb-play{opacity:0;pointer-events:none}
+.pb-v .pb-k{margin-top:0}
+.pb-v.vert .pb-vtx{padding-top:4px}
+.pb-vfotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:26px;max-width:620px}
+.pb-vfotos button{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#E9E4DD;cursor:zoom-in}
+.pb-vfotos img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s var(--ease)}
+.pb-vfotos button:hover img{transform:scale(1.04)}
+/* a capa do vídeo nos quadros pequenos (a lista, o "Nosso trabalho"): o quadro inteiro em cima dele mesmo desfocado, com o play */
+.foto .vcapa{position:relative;width:100%;height:100%;overflow:hidden;background:var(--navy);display:grid;place-items:center;letter-spacing:0;text-transform:none}
+.foto .vcapa .vc-fundo{position:absolute;inset:-12%;width:124%;height:124%;object-fit:cover;filter:blur(16px) brightness(.5) saturate(1.15)}
+.foto .vcapa .vc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.foto .vcapa .vc-play{position:relative;z-index:1;display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:rgba(0,9,26,.5);border:1px solid rgba(255,255,255,.45);color:#fff;transition:transform .3s var(--ease),background .3s,color .3s,border-color .3s}
+.foto .vcapa .vc-play svg{margin-left:3px}
+.foto .vcapa .vc-dur{position:absolute;z-index:1;right:10px;bottom:10px;padding:5px 9px;border-radius:99px;background:rgba(0,9,26,.72);color:#fff;font:600 .74rem/1 var(--f2);font-variant-numeric:tabular-nums}
+.foto .vcapa.vc-peq .vc-play{width:26px;height:26px}
+.foto .vcapa.vc-peq .vc-play svg{margin-left:2px}
+.ac2-card:hover .vcapa .vc-play,.pb-item:hover .vcapa .vc-play{transform:scale(1.08);background:linear-gradient(135deg,#C8862E,#F0AD57);border-color:transparent;color:#001128}
 /* o Anúncio (pedido do Luiz, 03/11/2026): a aba própria, ao lado dos filtros, e o anúncio em destaque numa folha azul, com a foto no aro dourado */
 @media (min-width:761px){
   .pb-fil-in:has(.pb-anc) .fbar .fp{font-size:clamp(11px,calc((100cqi - 150px) / 51),13px)}
@@ -587,6 +618,17 @@ button.fp{border:1px solid transparent;cursor:pointer}
   .pb-it{font-size:3.73vw}
   .pb-ic span{font-size:2.82vw}
   .pb-vazio{font-size:3.47vw;text-align:center}
+  .pb-v{gap:4.23vw}
+  .pb-v.vert{grid-template-columns:minmax(0,1fr);row-gap:4.23vw}
+  .pb-v.vert .pb-player{height:auto;width:min(100%,calc(78svh * var(--arn)));justify-self:center}
+  .pb-v:not(.vert) .pb-player{width:100%}
+  .pb-player{border-radius:4.23vw}
+  .pb-play>span{width:17vw;height:17vw}
+  .pb-play small{font-size:2.82vw}
+  .pb-vfotos{grid-template-columns:repeat(4,minmax(0,1fr));gap:1.76vw;margin-top:5.63vw}
+  .pb-vfotos button{border-radius:2.11vw}
+  .foto .vcapa .vc-play{width:11vw;height:11vw}
+  .foto .vcapa.vc-peq .vc-play{width:6.5vw;height:6.5vw}
   .pb-dest.anc{padding:3.52vw;border-radius:5.63vw}
   .pb-dest.anc .pb-k{padding:0 1.41vw}
   .pb-dest.anc .pb-k .fp{padding:1.41vw 2.82vw 1.41vw 2.11vw;font-size:2.82vw}
@@ -1775,7 +1817,8 @@ function baralhar(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.rando
 function intercalar(lista){const g={};lista.forEach(v=>(g[v.loja]=g[v.loja]||[]).push(v));const ks=baralhar(Object.keys(g));ks.forEach(k=>baralhar(g[k]));
   const out=[];for(let i=0,f=true;f;i++){f=false;for(const k of ks){const v=g[k][i];if(v){out.push(v);f=true;}}}return out;}
 let PUBS=[];   // as publicações (publicacoes.json, que o painel grava)
-const usarPubs=pj=>{if(Array.isArray(pj))PUBS=pj.filter(x=>x&&x.id&&x.titulo);};
+// a publicação com o vídeo ainda sendo preparado pelo robô (video.partes) fica fora do site até ele terminar (cerca de dois minutos)
+const usarPubs=pj=>{if(Array.isArray(pj))PUBS=pj.filter(x=>x&&x.id&&x.titulo&&!(x.video&&x.video.partes));};
 // os rostos nas fotos das publicações (fotos-publicacoes/rostos.json): o robô do GitHub acha logo depois de cada postagem (.github/rostos.py,
 // pedido do Luiz, 23/11/2026), e o enquadrar (fotos.js) põe as pessoas no quadro. Foto sem rosto achado fica com o recorte de antes
 let ROSTOS={};
@@ -3494,7 +3537,13 @@ const dataPub=d=>{const x=diaPub(d);return isNaN(x)?'':x.toLocaleDateString('pt-
 const dataPubCurta=d=>{const x=diaPub(d);return isNaN(x)?'':`${String(x.getDate()).padStart(2,'0')} ${['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][x.getMonth()]} ${x.getFullYear()}`;};   // 12 mar 2026
 // a foto num quadro, com o recorte automático (enquadrar, em fotos.js): a foto anda até a melhor parte dela
 const imgFoco=(src,extra)=>`<img src="${esc(src)}" alt="" data-foco onload="window.enquadrar&&enquadrar(this)"${extra||''}>`;
-const fotoPub=(p,curta)=>p.foto?imgFoco(p.foto,' loading="lazy"'):(curta?T('publicacoes.sem-foto-curta','Foto'):T('publicacoes.sem-foto','Foto da ação'));
+// o vídeo pronto da publicação (o robô .github/videos.py grava o MP4, a capa, a largura, a altura e a duração)
+const vidPub=p=>p&&p.video&&p.video.src&&p.video.poster&&p.video.w&&p.video.h?p.video:null;
+const durVid=s=>{s=Math.round(Number(s)||0);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+const PLAY='<path d="M7 4.8v14.4L19 12z" fill="currentColor" stroke="none"/>';
+// a capa do vídeo num quadro pequeno: inteira, em cima dela mesma desfocada, com o play (e a duração, nos maiores)
+const capaVideo=(v,peq)=>`<span class="vcapa${peq?' vc-peq':''}"><img class="vc-fundo" src="${esc(v.poster)}" alt="" loading="lazy"><img class="vc-img" src="${esc(v.poster)}" alt="" loading="lazy"><span class="vc-play">${ic(PLAY,peq?11:18)}</span>${peq?'':`<span class="vc-dur">${durVid(v.dur)}</span>`}</span>`;
+const fotoPub=(p,curta)=>vidPub(p)?capaVideo(vidPub(p),curta):p.foto?imgFoco(p.foto,' loading="lazy"'):(curta?T('publicacoes.sem-foto-curta','Foto'):T('publicacoes.sem-foto','Foto da ação'));
 // todas as fotos da publicação, a capa primeiro (o painel grava "fotos" desde 21/10/2026; as antigas têm só "foto")
 const fotosDaPub=p=>(Array.isArray(p.fotos)&&p.fotos.length?p.fotos:[p.foto]).filter(Boolean);
 const cartaoPub=(p,seta)=>`<a class="ac2-card" href="${hr('publicacao',p.id)}"><div class="foto">${fotoPub(p)}</div><h3>${E('publicacoes.cartao-titulo',esc(p.titulo))}${seta}</h3><small>${esc(p.categoria)} · ${dataPubCurta(p.data)}</small></a>`;
@@ -3511,6 +3560,7 @@ function filtrarPub(c){
 const pubAberta=l=>l.find(p=>p.id===pubAtual)||l.find(p=>p.destaque)||l[0];
 function pubCorpo(p){
   const fs=fotosDaPub(p),paras=String(p.texto||'').split(/\n\s*\n/).map(t=>t.trim()).filter(Boolean);
+  if(vidPub(p))return corpoVideoPub(p,vidPub(p),fs,paras);
   return `<div class="pb-midia${fs.length>1?' mais':''}">
     <figure class="pb-foto foto" id="pbFoto"${fs.length?` role="button" tabindex="0" aria-label="${TX('publicacoes.ver-foto','Ver a foto inteira')}" onclick="verFotoPub()" onkeydown="if(event.key==='Enter')verFotoPub()"`:''}>${fs.length?imgFoco(fs[pubFoto]||fs[0]):T('publicacoes.sem-foto','Foto da ação')}</figure>
     ${fs.length>1?`<div class="pb-mini"><div>${fs.map((f,i)=>`<button type="button" class="${i===pubFoto?'on':''}" aria-label="Foto ${i+1}" onclick="trocarFotoPub(${i})">${imgFoco(f,' loading="lazy"')}</button>`).join('')}</div></div>`:''}
@@ -3519,6 +3569,24 @@ function pubCorpo(p){
    <h2 class="pb-dt">${E('publicacoes.destaque-titulo',esc(p.titulo))}</h2>
    ${paras.length?`<div class="pb-tx">${paras.map(t=>`<p>${E('publicacoes.destaque-texto',esc(t).replace(/\n/g,'<br>'))}</p>`).join('')}</div>`:''}`;
 }
+// a publicação com vídeo: o quadro no formato do vídeo (em pé, ao lado do texto; deitado, de ponta a ponta, com o texto embaixo), e as
+// fotos, quando tem, pequenas embaixo do texto, abrindo na tela cheia
+function corpoVideoPub(p,v,fs,paras){
+  const ar=v.w/v.h,vert=ar<.9;
+  return `<div class="pb-v${vert?' vert':''}" style="--ar:${v.w}/${v.h};--arn:${ar.toFixed(4)}">
+    <div class="pb-player"><video id="pbVideo" src="${esc(v.src)}" poster="${esc(v.poster)}" preload="none" playsinline controlslist="nodownload" onplay="this.parentNode.classList.add('tocando')"></video>
+      <button type="button" class="pb-play" aria-label="${TX('publicacoes.ver-video','Assistir ao vídeo')} (${durVid(v.dur)})" onclick="tocarVideoPub()"><span>${ic(PLAY,30)}</span><small>${durVid(v.dur)}</small></button></div>
+    <div class="pb-vtx">
+     <div class="pb-k"><span class="fp on">${anuncioDestaque(p)?ic('<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',15)+T('publicacoes.anuncio-selo','Anúncio'):p.destaque?T('publicacoes.destaque-selo','Destaque'):esc(p.categoria)}</span><span>${dataPub(p.data)}</span></div>
+     <h2 class="pb-dt">${E('publicacoes.destaque-titulo',esc(p.titulo))}</h2>
+     ${paras.length?`<div class="pb-tx">${paras.map(t=>`<p>${E('publicacoes.destaque-texto',esc(t).replace(/\n/g,'<br>'))}</p>`).join('')}</div>`:''}
+     ${fs.length?`<div class="pb-vfotos">${fs.map((f,i)=>`<button type="button" aria-label="Foto ${i+1}" onclick="verFotoVidPub(${i})">${imgFoco(f,' loading="lazy"')}</button>`).join('')}</div>`:''}
+    </div>
+  </div>`;
+}
+// o play: os controles do navegador aparecem e o vídeo toca (só pedido aqui: até o play, a página baixa só a capa)
+function tocarVideoPub(){const v=document.getElementById('pbVideo');if(!v)return;v.controls=true;v.parentNode.classList.add('tocando');const t=v.play();if(t&&t.catch)t.catch(()=>{});}
+function verFotoVidPub(i){const p=PUBS.find(x=>x.id===pubVista);if(p&&fotosDaPub(p)[i])abrirFoto(i,fotosDaPub(p));}
 function publicacoes(){
   const temAnuncio=PUBS.some(x=>x.categoria===CAT_ANUNCIO);if(catPub===CAT_ANUNCIO&&!temAnuncio)catPub='Tudo';
   const lista=PUBS.filter(p=>catPub==='Tudo'||p.categoria===catPub),p=pubAberta(lista);

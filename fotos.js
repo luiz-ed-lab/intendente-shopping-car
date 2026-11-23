@@ -85,6 +85,10 @@
     e.preventDefault();
     clearTimeout(tempo);
     esconder();
+    // um vídeo solto junto vai para o campo do vídeo, quando a página tem um (o editor do Mural, pedido do Luiz em 23/11/2026)
+    const vids = [...(e.dataTransfer.files || [])].filter(f => /^video\//.test(f.type));
+    const iv = vids.length && [...document.querySelectorAll('input[type=file][data-video]')].find(i => !i.disabled && visivel(areaDe(i)));
+    if (iv) entregar(iv, vids.slice(0, 1));
     entregar(inp, imagens(e.dataTransfer.files));
   });
 
