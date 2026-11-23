@@ -214,8 +214,36 @@
     for (let i = 0; i + m <= n; i++) { const c = (i + m / 2) / n, v = (P[i + m] - P[i]) * (1 - .45 * Math.abs(c - .44)); if (v > melhor) { melhor = v; bi = i; } }
     return bi / (n - m) * 100;
   }
+  // com os rostos achados pelo robô (fotos-publicacoes/rostos.json, pedido do Luiz, 23/11/2026), a foto anda até o ponto em que cabem
+  // mais rostos inteiros, valendo mais os de nota alta e os maiores (uma TV ao fundo ou alguém longe pesa menos). Entre os pontos bons,
+  // fica o que põe a turma no meio da largura ou um pouco acima do meio da altura (o corpo aparece embaixo). Rosto cortado conta menos
+  function pelosRostos(R, cw, ch) {
+    const ai = R.w / R.h, ac = cw / ch;
+    const fs = (R.rostos || []).filter(f => !(f[4] < .6));
+    if (!fs.length) return null;
+    if (Math.abs(ai - ac) < .01) return '50% 50%';
+    const area = f => f[2] * f[3], amax = Math.max(...fs.map(area));
+    const peso = fs.map(f => (f[4] || .9) ** 2 * (.35 + .65 * Math.sqrt(area(f) / amax))), pmax = Math.max(...peso);
+    const hor = ai > ac, fr = hor ? ac / ai : ai / ac;   // a parte da foto que a moldura mostra, no lado que anda
+    const ini = k => hor ? fs[k][0] : fs[k][1], tam = k => hor ? fs[k][2] : fs[k][3], alvo = hor ? .5 : .4;
+    let melhor = null;
+    for (let i = 0; i <= 100; i++) {
+      const s = (1 - fr) * i / 100; let v = 0, soma = 0, pc = 0;
+      fs.forEach((f, k) => {
+        const a = ini(k), d = Math.max(0, Math.min(a + tam(k), s + fr) - Math.max(a, s)) / tam(k);
+        v += peso[k] * d * d;
+        if (d > .5) { soma += peso[k] * (a + tam(k) / 2); pc += peso[k]; }
+      });
+      const nota = v - (pc ? Math.abs((soma / pc - s) / fr - alvo) : 1) * .08 * pmax;
+      if (!melhor || nota > melhor.nota + 1e-9) melhor = { nota, s };
+    }
+    const pos = (melhor.s / (1 - fr) * 100).toFixed(1) + '%';
+    return hor ? `${pos} 50%` : `50% ${pos}`;
+  }
   async function enquadrar(img) {
     if (!img || !img.isConnected) return;
+    const R = window.rostosDe && window.rostosDe(img.currentSrc || img.src);
+    if (R && R.w && R.h && img.clientWidth && img.clientHeight) { const pos = pelosRostos(R, img.clientWidth, img.clientHeight); if (pos) { img.style.objectPosition = pos; return; } }
     const p = await perfil(img.currentSrc || img.src);
     if (!p || !img.isConnected) return;
     const cw = img.clientWidth, ch = img.clientHeight;
@@ -225,6 +253,7 @@
   }
   window.enquadrar = enquadrar;
   const todas = () => document.querySelectorAll('img[data-foco]').forEach(i => { if (i.complete && i.naturalWidth) enquadrar(i); });
+  window.enquadrarTodas = todas;
   todas();
   let rz = 0;
   addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(todas, 200); });

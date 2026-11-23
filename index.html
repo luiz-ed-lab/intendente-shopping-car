@@ -482,10 +482,18 @@ button.fp{border:1px solid transparent;cursor:pointer}
 .pb-top{padding-top:28px;align-items:end;row-gap:18px}
 .pb-tit{margin-top:10px;font-size:2.3rem}
 .pb-fil{container-type:inline-size;min-width:0}
-.pb-fil .fbar{display:flex;flex-wrap:wrap;gap:5px}
-.pb-fil .fbar .fp{flex:1 1 auto;justify-content:center;padding:.62em .7em;font-size:clamp(11px,calc((100cqi - 52px) / 51),13px)}
+/* os filtros numa grade de quatro colunas iguais (pedido do Luiz, 23/11/2026: alinhados com as fotos): as duas linhas casam e a grade vai
+   de uma borda à outra da coluna, como a foto e a lista embaixo. O dourado do escolhido acende em fusão */
+.pb-fil .fbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.pb-fil .fbar .fp{min-width:0;justify-content:center;padding:.62em .35em;font-size:clamp(11px,calc((100cqi - 52px) / 51),13px);position:relative;isolation:isolate;transition:color .28s ease,border-color .28s ease}
+.pb-fil .fbar .fp.on{background:#fff;color:#001128}
+.pb-fil .fbar .fp::after{content:"";position:absolute;inset:-1px;border-radius:inherit;background:linear-gradient(135deg,#C8862E,#F0AD57);opacity:0;transition:opacity .28s ease;z-index:-1}
+.pb-fil .fbar .fp.on::after{opacity:1}
+.pb-grid{transition:opacity .32s ease}
+.pb-grid.pb-sai{opacity:0;transition:opacity .18s ease}
+.pb-grid.pb-vem{opacity:0;transition:none}
 /* sem lugar para os sete numa linha, ficam em duas cheias, quatro em cima e três embaixo, da largura da lista */
-@container (max-width:680px){.pb-fil .fbar .fp{flex-basis:22%;font-size:11px}}
+@container (max-width:680px){.pb-fil .fbar .fp{font-size:11px}}
 @container (max-width:340px){.pb-fil .fbar .fp{padding-left:.35em;padding-right:.35em}}
 .pb-fil-in{display:flex;align-items:stretch;gap:5px}
 .pb-fil-in .fbar{flex:1;min-width:0}
@@ -558,7 +566,7 @@ button.fp{border:1px solid transparent;cursor:pointer}
   .pb-tit{margin-top:1.41vw;font-size:6.3vw;letter-spacing:-.1vw;white-space:nowrap}
   .pb-fil{width:100%}
   .pb-fil .fbar{gap:1.41vw}
-  .pb-fil .fbar .fp{flex-basis:22%;padding:1.6vw 2.11vw;font-size:2.82vw}
+  .pb-fil .fbar .fp{padding:1.6vw .7vw;font-size:2.82vw}
   .pb-fil-in{flex-wrap:wrap;gap:1.41vw}
   .pb-fil-in .fbar{flex-basis:100%}
   .pb-fil-in .fp.pb-anc{flex:1 1 100%;padding:1.6vw 2.11vw;font-size:2.82vw}
@@ -1768,6 +1776,11 @@ function intercalar(lista){const g={};lista.forEach(v=>(g[v.loja]=g[v.loja]||[])
   const out=[];for(let i=0,f=true;f;i++){f=false;for(const k of ks){const v=g[k][i];if(v){out.push(v);f=true;}}}return out;}
 let PUBS=[];   // as publicações (publicacoes.json, que o painel grava)
 const usarPubs=pj=>{if(Array.isArray(pj))PUBS=pj.filter(x=>x&&x.id&&x.titulo);};
+// os rostos nas fotos das publicações (fotos-publicacoes/rostos.json): o robô do GitHub acha logo depois de cada postagem (.github/rostos.py,
+// pedido do Luiz, 23/11/2026), e o enquadrar (fotos.js) põe as pessoas no quadro. Foto sem rosto achado fica com o recorte de antes
+let ROSTOS={};
+const usarRostos=j=>{if(j&&typeof j==='object'&&!Array.isArray(j)){ROSTOS=j;if(window.enquadrarTodas)enquadrarTodas();}};
+window.rostosDe=src=>{try{return ROSTOS[decodeURI(new URL(src,location.href).pathname).replace(/^\//,'')]||null;}catch(e){return null;}};
 const usarLojas=rl=>{if(Array.isArray(rl)&&rl.length)LJ=rl.filter(l=>l.ativa!==false);};
 // credenciados: a nota no Google e a logo que o robô leu no site de cada um. Os cadastrados pelo painel (pedido do Luiz, 21/10/2026)
 // entram aqui, com o ramo, a descrição e os contatos que o robô leu ou a Aceima escreveu. Lendo de novo, eles vêm todos de novo: o excluído sai
@@ -1785,7 +1798,7 @@ function usarParceiros(rp){if(!Array.isArray(rp))return;
 function usarVeiculos(rv){if(!Array.isArray(rv)||!rv.length)return;const novos=rv.map(mapV);
   const m=new Map(novos.map(v=>[v.id,v])),fica=V.filter(v=>m.has(v.id)).map(v=>m.get(v.id)),ja=new Set(fica.map(v=>v.id));
   V=fica.concat(intercalar(novos.filter(v=>!ja.has(v.id))));}
-const DADOS_SITE={pubs:{url:'publicacoes.json',usa:usarPubs},lojas:{url:'/api/lojas?path=lojas&site=1',usa:usarLojas},parc:{url:'/api/parceiros?path=parceiros&site=1',usa:usarParceiros},veic:{url:'/api/veiculos?path=veiculos&site=1',usa:usarVeiculos}};
+const DADOS_SITE={pubs:{url:'publicacoes.json',usa:usarPubs},rostos:{url:'fotos-publicacoes/rostos.json',usa:usarRostos},lojas:{url:'/api/lojas?path=lojas&site=1',usa:usarLojas},parc:{url:'/api/parceiros?path=parceiros&site=1',usa:usarParceiros},veic:{url:'/api/veiculos?path=veiculos&site=1',usa:usarVeiculos}};
 const pedirFonte=k=>fetch(DADOS_SITE[k].url).then(r=>{if(r.ok)DADOS_SITE[k].etag=r.headers.get('etag');return r;});
 /* o site em dia sem recarregar a página (pedidos do Luiz, 03/11/2026). A cada troca de página e quando a aba volta a aparecer, o site pergunta
    se as publicações, as lojas, os credenciados e o estoque mudaram. A pergunta é leve: o navegador manda a marca (ETag) da cópia dele e, sem
@@ -1814,7 +1827,7 @@ function podeRedesenhar(){
   return ![...document.querySelectorAll('#app input,#app textarea')].some(c=>c===document.activeElement||(c.value&&c.type!=='file'&&c.type!=='hidden'));
 }
 // a página só muda na tela se mostra o que chegou: as publicações saem em Publicações e na Aceima; as lojas e o estoque, nas outras
-const mostraDados=k=>k==='pubs'?['publicacoes','publicacao','aceima'].includes(pagAtual):!['publicacoes','publicacao','privacidade','termos'].includes(pagAtual);
+const mostraDados=k=>k==='rostos'?false:k==='pubs'?['publicacoes','publicacao','aceima'].includes(pagAtual):!['publicacoes','publicacao','privacidade','termos'].includes(pagAtual);
 function novidades(){
   const chegou=Object.keys(DADOS_SITE).filter(k=>DADOS_SITE[k].novo!==undefined);
   if(!chegou.length||!podeRedesenhar())return;
@@ -1826,6 +1839,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)conferirDa
 addEventListener('focus',()=>conferirDados().then(novidades));
 async function carregar(){
   const pubsP=pedirFonte('pubs').then(r=>r.ok?r.json():null).catch(()=>null);   // arquivo do próprio site: também sem a API
+  pedirFonte('rostos').then(r=>r.ok?r.json():null).then(usarRostos).catch(()=>{});   // não segura a página: quando chega, reenquadra
   if(API!==null){
     try{
       // as avaliações vêm sozinhas: não esperam as lojas e o estoque, que são bem mais pesados
@@ -2910,8 +2924,9 @@ function opcionaisDe(v){const car=[],opc=[],vis=new Set();
 const SETA_DIAG='<path d="M7 17 17 7M8 7h9v9"/>',I_OK='<path d="M20 6 9 17l-5-5"/>';
 // a armadilha para robôs dos formulários (o campo fica fora da tela; a API descarta o lead que chega com ele preenchido)
 const HP='<div class="hp" aria-hidden="true"><input name="ref_hp" tabindex="-1" autocomplete="off"></div>',hpValor=()=>[...document.querySelectorAll('.hp input')].map(i=>i.value).join('');
-// o aviso de para onde vão os dados, junto de cada formulário (LGPD: a pessoa sabe na hora em que escreve)
-const avisoDados=(id,txt,cls)=>`<p class="aviso-lg${cls?' '+cls:''}">${T(id,txt)} <a href="${hr('privacidade')}">${T('aviso.privacidade','Política de Privacidade')}</a></p>`;
+// embaixo de cada formulário, só o link da Política de Privacidade (pedido do Luiz, 23/11/2026: a frase de para onde vão os dados saiu; a
+// Política diz isso em "Com quem compartilhamos"). id e txt ficam nas chamadas, sem uso
+const avisoDados=(id,txt,cls)=>`<p class="aviso-lg${cls?' '+cls:''}"><a href="${hr('privacidade')}">${T('aviso.privacidade','Política de Privacidade')}</a></p>`;
 function veiculo(){
   const v=V.find(x=>String(x.id)===String(vAtual));
   if(!v)return `<div class="gl" style="min-height:100vh">${LUZ}${hd()}<div class="wrap vazio">${pronto?`Este anúncio saiu do ar. <a href="${hr('estoque')}">Ver o estoque</a>`:'Carregando…'}</div></div>`;
@@ -3483,7 +3498,15 @@ const fotoPub=(p,curta)=>p.foto?imgFoco(p.foto,' loading="lazy"'):(curta?T('publ
 // todas as fotos da publicação, a capa primeiro (o painel grava "fotos" desde 21/10/2026; as antigas têm só "foto")
 const fotosDaPub=p=>(Array.isArray(p.fotos)&&p.fotos.length?p.fotos:[p.foto]).filter(Boolean);
 const cartaoPub=(p,seta)=>`<a class="ac2-card" href="${hr('publicacao',p.id)}"><div class="foto">${fotoPub(p)}</div><h3>${E('publicacoes.cartao-titulo',esc(p.titulo))}${seta}</h3><small>${esc(p.categoria)} · ${dataPubCurta(p.data)}</small></a>`;
-function filtrarPub(c){catPub=c;render();}
+// trocar o filtro troca a lista e a aberta em fusão (pedido do Luiz, 23/11/2026: estava sem fade); o botão acende na hora, com transição
+function filtrarPub(c){
+  if(c===catPub)return;
+  document.querySelectorAll('.pb-fil [data-cat]').forEach(b=>{const on=b.dataset.cat===c;b.classList.toggle('on',on);if(!b.classList.contains('pb-anc'))b.classList.toggle('lite',!on);});
+  const g=document.querySelector('.pb-grid');
+  if(!g||matchMedia('(prefers-reduced-motion: reduce)').matches){catPub=c;render();return;}
+  g.classList.add('pb-sai');
+  setTimeout(()=>{catPub=c;render();const n=document.querySelector('.pb-grid');if(n){n.classList.add('pb-vem');requestAnimationFrame(()=>requestAnimationFrame(()=>n.classList.remove('pb-vem')));}},180);
+}
 // a aberta: a escolhida (se está no filtro), senão a marcada como destaque, senão a mais nova
 const pubAberta=l=>l.find(p=>p.id===pubAtual)||l.find(p=>p.destaque)||l[0];
 function pubCorpo(p){
@@ -3505,7 +3528,7 @@ function publicacoes(){
  <div class="gl topo" style="flex:none">${LUZ}${hd()}</div>
  <div class="wrap pb-top">
    <div><div class="kick">${T('publicacoes.chamada','Nosso trabalho')}</div><h2 class="pb-tit" aria-level="1">${T('publicacoes.titulo','O que a Aceima faz pelo polo.')}</h2></div>
-   <div class="pb-fil"><div class="pb-fil-in"><div class="fbar">${['Tudo',...CATS_PUB].map((f,i)=>`<button type="button" class="fp ${f===catPub?'on':'lite'}" onclick="filtrarPub('${f}')">${T(`publicacoes.filtro${i+1}`,f)}</button>`).join('')}</div>${temAnuncio?`<button type="button" class="fp pb-anc${catPub===CAT_ANUNCIO?' on':''}" onclick="filtrarPub('${CAT_ANUNCIO}')">${T('publicacoes.filtro-anuncios','Anúncios')}</button>`:''}</div></div>
+   <div class="pb-fil"><div class="pb-fil-in"><div class="fbar">${['Tudo',...CATS_PUB].map((f,i)=>`<button type="button" class="fp ${f===catPub?'on':'lite'}" data-cat="${f}" onclick="filtrarPub('${f}')">${T(`publicacoes.filtro${i+1}`,f)}</button>`).join('')}</div>${temAnuncio?`<button type="button" class="fp pb-anc${catPub===CAT_ANUNCIO?' on':''}" data-cat="${CAT_ANUNCIO}" onclick="filtrarPub('${CAT_ANUNCIO}')">${T('publicacoes.filtro-anuncios','Anúncios')}</button>`:''}</div></div>
  </div>
  ${p?`<div class="wrap pb-grid">
    <article class="pb-dest${anuncioDestaque(p)?' anc':''}" id="pbDest">${pubCorpo(p)}</article>

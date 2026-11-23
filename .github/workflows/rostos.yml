@@ -1,0 +1,52 @@
+name: Rostos nas fotos das publicações
+
+# Depois de cada postagem (o painel grava publicacoes.json e as fotos no GitHub), acha os rostos nas fotos novas e grava
+# fotos-publicacoes/rostos.json, que o site usa para enquadrar as fotos sem cortar as pessoas (pedido do Luiz, 23/11/2026).
+# Leva cerca de um minuto; até lá a foto fica com o recorte de antes. O commit deste robô não dispara outro (o GitHub não dispara
+# ações com o token dele).
+on:
+  push:
+    branches: [main, site-novo]
+    paths:
+      - 'publicacoes.json'
+      - 'fotos-publicacoes/**'
+      - '!fotos-publicacoes/rostos.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rostos-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  rostos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # as ações de terceiros ficam presas ao commit exato, como na vitrine (este robô escreve no repositório)
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262   # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065   # v5.6.0
+        with:
+          python-version: '3.12'
+      - run: pip install opencv-python-headless==5.0.0.93
+      - name: Achar os rostos
+        run: python .github/rostos.py
+      - name: Gravar se mudou
+        run: |
+          if [ -z "$(git status --porcelain -- fotos-publicacoes/rostos.json)" ]; then echo "Nada mudou."; exit 0; fi
+          git config user.name "rostos-aceima"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add fotos-publicacoes/rostos.json
+          git commit -m "Publicações: rostos das fotos novas"
+          for i in 1 2 3; do
+            if git pull --rebase && git push; then exit 0; fi
+            # outra gravação entrou no meio: refaz em cima dela
+            git rebase --abort 2>/dev/null || true
+            git fetch origin && git reset --hard "origin/${GITHUB_REF_NAME}"
+            python .github/rostos.py
+            git add fotos-publicacoes/rostos.json
+            git commit -m "Publicações: rostos das fotos novas" || exit 0
+          done
+          exit 1

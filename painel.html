@@ -2540,9 +2540,17 @@ async function reduzirFoto(fonte,max,q){
   c.getContext('2d').drawImage(img,0,0,c.width,c.height);if(typeof fonte!=='string')URL.revokeObjectURL(url);
   const d=c.toDataURL('image/webp',q);return d.startsWith('data:image/webp')?d:c.toDataURL('image/jpeg',q);   // navegador sem webp
 }
+// a foto sobe como veio quando já cabe (pedido do Luiz, 23/11/2026: as fotos perdiam qualidade, refeitas aqui e, com várias de uma vez,
+// refeitas de novo menores). Só a que passa de 2048 px no lado maior ou de 2,8 MB é diminuída, em webp de boa qualidade
+async function prepararFoto(f){
+  const dim=await new Promise(ok=>{const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{ok(Math.max(i.naturalWidth,i.naturalHeight));URL.revokeObjectURL(u);};i.onerror=()=>{ok(0);URL.revokeObjectURL(u);};i.src=u;});
+  if(/^image\/(jpeg|webp)$/.test(f.type)&&f.size<=2.8e6&&dim&&dim<=2048)return await new Promise((ok,erro)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=erro;r.readAsDataURL(f);});
+  const d=await reduzirFoto(f,2048,.9);
+  return d.length>3.9e6?await reduzirFoto(f,1800,.86):d;
+}
 async function lerFotosPub(input){
   const fs=[...(input.files||[])].slice(0,MAX_FOTOS_PUB-pubFotos.length);input.value='';
-  for(const f of fs){try{pubFotos.push({nova:await reduzirFoto(f,1600,.82)});}catch(e){toast('Não deu para ler uma das fotos');}}
+  for(const f of fs){try{pubFotos.push({nova:await prepararFoto(f)});}catch(e){toast('Não deu para ler uma das fotos');}}
   pintarFotosPub();
 }
 // depois de salvar ou excluir, o editor fecha devagar e a lista se refaz em seguida
@@ -2551,13 +2559,18 @@ async function salvarPub(){
   const titulo_=$('pTitulo').value.trim();
   if(!titulo_){toast('Escreva o título');$('pTitulo').focus();return;}
   const bt=$('pSalvar'),txt=bt.textContent;bt.disabled=true;bt.textContent='Salvando…';
-  // o envio tem limite (cerca de 4 MB): as fotos novas diminuem mais um pouco se precisar
-  const peso=()=>pubFotos.reduce((s,f)=>s+(f.nova?f.nova.length:0),0);
-  if(peso()>4e6)for(const f of pubFotos)if(f.nova)f.nova=await reduzirFoto(f.nova,1280,.72);
-  if(peso()>4e6){toast('São muitas fotos novas de uma vez: salve com menos e acrescente as outras depois');bt.disabled=false;bt.textContent=txt;return;}
+  // cada envio tem limite (cerca de 4 MB): cada foto nova sobe sozinha antes, o GitHub guarda e devolve a marca dela, e a gravação junta
+  // tudo num commit só, sem diminuir nada (pedido do Luiz, 23/11/2026)
   const pub={id:pubEdit||undefined,titulo:titulo_,categoria:pubCat,data:$('pData').value||hojeISO(),texto:$('pTexto').value,destaque:pubDest};
   try{
-    const r=await jsonPost('/api/publicacoes?path=publicacoes',{acao:'salvar',pub,fotos:pubFotos.map(f=>f.nova?{nova:f.nova}:{caminho:f.caminho})});
+    for(const [i,f] of pubFotos.entries())if(f.nova&&!f.blob){
+      bt.textContent=`Enviando foto ${i+1}…`;
+      const rf=await jsonPost('/api/publicacoes?path=publicacoes',{acao:'foto',foto:f.nova}),jf=await rf.json().catch(()=>({}));
+      if(!rf.ok||!jf.ok)throw new Error(jf.erro||('erro '+rf.status));
+      f.blob=jf.blob;f.ext=jf.ext;
+    }
+    bt.textContent='Salvando…';
+    const r=await jsonPost('/api/publicacoes?path=publicacoes',{acao:'salvar',pub,fotos:pubFotos.map(f=>f.blob?{blob:f.blob,ext:f.ext}:f.nova?{nova:f.nova}:{caminho:f.caminho})});
     const j=await r.json().catch(()=>({}));
     if(!r.ok||!j.ok)throw new Error(j.erro||('erro '+r.status));
     // as fotos novas aparecem daqui até o site ser publicado de novo

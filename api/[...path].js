@@ -1673,8 +1673,19 @@ async function rotaPublicacoes(req, res) {
   if (b.foto) { foto = lerFoto(b.foto); if (foto.erro) return recusa(foto.erro); }
   // mais de uma foto (pedido do Luiz, 21/10/2026): a lista na ordem do painel, a primeira é a capa. Cada item é uma foto que já está no
   // site ({ caminho }) ou uma nova ({ nova: data URI })
+  // a foto que sobe antes, sozinha (pedido do Luiz, 23/11/2026: com várias de uma vez, o painel diminuía as fotos para caber num envio):
+  // vira um blob no GitHub, que só entra no site quando a publicação é gravada; a gravação manda { blob, ext } no lugar da foto
+  if (b.acao === 'foto') {
+    const x = lerFoto(b.foto); if (x.erro) return recusa(x.erro);
+    const bl = await gh('git/blobs', 'POST', { content: x.base64, encoding: 'base64' });
+    if (!bl.ok) return res.status(502).json({ erro: `o GitHub respondeu ${bl.status} ao guardar a foto` });
+    return res.json({ ok: true, blob: (await bl.json()).sha, ext: x.ext });
+  }
   const fotosPedidas = Array.isArray(b.fotos) ? b.fotos.slice(0, 12) : null;
-  if (fotosPedidas) for (const f of fotosPedidas) if (f && f.nova) { const x = lerFoto(f.nova); if (x.erro) return recusa(x.erro); f.lida = x; }
+  if (fotosPedidas) for (const f of fotosPedidas) {
+    if (f && f.nova) { const x = lerFoto(f.nova); if (x.erro) return recusa(x.erro); f.lida = x; }
+    else if (f && f.blob !== undefined) { if (!/^[0-9a-f]{40}$/.test(String(f.blob)) || !['webp', 'jpg', 'png'].includes(f.ext)) return recusa(400); f.lida = { ext: f.ext, sha: f.blob }; }
+  }
   const fotosDe = p => Array.isArray(p.fotos) ? p.fotos : (p.foto ? [p.foto] : []);
   for (let tentativa = 0; tentativa < 3; tentativa++) {
     const ref = await gh(`git/ref/heads/${ramo}`);
@@ -1704,7 +1715,7 @@ async function rotaPublicacoes(req, res) {
         const antigas = velha ? fotosDe(velha) : [], novas = [], marca = Date.now().toString(36);
         fotosPedidas.forEach((f, k) => {
           if (f && f.caminho && antigas.includes(f.caminho) && !novas.includes(f.caminho)) novas.push(f.caminho);
-          else if (f && f.lida) { const c = `fotos-publicacoes/${id}-${marca}-${k + 1}.${f.lida.ext}`; arquivos.push({ path: c, conteudo: f.lida.base64 }); novas.push(c); }
+          else if (f && f.lida) { const c = `fotos-publicacoes/${id}-${marca}-${k + 1}.${f.lida.ext}`; arquivos.push(f.lida.sha ? { path: c, sha: f.lida.sha } : { path: c, conteudo: f.lida.base64 }); novas.push(c); }
         });
         antigas.forEach(f => { if (!novas.includes(f) && !usada(f, velha)) arquivos.push({ path: f, apagar: true }); });
         pub.foto = novas[0] || null; pub.fotos = novas;
@@ -1723,6 +1734,7 @@ async function rotaPublicacoes(req, res) {
     const arvore = [];
     for (const a of arquivos) {
       if (a.apagar) { arvore.push({ path: a.path, mode: '100644', type: 'blob', sha: null }); continue; }
+      if (a.sha) { arvore.push({ path: a.path, mode: '100644', type: 'blob', sha: a.sha }); continue; }   // a foto que subiu antes
       const bl = await gh('git/blobs', 'POST', { content: a.conteudo, encoding: 'base64' });
       if (!bl.ok) return res.status(502).json({ erro: `o GitHub respondeu ${bl.status} ao gravar um arquivo` });
       arvore.push({ path: a.path, mode: '100644', type: 'blob', sha: (await bl.json()).sha });

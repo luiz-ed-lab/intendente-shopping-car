@@ -108,5 +108,41 @@ r = await post({ acao: 'salvar', pub: { id: gal.id, titulo: 'Galeria', categoria
 assert(r.body.publicacao.foto === null && !r.body.publicacao.fotos.length && !gal.fotos.some(f => f in repo.arquivos), 'sem fotos: todas saem');
 r = await post({ acao: 'salvar', pub: { titulo: 'X' }, fotos: [{ nova: 'data:text/html;base64,PGI+' }] }); assert(r.code === 400, 'recusa arquivo que não é foto na lista');
 r = await post({ acao: 'excluir', id: gal.id }); assert(r.body.ok, 'exclui a galeria');
+
+// 23/11/2026: cada foto sobe sozinha antes (vira um blob) e a gravação junta tudo num commit, sem diminuir a foto para caber num envio
+const fc = 'data:image/jpeg;base64,' + JPG('foto-original-grande').toString('base64');
+const commitsAntes = repo.commits.length;
+r = await post({ acao: 'foto', foto: fc });
+assert(r.body.ok && /^b\d+$/.test(r.body.blob) && r.body.ext === 'jpg', 'a foto sozinha vira um blob e volta a marca dele');
+assert(repo.commits.length === commitsAntes, 'guardar a foto não cria commit');
+r = await post({ acao: 'foto', foto: 'data:text/html;base64,PGI+' }); assert(r.code === 400, 'a foto sozinha também passa pela conferência');
+// o GitHub devolve um sha de 40 letras; o de mentira, não. A marca do blob de teste entra como se fosse um sha de verdade
+const sha = 'a'.repeat(40); repo.blobs[sha] = Buffer.from(JPG('foto-original-grande')).toString('base64');
+r = await post({ acao: 'salvar', pub: { titulo: 'Com foto grande', categoria: 'Eventos', data: '2026-11-23' }, fotos: [{ blob: sha, ext: 'jpg' }, { nova: fa }] });
+const gr = r.body.publicacao;
+assert(r.body.ok && gr.fotos.length === 2 && /-1\.jpg$/.test(gr.fotos[0]) && /-2\.webp$/.test(gr.fotos[1]), 'a gravação aceita a foto que subiu antes junto com uma nova');
+assert(repo.arvore.tree.some(e => e.path === gr.fotos[0] && e.sha === sha) && Buffer.from(repo.arquivos[gr.fotos[0]], 'base64').toString().endsWith('foto-original-grande'), 'a foto entra pela marca, sem subir de novo');
+r = await post({ acao: 'salvar', pub: { titulo: 'X' }, fotos: [{ blob: '../segredo', ext: 'jpg' }] }); assert(r.code === 400, 'recusa marca de blob que não é um sha');
+r = await post({ acao: 'salvar', pub: { titulo: 'X' }, fotos: [{ blob: sha, ext: 'html' }] }); assert(r.code === 400, 'recusa extensão estranha');
+r = await post({ acao: 'excluir', id: gr.id }); assert(r.body.ok, 'exclui a de foto grande');
+
+// o enquadramento pelos rostos (fotos.js): a foto anda até onde cabem mais rostos inteiros
+{
+  const js = fs.readFileSync(new URL('../fotos.js', import.meta.url), 'utf8');
+  const ini = js.indexOf('  function pelosRostos'), fim = js.indexOf('  async function enquadrar');
+  const pelosRostos = new Function(js.slice(ini, fim) + '; return pelosRostos;')();
+  const pos = (R, w, h) => { const m = pelosRostos(R, w, h); return m && m.split(' ').map(parseFloat); };
+  // foto em pé numa moldura deitada: o palestrante em cima (nota alta) e um falso rosto grande embaixo (nota baixa)
+  let p = pos({ w: 1080, h: 1350, rostos: [[0.033, 0.86, 0.152, 0.14, 0.69], [0.4465, 0.19, 0.0733, 0.0836, 0.92]] }, 1600, 1000);
+  assert(p[0] === 50 && p[1] < 12, 'fica com o rosto de nota alta, um pouco acima do meio', p);
+  // dois rostos que cabem juntos: os dois entram
+  p = pos({ w: 1080, h: 1350, rostos: [[0.3181, 0.5493, 0.1278, 0.1587, 0.81], [0.6417, 0.2497, 0.0378, 0.0411, 0.91]] }, 1600, 1000);
+  const s = p[1] / 100 * (1 - 0.5);
+  assert(s <= 0.2497 + 1e-6 && s + 0.5 >= 0.5493 + 0.1587 - 1e-6, 'os dois rostos cabem inteiros na moldura', p);
+  // foto deitada numa moldura quadrada: anda na largura até o rosto
+  p = pos({ w: 1600, h: 900, rostos: [[0.8, 0.3, 0.08, 0.14, 0.95]] }, 500, 500);
+  assert(p[1] === 50 && p[0] > 85, 'anda para o lado do rosto', p);
+  assert(pelosRostos({ w: 1080, h: 1350, rostos: [] }, 1600, 1000) === null && pelosRostos({ w: 1080, h: 1350, rostos: [[0.4, 0.4, 0.1, 0.1, 0.5]] }, 1600, 1000) === null, 'sem rosto confiável, fica o recorte de antes');
+}
 delete process.env.GITHUB_TOKEN;
 r = res(); await f({ method: 'GET' }, r); assert(r.code === 500 && /GITHUB_TOKEN/.test(r.body.erro), 'sem GITHUB_TOKEN avisa em vez de gravar');
