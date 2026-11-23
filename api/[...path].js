@@ -148,6 +148,15 @@ async function migra() {
                   where coalesce(array_length(fotos,1),0) = 0
                     and coalesce(oculto,false) = false and oculto_motivo is null`);
   } catch (_) {}
+  // leads zerados uma vez (pedido do Luiz, 23/11/2026: "reseta os leads", confirmado por ele: apagar todos, os de teste e os de clientes):
+  // só os que chegaram até o pedido (18h56 no Rio), e a marca em config impede de rodar de novo
+  try {
+    const { rows: [feito] } = await query("select 1 as ok from config where chave = 'leads_zerados_2026_11_23'");
+    if (!feito) {
+      const r = await query("delete from leads where criado_em is null or criado_em < '2026-11-23T18:56:00-03:00'");
+      await query("insert into config (chave, valor) values ('leads_zerados_2026_11_23', $1) on conflict (chave) do nothing", [String(r.rowCount)]);
+    }
+  } catch (_) {}
   migrado = true;
 }
 // marcas que só fazem moto — para as que fazem os dois, olhamos o modelo
@@ -956,10 +965,24 @@ async function rotaLojas(req, res) {
     return res.json(loja || { erro: 'loja não encontrada' });
   }
   if (req.method === 'DELETE') {
+    // excluir tira a loja do painel, do site, do robô e do Repasse (tudo lê só as lojas ativas), mas a linha fica no banco: os leads dela
+    // apontam para ela (a chave do banco não deixava apagar loja com lead, a exclusão falhava e o painel dizia "excluída"; pedido do Luiz,
+    // 23/11/2026, com a Lazari). Assim o lead antigo continua com o nome da loja no painel
     const id = inteiro((req.query && req.query.id) || (req.body && req.body.id));
     if (!id) return res.status(400).json({ erro: 'id obrigatório' });
+    const { rows: [loja] } = await query('update lojas set ativa = false where id = $1 and ativa = true returning id', [id]);
+    if (!loja) return res.status(404).json({ erro: 'loja não encontrada' });
     await query('update veiculos set ativo=false where loja_id=$1', [id]);
-    await query('delete from lojas where id=$1', [id]);
+    // o acesso dela ao Repasse sai junto, com os carros e as fotos (como o Excluir do acesso): senão o e-mail ficaria preso à loja excluída
+    // e não daria para criar o acesso de novo se ela voltar. Sem as tabelas do Repasse (nunca usado), não há o que tirar
+    try {
+      const { rows: [a] } = await query('delete from repasse_acessos where loja_id = $1 returning id', [id]);
+      if (a) {
+        await query('delete from repasse_sessoes where acesso_id = $1', [a.id]);
+        await query(`update repasse_carros set status = 'tirado', status_em = now() where loja_id = $1 and status in ('ativo', 'enviando')`, [id]);
+        await query(`delete from repasse_fotos f using repasse_carros c where f.carro_id = c.id and c.loja_id = $1 and c.status = 'tirado'`, [id]);
+      }
+    } catch (_) {}
     await atualizarSite('site-lojas', 'site-veiculos');
     return res.json({ ok: true });
   }

@@ -5,7 +5,8 @@ const src = fs.readFileSync(new URL('../api/[...path].js', import.meta.url), 'ut
 const trecho = src.slice(src.indexOf('// ---------------- ROTAS'), src.indexOf('async function rotaLeads'));
 let sqls = [], migrou = 0, comSenha = false;
 let params = [];
-const query = async (sql, p) => { sqls.push(sql); params.push(p); return { rows: [] }; };
+let linhas = () => [];
+const query = async (sql, p) => { sqls.push(sql); params.push(p); return { rows: linhas(sql) || [] }; };
 const { rotaLojas, rotaVeiculos } = new Function('query', 'migra', 'autorizado', 'negar', 'FORA_DO_SITE', trecho + '; return { rotaLojas, rotaVeiculos };')(
   query, async () => { migrou++; }, () => comSenha, res => res.status(401).json({}), ['Lions Seminovos']);
 const pedido = q => ({ method: 'GET', query: q, headers: {} });
@@ -63,8 +64,17 @@ comSenha = true;
 const mudou = async (nome, rota, pedidoDe) => { apagadas.length = 0; const q = resposta(); q.status = () => q; await rota(pedidoDe, q); return nome; };
 await mudou('loja', rotaLojas, { method: 'PATCH', query: {}, headers: {}, body: { id: 1, nome: 'X' } });
 assert(apagadas.includes('site-lojas') && apagadas.includes('site-veiculos'), 'painel: editar a loja atualiza as lojas e o estoque do site');
-await mudou('loja', rotaLojas, { method: 'DELETE', query: { id: '1' }, headers: {}, body: {} });
+linhas = sql => /update lojas set ativa = false/.test(sql) ? [{ id: 1 }] : /delete from repasse_acessos/.test(sql) ? [{ id: 7 }] : [];
+sqls = []; await mudou('loja', rotaLojas, { method: 'DELETE', query: { id: '1' }, headers: {}, body: {} });
 assert(apagadas.includes('site-lojas') && apagadas.includes('site-veiculos'), 'painel: excluir a loja tira ela e os carros do site na hora');
+// 23/11/2026 (a Lazari não saía): loja com lead não podia ser apagada (a chave do banco), a API dava erro e o painel dizia "excluída".
+// Agora a loja só fica inativa (o lead continua com o nome dela), e o acesso ao Repasse sai junto, com os carros e as fotos
+assert(!sqls.some(q => /delete from lojas/.test(q)) && sqls.some(q => /update lojas set ativa = false/.test(q)) && sqls.some(q => /update veiculos set ativo=false/.test(q)), 'excluir a loja: ela fica inativa (sem apagar a linha que os leads usam) e os carros saem');
+assert(sqls.some(q => /delete from repasse_sessoes/.test(q)) && sqls.some(q => /status = 'tirado'/.test(q)) && sqls.some(q => /delete from repasse_fotos/.test(q)), 'excluir a loja: o acesso ao Repasse sai junto, com os carros e as fotos');
+linhas = () => [];
+st = 200; apagadas.length = 0; r = resposta(); r.status = s => { st = s; return r; };
+await rotaLojas({ method: 'DELETE', query: { id: '99' }, headers: {}, body: {} }, r);
+assert(st === 404 && !apagadas.length, 'excluir loja que não existe (ou já excluída): 404, sem dizer que excluiu');
 await mudou('carro', rotaVeiculos, { method: 'PATCH', query: {}, headers: {}, body: { id: 1, oculto: true } });
 assert(apagadas.join() === 'site-veiculos', 'painel: esconder um carro atualiza o estoque do site');
 apagadas.length = 0; await rotaLojas(pedido({ site: '1' }), resposta());

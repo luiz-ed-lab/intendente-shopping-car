@@ -1822,7 +1822,8 @@ async function salvarAssoc(id){
   catch(e){toast('Não deu para salvar: '+e.message);renderAssoc();}
 }
 async function excluirLoja(id){const l=lojas.find(x=>x.id===id);if(!l||!confirm('Excluir "'+l.nome+'"? Os veículos dela saem do site.'))return;
-  try{await api('/api/lojas?path=lojas&id='+id,{method:'DELETE'});assocAberto=null;toast(l.nome+' excluída');await carregarPainel();}catch(e){toast('Não deu para excluir');}}
+  /* a resposta é conferida: antes, o "excluída" aparecia mesmo com a exclusão recusada pelo banco (pedido do Luiz, 23/11/2026) */
+  try{const r=await api('/api/lojas?path=lojas&id='+id,{method:'DELETE'});if(!r.ok)throw new Error('erro '+r.status);assocAberto=null;toast(l.nome+' excluída');await carregarPainel();}catch(e){toast('Não deu para excluir');}}
 /* o acesso da loja ao Repasse (repasse.html, pedido do Luiz em 26/10/2026): quem cria é a Aceima, aqui, com o e-mail, a senha e o WhatsApp
    que recebe os interessados. A senha só aparece na hora de criar ou trocar (o banco guarda só o embaralhado dela): o painel mostra o
    acesso pronto para copiar ou mandar no WhatsApp da loja */
@@ -2357,7 +2358,7 @@ function camLead(id){
 }
 async function excluirLead(id){
   if(!confirm('Excluir este lead? Não tem como desfazer.'))return;
-  try{await api('/api/leads?path=leads&id='+id,{method:'DELETE'});leads=leads.filter(l=>l.id!==id);leadsRaw=leadsRaw.filter(l=>l.id!==id);leadAberto=null;
+  try{const r=await api('/api/leads?path=leads&id='+id,{method:'DELETE'});if(!r.ok)throw new Error('erro '+r.status);leads=leads.filter(l=>l.id!==id);leadsRaw=leadsRaw.filter(l=>l.id!==id);leadAberto=null;
     renderLeads();renderDash();pintarAvisos();pintarRel();pintarResumo();pintarKpis(false);atualizaLeadBadge();toast('Lead excluído');}
   catch(e){toast('Não deu para excluir');}
 }
