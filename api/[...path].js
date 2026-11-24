@@ -2532,7 +2532,7 @@ async function rotaSitemap(req, res, arquivo) {
   let pubs = [];
   try { pubs = JSON.parse(arquivo('publicacoes.json')); } catch (_) {}
   const urls = [['/', 'daily', '1.0'], ['/estoque', 'daily', '0.9'], ['/associados', 'weekly', '0.8'], ['/a-aceima', 'monthly', '0.6'], ['/seja-um-associado', 'monthly', '0.6'],
-    ['/publicacoes', 'weekly', '0.6'], ['/privacidade', 'yearly', '0.2'], ['/termos', 'yearly', '0.2']]
+    ['/publicacoes', 'weekly', '0.6'], ['/servicos-e-parceiros', 'monthly', '0.5'], ['/privacidade', 'yearly', '0.2'], ['/termos', 'yearly', '0.2']]
     .map(([c, f, p]) => `<url><loc>${SITE_PUB}${c}</loc><changefreq>${f}</changefreq><priority>${p}</priority></url>`)
     .concat((Array.isArray(pubs) ? pubs : []).filter(p => p && p.id && !(p.video && p.video.partes)).map(p => `<url><loc>${SITE_PUB}/publicacoes/${encodeURIComponent(p.id)}</loc>${/^\d{4}-\d{2}-\d{2}$/.test(p.data || '') ? `<lastmod>${p.data}</lastmod>` : ''}</url>`))
     .concat(rows.map(v => `<url><loc>${esc(urlCarro(v))}</loc></url>`));

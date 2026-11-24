@@ -636,11 +636,120 @@ button.fp{border:1px solid transparent;cursor:pointer}
   .pb-dest.anc .pb-tx{padding:0 1.41vw 1.41vw}
 }
 .aviso b{color:#0B1A33}
-.parc{display:grid;grid-template-columns:1.25fr .75fr;gap:46px;padding:30px 0;border-top:1px solid var(--line)}
-.parc .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-.parc .fp{cursor:default;font-size:.78rem;padding:7px 13px}
-.parc .inf{font-family:var(--f2);font-size:.85rem;color:var(--mut);line-height:1.9}
-.parc .inf b{color:var(--ink);font-weight:600}
+/* Serviços e Parceiros (pedido do Luiz, 23/11/2026: a página refeita, "com um visual mais atrativo", e com os parceiros, por isso o nome
+   novo; ele escolheu a opção C, "Do que você precisa", entre três, em 24/11/2026). No azul, a pergunta e um botão para cada serviço; o
+   escolhido abre grande na folha clara (a logo numa placa azul, o número na rua, a nota do Google, o texto, o que faz e os contatos); embaixo,
+   os outros; por fim, numa folha azul, os parceiros da Aceima */
+.sp-topo{padding-top:clamp(56px,5.4vw,100px);padding-bottom:calc(clamp(60px,5.6vw,104px) + var(--canto));text-align:center}
+.sp-tit{font:400 clamp(3rem,5.4vw,6rem)/1 var(--f1);letter-spacing:-.035em;color:#fff;text-wrap:balance}
+.sp-tit em{font-style:italic;color:var(--gold3)}
+.sp-esc{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:clamp(28px,2.6vw,44px) auto 0;max-width:1180px}
+.sp-esc .fp{font-size:clamp(.88rem,.95vw,1.02rem);padding:.95em 1.5em;gap:.6em;transition:background .25s,border-color .25s,color .25s}
+.sp-esc .fp.drk:hover{border-color:rgba(255,255,255,.34);color:#fff}
+.sp-folha{position:relative;z-index:2;margin-top:calc(-1 * var(--canto));border-radius:var(--canto) var(--canto) 0 0;background:var(--cl)}
+.sp-painel{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(36px,4.4vw,80px);align-items:center;padding-top:clamp(48px,5vw,84px)}
+.sp-placa{position:relative;display:grid;place-items:center;height:clamp(300px,29vw,460px);border-radius:clamp(22px,2vw,32px);background:var(--navy);overflow:hidden;isolation:isolate;box-shadow:0 34px 60px -42px rgba(0,9,26,.75)}
+.sp-placa::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(90% 80% at 85% 0,rgba(200,134,46,.24),transparent 60%)}
+.sp-lg{display:grid;place-items:center;max-width:62%;border-radius:18px}
+.sp-lg img{display:block;max-width:100%;max-height:clamp(90px,9vw,160px);object-fit:contain}
+.sp-lg.claro,.sp-lg.branco{background:#fff;padding:clamp(14px,1.4vw,24px) clamp(18px,1.8vw,30px)}
+.sp-ini{display:none;font:600 clamp(2.6rem,4vw,4.4rem)/1 var(--f1);letter-spacing:.08em;color:#fff}
+.sp-lg.sem img{display:none}
+.sp-lg.sem .sp-ini{display:block}
+.sp-num{position:absolute;left:clamp(20px,2vw,32px);top:clamp(18px,1.8vw,28px);font:500 clamp(1rem,1.25vw,1.4rem)/1 var(--f1);color:rgba(255,255,255,.52)}
+.sp-nota{position:absolute;left:clamp(16px,1.6vw,26px);bottom:clamp(16px,1.6vw,26px);display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:99px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);font:500 .86rem/1 var(--f2);color:#AFC0D6;font-variant-numeric:tabular-nums}
+.sp-nota b{color:#fff;font-weight:700}
+.sp-nota svg{color:var(--gold3)}
+.sp-ct .fp{cursor:default}
+.sp-ct h3{margin-top:18px;font:600 clamp(2.4rem,3.6vw,4.2rem)/1 var(--f1);letter-spacing:-.035em;color:var(--ink)}
+.sp-tipo{margin-top:10px;font:400 1rem/1.3 var(--f2);color:var(--mut)}
+.sp-ct>p{margin-top:20px;max-width:640px;font:400 clamp(1rem,1.1vw,1.15rem)/1.65 var(--f2);color:#24324A}
+.sp-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:22px}
+.sp-chips .fp{cursor:default;font-size:.8rem;padding:8px 13px}
+.sp-inf{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px 28px;margin-top:28px;max-width:720px}
+.sp-inf dt{font:600 .68rem/1 var(--f2);letter-spacing:1.6px;text-transform:uppercase;color:var(--mut)}
+.sp-inf dd{margin:7px 0 0;font:400 .95rem/1.4 var(--f2);color:var(--ink);overflow-wrap:anywhere}
+.sp-acts{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:32px}
+.sp-acts .btno{border-color:#CFC7BD;color:var(--ink)}
+.sp-acts .btno:hover{border-color:var(--gold);color:#96600F}
+.sp-lk{display:inline-flex;align-items:center;gap:6px;margin-left:6px;font:600 .9rem/1 var(--f2);color:#96600F;transition:color .2s}
+.sp-lk:hover{color:var(--gold)}
+.sp-out{padding-top:clamp(48px,4.6vw,76px);padding-bottom:calc(clamp(64px,6vw,110px) + var(--canto))}
+.sp-out h3{font:500 clamp(1.4rem,1.8vw,1.9rem)/1 var(--f1);letter-spacing:-.02em;color:var(--ink)}
+.sp-mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:22px}
+.sp-mini button{display:flex;align-items:center;gap:16px;padding:14px;border-radius:20px;border:1px solid var(--line);background:#fff;text-align:left;transition:border-color .2s,box-shadow .25s,transform .25s var(--ease)}
+.sp-mini button:hover{border-color:#D6B07A;box-shadow:0 18px 34px -26px rgba(11,26,51,.5);transform:translateY(-2px)}
+.sp-mini .sp-placa{width:92px;height:64px;flex:none;border-radius:14px;box-shadow:none}
+.sp-mini .sp-lg{max-width:78%;border-radius:8px}
+.sp-mini .sp-lg img{max-height:40px}
+.sp-mini .sp-lg.claro,.sp-mini .sp-lg.branco{padding:5px 8px}
+.sp-mini .sp-ini{font-size:1rem}
+.sp-mini b{display:block;font:600 1.05rem/1.15 var(--f1);letter-spacing:-.01em;color:var(--ink)}
+.sp-mini small{display:block;margin-top:5px;font:400 .82rem/1.3 var(--f2);color:var(--mut)}
+.sp-parc{position:relative;z-index:3;margin-top:calc(-1 * var(--canto));border-radius:var(--canto) var(--canto) 0 0}
+.sp-parc>.wrap{padding-top:clamp(56px,5.6vw,96px);padding-bottom:clamp(64px,6vw,110px)}
+.sp-pg{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(40px,5vw,90px);align-items:center}
+.sp-pg.so{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center}
+.sp-parc h3{font:500 clamp(2rem,3vw,3.2rem)/1 var(--f1);letter-spacing:-.03em;color:#fff}
+.sp-parc p{margin-top:18px;max-width:470px;font:400 clamp(1rem,1.1vw,1.1rem)/1.6 var(--f2);color:#C6D2E3}
+.sp-pg.so p{margin-left:auto;margin-right:auto}
+.sp-parc .btno{margin-top:30px}
+.sp-plogos{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:24px 16px}
+.sp-plogo{display:block;color:#fff}
+.sp-plg{display:grid;place-items:center;height:110px;padding:18px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);transition:border-color .25s}
+.sp-plogo:hover .sp-plg{border-color:rgba(244,176,92,.55)}
+.sp-plg img{max-width:100%;max-height:100%;object-fit:contain}
+.sp-plogo b{display:block;margin-top:12px;font:500 1.05rem/1.2 var(--f1)}
+.sp-plogo small{display:block;margin-top:5px;font:400 .82rem/1.4 var(--f2);color:#8FA0B8}
+@media (max-width:1100px){
+  .sp-painel{grid-template-columns:minmax(0,1fr)}
+  .sp-placa{height:clamp(260px,40vw,380px)}
+  .sp-pg{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:760px){
+  .sp-topo{padding-top:9vw;padding-bottom:calc(12vw + var(--canto))}
+  .sp-tit{font-size:10.6vw;line-height:1.04;letter-spacing:-.3vw}
+  .sp-esc{display:grid;grid-template-columns:1fr 1fr;gap:2.11vw;margin-top:6.3vw}
+  .sp-esc .fp{justify-content:center;white-space:normal;text-align:center;line-height:1.15;font-size:3.3vw;padding:3.2vw 2vw;gap:1.6vw}
+  .sp-esc .fp:last-child:nth-child(odd){grid-column:1/-1}
+  .sp-esc .fp svg{width:4.2vw;height:4.2vw}
+  .sp-painel{gap:5.63vw;padding-top:8.45vw}
+  .sp-placa{height:58vw;border-radius:5.63vw}
+  .sp-lg img{max-height:21vw}
+  .sp-ini{font-size:11vw}
+  .sp-num{left:5vw;top:4.6vw;font-size:4.2vw}
+  .sp-nota{left:4vw;bottom:4vw;padding:2.2vw 3.2vw;font-size:3.1vw;gap:1.6vw}
+  .sp-ct h3{margin-top:3.52vw;font-size:8.6vw}
+  .sp-tipo{margin-top:2.11vw;font-size:3.47vw}
+  .sp-ct>p{margin-top:3.52vw;font-size:3.6vw}
+  .sp-chips{gap:1.76vw;margin-top:4.23vw}
+  .sp-chips .fp{font-size:2.9vw;padding:1.9vw 3vw}
+  .sp-inf{grid-template-columns:minmax(0,1fr);gap:3.52vw;margin-top:5.63vw}
+  .sp-inf dt{font-size:2.5vw}
+  .sp-inf dd{margin-top:1.4vw;font-size:3.6vw}
+  .sp-acts{display:grid;grid-template-columns:1fr 1fr;gap:2.11vw;margin-top:6.3vw}
+  .sp-acts .btnp,.sp-acts .btno{justify-content:center;gap:2vw;padding:3.6vw 2vw;font-size:3.3vw}
+  .sp-acts>:only-child{grid-column:1/-1}
+  .sp-lk{grid-column:1/-1;justify-content:center;margin:1.41vw 0 0;font-size:3.4vw}
+  .sp-out{padding-top:9.86vw;padding-bottom:calc(12vw + var(--canto))}
+  .sp-out h3{font-size:5.63vw;text-align:center}
+  .sp-mini{grid-template-columns:minmax(0,1fr);gap:2.82vw;margin-top:4.23vw}
+  .sp-mini button{gap:3.52vw;padding:3.17vw;border-radius:4.58vw}
+  .sp-mini .sp-placa{width:21vw;height:14.8vw;border-radius:3.17vw}
+  .sp-mini .sp-lg img{max-height:9.2vw}
+  .sp-mini .sp-ini{font-size:3.6vw}
+  .sp-mini b{font-size:4.2vw}
+  .sp-mini small{margin-top:1.06vw;font-size:3.1vw}
+  .sp-parc>.wrap{padding-top:12vw;padding-bottom:14vw}
+  .sp-pg{gap:8.45vw;justify-items:center;text-align:center}
+  .sp-parc h3{font-size:8.45vw}
+  .sp-parc p{margin:3.52vw auto 0;font-size:3.6vw}
+  .sp-parc .btno{margin-top:6.3vw;padding:3.6vw 6vw;font-size:3.3vw}
+  .sp-plogos{width:100%;grid-template-columns:1fr 1fr;gap:5.63vw 2.82vw}
+  .sp-plg{height:24vw;padding:3.52vw;border-radius:4.23vw}
+  .sp-plogo b{font-size:3.9vw}
+  .sp-plogo small{font-size:3vw}
+}
 
 /* veículo, no estilo do modelo USD Halo (21st.dev, @mohammadshehadeh), pedido do Luiz em 30/09/2026: a primeira foto em destaque,
    com a logo da loja num canto levemente esfumado; embaixo, o nome em duas linhas e, ao lado, a ficha; depois as outras fotos,
@@ -1530,12 +1639,9 @@ body.lb-on{overflow:hidden}
   .kick{font-size:2.82vw;letter-spacing:.56vw}
   .kick.kn,.as3-in .as3-v .kick.kn{font-size:3.3vw;letter-spacing:.1vw}
   .bene{grid-template-columns:1fr}
-  /* Serviços: títulos e textos na proporção do resto do site (os tamanhos do computador estão no próprio elemento) */
+  /* páginas de leitura (privacidade e termos): títulos e textos na proporção do resto do site */
   .sv-tit{font-size:7.04vw!important;letter-spacing:-.2vw}
   .sv-sub{font-size:3.47vw!important}
-  .sv-h{font-size:5.63vw!important}
-  .parc{grid-template-columns:1fr;gap:18px}
-  .parc .inf{font-size:3.47vw;line-height:1.7}
   .rod .wrap{flex-direction:column;align-items:flex-start}
 }
 @media (min-width:761px){.so-cel{display:none!important}.inn .kick{font-size:.8rem;letter-spacing:3px}}
@@ -1633,7 +1739,7 @@ body.lb-on{overflow:hidden}
 :where(a,button,[role="button"],[tabindex]:not([tabindex="-1"]),summary):focus-visible{outline:2px solid var(--gold3);outline-offset:3px}
 /* contraste mínimo (WCAG AA): o dourado como texto sobre o fundo claro fica um tom mais fechado; nos fundos escuros, continua o mesmo */
 .sob h2 em{color:#B47524}
-.ac2-k,.pb-top .kick,.parc .kick,.pb-ic small{color:#96600F}
+.ac2-k,.pb-top .kick,.pb-ic small{color:#96600F}
 .as2-lf>span{color:#8A5410}
 .as2-ls,.as2-g1t>p{color:#5E6979}
 .foto{color:#665E55}
@@ -1780,22 +1886,22 @@ const AMOSTRA_L=[[10,"AG Rio Car","Est. Intendente Magalhães, nº 731 - Vila Va
 // credenciado novo entra aqui e em PARCEIROS_ROBO, na API, com o mesmo nome. O ramo é o da lista do formulário (RAMOS): é o que o filtro
 // de Associados mostra
 const PARCEIROS=[
- {nome:'LaudoCar',cat:'Serviços',ramo:'Serviços Automotivos',tipo:'Vistoria cautelar',num:503,tag:'Antes de fechar negócio',
+ {nome:'LaudoCar',cat:'Serviços',ramo:'Serviços Automotivos',tipo:'Vistoria cautelar',num:503,tag:'Antes de fechar negócio',escolha:'Vistoria antes de comprar',ico:'vist',
   txt:'Confere estrutura, numerações e o histórico do veículo (leilão, sinistro, recall, roubo e restrições) antes de você fechar negócio.',
   chips:['Estrutura e chassi','Numerações','Histórico completo','Motos e pesados'],
   inf:[['Endereço','Estrada Intendente Magalhães, 503, Vila Valqueire'],['Horário','Seg a sex 9h–18h · sáb 9h–14h'],['A partir de','R$ 270, três níveis de vistoria'],['E-mail','contato@laudocarrj.com.br']],
   wa:'5521988932124',waTxt:'quero fazer uma vistoria',site:'https://laudocarrj.com.br/'},
- {nome:'SISV Inspeção Veicular',cat:'Serviços',ramo:'Serviços Automotivos',tipo:'Inspeção obrigatória',num:null,tag:'Exigida pelo Detran',
+ {nome:'SISV Inspeção Veicular',cat:'Serviços',ramo:'Serviços Automotivos',tipo:'Inspeção obrigatória',num:null,tag:'Exigida pelo Detran',escolha:'Inspeção do Detran',ico:'insp',
   txt:'A inspeção que o Detran exige quando o carro tem GNV, passou por sinistro, é blindado ou teve característica alterada.',
   chips:['GNV','Sinistrados','Blindados','Característica alterada'],
   inf:[['Endereço','Rua Mataura, 68, esquina com a Intendente Magalhães'],['Telefone','(21) 2454-9926'],['Credenciamento','Inmetro ISO/IEC 17020 e SENATRAN'],['E-mail','contato@sisvinspecao.com.br']],
   wa:'5521970193793',waTxt:'quero agendar uma inspeção',site:'https://grupovialog.com.br/sisv-vila-valqueire-rj/'},
- {nome:'Frioline',cat:'Serviços',ramo:'Serviços Automotivos',tipo:'Ar-condicionado',num:413,tag:'Depois da compra',
+ {nome:'Frioline',cat:'Serviços',ramo:'Serviços Automotivos',tipo:'Ar-condicionado',num:413,tag:'Depois da compra',escolha:'Ar-condicionado',ico:'frio',
   txt:'Instalação e manutenção de ar-condicionado em linha nacional e importada.',
   chips:['Carga de gás','Higienização','Compressor','Instalação completa'],
   inf:[['Endereço','Estrada Intendente Magalhães, 413, Vila Valqueire'],['Horário','Seg a sex 8h–18h · sáb 8h–12h'],['Telefone','(21) 3359-8354 · (21) 3350-7909'],['Desde','1989, só peça original']],
   wa:'5521964677676',waTxt:'quero um orçamento de ar-condicionado',site:'https://www.frioline.com.br/'},
- {nome:'R21 Bar & Restaurante',curto:'R21',cat:'Comércio',ramo:'Alimentício',tipo:'Bar e restaurante',num:799,tag:'Enquanto você procura',
+ {nome:'R21 Bar & Restaurante',curto:'R21',cat:'Comércio',ramo:'Alimentício',tipo:'Bar e restaurante',num:799,tag:'Enquanto você procura',escolha:'Almoço e jantar',ico:'rest',
   txt:'Gastronomia para todos os gostos no almoço e no jantar, num ambiente com o jeito carioca, música ao vivo e espaço kids.',
   chips:['Almoço e jantar','Música ao vivo','Espaço kids','Delivery'],
   inf:[['Endereço','Estrada Intendente Magalhães, 799, Vila Valqueire'],['Funciona','Almoço, jantar e delivery na região'],['Instagram','@r21barerestaurante']],
@@ -1831,7 +1937,7 @@ function usarParceiros(rp){if(!Array.isArray(rp))return;
   for(let i=PARCEIROS.length-1;i>=0;i--)if(PARCEIROS[i].doPainel)PARCEIROS.splice(i,1);
   rp.forEach(x=>{let c=PARCEIROS.find(y=>y.nome===x.nome);
     if(!c&&x.painel){const r=x.ramo||'Outro ramo',e=x.endereco||'';
-      c={doPainel:true,nome:x.nome,cat:r==='Alimentício'?'Comércio':'Serviços',ramo:r,tipo:r,tag:r,txt:x.descricao||'',chips:[],
+      c={doPainel:true,nome:x.nome,cat:r==='Alimentício'?'Comércio':'Serviços',ramo:r,tipo:r,tag:r,escolha:x.nome,ico:r==='Alimentício'?'rest':'serv',txt:x.descricao||'',chips:[],
         num:numRua(e)||parseInt((e.match(/Magalh[ãa]es,?\s*(?:n\s*[º°o.]?\s*)?(\d{1,5})/i)||[])[1],10)||null,
         inf:[['Endereço',e],['Telefone',x.telefone||'']],wa:x.whatsapp||null,waTxt:'quero saber mais',site:x.site||''};
       PARCEIROS.push(c);}
@@ -1947,7 +2053,7 @@ function montarMenu(){
     document.addEventListener('click',e=>{if(menuAberto&&!n.contains(e.target))fecharMenu();});
     n.addEventListener('mouseleave',()=>passarMenu(null));}
   const at=menuDe(),noMenu=PAGINAS.some(p=>p[0]===at),c=cel();
-  const itens=(noMenu||!c?PAGINAS:[['menu','Menu'],...PAGINAS]).concat([REPASSE]);   // Serviços do polo não está no menu: no celular fica o ícone de menu
+  const itens=(noMenu||!c?PAGINAS:[['menu','Menu'],...PAGINAS]).concat([REPASSE]);   // Serviços e Parceiros não está no menu: no celular fica o ícone de menu
   const on=noMenu?at:(c?'menu':'');
   // cada página é um link de verdade (dá para abrir em outra guia); o de menu, que só abre e fecha, é um botão
   n.innerHTML=itens.map((p,i)=>{const at=`class="nb${p[0]===on?' on':''}" data-p="${p[0]}" style="--i:${i}" aria-label="${p[1]}" onclick="clicarMenu(event,'${p[0]}')" onmouseenter="passarMenu(this)"`,
@@ -1996,7 +2102,7 @@ function fecharMenu(){const n=document.getElementById('nav');menuAberto=false;n.
 /* ==================== RODAPÉ ==================== */
 const rodape=()=>`<footer class="rod"><div class="wrap">
   ${logo()}>
-  <nav>${PAGINAS.slice(1).map(p=>`<a href="${hr(p[0])}">${p[1]}</a>`).join('')}<a href="${hr('servicos')}">Serviços do polo</a><a href="${hrRepasse()}" data-fora>${T('rodape.repasse','Repasse')}</a><a href="${HASH?'painel.html':'/painel'}" data-fora>${T('rodape.painel','Painel')}</a></nav>
+  <nav>${PAGINAS.slice(1).map(p=>`<a href="${hr(p[0])}">${p[1]}</a>`).join('')}<a href="${hr('servicos')}">${T('rodape.servicos','Serviços e Parceiros')}</a><a href="${hrRepasse()}" data-fora>${T('rodape.repasse','Repasse')}</a><a href="${HASH?'painel.html':'/painel'}" data-fora>${T('rodape.painel','Painel')}</a></nav>
   <div>${T('rodape.endereco','Estrada Intendente Magalhães, 830 · Vila Valqueire · Rio de Janeiro')}<br>${T('rodape.telefone','(21) 3283-6600')} · <a href="https://wa.me/${WA_ACEIMA}" target="_blank" style="color:#B9C6DA">WhatsApp (21) 99104-1424</a> · © ${new Date().getFullYear()} Aceima · aintendente.com.br</div>
   <div class="rod-lg"><span>${T('rodape.razao',LEGAL.razao+' · CNPJ '+LEGAL.cnpj)}</span><span><a href="${hr('privacidade')}">${T('rodape.privacidade','Privacidade')}</a> · <a href="${hr('termos')}">${T('rodape.termos','Termos de uso')}</a> · <button type="button" class="rod-ck" onclick="abrirCookies()">${T('rodape.cookies','Cookies')}</button></span></div>
 </div></footer>`;
@@ -2867,7 +2973,7 @@ function lojaAssoc(S){
     ${S.wa?`<div><span>${T('associados.whatsapp','WhatsApp')}</span><p><a href="https://wa.me/${S.wa}?text=${encodeURIComponent('Olá! Vim pelo site da Aceima.')}" target="_blank" rel="noopener">${fmtWa(S.wa)}</a></p></div>`:''}
     <div class="as3-b">
      <a class="btno" href="${mapa}" target="_blank" rel="noopener">${T('associados.botao-mapa','Como chegar')}${sd}</a>
-     ${pc?`<a class="btno" href="${hr('servicos')}">${T('associados.botao-servico','Ver o serviço')}${sd}</a>`:S.n?`<a class="btno" href="${hr('estoque',S.nome)}">${T('associados.botao-estoque','Estoque da loja')}${sd}</a>`:''}
+     ${pc?`<a class="btno" href="${hr('servicos',slug(S.nome))}">${T('associados.botao-servico','Ver o serviço')}${sd}</a>`:S.n?`<a class="btno" href="${hr('estoque',S.nome)}">${T('associados.botao-estoque','Estoque da loja')}${sd}</a>`:''}
     </div>
    </div>`;
 }
@@ -3068,7 +3174,7 @@ function tomLogo(img){
   }catch(e){}
   if(/^#[0-9a-f]{6}$/i.test(c)){const n=parseInt(c.slice(1),16);escuro=((n>>16)*299+((n>>8)&255)*587+(n&255)*114)/1000<128;}
   const pai=img.parentNode;pai.classList.add(escuro?'escuro':'claro','pronta');
-  if(pai.classList.contains('vp-l-lg')||pai.classList.contains('vnd-lj')){   // na folha azul: bloco só para logo com fundo branco ou escura
+  if(pai.classList.contains('vp-l-lg')||pai.classList.contains('vnd-lj')||pai.classList.contains('sp-lg')){   // na folha azul: bloco só para logo com fundo branco ou escura
     if(branco){pai.classList.add('branco');pai.style.background=branco;}
     else if(!escuro&&/^#[0-9a-f]{6}$/i.test(c))pai.style.background=c;}
 }
@@ -3641,26 +3747,85 @@ function trocarFotoPub(i){
 }
 // a foto grande abre na tela cheia (a mesma das fotos do carro), na foto que está aberta
 function verFotoPub(){const p=PUBS.find(x=>x.id===pubVista);if(p&&fotosDaPub(p).length)abrirFoto(pubFoto,fotosDaPub(p));}
-/* ==================== SERVIÇOS DO POLO ==================== */
-
-/* ==================== SERVIÇOS DO POLO ==================== */
+/* ==================== SERVIÇOS E PARCEIROS ==================== */
+// a página refeita (pedido do Luiz, 23/11/2026: "precisa ser refeita mesmo, com um visual mais atrativo", e vai ter os parceiros da Aceima,
+// por isso o nome Serviços e Parceiros; em 24/11/2026 ele escolheu a opção C, "Do que você precisa", entre três): no azul, a pergunta e um
+// botão para cada serviço credenciado; o escolhido abre grande na folha clara (svAtual, no endereço /servicos-e-parceiros?servico=); embaixo,
+// os outros; numa folha azul, os parceiros (PARCEIROS_ACEIMA: o Luiz ainda vai mandar a lista; até lá, só o convite para ser parceiro)
+let svAtual=null;
+const PARCEIROS_ACEIMA=[];   // { nome, logo (caminho no site), oferta, site }
+const SV_IC={vist:'<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+  insp:'<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/>',
+  frio:'<path d="M2 12h20"/><path d="M12 2v20"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/>',
+  rest:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+  serv:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  maos:'<path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/>',
+  zap:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+  pino:'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>'};
+const SV_ESTRELA='<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z"/></svg>';
+const svDe=()=>PARCEIROS.find(p=>slug(p.nome)===svAtual)||PARCEIROS[0];
+const svEnd=p=>((p.inf||[]).find(r=>r[0]==='Endereço')||[])[1]||'';
+// o lugar na rua: o número na Intendente ou o começo do endereço (a SISV fica na Rua Mataura, 68)
+const svLugar=p=>p.num?'Nº '+p.num:svEnd(p).split(',').slice(0,2).join(',').trim();
+// a logo do credenciado (ou as letras dele, sem logo): na placa azul, a logo clara fica direto no azul, e a escura ganha o bloco branco
+function svLogo(p){
+  const n=String(p.curto||p.nome).split(/\s+/)[0],ini=/^[A-Z0-9]{2,5}$/.test(n)?n:iniciais(p.nome),lg=API!==null&&p.logo;
+  return `<span class="sp-lg${lg?'':' sem'}">${lg?`<img src="${esc(p.logo)}" alt="${esc(p.nome)}" onload="tomLogo(this)" onerror="this.parentNode.classList.add('sem')">`:''}<span class="sp-ini">${esc(ini)}</span></span>`;
+}
+// o serviço escolhido, grande: a placa com a logo, o lugar na rua e a nota; o momento, o nome, o texto, o que faz, os dados e os contatos
+function svPainel(p){
+  const s='servicos.'+slug(p.nome),inf=(p.inf||[]).filter(r=>r[1]&&r[0]!=='A partir de'),
+    mapa='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.nome+', '+(svEnd(p)||'Estrada Intendente Magalhães')+', Rio de Janeiro'),
+    zap=p.wa?`<a class="btnp" href="https://wa.me/${p.wa}?text=${encodeURIComponent('Olá! Vim pelo site da Aceima e '+(p.waTxt||'quero saber mais')+'.')}" target="_blank" rel="noopener">${ic(SV_IC.zap,17)}${T(s+'.botao-whatsapp','Chamar no WhatsApp')}</a>`:'',
+    site=p.site?(zap?`<a class="sp-lk" href="${esc(p.site)}" target="_blank" rel="noopener">${T(s+'.botao-site',p.siteTxt||'Ver o site')}${ic(SETA_DIAG,14)}</a>`
+      :`<a class="btnp" href="${esc(p.site)}" target="_blank" rel="noopener">${T(s+'.botao-site',p.siteTxt||'Ver o site')}${ic(SETA_DIAG,15)}</a>`):'';
+  return `<div class="sp-placa">${svLogo(p)}${svLugar(p)?`<span class="sp-num">${esc(svLugar(p))}</span>`:''}${p.nota?`<span class="sp-nota">${SV_ESTRELA}<b>${p.nota.toFixed(1).replace('.',',')}</b>${p.av?` · ${fmt(p.av)} avaliações no Google`:' no Google'}</span>`:''}</div>
+   <div class="sp-ct"><span class="fp on">${T(s+'.chamada',p.tag||p.tipo)}</span><h3>${esc(p.nome)}</h3><div class="sp-tipo">${esc(p.tipo)}</div>
+    ${p.txt?`<p>${T(s+'.texto',p.txt)}</p>`:''}
+    ${p.chips&&p.chips.length?`<div class="sp-chips">${p.chips.map((c,i)=>`<span class="fp lite">${T(`${s}.item${i+1}`,c)}</span>`).join('')}</div>`:''}
+    ${inf.length?`<dl class="sp-inf">${inf.map((r,i)=>`<div><dt>${T(`${s}.info${i+1}-rotulo`,r[0])}</dt><dd>${T(`${s}.info${i+1}`,r[1])}</dd></div>`).join('')}</dl>`:''}
+    <div class="sp-acts">${zap||(p.site&&!zap?site:'')}<a class="btno" href="${mapa}" target="_blank" rel="noopener">${ic(SV_IC.pino,16)}${T('servicos.botao-mapa','Como chegar')}</a>${zap?site:''}</div>
+   </div>`;
+}
+const svMini=k=>PARCEIROS.filter(p=>slug(p.nome)!==k).map(p=>`<button type="button" onclick="escolherServico('${slug(p.nome)}',true)"><span class="sp-placa">${svLogo(p)}</span><span><b>${esc(p.nome)}</b><small>${esc(p.tipo)}</small></span></button>`).join('');
+// os parceiros da Aceima: as logos, quando a lista chegar; até lá, a folha azul com o convite
+function svParceiros(){
+  const tem=PARCEIROS_ACEIMA.length>0,wa=`https://wa.me/${WA_ACEIMA}?text=${encodeURIComponent('Olá! Quero saber como ser parceiro da Aceima.')}`;
+  return `<section class="gl sp-parc" id="spParc">${LUZ}<div class="wrap"><div class="sp-pg${tem?'':' so'}">
+    <div><h3>${T('servicos.parceiros-titulo','Parceiros da Aceima.')}</h3><p>${T('servicos.parceiros-texto','As empresas que trabalham junto com a Aceima pelo polo. Quer ser uma delas?')}</p>
+     <a class="btno" href="${wa}" target="_blank" rel="noopener">${T('servicos.parceiros-botao','Quero ser parceiro')}${ic(SETA_DIAG,15)}</a></div>
+    ${tem?`<div class="sp-plogos">${PARCEIROS_ACEIMA.map(x=>`<a class="sp-plogo"${x.site?` href="${esc(x.site)}" target="_blank" rel="noopener"`:''}><span class="sp-plg"><img src="${esc(x.logo)}" alt="${esc(x.nome)}" loading="lazy"></span><b>${esc(x.nome)}</b>${x.oferta?`<small>${esc(x.oferta)}</small>`:''}</a>`).join('')}</div>`:''}
+  </div></div></section>`;
+}
 function servicos(){
+  const p=svDe(),at=p?slug(p.nome):'';
   return `<div style="min-height:100vh;background:var(--cl)">
  <div class="gl">${LUZ}${hd()}
-  <div class="wrap" style="padding-top:30px;padding-bottom:50px">
-   <div class="kick c kn">${T('servicos.chamada','Credenciados Aceima')}</div>
-   <h2 class="sv-tit" aria-level="1" style="margin:12px 0 14px;font-size:2.6rem">${T('servicos.titulo','Tudo o que você precisa, na mesma rua.')}</h2>
-   <p class="sv-sub" style="font-size:1rem;max-width:620px">${T('servicos.subtitulo','Vistoria, inspeção, ar-condicionado e até o almoço a poucos metros das lojas.')}</p>
+  <div class="wrap sp-topo">
+   <h2 class="sp-tit" aria-level="1">${T('servicos.titulo','Do que você')} <em>${T('servicos.titulo-dourado','precisa hoje?')}</em></h2>
+   <div class="sp-esc">${PARCEIROS.map(x=>{const k=slug(x.nome);return `<button type="button" class="fp ${k===at?'on':'drk'}" data-sv="${k}" aria-pressed="${k===at}" onclick="escolherServico('${k}')">${ic(SV_IC[x.ico]||SV_IC.serv,18)}${T('servicos.'+k+'.escolha',x.escolha||x.tipo||x.nome)}</button>`;}).join('')}<button type="button" class="fp drk" onclick="irParceiros()">${ic(SV_IC.maos,18)}${T('servicos.botao-parceiros','Parceiros da Aceima')}</button></div>
   </div></div>
- <div class="wrap" style="padding-top:10px;padding-bottom:50px">
-  ${PARCEIROS.map(p=>{const s='servicos.'+slug(p.nome);return `<div class="parc">
-    <div><div class="kick">${T(s+'.chamada',p.tag)}</div><h2 class="sv-h" style="font-size:1.9rem;margin:8px 0 10px">${esc(p.nome)}</h2><p style="max-width:640px">${T(s+'.texto',p.txt)}</p>
-      <div class="chips">${p.chips.map((c,i)=>`<span class="fp lite">${T(`${s}.item${i+1}`,c)}</span>`).join('')}</div></div>
-    <div><div class="inf">${p.inf.map((r,i)=>r[1]?`<b>${T(`${s}.info${i+1}-rotulo`,r[0])}</b><br>${T(`${s}.info${i+1}`,r[1])}<br>`:'').join('')}</div>
-      <div style="display:flex;gap:8px;margin-top:14px">${p.wa?`<a class="btn" href="https://wa.me/${p.wa}?text=${encodeURIComponent('Olá! Vim pelo site da Aceima e '+p.waTxt+'.')}" target="_blank">${T(s+'.botao-whatsapp','WhatsApp')}</a>`:''}${p.site?`<a class="btn o" href="${esc(p.site)}" target="_blank" rel="noopener">${T(s+'.botao-site',p.siteTxt||'Ver o site')}</a>`:''}</div></div>
-  </div>`;}).join('')}
+ <div class="sp-folha">
+  ${p?`<div class="wrap sp-painel" id="spPainel" data-k="${at}" aria-live="polite">${svPainel(p)}</div>`:''}
+  ${PARCEIROS.length>1?`<div class="wrap sp-out"><h3>${T('servicos.outros','Também na Intendente.')}</h3><div class="sp-mini" id="spMini">${svMini(at)}</div></div>`:'<div class="sp-out"></div>'}
  </div>
+ ${svParceiros()}
 </div>${rodape()}`;}
+// escolher outro serviço: os botões acendem na hora, e o painel troca em fusão, sem desenhar a página de novo (o endereço acompanha)
+function escolherServico(k,rolar){
+  const p=PARCEIROS.find(x=>slug(x.nome)===k),box=document.getElementById('spPainel');if(!p||!box)return;
+  document.querySelectorAll('.sp-esc [data-sv]').forEach(b=>{const on=b.dataset.sv===k;b.classList.toggle('on',on);b.classList.toggle('drk',!on);b.setAttribute('aria-pressed',on);});
+  if(rolar){const r=box.getBoundingClientRect();if(r.top<0||r.top>innerHeight*.5)scrollTo({top:scrollY+r.top-(cel()?16:28),behavior:pubRed()?'auto':'smooth'});}
+  if(box.dataset.k===k)return;
+  svAtual=k;box.dataset.k=k;
+  try{history.replaceState(history.state,'',hr('servicos',k));}catch(e){}
+  const troca=()=>{box.innerHTML=svPainel(p);const m=document.getElementById('spMini');if(m)m.innerHTML=svMini(k);
+    if(!pubRed())box.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:380,easing:'cubic-bezier(.2,.8,.2,1)'});};
+  if(pubRed()){troca();return;}
+  const sai=box.animate([{opacity:1},{opacity:0}],{duration:150,easing:'ease-in',fill:'forwards'});
+  sai.onfinish=()=>{troca();sai.cancel();};
+}
+function irParceiros(){const e=document.getElementById('spParc');if(e)scrollTo({top:scrollY+e.getBoundingClientRect().top,behavior:pubRed()?'auto':'smooth'});}
 
 /* ==================== PRIVACIDADE E TERMOS (01/11/2026) ==================== */
 // Pedido do Luiz: a política de privacidade (LGPD) e os termos de uso, que o site antigo tinha e o novo ainda não. Mesmo desenho das páginas
@@ -3963,9 +4128,9 @@ function fecharCookies(){
 
 /* ==================== ROTAS ==================== */
 const VIEWS={home,estoque,associados,veiculo,aceima,associar,publicacoes,publicacao,servicos,privacidade,termos};
-const ROTAS={home:'/',estoque:'/estoque',associados:'/associados',aceima:'/a-aceima',associar:'/seja-um-associado',publicacoes:'/publicacoes',servicos:'/servicos',privacidade:'/privacidade',termos:'/termos'};
-const ANTIGAS={'/lojas':'associados','/aceima':'aceima','/vender':'associar','/contato':'aceima','/politica-de-privacidade':'privacidade','/termos-de-uso':'termos'};
-const TITULOS={home:'Aceima | Intendente, Polo Comercial e Automotivo do Rio',estoque:'Carros e motos na Intendente Magalhães | Aceima',associados:'Lojas e serviços da Intendente Magalhães | Aceima',aceima:'A Aceima | Aceima',associar:'Seja um associado | Aceima',publicacoes:'Publicações | Aceima',servicos:'Serviços do polo | Aceima',privacidade:'Política de Privacidade | Aceima',termos:'Termos de Uso | Aceima'};
+const ROTAS={home:'/',estoque:'/estoque',associados:'/associados',aceima:'/a-aceima',associar:'/seja-um-associado',publicacoes:'/publicacoes',servicos:'/servicos-e-parceiros',privacidade:'/privacidade',termos:'/termos'};
+const ANTIGAS={'/servicos':'servicos','/lojas':'associados','/aceima':'aceima','/vender':'associar','/contato':'aceima','/politica-de-privacidade':'privacidade','/termos-de-uso':'termos'};
+const TITULOS={home:'Aceima | Intendente, Polo Comercial e Automotivo do Rio',estoque:'Carros e motos na Intendente Magalhães | Aceima',associados:'Lojas e serviços da Intendente Magalhães | Aceima',aceima:'A Aceima | Aceima',associar:'Seja um associado | Aceima',publicacoes:'Publicações | Aceima',servicos:'Serviços e Parceiros | Aceima',privacidade:'Política de Privacidade | Aceima',termos:'Termos de Uso | Aceima'};
 const HASH=location.protocol==='file:';   // aberto do computador: rotas pelo #
 // o que os buscadores leem de cada página (pedido do Luiz, 20/11/2026): a descrição e o endereço oficial (canonical) acompanham a página aberta
 const DESCRICOES={home:'A Aceima reúne as empresas da Estrada Intendente Magalhães desde 1998: lojas de veículos, serviços e comércio sob um mesmo padrão de qualidade e de atendimento.',
@@ -3974,7 +4139,7 @@ const DESCRICOES={home:'A Aceima reúne as empresas da Estrada Intendente Magalh
   aceima:'Desde 1998, a Aceima une as empresas da Estrada Intendente Magalhães, em Vila Valqueire, no Rio de Janeiro. A história e o trabalho da associação.',
   associar:'Associe a sua empresa à Aceima e faça parte do polo da Estrada Intendente Magalhães. Os benefícios e o contato direto com a associação.',
   publicacoes:'Ações, conquistas, eventos e comunicados da Aceima e das empresas da Estrada Intendente Magalhães.',
-  servicos:'Os serviços e o comércio credenciados da Estrada Intendente Magalhães, com o endereço e o contato de cada um.',
+  servicos:'Os serviços credenciados da Estrada Intendente Magalhães, com o endereço e o contato de cada um, e as empresas parceiras da Aceima.',
   privacidade:'Como o site da Aceima trata os dados de quem visita e de quem entra em contato.',termos:'As regras de uso do site da Aceima.'};
 function metaDaPagina(){
   if(HASH)return;
@@ -3990,7 +4155,8 @@ function urlDe(pg,arg){
   if(pg==='veiculo'){const v=V.find(x=>String(x.id)===String(arg));return v?urlV(v):'/veiculo/'+arg;}
   if(pg==='publicacao')return '/publicacoes/'+encodeURIComponent(arg||'');   // a página de uma publicação
   if(pg==='estoque'&&arg)return '/estoque?loja='+encodeURIComponent(arg);   // estoque da loja: o endereço leva a loja (abre certo em outra guia)
-  if(pg==='associados'&&arg)return '/associados?loja='+encodeURIComponent(arg);   // Associados com o associado aberto (a logo dele leva para lá)
+  if(pg==='associados'&&arg)return '/associados?loja='+encodeURIComponent(arg);
+  if(pg==='servicos'&&arg)return '/servicos-e-parceiros?servico='+encodeURIComponent(arg);   // com o serviço aberto (o "Ver o serviço" de Associados)   // Associados com o associado aberto (a logo dele leva para lá)
   return ROTAS[pg]||'/';}
 // endereço dos links (href); aberto do computador, as rotas vão depois do #
 const hr=(pg,arg)=>(HASH?'#':'')+urlDe(pg,arg),hrV=v=>(HASH?'#':'')+urlV(v);
@@ -4001,7 +4167,8 @@ function rotaDe(p){
   if(mv)return {pg:'veiculo',arg:mv[1]};
   const mp=cam.match(/^\/publicacoes\/([a-z0-9-]+)$/);if(mp)return {pg:'publicacao',arg:mp[1]};
   const pg=ANTIGAS[cam]||Object.keys(ROTAS).find(k=>ROTAS[k]===cam)||'home';
-  return {pg,arg:(pg==='estoque'||pg==='associados')&&i>=0?new URLSearchParams(p.slice(i+1)).get('loja')||undefined:undefined};
+  const q=i>=0?new URLSearchParams(p.slice(i+1)):null;
+  return {pg,arg:q&&(pg==='estoque'||pg==='associados')?q.get('loja')||undefined:q&&pg==='servicos'?q.get('servico')||undefined:undefined};
 }
 /* volta para o mesmo ponto da página (pedido do Luiz, 13/10/2026): cada entrada do histórico tem uma chave, e o lugar da página fica
    guardado nela (no estoque, também os filtros e quantos anúncios estavam na tela). Voltando ou avançando, a página abre onde estava */
@@ -4068,7 +4235,8 @@ function go(pg,arg){
   zerarPagina(pg);
   if(pg==='veiculo')vAtual=arg;
   if(pg==='publicacao')pubAtual=arg;else if(pg==='publicacoes')pubAtual=null;
-  if(pg==='associados'){selAssoc=arg||null;catAssoc='Todos';rolarAssoc=!!arg;}   // pela logo de um associado, ele já vem aberto; pelo menu, nenhuma loja vem aberta
+  if(pg==='associados'){selAssoc=arg||null;catAssoc='Todos';rolarAssoc=!!arg;}
+  if(pg==='servicos')svAtual=arg||null;   // pelo menu ou pelo rodapé, o primeiro; por "Ver o serviço", o daquele associado   // pela logo de um associado, ele já vem aberto; pelo menu, nenhuma loja vem aberta
   pagAtual=pg;const u=urlDe(pg,arg);
   try{if(caminho()!==u){const k=novaChave();history.pushState({k,de},'',(HASH?'#':'')+u);chaveAtual=k;}}catch(e){}   // alguns ambientes (pré-visualização, iframe) não deixam trocar o endereço
   atualizarMenu();trocarPagina(false,de);
@@ -4097,6 +4265,7 @@ function lerRota(){
   if(r.pg==='veiculo')vAtual=r.arg;
   else if(r.pg==='estoque'&&r.arg){zerarFiltros();F.loja=r.arg;}   // /estoque?loja=: o estoque da loja
   else if(r.pg==='associados'&&r.arg){selAssoc=r.arg;catAssoc='Todos';rolarAssoc=true;}   // /associados?loja=: o associado aberto
+  else if(r.pg==='servicos')svAtual=r.arg||null;   // /servicos-e-parceiros?servico=: o serviço aberto
   return r;
 }
 function rota(manter){lerRota();render(!manter);}
